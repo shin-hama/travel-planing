@@ -1,0 +1,50 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "react-app",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "standard",
+    "prettier"
+  ],
+  "ignorePatterns": ["node_modules/*", "build/*", "public/*", "**/gatsby-*.js"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": ["react", "@typescript-eslint", "graphql"],
+  "rules": {
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "@typescript-eslint/triple-slash-reference": 0,
+    "@typescript-eslint/no-use-before-define": "off",
+    "no-use-before-define": "off",
+    "no-redeclare": "off",
+    "no-undef": "off",
+    "react/prop-types": "off",
+    "graphql/template-strings": [
+      "error",
+      {
+        "env": "relay",
+        "tagName": "graphql",
+        "schemaJsonFilepath": "./src/__generated__/gatsby-introspection.json"
+      }
+    ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
