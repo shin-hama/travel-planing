@@ -15,7 +15,7 @@
     "standard",
     "prettier"
   ],
-  "ignorePatterns": ["node_modules/*", "build/*", "public/*", "**/gatsby-*.js"],
+  "ignorePatterns": ["node_modules/*", "build/*", "public/*"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -24,7 +24,7 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
-  "plugins": ["react", "@typescript-eslint", "graphql"],
+  "plugins": ["react", "@typescript-eslint"],
   "rules": {
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "@typescript-eslint/triple-slash-reference": 0,
@@ -32,15 +32,7 @@
     "no-use-before-define": "off",
     "no-redeclare": "off",
     "no-undef": "off",
-    "react/prop-types": "off",
-    "graphql/template-strings": [
-      "error",
-      {
-        "env": "relay",
-        "tagName": "graphql",
-        "schemaJsonFilepath": "./src/__generated__/gatsby-introspection.json"
-      }
-    ]
+    "react/prop-types": "off"
   },
   "settings": {
     "react": {
