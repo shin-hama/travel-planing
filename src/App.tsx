@@ -2,8 +2,8 @@ import React from 'react'
 import {
   GoogleMap,
   LoadScript,
+  Marker,
   useGoogleMap,
-  InfoBox,
 } from '@react-google-maps/api'
 import { Map } from 'components/atoms'
 
@@ -12,20 +12,29 @@ import {
   SelectedPrefectureContext,
   SelectedPrefectureProvider,
 } from 'contexts/SelectedPrefectureProvider'
+import { useGeocoding } from 'hooks/useGeocoding'
 
 const containerStyle = {
   width: '400px',
   height: '400px',
 }
 
-const center = { lat: 43.5941035450526, lng: 142.70038569359122 }
+const center = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
 const Test = () => {
-  const [json, setJson] = React.useState({})
-  const [currentCenter, setCurrentCenter] = React.useState(center)
   const selected = React.useContext(SelectedPrefectureContext)
+  const [markers, setMarkers] = React.useState<google.maps.GeocoderResult[]>([])
+
+  const geo = useGeocoding()
 
   const map = useGoogleMap()
+
+  React.useEffect(() => {
+    console.log('mount')
+    return () => {
+      console.log('test')
+    }
+  }, [])
 
   React.useEffect(() => {
     if (map !== null && selected !== null) {
@@ -35,37 +44,30 @@ const Test = () => {
   }, [map, selected])
 
   React.useEffect(() => {
-    if (map) {
-      map.addListener('center_changed', () =>
-        setCurrentCenter(map.getCenter()?.toJSON() || center)
-      )
-      map.addListener('zoom_changed', () =>
-        setJson(prev => ({ ...prev, zoom: map.getZoom() }))
-      )
-      setJson(prev => ({ ...prev, zoom: map.getZoom() }))
+    if (selected) {
+      const func = async () => {
+        const cities = await Promise.all(
+          selected.cities.map(async city => {
+            const result = await geo.search(city)
+            console.log(result)
+            return result
+          })
+        )
+        setMarkers(cities)
+      }
+      func()
     }
-  }, [map])
-
-  React.useEffect(() => {
-    setJson(prev => ({ ...prev, ...currentCenter }))
-  }, [currentCenter])
+  }, [geo, selected])
 
   return (
-    <InfoBox
-      position={currentCenter}
-      options={{ closeBoxURL: '', enableEventPropagation: true }}>
-      <div style={{ backgroundColor: 'yellow', opacity: 0.75, padding: 12 }}>
-        <div style={{ fontSize: 10 }}>
-          <pre>{JSON.stringify(json, null, 2)}</pre>
-          <button
-            onClick={() => navigator.clipboard.writeText(JSON.stringify(json))}>
-            copy
-          </button>
-        </div>
-      </div>
-    </InfoBox>
+    <>
+      {markers.map(item => (
+        <Marker key={item.place_id} position={item.geometry.location}></Marker>
+      ))}
+    </>
   )
 }
+
 function App() {
   return (
     <>
@@ -75,7 +77,7 @@ function App() {
           <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={6}>
+            zoom={4}>
             {/* Child components, such as markers, info windows, etc. */}
             <Test></Test>
           </GoogleMap>
