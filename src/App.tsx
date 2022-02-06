@@ -12,7 +12,11 @@ import {
   SelectedPrefectureContext,
   SelectedPrefectureProvider,
 } from 'contexts/SelectedPrefectureProvider'
-import { useGeocoding } from 'hooks/useGeocoding'
+import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
+import {
+  GetPrefectureQuery,
+  useGetPrefectureLazyQuery,
+} from 'generated/graphql'
 
 const containerStyle = {
   width: '400px',
@@ -23,46 +27,66 @@ const center = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
 const Test = () => {
   const selected = React.useContext(SelectedPrefectureContext)
-  const [markers, setMarkers] = React.useState<google.maps.GeocoderResult[]>([])
-
-  const geo = useGeocoding()
+  const [markers, setMarkers] = React.useState<
+    Array<{
+      name: string
+      lat: number
+      lng: number
+    }>
+  >([])
+  const [getPrefecture, { data, error }] = useGetPrefectureLazyQuery()
+  const [target, setTarget] = React.useState<GetPrefectureQuery | null>(null)
 
   const map = useGoogleMap()
 
   React.useEffect(() => {
-    console.log('mount')
-    return () => {
-      console.log('test')
-    }
-  }, [])
-
-  React.useEffect(() => {
-    if (map !== null && selected !== null) {
-      map.setCenter({ lat: selected.lat, lng: selected.lng })
-      map.setZoom(selected.zoom)
-    }
-  }, [map, selected])
-
-  React.useEffect(() => {
-    if (selected) {
-      const func = async () => {
-        const cities = await Promise.all(
-          selected.cities.map(async city => {
-            const result = await geo.search(city)
-            console.log(result)
-            return result
-          })
-        )
-        setMarkers(cities)
+    if (map !== null && target !== null) {
+      if (target.prefectures.length !== 1) {
+        return
       }
-      func()
+      const test = target.prefectures[0]
+      map.setCenter({
+        lat: test.lat || 0,
+        lng: test.lng || 0,
+      })
+      map.setZoom(test.zoom || 8)
+
+      setMarkers(
+        test.cities.map(item => ({
+          name: item.name || '',
+          lng: item.lng || 0,
+          lat: item.lng || 0,
+        }))
+      )
     }
-  }, [geo, selected])
+  }, [map, target])
+
+  React.useEffect(() => {
+    console.log('test')
+    if (selected) {
+      console.log(selected)
+      getPrefecture({ variables: { code: selected } })
+    }
+  }, [getPrefecture, selected])
+
+  React.useEffect(() => {
+    if (data) {
+      console.log('test')
+      console.log(data)
+      setTarget(data)
+    }
+  }, [data])
+
+  if (error) {
+    console.error(error)
+  }
 
   return (
     <>
       {markers.map(item => (
-        <Marker key={item.place_id} position={item.geometry.location}></Marker>
+        <Marker
+          key={item.name}
+          position={{ lat: item.lat, lng: item.lng }}></Marker>
       ))}
     </>
   )
@@ -71,19 +95,21 @@ const Test = () => {
 function App() {
   return (
     <>
-      <SelectedPrefectureProvider>
-        <LoadScript
-          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ''}>
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={4}>
-            {/* Child components, such as markers, info windows, etc. */}
-            <Test></Test>
-          </GoogleMap>
-        </LoadScript>
-        <Map />
-      </SelectedPrefectureProvider>
+      <ApolloClientProvider>
+        <SelectedPrefectureProvider>
+          <LoadScript
+            googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ''}>
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={center}
+              zoom={4}>
+              {/* Child components, such as markers, info windows, etc. */}
+              <Test></Test>
+            </GoogleMap>
+          </LoadScript>
+          <Map />
+        </SelectedPrefectureProvider>
+      </ApolloClientProvider>
     </>
   )
 }

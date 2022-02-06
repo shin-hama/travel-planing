@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { styled } from '@mui/material/styles'
 
-import { Prefectures } from 'constant'
+import { usePrefectures } from 'constant/prefectures'
 import { SetSelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 
 const InteractiveGElement = styled('g')(() => ({
@@ -21,11 +21,14 @@ const Prefecture: React.FC<PrefectureProps> = ({
   ...props
 }) => {
   const setSelected = React.useContext(SetSelectedPrefectureContext)
+  const prefectures = usePrefectures()
   const handleClick = () => {
-    const test = Prefectures.find(item => item.code === code)
-    console.log(test)
-    if (test) {
-      setSelected(test)
+    if (!prefectures) {
+      return
+    }
+    const prefecture = prefectures.find(item => item.code === code)
+    if (prefecture) {
+      setSelected(prefecture.code)
     }
   }
   return (

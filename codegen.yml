@@ -1,0 +1,21 @@
+schema:
+  - https://travel-planing-97.hasura.app/v1/graphql:
+      headers:
+        'x-hasura-admin-secret': ${REACT_APP_HASURA_API_KEY}
+        'x-hasura-role': dev
+documents: './src/**/*.{ts,tsx}'
+overwrite: true
+generates:
+  ./src/generated/graphql.tsx:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      skipTypename: false
+      withHooks: true
+      withHOC: false
+      withComponent: false
+  ./graphql.schema.json:
+    plugins:
+      - introspection

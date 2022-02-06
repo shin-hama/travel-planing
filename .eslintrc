@@ -15,7 +15,12 @@
     "standard",
     "prettier"
   ],
-  "ignorePatterns": ["node_modules/*", "build/*", "public/*"],
+  "ignorePatterns": [
+    "node_modules/*",
+    "build/*",
+    "public/*",
+    "src/generated/*"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {

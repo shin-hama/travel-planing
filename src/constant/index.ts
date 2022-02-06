@@ -1,1 +1,0 @@
-export { Prefectures } from './prefectures'
