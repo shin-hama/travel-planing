@@ -11,6 +11,8 @@ const containerStyle = {
 
 const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
+const libs: 'places'[] = ['places']
+
 type Props = {
   center?: google.maps.LatLngLiteral
   zoom?: number
@@ -22,6 +24,7 @@ const GoogleMap: React.FC<Props> = ({
 }) => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY || '',
+    libraries: libs,
     // ...otherOptions
   })
 
