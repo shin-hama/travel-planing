@@ -13,7 +13,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  smallint: any;
   timestamptz: any;
 };
 
@@ -87,10 +86,10 @@ export type Cities = {
   __typename?: 'cities';
   created_at?: Maybe<Scalars['timestamptz']>;
   id: Scalars['Int'];
-  lat?: Maybe<Scalars['Float']>;
-  lng?: Maybe<Scalars['Float']>;
-  name?: Maybe<Scalars['String']>;
-  prefecture_code?: Maybe<Scalars['Int']>;
+  lat: Scalars['Float'];
+  lng: Scalars['Float'];
+  name: Scalars['String'];
+  prefecture_code: Scalars['Int'];
   updated_at?: Maybe<Scalars['timestamptz']>;
 };
 
@@ -451,11 +450,11 @@ export type Prefectures = {
   cities: Array<Cities>;
   code: Scalars['Int'];
   created_at?: Maybe<Scalars['timestamptz']>;
-  lat?: Maybe<Scalars['Float']>;
-  lng?: Maybe<Scalars['Float']>;
-  name?: Maybe<Scalars['String']>;
+  lat: Scalars['Float'];
+  lng: Scalars['Float'];
+  name: Scalars['String'];
   updated_at?: Maybe<Scalars['timestamptz']>;
-  zoom?: Maybe<Scalars['smallint']>;
+  zoom: Scalars['Int'];
 };
 
 
@@ -486,7 +485,7 @@ export type Prefectures_Bool_Exp = {
   lng?: InputMaybe<Float_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
-  zoom?: InputMaybe<Smallint_Comparison_Exp>;
+  zoom?: InputMaybe<Int_Comparison_Exp>;
 };
 
 /** unique or primary key constraints on table "prefectures" */
@@ -501,7 +500,7 @@ export enum Prefectures_Constraint {
 export type Prefectures_Inc_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
-  zoom?: InputMaybe<Scalars['smallint']>;
+  zoom?: InputMaybe<Scalars['Int']>;
 };
 
 /** input type for inserting data into table "prefectures" */
@@ -511,7 +510,7 @@ export type Prefectures_Insert_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
-  zoom?: InputMaybe<Scalars['smallint']>;
+  zoom?: InputMaybe<Scalars['Int']>;
 };
 
 /** response of any mutation on the table "prefectures" */
@@ -570,7 +569,7 @@ export type Prefectures_Set_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
-  zoom?: InputMaybe<Scalars['smallint']>;
+  zoom?: InputMaybe<Scalars['Int']>;
 };
 
 /** update columns of table "prefectures" */
@@ -623,19 +622,6 @@ export type Query_RootPrefecturesArgs = {
 
 export type Query_RootPrefectures_By_PkArgs = {
   code: Scalars['Int'];
-};
-
-/** Boolean expression to compare columns of type "smallint". All fields are combined with logical 'AND'. */
-export type Smallint_Comparison_Exp = {
-  _eq?: InputMaybe<Scalars['smallint']>;
-  _gt?: InputMaybe<Scalars['smallint']>;
-  _gte?: InputMaybe<Scalars['smallint']>;
-  _in?: InputMaybe<Array<Scalars['smallint']>>;
-  _is_null?: InputMaybe<Scalars['Boolean']>;
-  _lt?: InputMaybe<Scalars['smallint']>;
-  _lte?: InputMaybe<Scalars['smallint']>;
-  _neq?: InputMaybe<Scalars['smallint']>;
-  _nin?: InputMaybe<Array<Scalars['smallint']>>;
 };
 
 export type Subscription_Root = {
@@ -696,19 +682,19 @@ export type InsertPrefecturesMutationVariables = Exact<{
 }>;
 
 
-export type InsertPrefecturesMutation = { __typename?: 'mutation_root', insert_prefectures?: { __typename?: 'prefectures_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'prefectures', zoom?: any | null, updated_at?: any | null, name?: string | null, lng?: number | null, lat?: number | null, created_at?: any | null, code: number }> } | null };
+export type InsertPrefecturesMutation = { __typename?: 'mutation_root', insert_prefectures?: { __typename?: 'prefectures_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'prefectures', zoom: number, updated_at?: any | null, name: string, lng: number, lat: number, created_at?: any | null, code: number }> } | null };
 
 export type GetPrefecturesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name?: string | null, lat?: number | null, lng?: number | null, zoom?: any | null, cities: Array<{ __typename?: 'cities', lng?: number | null, lat?: number | null, name?: string | null }> }> };
+export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, cities: Array<{ __typename?: 'cities', lng: number, lat: number, name: string }> }> };
 
 export type GetPrefectureQueryVariables = Exact<{
   code: Scalars['Int'];
 }>;
 
 
-export type GetPrefectureQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', name?: string | null, lat?: number | null, lng?: number | null, zoom?: any | null, cities: Array<{ __typename?: 'cities', lng?: number | null, lat?: number | null, name?: string | null }> }> };
+export type GetPrefectureQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', name: string, lat: number, lng: number, zoom: number, cities: Array<{ __typename?: 'cities', lng: number, lat: number, name: string }> }> };
 
 
 export const InsertPrefecturesDocument = gql`
