@@ -7,7 +7,6 @@ import {
   GetPrefectureQuery,
   useGetPrefectureLazyQuery,
 } from 'generated/graphql'
-import SearchBox from './atoms/SearchBox'
 
 const FeaturedPlaces = () => {
   const [markers, setMarkers] = React.useState<
@@ -38,7 +37,7 @@ const FeaturedPlaces = () => {
   React.useEffect(() => {
     if (target !== null) {
       console.log(target)
-      setMarkers(target.cities.map(item => item))
+      setMarkers(target.spots.map(item => item))
     }
   }, [target])
 
@@ -51,9 +50,13 @@ const FeaturedPlaces = () => {
       center={target ? { lat: target.lat, lng: target.lng } : undefined}
       zoom={target?.zoom}>
       <>
-        <SearchBox />
         {markers.map(item => (
-          <PlaceMarker key={item.name} lat={item.lat} lng={item.lng} />
+          <PlaceMarker
+            key={item.name}
+            name={item.name}
+            lat={item.lat}
+            lng={item.lng}
+          />
         ))}
       </>
     </GoogleMap>

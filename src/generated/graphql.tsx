@@ -75,278 +75,33 @@ export type String_Comparison_Exp = {
   _similar?: InputMaybe<Scalars['String']>;
 };
 
-/**
- * マーカーとして表示する市町村
- *
- *
- * columns and relationships of "cities"
- *
- */
-export type Cities = {
-  __typename?: 'cities';
-  created_at?: Maybe<Scalars['timestamptz']>;
-  id: Scalars['Int'];
-  lat: Scalars['Float'];
-  lng: Scalars['Float'];
-  name: Scalars['String'];
-  prefecture_code: Scalars['Int'];
-  updated_at?: Maybe<Scalars['timestamptz']>;
-};
-
-/** order by aggregate values of table "cities" */
-export type Cities_Aggregate_Order_By = {
-  avg?: InputMaybe<Cities_Avg_Order_By>;
-  count?: InputMaybe<Order_By>;
-  max?: InputMaybe<Cities_Max_Order_By>;
-  min?: InputMaybe<Cities_Min_Order_By>;
-  stddev?: InputMaybe<Cities_Stddev_Order_By>;
-  stddev_pop?: InputMaybe<Cities_Stddev_Pop_Order_By>;
-  stddev_samp?: InputMaybe<Cities_Stddev_Samp_Order_By>;
-  sum?: InputMaybe<Cities_Sum_Order_By>;
-  var_pop?: InputMaybe<Cities_Var_Pop_Order_By>;
-  var_samp?: InputMaybe<Cities_Var_Samp_Order_By>;
-  variance?: InputMaybe<Cities_Variance_Order_By>;
-};
-
-/** input type for inserting array relation for remote table "cities" */
-export type Cities_Arr_Rel_Insert_Input = {
-  data: Array<Cities_Insert_Input>;
-  /** on conflict condition */
-  on_conflict?: InputMaybe<Cities_On_Conflict>;
-};
-
-/** order by avg() on columns of table "cities" */
-export type Cities_Avg_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** Boolean expression to filter rows from the table "cities". All fields are combined with a logical 'AND'. */
-export type Cities_Bool_Exp = {
-  _and?: InputMaybe<Array<Cities_Bool_Exp>>;
-  _not?: InputMaybe<Cities_Bool_Exp>;
-  _or?: InputMaybe<Array<Cities_Bool_Exp>>;
-  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
-  id?: InputMaybe<Int_Comparison_Exp>;
-  lat?: InputMaybe<Float_Comparison_Exp>;
-  lng?: InputMaybe<Float_Comparison_Exp>;
-  name?: InputMaybe<String_Comparison_Exp>;
-  prefecture_code?: InputMaybe<Int_Comparison_Exp>;
-  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
-};
-
-/** unique or primary key constraints on table "cities" */
-export enum Cities_Constraint {
-  /** unique or primary key constraint */
-  CitiesNameKey = 'cities_name_key',
-  /** unique or primary key constraint */
-  CitiesPkey = 'cities_pkey'
-}
-
-/** input type for incrementing numeric columns in table "cities" */
-export type Cities_Inc_Input = {
-  lat?: InputMaybe<Scalars['Float']>;
-  lng?: InputMaybe<Scalars['Float']>;
-  prefecture_code?: InputMaybe<Scalars['Int']>;
-};
-
-/** input type for inserting data into table "cities" */
-export type Cities_Insert_Input = {
-  lat?: InputMaybe<Scalars['Float']>;
-  lng?: InputMaybe<Scalars['Float']>;
-  name?: InputMaybe<Scalars['String']>;
-  prefecture_code?: InputMaybe<Scalars['Int']>;
-};
-
-/** order by max() on columns of table "cities" */
-export type Cities_Max_Order_By = {
-  created_at?: InputMaybe<Order_By>;
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  name?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-  updated_at?: InputMaybe<Order_By>;
-};
-
-/** order by min() on columns of table "cities" */
-export type Cities_Min_Order_By = {
-  created_at?: InputMaybe<Order_By>;
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  name?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-  updated_at?: InputMaybe<Order_By>;
-};
-
-/** response of any mutation on the table "cities" */
-export type Cities_Mutation_Response = {
-  __typename?: 'cities_mutation_response';
-  /** number of rows affected by the mutation */
-  affected_rows: Scalars['Int'];
-  /** data from the rows affected by the mutation */
-  returning: Array<Cities>;
-};
-
-/** on conflict condition type for table "cities" */
-export type Cities_On_Conflict = {
-  constraint: Cities_Constraint;
-  update_columns?: Array<Cities_Update_Column>;
-  where?: InputMaybe<Cities_Bool_Exp>;
-};
-
-/** Ordering options when selecting data from "cities". */
-export type Cities_Order_By = {
-  created_at?: InputMaybe<Order_By>;
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  name?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-  updated_at?: InputMaybe<Order_By>;
-};
-
-/** primary key columns input for table: cities */
-export type Cities_Pk_Columns_Input = {
-  id: Scalars['Int'];
-};
-
-/** select columns of table "cities" */
-export enum Cities_Select_Column {
-  /** column name */
-  CreatedAt = 'created_at',
-  /** column name */
-  Id = 'id',
-  /** column name */
-  Lat = 'lat',
-  /** column name */
-  Lng = 'lng',
-  /** column name */
-  Name = 'name',
-  /** column name */
-  PrefectureCode = 'prefecture_code',
-  /** column name */
-  UpdatedAt = 'updated_at'
-}
-
-/** input type for updating data in table "cities" */
-export type Cities_Set_Input = {
-  lat?: InputMaybe<Scalars['Float']>;
-  lng?: InputMaybe<Scalars['Float']>;
-  name?: InputMaybe<Scalars['String']>;
-  prefecture_code?: InputMaybe<Scalars['Int']>;
-};
-
-/** order by stddev() on columns of table "cities" */
-export type Cities_Stddev_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** order by stddev_pop() on columns of table "cities" */
-export type Cities_Stddev_Pop_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** order by stddev_samp() on columns of table "cities" */
-export type Cities_Stddev_Samp_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** order by sum() on columns of table "cities" */
-export type Cities_Sum_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** update columns of table "cities" */
-export enum Cities_Update_Column {
-  /** column name */
-  Lat = 'lat',
-  /** column name */
-  Lng = 'lng',
-  /** column name */
-  Name = 'name',
-  /** column name */
-  PrefectureCode = 'prefecture_code'
-}
-
-/** order by var_pop() on columns of table "cities" */
-export type Cities_Var_Pop_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** order by var_samp() on columns of table "cities" */
-export type Cities_Var_Samp_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
-/** order by variance() on columns of table "cities" */
-export type Cities_Variance_Order_By = {
-  id?: InputMaybe<Order_By>;
-  lat?: InputMaybe<Order_By>;
-  lng?: InputMaybe<Order_By>;
-  prefecture_code?: InputMaybe<Order_By>;
-};
-
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
-  /** delete data from the table: "cities" */
-  delete_cities?: Maybe<Cities_Mutation_Response>;
-  /** delete single row from the table: "cities" */
-  delete_cities_by_pk?: Maybe<Cities>;
   /** delete data from the table: "prefectures" */
   delete_prefectures?: Maybe<Prefectures_Mutation_Response>;
   /** delete single row from the table: "prefectures" */
   delete_prefectures_by_pk?: Maybe<Prefectures>;
-  /** insert data into the table: "cities" */
-  insert_cities?: Maybe<Cities_Mutation_Response>;
-  /** insert a single row into the table: "cities" */
-  insert_cities_one?: Maybe<Cities>;
+  /** delete data from the table: "spots" */
+  delete_spots?: Maybe<Spots_Mutation_Response>;
+  /** delete single row from the table: "spots" */
+  delete_spots_by_pk?: Maybe<Spots>;
   /** insert data into the table: "prefectures" */
   insert_prefectures?: Maybe<Prefectures_Mutation_Response>;
   /** insert a single row into the table: "prefectures" */
   insert_prefectures_one?: Maybe<Prefectures>;
-  /** update data of the table: "cities" */
-  update_cities?: Maybe<Cities_Mutation_Response>;
-  /** update single row of the table: "cities" */
-  update_cities_by_pk?: Maybe<Cities>;
+  /** insert data into the table: "spots" */
+  insert_spots?: Maybe<Spots_Mutation_Response>;
+  /** insert a single row into the table: "spots" */
+  insert_spots_one?: Maybe<Spots>;
   /** update data of the table: "prefectures" */
   update_prefectures?: Maybe<Prefectures_Mutation_Response>;
   /** update single row of the table: "prefectures" */
   update_prefectures_by_pk?: Maybe<Prefectures>;
-};
-
-
-/** mutation root */
-export type Mutation_RootDelete_CitiesArgs = {
-  where: Cities_Bool_Exp;
-};
-
-
-/** mutation root */
-export type Mutation_RootDelete_Cities_By_PkArgs = {
-  id: Scalars['Int'];
+  /** update data of the table: "spots" */
+  update_spots?: Maybe<Spots_Mutation_Response>;
+  /** update single row of the table: "spots" */
+  update_spots_by_pk?: Maybe<Spots>;
 };
 
 
@@ -363,16 +118,14 @@ export type Mutation_RootDelete_Prefectures_By_PkArgs = {
 
 
 /** mutation root */
-export type Mutation_RootInsert_CitiesArgs = {
-  objects: Array<Cities_Insert_Input>;
-  on_conflict?: InputMaybe<Cities_On_Conflict>;
+export type Mutation_RootDelete_SpotsArgs = {
+  where: Spots_Bool_Exp;
 };
 
 
 /** mutation root */
-export type Mutation_RootInsert_Cities_OneArgs = {
-  object: Cities_Insert_Input;
-  on_conflict?: InputMaybe<Cities_On_Conflict>;
+export type Mutation_RootDelete_Spots_By_PkArgs = {
+  place_id: Scalars['String'];
 };
 
 
@@ -391,18 +144,16 @@ export type Mutation_RootInsert_Prefectures_OneArgs = {
 
 
 /** mutation root */
-export type Mutation_RootUpdate_CitiesArgs = {
-  _inc?: InputMaybe<Cities_Inc_Input>;
-  _set?: InputMaybe<Cities_Set_Input>;
-  where: Cities_Bool_Exp;
+export type Mutation_RootInsert_SpotsArgs = {
+  objects: Array<Spots_Insert_Input>;
+  on_conflict?: InputMaybe<Spots_On_Conflict>;
 };
 
 
 /** mutation root */
-export type Mutation_RootUpdate_Cities_By_PkArgs = {
-  _inc?: InputMaybe<Cities_Inc_Input>;
-  _set?: InputMaybe<Cities_Set_Input>;
-  pk_columns: Cities_Pk_Columns_Input;
+export type Mutation_RootInsert_Spots_OneArgs = {
+  object: Spots_Insert_Input;
+  on_conflict?: InputMaybe<Spots_On_Conflict>;
 };
 
 
@@ -419,6 +170,22 @@ export type Mutation_RootUpdate_Prefectures_By_PkArgs = {
   _inc?: InputMaybe<Prefectures_Inc_Input>;
   _set?: InputMaybe<Prefectures_Set_Input>;
   pk_columns: Prefectures_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_SpotsArgs = {
+  _inc?: InputMaybe<Spots_Inc_Input>;
+  _set?: InputMaybe<Spots_Set_Input>;
+  where: Spots_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Spots_By_PkArgs = {
+  _inc?: InputMaybe<Spots_Inc_Input>;
+  _set?: InputMaybe<Spots_Set_Input>;
+  pk_columns: Spots_Pk_Columns_Input;
 };
 
 /** column ordering options */
@@ -446,13 +213,13 @@ export enum Order_By {
  */
 export type Prefectures = {
   __typename?: 'prefectures';
-  /** An array relationship */
-  cities: Array<Cities>;
   code: Scalars['Int'];
   created_at?: Maybe<Scalars['timestamptz']>;
   lat: Scalars['Float'];
   lng: Scalars['Float'];
   name: Scalars['String'];
+  /** fetch data from the table: "spots" */
+  spots: Array<Spots>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   zoom: Scalars['Int'];
 };
@@ -465,12 +232,12 @@ export type Prefectures = {
  * columns and relationships of "prefectures"
  *
  */
-export type PrefecturesCitiesArgs = {
-  distinct_on?: InputMaybe<Array<Cities_Select_Column>>;
+export type PrefecturesSpotsArgs = {
+  distinct_on?: InputMaybe<Array<Spots_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Cities_Order_By>>;
-  where?: InputMaybe<Cities_Bool_Exp>;
+  order_by?: InputMaybe<Array<Spots_Order_By>>;
+  where?: InputMaybe<Spots_Bool_Exp>;
 };
 
 /** Boolean expression to filter rows from the table "prefectures". All fields are combined with a logical 'AND'. */
@@ -478,12 +245,12 @@ export type Prefectures_Bool_Exp = {
   _and?: InputMaybe<Array<Prefectures_Bool_Exp>>;
   _not?: InputMaybe<Prefectures_Bool_Exp>;
   _or?: InputMaybe<Array<Prefectures_Bool_Exp>>;
-  cities?: InputMaybe<Cities_Bool_Exp>;
   code?: InputMaybe<Int_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   lat?: InputMaybe<Float_Comparison_Exp>;
   lng?: InputMaybe<Float_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  spots?: InputMaybe<Spots_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   zoom?: InputMaybe<Int_Comparison_Exp>;
 };
@@ -505,11 +272,11 @@ export type Prefectures_Inc_Input = {
 
 /** input type for inserting data into table "prefectures" */
 export type Prefectures_Insert_Input = {
-  cities?: InputMaybe<Cities_Arr_Rel_Insert_Input>;
   code?: InputMaybe<Scalars['Int']>;
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
+  spots?: InputMaybe<Spots_Arr_Rel_Insert_Input>;
   zoom?: InputMaybe<Scalars['Int']>;
 };
 
@@ -522,6 +289,13 @@ export type Prefectures_Mutation_Response = {
   returning: Array<Prefectures>;
 };
 
+/** input type for inserting object relation for remote table "prefectures" */
+export type Prefectures_Obj_Rel_Insert_Input = {
+  data: Prefectures_Insert_Input;
+  /** on conflict condition */
+  on_conflict?: InputMaybe<Prefectures_On_Conflict>;
+};
+
 /** on conflict condition type for table "prefectures" */
 export type Prefectures_On_Conflict = {
   constraint: Prefectures_Constraint;
@@ -531,12 +305,12 @@ export type Prefectures_On_Conflict = {
 
 /** Ordering options when selecting data from "prefectures". */
 export type Prefectures_Order_By = {
-  cities_aggregate?: InputMaybe<Cities_Aggregate_Order_By>;
   code?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   lat?: InputMaybe<Order_By>;
   lng?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  spots_aggregate?: InputMaybe<Spots_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
   zoom?: InputMaybe<Order_By>;
 };
@@ -586,28 +360,14 @@ export enum Prefectures_Update_Column {
 
 export type Query_Root = {
   __typename?: 'query_root';
-  /** An array relationship */
-  cities: Array<Cities>;
-  /** fetch data from the table: "cities" using primary key columns */
-  cities_by_pk?: Maybe<Cities>;
   /** fetch data from the table: "prefectures" */
   prefectures: Array<Prefectures>;
   /** fetch data from the table: "prefectures" using primary key columns */
   prefectures_by_pk?: Maybe<Prefectures>;
-};
-
-
-export type Query_RootCitiesArgs = {
-  distinct_on?: InputMaybe<Array<Cities_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Cities_Order_By>>;
-  where?: InputMaybe<Cities_Bool_Exp>;
-};
-
-
-export type Query_RootCities_By_PkArgs = {
-  id: Scalars['Int'];
+  /** fetch data from the table: "spots" */
+  spots: Array<Spots>;
+  /** fetch data from the table: "spots" using primary key columns */
+  spots_by_pk?: Maybe<Spots>;
 };
 
 
@@ -624,30 +384,282 @@ export type Query_RootPrefectures_By_PkArgs = {
   code: Scalars['Int'];
 };
 
+
+export type Query_RootSpotsArgs = {
+  distinct_on?: InputMaybe<Array<Spots_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Spots_Order_By>>;
+  where?: InputMaybe<Spots_Bool_Exp>;
+};
+
+
+export type Query_RootSpots_By_PkArgs = {
+  place_id: Scalars['String'];
+};
+
+/**
+ * マーカーとして表示する観光スポット
+ *
+ *
+ * columns and relationships of "spots"
+ *
+ */
+export type Spots = {
+  __typename?: 'spots';
+  created_at: Scalars['timestamptz'];
+  lat: Scalars['Float'];
+  lng: Scalars['Float'];
+  name: Scalars['String'];
+  place_id: Scalars['String'];
+  /** An object relationship */
+  prefecture: Prefectures;
+  prefecture_code: Scalars['Int'];
+  type_id?: Maybe<Scalars['Int']>;
+  updated_at: Scalars['timestamptz'];
+};
+
+/** order by aggregate values of table "spots" */
+export type Spots_Aggregate_Order_By = {
+  avg?: InputMaybe<Spots_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Spots_Max_Order_By>;
+  min?: InputMaybe<Spots_Min_Order_By>;
+  stddev?: InputMaybe<Spots_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Spots_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Spots_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Spots_Sum_Order_By>;
+  var_pop?: InputMaybe<Spots_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Spots_Var_Samp_Order_By>;
+  variance?: InputMaybe<Spots_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "spots" */
+export type Spots_Arr_Rel_Insert_Input = {
+  data: Array<Spots_Insert_Input>;
+  /** on conflict condition */
+  on_conflict?: InputMaybe<Spots_On_Conflict>;
+};
+
+/** order by avg() on columns of table "spots" */
+export type Spots_Avg_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "spots". All fields are combined with a logical 'AND'. */
+export type Spots_Bool_Exp = {
+  _and?: InputMaybe<Array<Spots_Bool_Exp>>;
+  _not?: InputMaybe<Spots_Bool_Exp>;
+  _or?: InputMaybe<Array<Spots_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  lat?: InputMaybe<Float_Comparison_Exp>;
+  lng?: InputMaybe<Float_Comparison_Exp>;
+  name?: InputMaybe<String_Comparison_Exp>;
+  place_id?: InputMaybe<String_Comparison_Exp>;
+  prefecture?: InputMaybe<Prefectures_Bool_Exp>;
+  prefecture_code?: InputMaybe<Int_Comparison_Exp>;
+  type_id?: InputMaybe<Int_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "spots" */
+export enum Spots_Constraint {
+  /** unique or primary key constraint */
+  SpotsPkey = 'spots_pkey'
+}
+
+/** input type for incrementing numeric columns in table "spots" */
+export type Spots_Inc_Input = {
+  lat?: InputMaybe<Scalars['Float']>;
+  lng?: InputMaybe<Scalars['Float']>;
+  prefecture_code?: InputMaybe<Scalars['Int']>;
+  type_id?: InputMaybe<Scalars['Int']>;
+};
+
+/** input type for inserting data into table "spots" */
+export type Spots_Insert_Input = {
+  lat?: InputMaybe<Scalars['Float']>;
+  lng?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['String']>;
+  place_id?: InputMaybe<Scalars['String']>;
+  prefecture?: InputMaybe<Prefectures_Obj_Rel_Insert_Input>;
+  prefecture_code?: InputMaybe<Scalars['Int']>;
+  type_id?: InputMaybe<Scalars['Int']>;
+};
+
+/** order by max() on columns of table "spots" */
+export type Spots_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  place_id?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** order by min() on columns of table "spots" */
+export type Spots_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  place_id?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "spots" */
+export type Spots_Mutation_Response = {
+  __typename?: 'spots_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Spots>;
+};
+
+/** on conflict condition type for table "spots" */
+export type Spots_On_Conflict = {
+  constraint: Spots_Constraint;
+  update_columns?: Array<Spots_Update_Column>;
+  where?: InputMaybe<Spots_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "spots". */
+export type Spots_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  place_id?: InputMaybe<Order_By>;
+  prefecture?: InputMaybe<Prefectures_Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: spots */
+export type Spots_Pk_Columns_Input = {
+  place_id: Scalars['String'];
+};
+
+/** select columns of table "spots" */
+export enum Spots_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Lat = 'lat',
+  /** column name */
+  Lng = 'lng',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  PlaceId = 'place_id',
+  /** column name */
+  PrefectureCode = 'prefecture_code',
+  /** column name */
+  TypeId = 'type_id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** input type for updating data in table "spots" */
+export type Spots_Set_Input = {
+  lat?: InputMaybe<Scalars['Float']>;
+  lng?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['String']>;
+  place_id?: InputMaybe<Scalars['String']>;
+  prefecture_code?: InputMaybe<Scalars['Int']>;
+  type_id?: InputMaybe<Scalars['Int']>;
+};
+
+/** order by stddev() on columns of table "spots" */
+export type Spots_Stddev_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** order by stddev_pop() on columns of table "spots" */
+export type Spots_Stddev_Pop_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** order by stddev_samp() on columns of table "spots" */
+export type Spots_Stddev_Samp_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** order by sum() on columns of table "spots" */
+export type Spots_Sum_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "spots" */
+export enum Spots_Update_Column {
+  /** column name */
+  Lat = 'lat',
+  /** column name */
+  Lng = 'lng',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  PlaceId = 'place_id',
+  /** column name */
+  PrefectureCode = 'prefecture_code',
+  /** column name */
+  TypeId = 'type_id'
+}
+
+/** order by var_pop() on columns of table "spots" */
+export type Spots_Var_Pop_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** order by var_samp() on columns of table "spots" */
+export type Spots_Var_Samp_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
+/** order by variance() on columns of table "spots" */
+export type Spots_Variance_Order_By = {
+  lat?: InputMaybe<Order_By>;
+  lng?: InputMaybe<Order_By>;
+  prefecture_code?: InputMaybe<Order_By>;
+  type_id?: InputMaybe<Order_By>;
+};
+
 export type Subscription_Root = {
   __typename?: 'subscription_root';
-  /** An array relationship */
-  cities: Array<Cities>;
-  /** fetch data from the table: "cities" using primary key columns */
-  cities_by_pk?: Maybe<Cities>;
   /** fetch data from the table: "prefectures" */
   prefectures: Array<Prefectures>;
   /** fetch data from the table: "prefectures" using primary key columns */
   prefectures_by_pk?: Maybe<Prefectures>;
-};
-
-
-export type Subscription_RootCitiesArgs = {
-  distinct_on?: InputMaybe<Array<Cities_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
-  order_by?: InputMaybe<Array<Cities_Order_By>>;
-  where?: InputMaybe<Cities_Bool_Exp>;
-};
-
-
-export type Subscription_RootCities_By_PkArgs = {
-  id: Scalars['Int'];
+  /** fetch data from the table: "spots" */
+  spots: Array<Spots>;
+  /** fetch data from the table: "spots" using primary key columns */
+  spots_by_pk?: Maybe<Spots>;
 };
 
 
@@ -662,6 +674,20 @@ export type Subscription_RootPrefecturesArgs = {
 
 export type Subscription_RootPrefectures_By_PkArgs = {
   code: Scalars['Int'];
+};
+
+
+export type Subscription_RootSpotsArgs = {
+  distinct_on?: InputMaybe<Array<Spots_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  order_by?: InputMaybe<Array<Spots_Order_By>>;
+  where?: InputMaybe<Spots_Bool_Exp>;
+};
+
+
+export type Subscription_RootSpots_By_PkArgs = {
+  place_id: Scalars['String'];
 };
 
 /** Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'. */
@@ -687,14 +713,14 @@ export type InsertPrefecturesMutation = { __typename?: 'mutation_root', insert_p
 export type GetPrefecturesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, cities: Array<{ __typename?: 'cities', lng: number, lat: number, name: string }> }> };
+export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, spots: Array<{ __typename?: 'spots', lng: number, lat: number, name: string }> }> };
 
 export type GetPrefectureQueryVariables = Exact<{
   code: Scalars['Int'];
 }>;
 
 
-export type GetPrefectureQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', name: string, lat: number, lng: number, zoom: number, cities: Array<{ __typename?: 'cities', lng: number, lat: number, name: string }> }> };
+export type GetPrefectureQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', name: string, lat: number, lng: number, zoom: number, spots: Array<{ __typename?: 'spots', lng: number, lat: number, name: string }> }> };
 
 
 export const InsertPrefecturesDocument = gql`
@@ -747,7 +773,7 @@ export const GetPrefecturesDocument = gql`
     lat
     lng
     zoom
-    cities {
+    spots {
       lng
       lat
       name
@@ -789,7 +815,7 @@ export const GetPrefectureDocument = gql`
     lat
     lng
     zoom
-    cities {
+    spots {
       lng
       lat
       name

@@ -25,7 +25,7 @@ export const GET_PREFECTURES = gql`
       lat
       lng
       zoom
-      cities {
+      spots {
         lng
         lat
         name
@@ -41,7 +41,7 @@ export const GET_PREFECTURE = gql`
       lat
       lng
       zoom
-      cities {
+      spots {
         lng
         lat
         name

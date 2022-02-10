@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles'
 
 import { usePrefectures } from 'constant/prefectures'
 import { SetSelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
+import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 
 const InteractiveGElement = styled('g')(() => ({
   ':hover': {
@@ -22,6 +23,7 @@ const Prefecture: React.FC<PrefectureProps> = ({
 }) => {
   const setSelected = React.useContext(SetSelectedPrefectureContext)
   const prefectures = usePrefectures()
+  const { clear } = useSelectedPlacesActions()
   const handleClick = () => {
     if (!prefectures) {
       return
@@ -29,6 +31,7 @@ const Prefecture: React.FC<PrefectureProps> = ({
     const prefecture = prefectures.find(item => item.code === code)
     if (prefecture) {
       setSelected(prefecture.code)
+      clear()
     }
   }
   return (
