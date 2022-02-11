@@ -716,11 +716,11 @@ export type GetPrefecturesQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, spots: Array<{ __typename?: 'spots', lng: number, lat: number, name: string }> }> };
 
 export type GetPrefectureQueryVariables = Exact<{
-  code: Scalars['Int'];
+  code?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type GetPrefectureQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', name: string, lat: number, lng: number, zoom: number, spots: Array<{ __typename?: 'spots', lng: number, lat: number, name: string }> }> };
+export type GetPrefectureQuery = { __typename?: 'query_root', prefectures_by_pk?: { __typename?: 'prefectures', code: number, lat: number, lng: number, name: string, zoom: number, spots: Array<{ __typename?: 'spots', lat: number, lng: number, name: string, place_id: string, type_id?: number | null }> } | null };
 
 
 export const InsertPrefecturesDocument = gql`
@@ -809,16 +809,19 @@ export type GetPrefecturesQueryHookResult = ReturnType<typeof useGetPrefecturesQ
 export type GetPrefecturesLazyQueryHookResult = ReturnType<typeof useGetPrefecturesLazyQuery>;
 export type GetPrefecturesQueryResult = Apollo.QueryResult<GetPrefecturesQuery, GetPrefecturesQueryVariables>;
 export const GetPrefectureDocument = gql`
-    query getPrefecture($code: Int!) {
-  prefectures(where: {code: {_eq: $code}}) {
-    name
+    query getPrefecture($code: Int = 10) {
+  prefectures_by_pk(code: $code) {
+    code
     lat
     lng
+    name
     zoom
     spots {
-      lng
       lat
+      lng
       name
+      place_id
+      type_id
     }
   }
 }
@@ -840,7 +843,7 @@ export const GetPrefectureDocument = gql`
  *   },
  * });
  */
-export function useGetPrefectureQuery(baseOptions: Apollo.QueryHookOptions<GetPrefectureQuery, GetPrefectureQueryVariables>) {
+export function useGetPrefectureQuery(baseOptions?: Apollo.QueryHookOptions<GetPrefectureQuery, GetPrefectureQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetPrefectureQuery, GetPrefectureQueryVariables>(GetPrefectureDocument, options);
       }

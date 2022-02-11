@@ -8,19 +8,22 @@ import { SelectedPlacesProvider } from 'contexts/SelectedPlacesProvider'
 
 import Stack from '@mui/material/Stack'
 import RouteViewer from 'components/atoms/RouteViewer'
+import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 
 function App() {
   return (
     <ApolloClientProvider>
-      <SelectedPrefectureProvider>
-        <SelectedPlacesProvider>
-          <Stack direction="row">
-            <FeaturedPlaces />
-            <RouteViewer />
-          </Stack>
-          <Map />
-        </SelectedPlacesProvider>
-      </SelectedPrefectureProvider>
+      <DistanceMatrixProvider>
+        <SelectedPrefectureProvider>
+          <SelectedPlacesProvider>
+            <Stack direction="row">
+              <FeaturedPlaces />
+              <RouteViewer />
+            </Stack>
+            <Map />
+          </SelectedPlacesProvider>
+        </SelectedPrefectureProvider>
+      </DistanceMatrixProvider>
     </ApolloClientProvider>
   )
 }

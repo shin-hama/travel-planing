@@ -9,17 +9,11 @@ import {
 } from 'generated/graphql'
 
 const FeaturedPlaces = () => {
-  const [markers, setMarkers] = React.useState<
-    Array<{
-      name: string
-      lat: number
-      lng: number
-    }>
-  >([])
   const [getPrefecture, { data, error }] = useGetPrefectureLazyQuery()
   const [target, setTarget] = React.useState<
-    GetPrefectureQuery['prefectures'][number] | null
+    Required<GetPrefectureQuery>['prefectures_by_pk'] | null
   >(null)
+
   const selected = React.useContext(SelectedPrefectureContext)
 
   React.useEffect(() => {
@@ -30,16 +24,9 @@ const FeaturedPlaces = () => {
 
   React.useEffect(() => {
     if (data) {
-      setTarget(data.prefectures[0])
+      setTarget(data.prefectures_by_pk || null)
     }
   }, [data])
-
-  React.useEffect(() => {
-    if (target !== null) {
-      console.log(target)
-      setMarkers(target.spots.map(item => item))
-    }
-  }, [target])
 
   if (error) {
     console.error(error)
@@ -50,14 +37,16 @@ const FeaturedPlaces = () => {
       center={target ? { lat: target.lat, lng: target.lng } : undefined}
       zoom={target?.zoom}>
       <>
-        {markers.map(item => (
-          <PlaceMarker
-            key={item.name}
-            name={item.name}
-            lat={item.lat}
-            lng={item.lng}
-          />
-        ))}
+        {target &&
+          target.spots.map(item => (
+            <PlaceMarker
+              key={item.name}
+              name={item.name}
+              placeId={item.place_id}
+              lat={item.lat}
+              lng={item.lng}
+            />
+          ))}
       </>
     </GoogleMap>
   )

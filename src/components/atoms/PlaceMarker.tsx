@@ -4,14 +4,14 @@ import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
   name: string
-  placeId?: string
+  placeId: string
   lat: number
   lng: number
 }
-const PlaceMarker: React.FC<Props> = ({ name, placeId = 'none', lat, lng }) => {
+const PlaceMarker: React.FC<Props> = ({ name, placeId, lat, lng }) => {
   const { push } = useSelectedPlacesActions()
   const handleClick = () => {
-    push({ name: name })
+    push({ name: name, placeId })
   }
   return <Marker position={{ lat, lng }} onClick={handleClick}></Marker>
 }
