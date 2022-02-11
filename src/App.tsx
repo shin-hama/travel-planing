@@ -1,29 +1,24 @@
 import React from 'react'
-import { Map } from 'components/atoms'
 
+import RoutePlanner from 'components/RoutePlanner'
 import { SelectedPrefectureProvider } from 'contexts/SelectedPrefectureProvider'
 import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
-import FeaturedPlaces from 'components/FeaturedPlaces'
 import { SelectedPlacesProvider } from 'contexts/SelectedPlacesProvider'
-
-import Stack from '@mui/material/Stack'
-import RouteViewer from 'components/atoms/RouteViewer'
+import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
 import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 
 function App() {
   return (
     <ApolloClientProvider>
-      <DistanceMatrixProvider>
-        <SelectedPrefectureProvider>
-          <SelectedPlacesProvider>
-            <Stack direction="row">
-              <FeaturedPlaces />
-              <RouteViewer />
-            </Stack>
-            <Map />
-          </SelectedPlacesProvider>
-        </SelectedPrefectureProvider>
-      </DistanceMatrixProvider>
+      <DirectionServiceProvider>
+        <DistanceMatrixProvider>
+          <SelectedPrefectureProvider>
+            <SelectedPlacesProvider>
+              <RoutePlanner />
+            </SelectedPlacesProvider>
+          </SelectedPrefectureProvider>
+        </DistanceMatrixProvider>
+      </DirectionServiceProvider>
     </ApolloClientProvider>
   )
 }

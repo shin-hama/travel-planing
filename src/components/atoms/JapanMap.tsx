@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles'
 import { usePrefectures } from 'constant/prefectures'
 import { SetSelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
+import { StepperHandlerContext } from 'components/RoutePlanner'
 
 const InteractiveGElement = styled('g')(() => ({
   ':hover': {
@@ -24,6 +25,8 @@ const Prefecture: React.FC<PrefectureProps> = ({
   const setSelected = React.useContext(SetSelectedPrefectureContext)
   const prefectures = usePrefectures()
   const { clear } = useSelectedPlacesActions()
+  const handleNext = React.useContext(StepperHandlerContext)
+
   const handleClick = () => {
     if (!prefectures) {
       return
@@ -32,8 +35,10 @@ const Prefecture: React.FC<PrefectureProps> = ({
     if (prefecture) {
       setSelected(prefecture.code)
       clear()
+      handleNext()
     }
   }
+
   return (
     <InteractiveGElement onClick={handleClick} {...props}>
       {children}
@@ -41,7 +46,7 @@ const Prefecture: React.FC<PrefectureProps> = ({
   )
 }
 
-const SvgMap = () => {
+const JapanMap = () => {
   return (
     <svg
       className="map_svg__geolonia-svg-map"
@@ -345,4 +350,4 @@ const SvgMap = () => {
   )
 }
 
-export default SvgMap
+export default JapanMap

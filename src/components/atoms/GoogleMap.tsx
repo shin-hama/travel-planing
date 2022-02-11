@@ -3,6 +3,7 @@ import {
   GoogleMap as GoogleMapLib,
   useLoadScript,
 } from '@react-google-maps/api'
+import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 
 const containerStyle = {
@@ -19,14 +20,19 @@ type Props = {
   zoom?: number
 }
 const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
+  const setDirectionService = React.useContext(SetDirectionServiceContext)
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   // wrapping to a function is useful in case you want to access `window.google`
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
-  const onLoad = React.useCallback(mapInstance => {
-    // do something with map Instance
-    setDistanceMatrix(new window.google.maps.DistanceMatrixService())
-  }, [setDistanceMatrix])
+  const onLoad = React.useCallback(
+    mapInstance => {
+      // do something with map Instance
+      setDirectionService(new window.google.maps.DirectionsService())
+      setDistanceMatrix(new window.google.maps.DistanceMatrixService())
+    },
+    [setDirectionService, setDistanceMatrix]
+  )
 
   return (
     <GoogleMapLib

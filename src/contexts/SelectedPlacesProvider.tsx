@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useList } from 'react-use'
 import { ListActions } from 'react-use/lib/useList'
 
-type Place = {
+export type Place = {
   name: string
   placeId: string
 }
