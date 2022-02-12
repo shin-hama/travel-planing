@@ -19,7 +19,9 @@ const sum = (arr: Array<number>) => {
 }
 
 const RouteViewer = () => {
-  const [durations, setDurations] = React.useState<Array<number>>([])
+  const [durations, setDurations] = React.useState<
+    Array<google.maps.DistanceMatrixResponseElement>
+  >([])
   const places = React.useContext(SelectedPlacesContext)
   const directionService = useDirections()
   // to avoid the bug that infinite rerender and recall api after every api call
@@ -44,20 +46,25 @@ const RouteViewer = () => {
       return
     }
     distCountRef.current += 1
+    // マトリックスの要素数で課金されるので、できるだけ少なくなるようにリクエストを考える
+    // 例: 3地点の距離を計算するとき、3*3でリクエストすると9回分だが、
+    // 1,2点目 + 2,3 点目というようにすれば 2 回分ですむ
+    const func = async () => {
+      const results = await Promise.all(
+        places
+          .filter((e, i) => i !== places.length - 1)
+          .map(async (place, i) => {
+            const org = [(({ placeId }) => ({ placeId }))(place)]
+            const dest = [(({ placeId }) => ({ placeId }))(places[i + 1])]
+            const result = await distanceMatrix.search(org, dest)
 
-    distanceMatrix.search(places).then(result => {
-      console.log(result)
-      setDurations(
-        result.rows
-          .filter((row, index) => index !== result.rows.length - 2)
-          .map((row, index) => {
-            const durationSec =
-              row.elements[index].duration.value +
-              row.elements[index + 1].duration.value
-            return durationSec
+            return result.rows[0].elements[0]
           })
       )
-    })
+
+      setDurations(results)
+    }
+    func()
   }, [distanceMatrix, places])
 
   React.useEffect(() => {
@@ -76,7 +83,11 @@ const RouteViewer = () => {
                 <Typography>{place.name}</Typography>
                 <Typography>
                   {' '}
-                  ↓ {i < durations.length && secondsToHourMin(durations[i])}
+                  ↓{' '}
+                  {i < durations.length &&
+                    `${secondsToHourMin(durations[i].duration.value)}: ${
+                      durations[i].distance.text
+                    }`}
                 </Typography>
               </div>
             ))}
@@ -87,7 +98,8 @@ const RouteViewer = () => {
             ) : (
               <Typography>
                 {' '}
-                TOTAL : {secondsToHourMin(sum(durations))}
+                TOTAL :{' '}
+                {secondsToHourMin(sum(durations.map(d => d.duration.value)))}
               </Typography>
             )}
           </>

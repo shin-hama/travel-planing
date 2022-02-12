@@ -1,13 +1,13 @@
 import * as React from 'react'
 
 import { DirectionServiceContext } from 'contexts/DirectionServiceProvider'
-import { Place } from 'contexts/SelectedPlacesProvider'
+import { Spot } from 'contexts/SelectedPlacesProvider'
 
 export const useDirections = () => {
   const direction = React.useContext(DirectionServiceContext)
 
   const search = React.useCallback(
-    async (places: Array<Place>) => {
+    async (places: Array<Spot>) => {
       if (direction === null) {
         throw Error('JS Google Map api is not loaded')
       }

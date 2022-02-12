@@ -64,7 +64,7 @@ const FeaturedPlaces = () => {
       <Typography>Now Selected:</Typography>
       <Typography>{places.map(place => place.name).join(', ')}</Typography>
       <Stack alignItems="end">
-        <Button disabled={places.length === 0} onClick={handleNext}>
+        <Button disabled={places.length < 2} onClick={handleNext}>
           Get Route
         </Button>
       </Stack>

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
@@ -39,31 +40,33 @@ const RoutePlanner = () => {
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map(step => (
-          <Step key={step.label}>
-            <StepLabel>{step.label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <StepperHandlerContext.Provider value={handleNext}>
-        {steps[activeStep].content}
-      </StepperHandlerContext.Provider>
-      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-        <Button
-          color="inherit"
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          sx={{ mr: 1 }}>
-          Back
-        </Button>
-        <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === steps.length - 1 && (
-          <Button onClick={handleReset}>Reset</Button>
-        )}
+    <Container maxWidth="md">
+      <Box sx={{ width: '100%' }}>
+        <Stepper activeStep={activeStep}>
+          {steps.map(step => (
+            <Step key={step.label}>
+              <StepLabel>{step.label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+        <StepperHandlerContext.Provider value={handleNext}>
+          {steps[activeStep].content}
+        </StepperHandlerContext.Provider>
+        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+          <Button
+            color="inherit"
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            sx={{ mr: 1 }}>
+            Back
+          </Button>
+          <Box sx={{ flex: '1 1 auto' }} />
+          {activeStep === steps.length - 1 && (
+            <Button onClick={handleReset}>Reset</Button>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </Container>
   )
 }
 
