@@ -9,15 +9,21 @@ import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import {
   GetPrefectureQuery,
+  GetSpotsByCategoryQuery,
   useGetPrefectureLazyQuery,
+  useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
 import { StepperHandlerContext } from './RoutePlanner'
+import CategorySelector from './CategorySelector'
 
 const FeaturedPlaces = () => {
   const [getPrefecture, { loading, data, error }] = useGetPrefectureLazyQuery()
   const [target, setTarget] = React.useState<
     Required<GetPrefectureQuery>['prefectures_by_pk'] | null
   >(null)
+
+  const [getSpots] = useGetSpotsByCategoryLazyQuery()
+  const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
 
   const selected = React.useContext(SelectedPrefectureContext)
   const places = React.useContext(SelectedPlacesContext)
@@ -30,10 +36,21 @@ const FeaturedPlaces = () => {
   }, [getPrefecture, selected])
 
   React.useEffect(() => {
-    if (data) {
+    if (data?.prefectures_by_pk) {
       setTarget(data.prefectures_by_pk || null)
     }
   }, [data])
+
+  const handleSelectCategory = async (id: string) => {
+    const typesResults = await getSpots({
+      variables: { categoryId: Number.parseInt(id) },
+    })
+    if (typesResults.error) {
+      console.error(`Fail to fetch types by category id ${id}`)
+    }
+    console.log(typesResults)
+    setSpots(typesResults.data?.spots || [])
+  }
 
   if (error) {
     console.error(error)
@@ -45,14 +62,15 @@ const FeaturedPlaces = () => {
 
   return (
     <Stack alignItems="center">
+      <CategorySelector onChange={handleSelectCategory} />
       <GoogleMap
         center={target ? { lat: target.lat, lng: target.lng } : undefined}
         zoom={target?.zoom}>
         <>
           {target &&
-            target.spots.map(item => (
+            spots.map(item => (
               <PlaceMarker
-                key={item.name}
+                key={item.place_id}
                 name={item.name}
                 placeId={item.place_id}
                 lat={item.lat}
@@ -61,7 +79,7 @@ const FeaturedPlaces = () => {
             ))}
         </>
       </GoogleMap>
-      <Typography>Now Selected:</Typography>
+      <Typography>Selected Spots:</Typography>
       <Typography>{places.map(place => place.name).join(', ')}</Typography>
       <Stack alignItems="end">
         <Button disabled={places.length < 2} onClick={handleNext}>

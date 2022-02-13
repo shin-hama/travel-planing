@@ -25,30 +25,18 @@ export const GET_PREFECTURES = gql`
       lat
       lng
       zoom
-      spots {
-        lng
-        lat
-        name
-      }
     }
   }
 `
 
 export const GET_PREFECTURE = gql`
-  query getPrefecture($code: Int = 10) {
+  query getPrefecture($code: Int!) {
     prefectures_by_pk(code: $code) {
       code
       lat
       lng
       name
       zoom
-      spots {
-        lat
-        lng
-        name
-        place_id
-        type_id
-      }
     }
   }
 `
