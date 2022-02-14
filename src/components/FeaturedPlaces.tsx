@@ -3,8 +3,8 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import GoogleMap from './atoms/GoogleMap'
-import PlaceMarker from './atoms/PlaceMarker'
+import GoogleMap from './organisms/GoogleMap'
+import PlaceMarker from './organisms/PlaceMarker'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import {
@@ -15,7 +15,7 @@ import {
 } from 'generated/graphql'
 import { StepperHandlerContext } from './RoutePlanner'
 import CategorySelector from './CategorySelector'
-import SpotCard from './molecules/SpotCard'
+import SpotCard from './organisms/SpotCard'
 
 const FeaturedPlaces = () => {
   const [getPrefecture, { loading, data, error }] = useGetPrefectureLazyQuery()
@@ -83,7 +83,7 @@ const FeaturedPlaces = () => {
       <Typography>Selected Spots:</Typography>
       <Stack spacing={2}>
         {places.map(place => (
-          <SpotCard key={place.placeId} title={place.name} category={''} />
+          <SpotCard key={place.placeId} placeId={place.placeId} />
         ))}
       </Stack>
       <Stack alignItems="end">

@@ -1713,6 +1713,13 @@ export type GetSpotsByCategoryQueryVariables = Exact<{
 
 export type GetSpotsByCategoryQuery = { __typename?: 'query_root', spots: Array<{ __typename?: 'spots', name: string, lat: number, lng: number, place_id: string }> };
 
+export type GetSpotByPkQueryVariables = Exact<{
+  place_id: Scalars['String'];
+}>;
+
+
+export type GetSpotByPkQuery = { __typename?: 'query_root', spots_by_pk?: { __typename?: 'spots', name: string, lng: number, lat: number, place_id: string, prefecture: { __typename?: 'prefectures', name: string }, spots_types: Array<{ __typename?: 'spot_type', type: { __typename?: 'types', category_types: Array<{ __typename?: 'category_type', category: { __typename?: 'categories', name: string } }> } }> } | null };
+
 export type GetTypesByCategoryQueryVariables = Exact<{
   category_id: Scalars['Int'];
 }>;
@@ -1915,6 +1922,56 @@ export function useGetSpotsByCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type GetSpotsByCategoryQueryHookResult = ReturnType<typeof useGetSpotsByCategoryQuery>;
 export type GetSpotsByCategoryLazyQueryHookResult = ReturnType<typeof useGetSpotsByCategoryLazyQuery>;
 export type GetSpotsByCategoryQueryResult = Apollo.QueryResult<GetSpotsByCategoryQuery, GetSpotsByCategoryQueryVariables>;
+export const GetSpotByPkDocument = gql`
+    query GetSpotByPk($place_id: String!) {
+  spots_by_pk(place_id: $place_id) {
+    name
+    lng
+    lat
+    place_id
+    prefecture {
+      name
+    }
+    spots_types {
+      type {
+        category_types {
+          category {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSpotByPkQuery__
+ *
+ * To run a query within a React component, call `useGetSpotByPkQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSpotByPkQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSpotByPkQuery({
+ *   variables: {
+ *      place_id: // value for 'place_id'
+ *   },
+ * });
+ */
+export function useGetSpotByPkQuery(baseOptions: Apollo.QueryHookOptions<GetSpotByPkQuery, GetSpotByPkQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSpotByPkQuery, GetSpotByPkQueryVariables>(GetSpotByPkDocument, options);
+      }
+export function useGetSpotByPkLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSpotByPkQuery, GetSpotByPkQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSpotByPkQuery, GetSpotByPkQueryVariables>(GetSpotByPkDocument, options);
+        }
+export type GetSpotByPkQueryHookResult = ReturnType<typeof useGetSpotByPkQuery>;
+export type GetSpotByPkLazyQueryHookResult = ReturnType<typeof useGetSpotByPkLazyQuery>;
+export type GetSpotByPkQueryResult = Apollo.QueryResult<GetSpotByPkQuery, GetSpotByPkQueryVariables>;
 export const GetTypesByCategoryDocument = gql`
     query GetTypesByCategory($category_id: Int!) {
   category_type(where: {category_id: {_eq: $category_id}}) {
