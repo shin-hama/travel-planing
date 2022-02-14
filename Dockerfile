@@ -1,13 +1,15 @@
-FROM node:lts-slim
+FROM node:lts-slim as base
 
 WORKDIR /usr/src/app
-
 COPY package.json yarn.lock ./
+RUN apt-get update
 
-RUN apt-get update && \
+FROM base as development
+
+RUN apt-get install --no-install-recommends -y git && \
     yarn install && \
     yarn cache clean
 
-COPY . .
+FROM base as production
 
-RUN yarn run build
+RUN yarn --production --frozen-lockfile
