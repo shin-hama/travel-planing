@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: 'travel-planning'
+    ports:
+      - '$PORT:$PORT'
+    tty: true
+    command: yarn start
