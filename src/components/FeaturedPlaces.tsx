@@ -15,6 +15,7 @@ import {
 } from 'generated/graphql'
 import { StepperHandlerContext } from './RoutePlanner'
 import CategorySelector from './CategorySelector'
+import SpotCard from './molecules/SpotCard'
 
 const FeaturedPlaces = () => {
   const [getPrefecture, { loading, data, error }] = useGetPrefectureLazyQuery()
@@ -80,7 +81,11 @@ const FeaturedPlaces = () => {
         </>
       </GoogleMap>
       <Typography>Selected Spots:</Typography>
-      <Typography>{places.map(place => place.name).join(', ')}</Typography>
+      <Stack spacing={2}>
+        {places.map(place => (
+          <SpotCard key={place.placeId} title={place.name} category={''} />
+        ))}
+      </Stack>
       <Stack alignItems="end">
         <Button disabled={places.length < 2} onClick={handleNext}>
           Get Route
