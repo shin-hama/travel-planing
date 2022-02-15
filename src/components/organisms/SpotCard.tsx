@@ -60,7 +60,8 @@ const SpotCard: React.FC<Props> = ({ placeId }) => {
   return (
     <Card
       sx={{
-        maxWidth: '350px',
+        maxWidth: '360px',
+        maxHeight: '120px',
       }}>
       {loading ? (
         <>Now loading...</>

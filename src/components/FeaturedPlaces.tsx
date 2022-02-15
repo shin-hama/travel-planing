@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -62,36 +63,45 @@ const FeaturedPlaces = () => {
   }
 
   return (
-    <Stack alignItems="center">
-      <CategorySelector onChange={handleSelectCategory} />
-      <GoogleMap
-        center={target ? { lat: target.lat, lng: target.lng } : undefined}
-        zoom={target?.zoom}>
-        <>
-          {target &&
-            spots.map(item => (
-              <PlaceMarker
-                key={item.place_id}
-                name={item.name}
-                placeId={item.place_id}
-                lat={item.lat}
-                lng={item.lng}
-              />
+    <>
+      <Box sx={{ position: 'relative', display: 'grid' }}>
+        <Box sx={{ gridRow: '1/2', gridColumn: '1/2' }}>
+          <GoogleMap
+            center={target ? { lat: target.lat, lng: target.lng } : undefined}
+            zoom={target?.zoom}>
+            <>
+              {target &&
+                spots.map(item => (
+                  <PlaceMarker
+                    key={item.place_id}
+                    name={item.name}
+                    placeId={item.place_id}
+                    lat={item.lat}
+                    lng={item.lng}
+                  />
+                ))}
+              {places.length > 0 && <SpotCard placeId={places[0].placeId} />}
+            </>
+          </GoogleMap>
+        </Box>
+        <Box sx={{ gridRow: '1/2', gridColumn: '1/2' }}>
+          <CategorySelector onChange={handleSelectCategory} />
+        </Box>
+        <Box sx={{ gridRow: '1/2', gridColumn: '1/2', zIndex: "100" }}>
+          <Typography>Selected Spots:</Typography>
+          <Stack spacing={2}>
+            {places.map(place => (
+              <SpotCard key={place.placeId} placeId={place.placeId} />
             ))}
-        </>
-      </GoogleMap>
-      <Typography>Selected Spots:</Typography>
-      <Stack spacing={2}>
-        {places.map(place => (
-          <SpotCard key={place.placeId} placeId={place.placeId} />
-        ))}
-      </Stack>
-      <Stack alignItems="end">
+          </Stack>
+        </Box>
+      </Box>
+      <Stack alignItems="end" sx={{ gridArea: '2/1' }}>
         <Button disabled={places.length < 2} onClick={handleNext}>
           Get Route
         </Button>
       </Stack>
-    </Stack>
+    </>
   )
 }
 
