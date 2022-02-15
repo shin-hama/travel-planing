@@ -2,7 +2,7 @@ import * as React from 'react'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
-import Stack from '@mui/material/Stack'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
@@ -58,26 +58,34 @@ const SpotCard: React.FC<Props> = ({ placeId }) => {
     return <Card>Error</Card>
   }
   return (
-    <Card>
-      <Stack direction={'row'}>
-        {loading ? (
-          <>Now loading...</>
-        ) : (
-          <>
+    <Card
+      sx={{
+        maxWidth: '350px',
+      }}>
+      {loading ? (
+        <>Now loading...</>
+      ) : (
+        <Grid container>
+          <Grid item xs={8}>
             <CardContent>
               <Typography variant="h5">{data?.spots_by_pk?.name}</Typography>
               <Typography variant="subtitle2">{subtitle}</Typography>
             </CardContent>
+          </Grid>
+          <Grid item xs={4}>
             {photos.length > 0 && (
               <CardMedia
                 component="img"
                 image={photos[0]}
-                sx={{ height: '140px' }}
+                sx={{
+                  aspectRatio: '1/1',
+                  objectFit: 'cover',
+                }}
               />
             )}
-          </>
-        )}
-      </Stack>
+          </Grid>
+        </Grid>
+      )}
     </Card>
   )
 }
