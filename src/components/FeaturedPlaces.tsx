@@ -69,7 +69,7 @@ const FeaturedPlaces = () => {
 
   return (
     <>
-      <Box sx={{ position: 'relative' }}>
+      <Box sx={{ position: 'relative', width: '100%' }}>
         <GoogleMap
           center={target ? { lat: target.lat, lng: target.lng } : undefined}
           zoom={target?.zoom}>
@@ -97,6 +97,9 @@ const FeaturedPlaces = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             pb: 2,
+            width: '90%',
+            maxWidth: '400px',
+            maxHeight: '150px',
           }}>
           {focusedSpot && <SpotCard placeId={focusedSpot} />}
         </Box>

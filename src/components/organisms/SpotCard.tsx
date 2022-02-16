@@ -66,18 +66,14 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   }
 
   return (
-    <Card
-      sx={{
-        maxWidth: '400px',
-        maxHeight: '150px',
-      }}>
+    <Card sx={{}}>
       {loading ? (
         <>Now loading...</>
       ) : (
         <Grid container>
           <Grid item xs={8}>
             <CardContent>
-              <Typography variant="h5">{data?.spots_by_pk?.name}</Typography>
+              <Typography variant="h6">{data?.spots_by_pk?.name}</Typography>
               <Typography variant="subtitle2">{subtitle}</Typography>
             </CardContent>
             <CardActions>
