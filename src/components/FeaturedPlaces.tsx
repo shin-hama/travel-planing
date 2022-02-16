@@ -7,7 +7,10 @@ import Typography from '@mui/material/Typography'
 import GoogleMap from './organisms/GoogleMap'
 import PlaceMarker from './organisms/PlaceMarker'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
-import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
+import {
+  SelectedPlacesContext,
+  useSelectedPlacesActions,
+} from 'contexts/SelectedPlacesProvider'
 import {
   GetPrefectureQuery,
   GetSpotsByCategoryQuery,
@@ -59,6 +62,19 @@ const FeaturedPlaces = () => {
     setFocusedSpot(placeId)
   }
 
+  const actions = useSelectedPlacesActions()
+
+  const handleClickAdd = () => {
+    if (focusedSpot) {
+      actions.push({ placeId: focusedSpot })
+      setFocusedSpot('')
+    }
+  }
+
+  const handleClickRemove = (placeId: string) => {
+    actions.filter(item => item.placeId !== placeId)
+  }
+
   if (error) {
     console.error(error)
   }
@@ -101,7 +117,20 @@ const FeaturedPlaces = () => {
             maxWidth: '400px',
             maxHeight: '150px',
           }}>
-          {focusedSpot && <SpotCard placeId={focusedSpot} />}
+          {focusedSpot && (
+            <SpotCard
+              placeId={focusedSpot}
+              actionNode={
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleClickAdd}
+                  sx={{ marginLeft: 'auto' }}>
+                  Add
+                </Button>
+              }
+            />
+          )}
         </Box>
       </Box>
       <Box
@@ -111,18 +140,30 @@ const FeaturedPlaces = () => {
           flexDirection: 'column',
           justifyContent: 'flex-end',
         }}>
-        <Typography>Selected Spots:</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography sx={{ flexGrow: 1 }}>Selected Spots:</Typography>
+          <Button disabled={places.length < 2} onClick={handleNext}>
+            Get Route
+          </Button>
+        </Stack>
         <Stack spacing={2}>
           {places.map(place => (
-            <SpotCard key={place.placeId} placeId={place.placeId} />
+            <SpotCard
+              key={place.placeId}
+              placeId={place.placeId}
+              actionNode={
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => handleClickRemove(place.placeId)}
+                  sx={{ marginLeft: 'auto' }}>
+                  Remove
+                </Button>
+              }
+            />
           ))}
         </Stack>
       </Box>
-      <Stack alignItems="end">
-        <Button disabled={places.length < 2} onClick={handleNext}>
-          Get Route
-        </Button>
-      </Stack>
     </>
   )
 }

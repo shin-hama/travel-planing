@@ -1,5 +1,4 @@
 import * as React from 'react'
-import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
@@ -9,24 +8,19 @@ import Typography from '@mui/material/Typography'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/usePlaces'
-import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
   placeId: string
+  actionNode?: React.ReactNode
 }
-const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
+const SpotCard: React.FC<Props> = React.memo(function SpotCard({
+  placeId,
+  actionNode,
+}) {
   const [getSpot, { data, loading, error }] = useGetSpotByPkLazyQuery()
   const [subtitle, setSubtitle] = React.useState('')
   const placesService = usePlaces()
   const [photos, setPhotos] = React.useState<Array<string>>([])
-
-  const actions = useSelectedPlacesActions()
-
-  const handleClick = () => {
-    if (data?.spots_by_pk) {
-      actions.push({ placeId })
-    }
-  }
 
   const countRef = React.useRef(0)
   React.useEffect(() => {
@@ -76,15 +70,7 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
               <Typography variant="h6">{data?.spots_by_pk?.name}</Typography>
               <Typography variant="subtitle2">{subtitle}</Typography>
             </CardContent>
-            <CardActions>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleClick}
-                sx={{ marginLeft: 'auto' }}>
-                Add
-              </Button>
-            </CardActions>
+            {actionNode && <CardActions>{actionNode}</CardActions>}
           </Grid>
           <Grid item xs={4}>
             {photos.length > 0 && (
