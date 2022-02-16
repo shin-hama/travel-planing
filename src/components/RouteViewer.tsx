@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDirections } from 'hooks/useDirections'
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
+import SpotCard from './organisms/SpotCard'
 
 const secondsToHourMin = (sec: number): string => {
   const h = Math.floor(sec / 3600)
@@ -79,8 +80,8 @@ const RouteViewer = () => {
         <>
           <>
             {places.map((place, i) => (
-              <div key={place.name}>
-                <Typography>{place.name}</Typography>
+              <div key={place.placeId}>
+                <SpotCard placeId={place.placeId} />
                 <Typography>
                   {' '}
                   ↓{' '}

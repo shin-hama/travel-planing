@@ -1,5 +1,7 @@
 import * as React from 'react'
+import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
+import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Grid from '@mui/material/Grid'
@@ -7,6 +9,7 @@ import Typography from '@mui/material/Typography'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/usePlaces'
+import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
   placeId: string
@@ -16,6 +19,14 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   const [subtitle, setSubtitle] = React.useState('')
   const placesService = usePlaces()
   const [photos, setPhotos] = React.useState<Array<string>>([])
+
+  const actions = useSelectedPlacesActions()
+
+  const handleClick = () => {
+    if (data?.spots_by_pk) {
+      actions.push({ placeId })
+    }
+  }
 
   const countRef = React.useRef(0)
   React.useEffect(() => {
@@ -53,11 +64,12 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   if (error) {
     return <Card>Error</Card>
   }
+
   return (
     <Card
       sx={{
-        maxWidth: '360px',
-        maxHeight: '120px',
+        maxWidth: '400px',
+        maxHeight: '150px',
       }}>
       {loading ? (
         <>Now loading...</>
@@ -68,6 +80,15 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
               <Typography variant="h5">{data?.spots_by_pk?.name}</Typography>
               <Typography variant="subtitle2">{subtitle}</Typography>
             </CardContent>
+            <CardActions>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleClick}
+                sx={{ marginLeft: 'auto' }}>
+                Add
+              </Button>
+            </CardActions>
           </Grid>
           <Grid item xs={4}>
             {photos.length > 0 && (

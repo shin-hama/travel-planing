@@ -28,6 +28,7 @@ const FeaturedPlaces = () => {
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
 
   const selected = React.useContext(SelectedPrefectureContext)
+  const [focusedSpot, setFocusedSpot] = React.useState('')
   const places = React.useContext(SelectedPlacesContext)
   const handleNext = React.useContext(StepperHandlerContext)
 
@@ -54,6 +55,10 @@ const FeaturedPlaces = () => {
     setSpots(typesResults.data?.spots || [])
   }
 
+  const handleMarkerClicked = (placeId: string) => {
+    setFocusedSpot(placeId)
+  }
+
   if (error) {
     console.error(error)
   }
@@ -73,13 +78,12 @@ const FeaturedPlaces = () => {
               spots.map(item => (
                 <PlaceMarker
                   key={item.place_id}
-                  name={item.name}
                   placeId={item.place_id}
                   lat={item.lat}
                   lng={item.lng}
+                  onClick={handleMarkerClicked}
                 />
               ))}
-            {places.length > 0 && <SpotCard placeId={places[0].placeId} />}
           </>
         </GoogleMap>
         <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
@@ -94,9 +98,7 @@ const FeaturedPlaces = () => {
             transform: 'translateX(-50%)',
             pb: 2,
           }}>
-          {places.length > 0 && (
-            <SpotCard placeId={places.slice(-1)[0].placeId} />
-          )}
+          {focusedSpot && <SpotCard placeId={focusedSpot} />}
         </Box>
       </Box>
       <Box

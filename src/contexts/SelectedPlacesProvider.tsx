@@ -3,7 +3,6 @@ import { useList } from 'react-use'
 import { ListActions } from 'react-use/lib/useList'
 
 export type Spot = {
-  name: string
   placeId: string
 }
 export const SelectedPlacesContext = React.createContext<Array<Spot>>([])
