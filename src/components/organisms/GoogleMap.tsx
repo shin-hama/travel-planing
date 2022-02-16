@@ -5,10 +5,11 @@ import {
 } from '@react-google-maps/api'
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
+import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 
 const containerStyle = {
-  width: '400px',
-  height: '400px',
+  width: '100%',
+  height: '100vh',
 }
 
 const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }
@@ -22,6 +23,8 @@ type Props = {
 const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
   const setDirectionService = React.useContext(SetDirectionServiceContext)
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
+  const setPlaces = React.useContext(SetPlacesServiceContext)
+
   // wrapping to a function is useful in case you want to access `window.google`
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
@@ -30,13 +33,19 @@ const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
       // do something with map Instance
       setDirectionService(new window.google.maps.DirectionsService())
       setDistanceMatrix(new window.google.maps.DistanceMatrixService())
+      setPlaces(new window.google.maps.places.PlacesService(mapInstance))
     },
-    [setDirectionService, setDistanceMatrix]
+    [setDirectionService, setDistanceMatrix, setPlaces]
   )
 
   return (
     <GoogleMapLib
       mapContainerStyle={containerStyle}
+      options={{
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false,
+      }}
       center={center}
       zoom={zoom}
       onLoad={onLoad}>

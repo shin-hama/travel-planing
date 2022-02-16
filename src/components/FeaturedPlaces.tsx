@@ -1,10 +1,11 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import GoogleMap from './atoms/GoogleMap'
-import PlaceMarker from './atoms/PlaceMarker'
+import GoogleMap from './organisms/GoogleMap'
+import PlaceMarker from './organisms/PlaceMarker'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import {
@@ -15,6 +16,7 @@ import {
 } from 'generated/graphql'
 import { StepperHandlerContext } from './RoutePlanner'
 import CategorySelector from './CategorySelector'
+import SpotCard from './organisms/SpotCard'
 
 const FeaturedPlaces = () => {
   const [getPrefecture, { loading, data, error }] = useGetPrefectureLazyQuery()
@@ -61,32 +63,62 @@ const FeaturedPlaces = () => {
   }
 
   return (
-    <Stack alignItems="center">
-      <CategorySelector onChange={handleSelectCategory} />
-      <GoogleMap
-        center={target ? { lat: target.lat, lng: target.lng } : undefined}
-        zoom={target?.zoom}>
-        <>
-          {target &&
-            spots.map(item => (
-              <PlaceMarker
-                key={item.place_id}
-                name={item.name}
-                placeId={item.place_id}
-                lat={item.lat}
-                lng={item.lng}
-              />
-            ))}
-        </>
-      </GoogleMap>
-      <Typography>Selected Spots:</Typography>
-      <Typography>{places.map(place => place.name).join(', ')}</Typography>
+    <>
+      <Box sx={{ position: 'relative' }}>
+        <GoogleMap
+          center={target ? { lat: target.lat, lng: target.lng } : undefined}
+          zoom={target?.zoom}>
+          <>
+            {target &&
+              spots.map(item => (
+                <PlaceMarker
+                  key={item.place_id}
+                  name={item.name}
+                  placeId={item.place_id}
+                  lat={item.lat}
+                  lng={item.lng}
+                />
+              ))}
+            {places.length > 0 && <SpotCard placeId={places[0].placeId} />}
+          </>
+        </GoogleMap>
+        <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
+          <CategorySelector onChange={handleSelectCategory} />
+        </Box>
+        <Box
+          sx={{
+            zIndex: 10,
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            pb: 2,
+          }}>
+          {places.length > 0 && (
+            <SpotCard placeId={places.slice(-1)[0].placeId} />
+          )}
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          gridArea: '1/2',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+        }}>
+        <Typography>Selected Spots:</Typography>
+        <Stack spacing={2}>
+          {places.map(place => (
+            <SpotCard key={place.placeId} placeId={place.placeId} />
+          ))}
+        </Stack>
+      </Box>
       <Stack alignItems="end">
         <Button disabled={places.length < 2} onClick={handleNext}>
           Get Route
         </Button>
       </Stack>
-    </Stack>
+    </>
   )
 }
 
