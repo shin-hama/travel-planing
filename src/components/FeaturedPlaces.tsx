@@ -7,7 +7,10 @@ import Typography from '@mui/material/Typography'
 import GoogleMap from './organisms/GoogleMap'
 import PlaceMarker from './organisms/PlaceMarker'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
-import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
+import {
+  SelectedPlacesContext,
+  useSelectedPlacesActions,
+} from 'contexts/SelectedPlacesProvider'
 import {
   GetPrefectureQuery,
   GetSpotsByCategoryQuery,
@@ -28,6 +31,7 @@ const FeaturedPlaces = () => {
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
 
   const selected = React.useContext(SelectedPrefectureContext)
+  const [focusedSpot, setFocusedSpot] = React.useState('')
   const places = React.useContext(SelectedPlacesContext)
   const handleNext = React.useContext(StepperHandlerContext)
 
@@ -54,6 +58,23 @@ const FeaturedPlaces = () => {
     setSpots(typesResults.data?.spots || [])
   }
 
+  const handleMarkerClicked = (placeId: string) => {
+    setFocusedSpot(placeId)
+  }
+
+  const actions = useSelectedPlacesActions()
+
+  const handleClickAdd = () => {
+    if (focusedSpot) {
+      actions.push({ placeId: focusedSpot })
+      setFocusedSpot('')
+    }
+  }
+
+  const handleClickRemove = (placeId: string) => {
+    actions.filter(item => item.placeId !== placeId)
+  }
+
   if (error) {
     console.error(error)
   }
@@ -64,7 +85,7 @@ const FeaturedPlaces = () => {
 
   return (
     <>
-      <Box sx={{ position: 'relative' }}>
+      <Box sx={{ position: 'relative', width: '100%' }}>
         <GoogleMap
           center={target ? { lat: target.lat, lng: target.lng } : undefined}
           zoom={target?.zoom}>
@@ -73,13 +94,12 @@ const FeaturedPlaces = () => {
               spots.map(item => (
                 <PlaceMarker
                   key={item.place_id}
-                  name={item.name}
                   placeId={item.place_id}
                   lat={item.lat}
                   lng={item.lng}
+                  onClick={handleMarkerClicked}
                 />
               ))}
-            {places.length > 0 && <SpotCard placeId={places[0].placeId} />}
           </>
         </GoogleMap>
         <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
@@ -93,9 +113,23 @@ const FeaturedPlaces = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             pb: 2,
+            width: '90%',
+            maxWidth: '400px',
+            maxHeight: '150px',
           }}>
-          {places.length > 0 && (
-            <SpotCard placeId={places.slice(-1)[0].placeId} />
+          {focusedSpot && (
+            <SpotCard
+              placeId={focusedSpot}
+              actionNode={
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleClickAdd}
+                  sx={{ marginLeft: 'auto' }}>
+                  Add
+                </Button>
+              }
+            />
           )}
         </Box>
       </Box>
@@ -106,18 +140,30 @@ const FeaturedPlaces = () => {
           flexDirection: 'column',
           justifyContent: 'flex-end',
         }}>
-        <Typography>Selected Spots:</Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography sx={{ flexGrow: 1 }}>Selected Spots:</Typography>
+          <Button disabled={places.length < 2} onClick={handleNext}>
+            Get Route
+          </Button>
+        </Stack>
         <Stack spacing={2}>
           {places.map(place => (
-            <SpotCard key={place.placeId} placeId={place.placeId} />
+            <SpotCard
+              key={place.placeId}
+              placeId={place.placeId}
+              actionNode={
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => handleClickRemove(place.placeId)}
+                  sx={{ marginLeft: 'auto' }}>
+                  Remove
+                </Button>
+              }
+            />
           ))}
         </Stack>
       </Box>
-      <Stack alignItems="end">
-        <Button disabled={places.length < 2} onClick={handleNext}>
-          Get Route
-        </Button>
-      </Stack>
     </>
   )
 }

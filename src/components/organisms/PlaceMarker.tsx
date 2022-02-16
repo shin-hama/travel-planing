@@ -1,17 +1,15 @@
 import React from 'react'
 import { Marker } from '@react-google-maps/api'
-import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
-  name: string
   placeId: string
   lat: number
   lng: number
+  onClick: (placeId: string) => void
 }
-const PlaceMarker: React.FC<Props> = ({ name, placeId, lat, lng }) => {
-  const { push } = useSelectedPlacesActions()
+const PlaceMarker: React.FC<Props> = ({ placeId, lat, lng, onClick }) => {
   const handleClick = () => {
-    push({ name: name, placeId })
+    onClick(placeId)
   }
   return <Marker position={{ lat, lng }} onClick={handleClick}></Marker>
 }

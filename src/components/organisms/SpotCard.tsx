@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Card from '@mui/material/Card'
+import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Grid from '@mui/material/Grid'
@@ -10,8 +11,12 @@ import { usePlaces } from 'hooks/usePlaces'
 
 type Props = {
   placeId: string
+  actionNode?: React.ReactNode
 }
-const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
+const SpotCard: React.FC<Props> = React.memo(function SpotCard({
+  placeId,
+  actionNode,
+}) {
   const [getSpot, { data, loading, error }] = useGetSpotByPkLazyQuery()
   const [subtitle, setSubtitle] = React.useState('')
   const placesService = usePlaces()
@@ -53,21 +58,19 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   if (error) {
     return <Card>Error</Card>
   }
+
   return (
-    <Card
-      sx={{
-        maxWidth: '360px',
-        maxHeight: '120px',
-      }}>
+    <Card sx={{}}>
       {loading ? (
         <>Now loading...</>
       ) : (
         <Grid container>
           <Grid item xs={8}>
             <CardContent>
-              <Typography variant="h5">{data?.spots_by_pk?.name}</Typography>
+              <Typography variant="h6">{data?.spots_by_pk?.name}</Typography>
               <Typography variant="subtitle2">{subtitle}</Typography>
             </CardContent>
+            {actionNode && <CardActions>{actionNode}</CardActions>}
           </Grid>
           <Grid item xs={4}>
             {photos.length > 0 && (
