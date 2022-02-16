@@ -8,8 +8,8 @@ import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 
 const containerStyle = {
-  width: '400px',
-  height: '400px',
+  width: '100%',
+  height: '100vh',
 }
 
 const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }
@@ -41,6 +41,11 @@ const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
   return (
     <GoogleMapLib
       mapContainerStyle={containerStyle}
+      options={{
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false,
+      }}
       center={center}
       zoom={zoom}
       onLoad={onLoad}>

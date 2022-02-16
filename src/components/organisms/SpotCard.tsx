@@ -11,7 +11,7 @@ import { usePlaces } from 'hooks/usePlaces'
 type Props = {
   placeId: string
 }
-const SpotCard: React.FC<Props> = ({ placeId }) => {
+const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   const [getSpot, { data, loading, error }] = useGetSpotByPkLazyQuery()
   const [subtitle, setSubtitle] = React.useState('')
   const placesService = usePlaces()
@@ -25,7 +25,6 @@ const SpotCard: React.FC<Props> = ({ placeId }) => {
   React.useEffect(() => {
     const func = async () => {
       const result = await getSpot({ variables: { place_id: placeId } })
-      console.log(result)
 
       const categories = result.data?.spots_by_pk?.spots_types
         .map(types => {
@@ -44,15 +43,12 @@ const SpotCard: React.FC<Props> = ({ placeId }) => {
       return
     }
     countRef.current += 1
+    console.log('get photos')
 
     placesService.getPhotos(placeId).then(results => {
       setPhotos(results)
     })
   }, [placeId, placesService])
-
-  React.useEffect(() => {
-    console.log(photos)
-  }, [photos])
 
   if (error) {
     return <Card>Error</Card>
@@ -89,6 +85,6 @@ const SpotCard: React.FC<Props> = ({ placeId }) => {
       )}
     </Card>
   )
-}
+})
 
 export default SpotCard
