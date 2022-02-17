@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 
@@ -136,7 +137,11 @@ const FeaturedPlaces = () => {
           )}
         </Box>
         <Box sx={{ position: 'absolute', bottom: 0, left: 0, pb: 2, pl: 1 }}>
-          <Button onClick={handleOpen}>Spots List</Button>
+          <Badge badgeContent={places.length} color="primary">
+            <Button variant="contained" onClick={handleOpen}>
+              Spots List
+            </Button>
+          </Badge>
         </Box>
         <Box sx={{ position: 'absolute', bottom: 0, right: 0, pb: 2, pr: 1 }}>
           <Button
