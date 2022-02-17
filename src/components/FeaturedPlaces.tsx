@@ -1,8 +1,7 @@
 import * as React from 'react'
+import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
 
 import GoogleMap from './organisms/GoogleMap'
 import PlaceMarker from './organisms/PlaceMarker'
@@ -20,6 +19,7 @@ import {
 import { StepperHandlerContext } from './RoutePlanner'
 import CategorySelector from './organisms/CategorySelector'
 import SpotCard from './organisms/SpotCard'
+import SpotsCandidates from './organisms/SpotsCandidates'
 
 const FeaturedPlaces = () => {
   const [getPrefecture, { loading, data, error }] = useGetPrefectureLazyQuery()
@@ -32,8 +32,10 @@ const FeaturedPlaces = () => {
 
   const selected = React.useContext(SelectedPrefectureContext)
   const [focusedSpot, setFocusedSpot] = React.useState('')
+  const [open, setOpen] = React.useState(false)
   const places = React.useContext(SelectedPlacesContext)
   const handleNext = React.useContext(StepperHandlerContext)
+  const actions = useSelectedPlacesActions()
 
   React.useEffect(() => {
     if (selected) {
@@ -65,8 +67,6 @@ const FeaturedPlaces = () => {
     setFocusedSpot(placeId)
   }
 
-  const actions = useSelectedPlacesActions()
-
   const handleClickAdd = () => {
     if (focusedSpot) {
       actions.push({ placeId: focusedSpot })
@@ -74,8 +74,12 @@ const FeaturedPlaces = () => {
     }
   }
 
-  const handleClickRemove = (placeId: string) => {
-    actions.filter(item => item.placeId !== placeId)
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
   }
 
   if (error) {
@@ -135,38 +139,23 @@ const FeaturedPlaces = () => {
             />
           )}
         </Box>
-      </Box>
-      <Box
-        sx={{
-          gridArea: '1/2',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-        }}>
-        <Stack direction="row" alignItems="center">
-          <Typography sx={{ flexGrow: 1 }}>Selected Spots:</Typography>
-          <Button disabled={places.length < 2} onClick={handleNext}>
+        <Box sx={{ position: 'absolute', bottom: 0, left: 0, pb: 2, pl: 1 }}>
+          <Badge badgeContent={places.length} color="primary">
+            <Button variant="contained" onClick={handleOpen}>
+              Spots List
+            </Button>
+          </Badge>
+        </Box>
+        <Box sx={{ position: 'absolute', bottom: 0, right: 0, pb: 2, pr: 1 }}>
+          <Button
+            variant="contained"
+            disabled={places.length < 2}
+            onClick={handleNext}>
             Get Route
-          </Button>
-        </Stack>
-        <Stack spacing={2}>
-          {places.map(place => (
-            <SpotCard
-              key={place.placeId}
-              placeId={place.placeId}
-              actionNode={
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handleClickRemove(place.placeId)}
-                  sx={{ marginLeft: 'auto' }}>
-                  Remove
-                </Button>
-              }
-            />
-          ))}
-        </Stack>
+          </Button>{' '}
+        </Box>
       </Box>
+      <SpotsCandidates open={open} places={places} onClose={handleClose} />
     </>
   )
 }
