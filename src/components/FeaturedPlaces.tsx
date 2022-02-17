@@ -31,6 +31,7 @@ const FeaturedPlaces = () => {
 
   const selected = React.useContext(SelectedPrefectureContext)
   const [focusedSpot, setFocusedSpot] = React.useState('')
+  const [open, setOpen] = React.useState(false)
   const places = React.useContext(SelectedPlacesContext)
   const handleNext = React.useContext(StepperHandlerContext)
   const actions = useSelectedPlacesActions()
@@ -67,6 +68,14 @@ const FeaturedPlaces = () => {
       actions.push({ placeId: focusedSpot })
       setFocusedSpot('')
     }
+  }
+
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
   }
 
   if (error) {
@@ -126,8 +135,19 @@ const FeaturedPlaces = () => {
             />
           )}
         </Box>
+        <Box sx={{ position: 'absolute', bottom: 0, left: 0, pb: 2, pl: 1 }}>
+          <Button onClick={handleOpen}>Spots List</Button>
+        </Box>
+        <Box sx={{ position: 'absolute', bottom: 0, right: 0, pb: 2, pr: 1 }}>
+          <Button
+            variant="contained"
+            disabled={places.length < 2}
+            onClick={handleNext}>
+            Get Route
+          </Button>{' '}
+        </Box>
       </Box>
-      <SpotsCandidates places={places} handleNext={handleNext} />
+      <SpotsCandidates open={open} places={places} onClose={handleClose} />
     </>
   )
 }

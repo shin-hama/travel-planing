@@ -45,6 +45,8 @@ const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
         mapTypeControl: false,
         fullscreenControl: false,
         streetViewControl: false,
+        zoomControl: false,
+        keyboardShortcuts: false,
       }}
       center={center}
       zoom={zoom}
