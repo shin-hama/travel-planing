@@ -34,6 +34,9 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const id = Number.parseInt(event.target.value)
     setSelectedId(id)
+
+    // なにか選択されたら選択肢の一覧を閉じる
+    setAnchorEl(null)
   }
 
   React.useEffect(() => {
@@ -56,7 +59,15 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
 
   return (
     <>
-      <Chip label={`Category: ${label}`} onClick={handleClick} />
+      <Chip
+        label={`Category: ${label}`}
+        onClick={handleClick}
+        color="info"
+        sx={{
+          fontSize: 'large',
+          borderRadius: 2,
+        }}
+      />
       <Popper
         id={id}
         open={open}
@@ -64,9 +75,9 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
         placement="bottom-start"
         style={{ width: '80%' }}>
         <Paper>
-          <Box>
+          <Box sx={{ p: 1.5 }}>
             <FormControl>
-              <FormLabel id="categories-group-label">Category</FormLabel>
+              <FormLabel id="categories-group-label">Categories</FormLabel>
               <RadioGroup
                 row
                 aria-labelledby="categories-group-label"

@@ -105,7 +105,7 @@ const FeaturedPlaces = () => {
               ))}
           </>
         </GoogleMap>
-        <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
+        <Box sx={{ position: 'absolute', left: 0, top: 0, ml: 2, mt: 2 }}>
           <CategorySelector onChange={handleSelectCategory} />
         </Box>
         <Box
