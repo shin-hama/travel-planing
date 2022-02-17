@@ -5,7 +5,7 @@ import JapanMap from './atoms/JapanMap'
 
 const PrefectureSelector = () => {
   return (
-    <Stack alignItems="center">
+    <Stack alignItems="center" sx={{ height: '100%' }}>
       <JapanMap />
     </Stack>
   )
