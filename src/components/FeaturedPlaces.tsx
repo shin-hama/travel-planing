@@ -18,7 +18,7 @@ import {
   useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
 import { StepperHandlerContext } from './RoutePlanner'
-import CategorySelector from './CategorySelector'
+import CategorySelector from './organisms/CategorySelector'
 import SpotCard from './organisms/SpotCard'
 
 const FeaturedPlaces = () => {
@@ -47,16 +47,19 @@ const FeaturedPlaces = () => {
     }
   }, [data])
 
-  const handleSelectCategory = async (id: string) => {
-    const typesResults = await getSpots({
-      variables: { categoryId: Number.parseInt(id) },
-    })
-    if (typesResults.error) {
-      console.error(`Fail to fetch types by category id ${id}`)
-    }
-    console.log(typesResults)
-    setSpots(typesResults.data?.spots || [])
-  }
+  const handleSelectCategory = React.useCallback(
+    async (id: number) => {
+      const typesResults = await getSpots({
+        variables: { categoryId: id },
+      })
+      if (typesResults.error) {
+        console.error(`Fail to fetch types by category id ${id}`)
+      }
+      console.log(typesResults)
+      setSpots(typesResults.data?.spots || [])
+    },
+    [getSpots]
+  )
 
   const handleMarkerClicked = (placeId: string) => {
     setFocusedSpot(placeId)
@@ -102,7 +105,7 @@ const FeaturedPlaces = () => {
               ))}
           </>
         </GoogleMap>
-        <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
+        <Box sx={{ position: 'absolute', left: 0, top: 0, ml: 2, mt: 2 }}>
           <CategorySelector onChange={handleSelectCategory} />
         </Box>
         <Box
