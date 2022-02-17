@@ -9,7 +9,7 @@ import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 
 const containerStyle = {
   width: '100%',
-  height: '100vh',
+  height: '100%',
 }
 
 const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }

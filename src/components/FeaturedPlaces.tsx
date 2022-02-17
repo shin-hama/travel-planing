@@ -92,7 +92,7 @@ const FeaturedPlaces = () => {
 
   return (
     <>
-      <Box sx={{ position: 'relative', width: '100%' }}>
+      <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
         <GoogleMap
           center={target ? { lat: target.lat, lng: target.lng } : undefined}
           zoom={target?.zoom}>
