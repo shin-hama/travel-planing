@@ -57,7 +57,6 @@ const FeaturedPlaces = () => {
       if (typesResults.error) {
         console.error(`Fail to fetch types by category id ${id}`)
       }
-      console.log(typesResults)
       setSpots(typesResults.data?.spots || [])
     },
     [getSpots]

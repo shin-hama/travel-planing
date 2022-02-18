@@ -22,7 +22,6 @@ export const usePlaces = () => {
               reject(new Error('Fail to connect google maps api'))
             }
 
-            console.log(result)
             resolve(result?.photos?.map(item => item.getUrl()) || [])
           }
         )
