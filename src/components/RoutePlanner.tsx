@@ -1,9 +1,10 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Stack from '@mui/material/Stack'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
-import Button from '@mui/material/Button'
 
 import RouteViewer from './RouteViewer'
 import PrefectureSelector from './PrefectureSelector'
@@ -48,13 +49,22 @@ const RoutePlanner = () => {
           flex: 1,
           position: 'relative',
         }}>
-        <Stepper activeStep={activeStep}>
-          {steps.map(step => (
-            <Step key={step.label}>
-              <StepLabel>{step.label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+        <Stack direction="row">
+          <Button
+            color="inherit"
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            sx={{ mr: 1 }}>
+            Back
+          </Button>
+          <Stepper activeStep={activeStep} sx={{ flexGrow: 1 }}>
+            {steps.map(step => (
+              <Step key={step.label}>
+                <StepLabel>{step.label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Stack>
         <Box
           sx={{
             height: '100%',
@@ -74,13 +84,6 @@ const RoutePlanner = () => {
           </Box>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-          <Button
-            color="inherit"
-            disabled={activeStep === 0}
-            onClick={handleBack}
-            sx={{ mr: 1 }}>
-            Back
-          </Button>
           <Box sx={{ flex: '1 1 auto' }} />
           {activeStep === steps.length - 1 && (
             <Button onClick={handleReset}>Reset</Button>
