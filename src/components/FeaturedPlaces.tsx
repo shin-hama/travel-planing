@@ -2,6 +2,7 @@ import * as React from 'react'
 import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Stack from '@mui/material/Stack'
 
 import GoogleMap from './organisms/GoogleMap'
 import PlaceMarker from './organisms/PlaceMarker'
@@ -91,7 +92,14 @@ const FeaturedPlaces = () => {
 
   return (
     <>
-      <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
         <GoogleMap
           center={target ? { lat: target.lat, lng: target.lng } : undefined}
           zoom={target?.zoom}>
@@ -138,23 +146,38 @@ const FeaturedPlaces = () => {
             />
           )}
         </Box>
-        <Box sx={{ position: 'absolute', bottom: 0, left: 0, pb: 2, pl: 1 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="baseline">
           <Badge badgeContent={places.length} color="primary">
-            <Button variant="contained" onClick={handleOpen}>
+            <Button size="small" variant="text" onClick={handleOpen}>
               Spots List
             </Button>
           </Badge>
-        </Box>
-        <Box sx={{ position: 'absolute', bottom: 0, right: 0, pb: 2, pr: 1 }}>
+          <Box
+            sx={{
+              width: 30,
+              height: 6,
+              backgroundColor: theme => theme.palette.grey[300],
+              borderRadius: 3,
+            }}
+          />
           <Button
+            size="small"
             variant="contained"
             disabled={places.length < 2}
             onClick={handleNext}>
             Get Route
-          </Button>{' '}
-        </Box>
+          </Button>
+        </Stack>
       </Box>
-      <SpotsCandidates open={open} places={places} onClose={handleClose} />
+      <SpotsCandidates
+        open={open}
+        places={places}
+        onOpen={handleOpen}
+        onClose={handleClose}
+      />
     </>
   )
 }

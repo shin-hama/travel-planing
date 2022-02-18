@@ -11,9 +11,15 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 type Props = {
   open: boolean
   places: Array<Spot>
+  onOpen: () => void
   onClose: () => void
 }
-const SpotsCandidates: React.FC<Props> = ({ open, places, onClose }) => {
+const SpotsCandidates: React.FC<Props> = ({
+  open,
+  places,
+  onOpen,
+  onClose,
+}) => {
   const actions = useSelectedPlacesActions()
 
   const handleClickRemove = (placeId: string) => {
@@ -26,8 +32,8 @@ const SpotsCandidates: React.FC<Props> = ({ open, places, onClose }) => {
         anchor="bottom"
         open={open}
         onClose={onClose}
-        onOpen={() => console.log(open)}
-        disableSwipeToOpen={false}
+        onOpen={onOpen}
+        swipeAreaWidth={15}
         ModalProps={{
           keepMounted: true,
         }}>
