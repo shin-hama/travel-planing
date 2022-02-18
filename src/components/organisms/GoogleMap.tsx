@@ -17,23 +17,47 @@ const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }
 const libs: 'places'[] = ['places']
 
 type Props = {
-  center?: google.maps.LatLngLiteral
+  center?: google.maps.LatLngLiteral | google.maps.LatLng
   zoom?: number
 }
-const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
+const RenderMap: React.FC<Partial<Props>> = ({
+  center: defaultCenter,
+  zoom: defaultZoom,
+  children,
+}) => {
+  const [center, setCenter] = React.useState(defaultCenter)
+  const [zoom, setZoom] = React.useState(defaultZoom)
+  const [googleMap, setGoogleMap] = React.useState<google.maps.Map | null>(null)
   const setDirectionService = React.useContext(SetDirectionServiceContext)
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   const setPlaces = React.useContext(SetPlacesServiceContext)
+
+  const handleZoomChanged = () => {
+    if (googleMap) {
+      setZoom(googleMap?.getZoom())
+    }
+  }
+
+  const handleDragEnd = () => {
+    if (googleMap) {
+      setTimeout(() => {
+        // ドラッグ後の滑りを考慮して0.5秒待つ
+        setCenter(googleMap.getCenter())
+      }, 500)
+    }
+  }
 
   // wrapping to a function is useful in case you want to access `window.google`
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
   const onLoad = React.useCallback(
-    mapInstance => {
+    (mapInstance: google.maps.Map) => {
       // do something with map Instance
       setDirectionService(new window.google.maps.DirectionsService())
       setDistanceMatrix(new window.google.maps.DistanceMatrixService())
       setPlaces(new window.google.maps.places.PlacesService(mapInstance))
+
+      setGoogleMap(mapInstance)
     },
     [setDirectionService, setDistanceMatrix, setPlaces]
   )
@@ -50,6 +74,8 @@ const RenderMap: React.FC<Partial<Props>> = ({ center, zoom, children }) => {
       }}
       center={center}
       zoom={zoom}
+      onDragEnd={handleDragEnd}
+      onZoomChanged={handleZoomChanged}
       onLoad={onLoad}>
       {/* Child components, such as markers, info windows, etc. */}
       {children}

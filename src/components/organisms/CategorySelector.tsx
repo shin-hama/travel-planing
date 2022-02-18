@@ -23,7 +23,6 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   const id = open ? 'simple-popper' : undefined
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    console.log(event.currentTarget)
     setAnchorEl(anchorEl ? null : event.currentTarget)
   }
 
