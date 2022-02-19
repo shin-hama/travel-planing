@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -29,7 +30,7 @@ type ArrowProps = {
 const RouteArrow: React.FC<ArrowProps> = ({ text }) => {
   return (
     <Stack direction="row" spacing={2} alignItems="center">
-      <FontAwesomeIcon icon={faDownLong} />
+      <FontAwesomeIcon icon={faDownLong} size="lg" />
       <Typography>{text}</Typography>
     </Stack>
   )
@@ -96,8 +97,8 @@ const RouteViewer = () => {
         <>
           {places.map((place, i) => (
             <div key={place.placeId}>
-              <Stack alignItems="center">
-                <SpotCard placeId={place.placeId} />
+              <SpotCard placeId={place.placeId} />
+              <Box sx={{ py: 2, pl: 4 }}>
                 <RouteArrow
                   text={
                     i < durations.length
@@ -107,7 +108,7 @@ const RouteViewer = () => {
                       : ''
                   }
                 />
-              </Stack>
+              </Box>
             </div>
           ))}
           <>
