@@ -92,7 +92,7 @@ const SpotsMap = () => {
         </>
       </GoogleMap>
       <Box sx={{ position: 'absolute', left: 0, top: 0, ml: 2, mt: 2 }}>
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={1} alignItems="center">
           <SearchBox />
           <CategorySelector onChange={handleSelectCategory} />
         </Stack>

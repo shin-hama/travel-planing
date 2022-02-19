@@ -39,3 +39,12 @@ export const GET_SPOT_BY_ID = gql`
     }
   }
 `
+
+export const GET_SPOTS_WITH_MATCHING_NAME = gql`
+  query GetSpotsWithMatchingName($name: String!) {
+    spots(limit: 10, where: { name: { _regex: $name } }) {
+      name
+      place_id
+    }
+  }
+`
