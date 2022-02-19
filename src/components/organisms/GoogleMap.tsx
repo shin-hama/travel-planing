@@ -20,11 +20,11 @@ type Props = {
   center?: google.maps.LatLngLiteral | google.maps.LatLng
   zoom?: number
 }
-const RenderMap: React.FC<Partial<Props>> = ({
+const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
   center: defaultCenter,
   zoom: defaultZoom,
   children,
-}) => {
+}) {
   const [center, setCenter] = React.useState(defaultCenter)
   const [zoom, setZoom] = React.useState(defaultZoom)
   const [googleMap, setGoogleMap] = React.useState<google.maps.Map | null>(null)
@@ -38,12 +38,9 @@ const RenderMap: React.FC<Partial<Props>> = ({
     }
   }
 
-  const handleDragEnd = () => {
+  const handleIdled = () => {
     if (googleMap) {
-      setTimeout(() => {
-        // ドラッグ後の滑りを考慮して0.5秒待つ
-        setCenter(googleMap.getCenter())
-      }, 500)
+      setCenter(googleMap.getCenter())
     }
   }
 
@@ -74,14 +71,14 @@ const RenderMap: React.FC<Partial<Props>> = ({
       }}
       center={center}
       zoom={zoom}
-      onDragEnd={handleDragEnd}
+      onIdle={handleIdled}
       onZoomChanged={handleZoomChanged}
       onLoad={onLoad}>
       {/* Child components, such as markers, info windows, etc. */}
       {children}
     </GoogleMapLib>
   )
-}
+})
 
 const GoogleMap: React.FC<Props> = ({
   center = defaultCenter,

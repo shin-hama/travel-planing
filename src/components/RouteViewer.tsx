@@ -1,5 +1,10 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faDownLong } from '@fortawesome/free-solid-svg-icons'
 
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDirections } from 'hooks/useDirections'
@@ -17,6 +22,18 @@ const sum = (arr: Array<number>) => {
   return arr.reduce((prev, current, i, arr) => {
     return prev + current
   })
+}
+
+type ArrowProps = {
+  text: string
+}
+const RouteArrow: React.FC<ArrowProps> = ({ text }) => {
+  return (
+    <Stack direction="row" spacing={2} alignItems="center">
+      <FontAwesomeIcon icon={faDownLong} size="lg" />
+      <Typography>{text}</Typography>
+    </Stack>
+  )
 }
 
 const RouteViewer = () => {
@@ -75,24 +92,25 @@ const RouteViewer = () => {
   }, [])
 
   return (
-    <>
+    <Container maxWidth="xs">
       {places.length > 0 && (
         <>
-          <>
-            {places.map((place, i) => (
-              <div key={place.placeId}>
-                <SpotCard placeId={place.placeId} />
-                <Typography>
-                  {' '}
-                  ↓{' '}
-                  {i < durations.length &&
-                    `${secondsToHourMin(durations[i].duration.value)}: ${
-                      durations[i].distance.text
-                    }`}
-                </Typography>
-              </div>
-            ))}
-          </>
+          {places.map((place, i) => (
+            <div key={place.placeId}>
+              <SpotCard placeId={place.placeId} />
+              <Box sx={{ py: 2, pl: 4 }}>
+                <RouteArrow
+                  text={
+                    i < durations.length
+                      ? `${secondsToHourMin(durations[i].duration.value)}: ${
+                          durations[i].distance.text
+                        }`
+                      : ''
+                  }
+                />
+              </Box>
+            </div>
+          ))}
           <>
             {durations.length === 0 ? (
               <>Calculating route duration...</>
@@ -106,7 +124,7 @@ const RouteViewer = () => {
           </>
         </>
       )}
-    </>
+    </Container>
   )
 }
 
