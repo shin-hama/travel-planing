@@ -60,7 +60,7 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
   }
 
   return (
-    <Card sx={{}}>
+    <Card>
       {loading ? (
         <>Now loading...</>
       ) : (

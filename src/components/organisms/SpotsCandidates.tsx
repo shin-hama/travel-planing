@@ -1,6 +1,7 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
@@ -62,23 +63,25 @@ const SpotsCandidates: React.FC<Props> = ({
               p: 2,
               overflow: 'auto',
             }}>
-            <Stack spacing={2}>
-              {places.map(place => (
-                <SpotCard
-                  key={place.placeId}
-                  placeId={place.placeId}
-                  actionNode={
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => handleClickRemove(place.placeId)}
-                      sx={{ marginLeft: 'auto' }}>
-                      Remove
-                    </Button>
-                  }
-                />
-              ))}
-            </Stack>
+            <Container maxWidth="xs">
+              <Stack spacing={2}>
+                {places.map(place => (
+                  <SpotCard
+                    key={place.placeId}
+                    placeId={place.placeId}
+                    actionNode={
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => handleClickRemove(place.placeId)}
+                        sx={{ marginLeft: 'auto' }}>
+                        Remove
+                      </Button>
+                    }
+                  />
+                ))}
+              </Stack>
+            </Container>
           </Box>
         </Box>
       </SwipeableDrawer>
