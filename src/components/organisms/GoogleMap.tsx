@@ -38,12 +38,9 @@ const RenderMap: React.FC<Partial<Props>> = ({
     }
   }
 
-  const handleDragEnd = () => {
+  const handleIdled = () => {
     if (googleMap) {
-      setTimeout(() => {
-        // ドラッグ後の滑りを考慮して0.5秒待つ
-        setCenter(googleMap.getCenter())
-      }, 500)
+      setCenter(googleMap.getCenter())
     }
   }
 
@@ -74,7 +71,7 @@ const RenderMap: React.FC<Partial<Props>> = ({
       }}
       center={center}
       zoom={zoom}
-      onDragEnd={handleDragEnd}
+      onIdle={handleIdled}
       onZoomChanged={handleZoomChanged}
       onLoad={onLoad}>
       {/* Child components, such as markers, info windows, etc. */}
