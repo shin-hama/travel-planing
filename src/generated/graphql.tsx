@@ -1720,6 +1720,13 @@ export type GetSpotByPkQueryVariables = Exact<{
 
 export type GetSpotByPkQuery = { __typename?: 'query_root', spots_by_pk?: { __typename?: 'spots', name: string, lng: number, lat: number, place_id: string, prefecture: { __typename?: 'prefectures', name: string }, spots_types: Array<{ __typename?: 'spot_type', type: { __typename?: 'types', category_types: Array<{ __typename?: 'category_type', category: { __typename?: 'categories', name: string } }> } }> } | null };
 
+export type GetSpotsWithMatchingNameQueryVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type GetSpotsWithMatchingNameQuery = { __typename?: 'query_root', spots: Array<{ __typename?: 'spots', name: string, place_id: string }> };
+
 export type GetTypesByCategoryQueryVariables = Exact<{
   category_id: Scalars['Int'];
 }>;
@@ -1972,6 +1979,42 @@ export function useGetSpotByPkLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetSpotByPkQueryHookResult = ReturnType<typeof useGetSpotByPkQuery>;
 export type GetSpotByPkLazyQueryHookResult = ReturnType<typeof useGetSpotByPkLazyQuery>;
 export type GetSpotByPkQueryResult = Apollo.QueryResult<GetSpotByPkQuery, GetSpotByPkQueryVariables>;
+export const GetSpotsWithMatchingNameDocument = gql`
+    query GetSpotsWithMatchingName($name: String!) {
+  spots(limit: 10, where: {name: {_regex: $name}}) {
+    name
+    place_id
+  }
+}
+    `;
+
+/**
+ * __useGetSpotsWithMatchingNameQuery__
+ *
+ * To run a query within a React component, call `useGetSpotsWithMatchingNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSpotsWithMatchingNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSpotsWithMatchingNameQuery({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useGetSpotsWithMatchingNameQuery(baseOptions: Apollo.QueryHookOptions<GetSpotsWithMatchingNameQuery, GetSpotsWithMatchingNameQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSpotsWithMatchingNameQuery, GetSpotsWithMatchingNameQueryVariables>(GetSpotsWithMatchingNameDocument, options);
+      }
+export function useGetSpotsWithMatchingNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSpotsWithMatchingNameQuery, GetSpotsWithMatchingNameQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSpotsWithMatchingNameQuery, GetSpotsWithMatchingNameQueryVariables>(GetSpotsWithMatchingNameDocument, options);
+        }
+export type GetSpotsWithMatchingNameQueryHookResult = ReturnType<typeof useGetSpotsWithMatchingNameQuery>;
+export type GetSpotsWithMatchingNameLazyQueryHookResult = ReturnType<typeof useGetSpotsWithMatchingNameLazyQuery>;
+export type GetSpotsWithMatchingNameQueryResult = Apollo.QueryResult<GetSpotsWithMatchingNameQuery, GetSpotsWithMatchingNameQueryVariables>;
 export const GetTypesByCategoryDocument = gql`
     query GetTypesByCategory($category_id: Int!) {
   category_type(where: {category_id: {_eq: $category_id}}) {
