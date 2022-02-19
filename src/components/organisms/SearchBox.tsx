@@ -1,4 +1,6 @@
 import * as React from 'react'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Dialog from '@mui/material/Dialog'
@@ -16,15 +18,18 @@ const SearchBox = () => {
   const [open, setOpen] = React.useState(false)
   const [text, setText] = React.useState('')
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
+  const theme = useTheme()
+  const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const [getSpots, { data, loading, error }] =
-    useGetSpotsWithMatchingNameLazyQuery()
+  const [getSpots, { loading, error }] = useGetSpotsWithMatchingNameLazyQuery()
+  const [searchedSpots, setSearchedSpots] = React.useState<Array<string>>([])
 
   const handleOpen = () => {
     setOpen(true)
   }
   const handleClose = () => {
     setText('')
+    setSearchedSpots([])
     setOpen(false)
   }
 
@@ -42,9 +47,12 @@ const SearchBox = () => {
       return
     }
 
-    timerRef.current = setTimeout(() => {
+    timerRef.current = setTimeout(async () => {
       console.log('test')
-      getSpots({ variables: { name: `.*${text}.*` } })
+      const { data } = await getSpots({ variables: { name: `.*${text}.*` } })
+      if (data) {
+        setSearchedSpots(data.spots.map(spot => spot.place_id))
+      }
     }, 500)
   }, [getSpots, text])
 
@@ -62,7 +70,11 @@ const SearchBox = () => {
           <FontAwesomeIcon color="white" size="xs" icon={faSearch} />
         </IconButton>
       </Box>
-      <Dialog open={open} onClose={handleClose} maxWidth="md">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="md"
+        fullScreen={isSmall}>
         <DialogContent>
           <TextField
             fullWidth
@@ -84,9 +96,11 @@ const SearchBox = () => {
               <>Now loading...</>
             ) : (
               <Container maxWidth="xs">
-                <SpotsList
-                  spots={data?.spots.map(spot => spot.place_id) || []}
-                />
+                {searchedSpots.length > 0 ? (
+                  <SpotsList spots={searchedSpots} />
+                ) : (
+                  <>No result</>
+                )}
               </Container>
             )}
           </Box>
