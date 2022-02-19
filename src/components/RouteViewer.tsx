@@ -10,6 +10,7 @@ import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDirections } from 'hooks/useDirections'
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import SpotCard from './organisms/SpotCard'
+import PlanEditor from './organisms/PlanEditor'
 
 const secondsToHourMin = (sec: number): string => {
   const h = Math.floor(sec / 3600)
@@ -93,6 +94,7 @@ const RouteViewer = () => {
 
   return (
     <Container maxWidth="xs">
+      <PlanEditor />
       {places.length > 0 && (
         <>
           {places.map((place, i) => (
