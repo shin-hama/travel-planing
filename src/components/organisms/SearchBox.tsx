@@ -6,10 +6,10 @@ import Container from '@mui/material/Container'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
+import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faClose, faSearch } from '@fortawesome/free-solid-svg-icons'
 
 import { useGetSpotsWithMatchingNameLazyQuery } from 'generated/graphql'
 import SpotsList from './SpotsList'
@@ -83,19 +83,18 @@ const SearchBox = () => {
           },
         }}>
         <DialogContent>
-          <TextField
-            fullWidth
-            value={text}
-            onChange={handleChanged}
-            placeholder="Search..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FontAwesomeIcon icon={faSearch} onClick={handleOpen} />
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Stack direction="row" spacing={2}>
+            <IconButton disableTouchRipple onClick={handleClose}>
+              <FontAwesomeIcon icon={faClose} />
+            </IconButton>
+            <TextField
+              fullWidth
+              variant="standard"
+              value={text}
+              onChange={handleChanged}
+              placeholder="Search..."
+            />
+          </Stack>
           <Box pt={2}>
             {error ? (
               <>Error</>

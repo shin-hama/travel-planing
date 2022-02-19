@@ -5,6 +5,8 @@ import Stack from '@mui/material/Stack'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 
 import RouteViewer from './RouteViewer'
 import PrefectureSelector from './PrefectureSelector'
@@ -55,6 +57,9 @@ const RoutePlanner = () => {
             disabled={activeStep === 0}
             onClick={handleBack}
             sx={{ mr: 1 }}>
+            <Box pr={1}>
+              <FontAwesomeIcon icon={faAngleLeft} />
+            </Box>
             Back
           </Button>
           <Stepper activeStep={activeStep} sx={{ flexGrow: 1 }}>
