@@ -67,8 +67,12 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
         <Grid container>
           <Grid item xs={8}>
             <CardContent>
-              <Typography variant="h6">{data?.spots_by_pk?.name}</Typography>
-              <Typography variant="subtitle2">{subtitle}</Typography>
+              <Typography variant="h6" noWrap>
+                {data?.spots_by_pk?.name}
+              </Typography>
+              <Typography variant="subtitle2" noWrap>
+                {subtitle}
+              </Typography>
             </CardContent>
             {actionNode && <CardActions>{actionNode}</CardActions>}
           </Grid>
