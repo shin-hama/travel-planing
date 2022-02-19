@@ -38,7 +38,7 @@ const FeaturedPlaces = () => {
           justifyContent="space-between"
           alignItems="baseline">
           <Badge badgeContent={places.length} color="primary">
-            <Button size="small" variant="text" onClick={handleOpen}>
+            <Button variant="text" onClick={handleOpen}>
               Spots List
             </Button>
           </Badge>
@@ -51,7 +51,6 @@ const FeaturedPlaces = () => {
             }}
           />
           <Button
-            size="small"
             variant="contained"
             disabled={places.length < 2}
             onClick={handleNext}>
