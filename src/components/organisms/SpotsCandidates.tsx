@@ -1,13 +1,12 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import { Spot, useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
-import SpotCard from './SpotCard'
+import { Spot } from 'contexts/SelectedPlacesProvider'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import SpotsList from './SpotsList'
 
 type Props = {
   open: boolean
@@ -21,12 +20,6 @@ const SpotsCandidates: React.FC<Props> = ({
   onOpen,
   onClose,
 }) => {
-  const actions = useSelectedPlacesActions()
-
-  const handleClickRemove = (placeId: string) => {
-    actions.filter(item => item.placeId !== placeId)
-  }
-
   return (
     <>
       <SwipeableDrawer
@@ -64,23 +57,7 @@ const SpotsCandidates: React.FC<Props> = ({
               overflow: 'auto',
             }}>
             <Container maxWidth="xs">
-              <Stack spacing={2}>
-                {places.map(place => (
-                  <SpotCard
-                    key={place.placeId}
-                    placeId={place.placeId}
-                    actionNode={
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => handleClickRemove(place.placeId)}
-                        sx={{ marginLeft: 'auto' }}>
-                        Remove
-                      </Button>
-                    }
-                  />
-                ))}
-              </Stack>
+              <SpotsList spots={places.map(place => place.placeId)} />
             </Container>
           </Box>
         </Box>

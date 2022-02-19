@@ -1,14 +1,11 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
 import CategorySelector from './CategorySelector'
 import GoogleMap from './GoogleMap'
 import PlaceMarker from './PlaceMarker'
-import SpotCard from './SpotCard'
 import SearchBox from './SearchBox'
-import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import {
   GetPrefectureQuery,
@@ -16,6 +13,7 @@ import {
   useGetPrefectureLazyQuery,
   useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
+import SpotsList from './SpotsList'
 
 const SpotsMap = () => {
   const [target, setTarget] = React.useState<
@@ -27,7 +25,6 @@ const SpotsMap = () => {
   const selected = React.useContext(SelectedPrefectureContext)
 
   const [focusedSpot, setFocusedSpot] = React.useState('')
-  const actions = useSelectedPlacesActions()
 
   React.useEffect(() => {
     if (data?.prefectures_by_pk) {
@@ -57,14 +54,6 @@ const SpotsMap = () => {
   const handleMarkerClicked = (placeId: string) => {
     setFocusedSpot(placeId)
   }
-
-  const handleClickAdd = React.useCallback(
-    (placeId: string) => () => {
-      actions.push({ placeId })
-      setFocusedSpot('')
-    },
-    [actions]
-  )
 
   if (error) {
     console.error(error)
@@ -110,20 +99,7 @@ const SpotsMap = () => {
           maxWidth: '400px',
           maxHeight: '150px',
         }}>
-        {focusedSpot && (
-          <SpotCard
-            placeId={focusedSpot}
-            actionNode={
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleClickAdd(focusedSpot)}
-                sx={{ marginLeft: 'auto' }}>
-                Add
-              </Button>
-            }
-          />
-        )}
+        {focusedSpot && <SpotsList spots={[focusedSpot]} />}
       </Box>
     </Box>
   )

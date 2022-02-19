@@ -1,25 +1,21 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
-import SpotCard from './SpotCard'
-import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 import { useGetSpotsWithMatchingNameLazyQuery } from 'generated/graphql'
+import SpotsList from './SpotsList'
 
 const SearchBox = () => {
   const [open, setOpen] = React.useState(false)
   const [text, setText] = React.useState('')
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
-  const actions = useSelectedPlacesActions()
 
   const [getSpots, { data, loading, error }] =
     useGetSpotsWithMatchingNameLazyQuery()
@@ -51,13 +47,6 @@ const SearchBox = () => {
       getSpots({ variables: { name: `.*${text}.*` } })
     }, 500)
   }, [getSpots, text])
-
-  const handleClickAdd = React.useCallback(
-    (placeId: string) => () => {
-      actions.push({ placeId })
-    },
-    [actions]
-  )
 
   return (
     <>
@@ -95,23 +84,9 @@ const SearchBox = () => {
               <>Now loading...</>
             ) : (
               <Container maxWidth="xs">
-                <Stack spacing={2}>
-                  {data?.spots.map(spot => (
-                    <SpotCard
-                      key={spot.place_id}
-                      placeId={spot.place_id}
-                      actionNode={
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={handleClickAdd(spot.place_id)}
-                          sx={{ marginLeft: 'auto' }}>
-                          Add
-                        </Button>
-                      }
-                    />
-                  ))}
-                </Stack>
+                <SpotsList
+                  spots={data?.spots.map(spot => spot.place_id) || []}
+                />
               </Container>
             )}
           </Box>
