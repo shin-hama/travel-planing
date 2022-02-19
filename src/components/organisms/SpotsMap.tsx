@@ -58,12 +58,13 @@ const SpotsMap = () => {
     setFocusedSpot(placeId)
   }
 
-  const handleClickAdd = () => {
-    if (focusedSpot) {
-      actions.push({ placeId: focusedSpot })
+  const handleClickAdd = React.useCallback(
+    (placeId: string) => () => {
+      actions.push({ placeId })
       setFocusedSpot('')
-    }
-  }
+    },
+    [actions]
+  )
 
   if (error) {
     console.error(error)
@@ -116,7 +117,7 @@ const SpotsMap = () => {
               <Button
                 variant="contained"
                 size="small"
-                onClick={handleClickAdd}
+                onClick={handleClickAdd(focusedSpot)}
                 sx={{ marginLeft: 'auto' }}>
                 Add
               </Button>
