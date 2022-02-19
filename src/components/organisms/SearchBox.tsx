@@ -72,9 +72,16 @@ const SearchBox = () => {
       </Box>
       <Dialog
         open={open}
+        fullWidth
+        maxWidth="sm"
+        fullScreen={isSmall}
         onClose={handleClose}
-        maxWidth="md"
-        fullScreen={isSmall}>
+        sx={{
+          '& .MuiDialog-scrollPaper': {
+            // ダイアログを画面上部に表示する
+            alignItems: 'self-start',
+          },
+        }}>
         <DialogContent>
           <TextField
             fullWidth
