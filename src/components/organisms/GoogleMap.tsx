@@ -20,11 +20,11 @@ type Props = {
   center?: google.maps.LatLngLiteral | google.maps.LatLng
   zoom?: number
 }
-const RenderMap: React.FC<Partial<Props>> = ({
+const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
   center: defaultCenter,
   zoom: defaultZoom,
   children,
-}) => {
+}) {
   const [center, setCenter] = React.useState(defaultCenter)
   const [zoom, setZoom] = React.useState(defaultZoom)
   const [googleMap, setGoogleMap] = React.useState<google.maps.Map | null>(null)
@@ -78,7 +78,7 @@ const RenderMap: React.FC<Partial<Props>> = ({
       {children}
     </GoogleMapLib>
   )
-}
+})
 
 const GoogleMap: React.FC<Props> = ({
   center = defaultCenter,
