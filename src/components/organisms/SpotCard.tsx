@@ -1,13 +1,45 @@
 import * as React from 'react'
+import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/usePlaces'
+import {
+  SelectedPlacesContext,
+  useSelectedPlacesActions,
+} from 'contexts/SelectedPlacesProvider'
+
+type ButtonProps = {
+  placeId: string
+}
+const SelectButton: React.FC<ButtonProps> = ({ placeId }) => {
+  const selectedSpots = React.useContext(SelectedPlacesContext)
+  const actions = useSelectedPlacesActions()
+
+  const isSelected = selectedSpots.some(item => item.placeId === placeId)
+
+  const handleClick = () => {
+    if (isSelected) {
+      actions.filter(item => item.placeId !== placeId)
+    } else {
+      actions.push({ placeId })
+    }
+  }
+
+  return (
+    <Button variant="contained" size="small" onClick={handleClick}>
+      {isSelected ? 'Remove' : 'Add'}
+    </Button>
+  )
+}
 
 type Props = {
   placeId: string
@@ -63,18 +95,28 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
     <Card>
       {loading ? (
         <>Now loading...</>
-      ) : (
+      ) : data?.spots_by_pk ? (
         <Grid container>
           <Grid item xs={8}>
-            <CardContent>
+            <CardContent sx={{ pb: 1 }}>
               <Typography variant="h6" noWrap>
-                {data?.spots_by_pk?.name}
+                {data.spots_by_pk.name}
               </Typography>
               <Typography variant="subtitle2" noWrap>
                 {subtitle}
               </Typography>
             </CardContent>
-            {actionNode && <CardActions>{actionNode}</CardActions>}
+            <CardActions>
+              <IconButton
+                href={`https://www.instagram.com/explore/tags/${data.spots_by_pk.name}`}
+                target="_blank"
+                rel="noopener noreferrer">
+                <FontAwesomeIcon icon={faInstagram} />
+              </IconButton>
+              <div style={{ marginLeft: 'auto' }}>
+                <SelectButton placeId={data.spots_by_pk.name} />
+              </div>
+            </CardActions>
           </Grid>
           <Grid item xs={4}>
             {photos.length > 0 && (
@@ -89,6 +131,8 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
             )}
           </Grid>
         </Grid>
+      ) : (
+        <>No data</>
       )}
     </Card>
   )
