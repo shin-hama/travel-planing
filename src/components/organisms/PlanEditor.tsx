@@ -149,7 +149,18 @@ const PlanEditor = () => {
             right: 'timeGridDay',
           }}
           initialView="timeGridDay"
-          editable={false}
+          slotDuration={'00:15:00'}
+          slotLabelInterval={'01:00:00'}
+          slotLabelFormat={{
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: false,
+            omitZeroMinute: false,
+            meridiem: 'short',
+          }}
+          dayHeaders={false}
+          allDaySlot={false}
+          editable={true}
           selectable={true}
           selectMirror={true}
           droppable={true}
