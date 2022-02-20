@@ -7,6 +7,7 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
+import Div100vh from 'react-div-100vh'
 
 import RouteViewer from './RouteViewer'
 import PrefectureSelector from './PrefectureSelector'
@@ -42,7 +43,7 @@ const RoutePlanner = () => {
   }
 
   return (
-    <Box sx={{ width: '100%', height: '100vh' }}>
+    <Div100vh style={{ width: '100%' }}>
       <Box
         sx={{
           height: '100%',
@@ -95,7 +96,7 @@ const RoutePlanner = () => {
           )}
         </Box>
       </Box>
-    </Box>
+    </Div100vh>
   )
 }
 
