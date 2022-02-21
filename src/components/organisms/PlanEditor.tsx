@@ -10,7 +10,7 @@ import { useList } from 'react-use'
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
-import SpotCard from './SpotCard'
+import SpotEventCard from './SpotEventCard'
 
 const StyledWrapper = styled('div')`
   height: 100%;
@@ -109,27 +109,13 @@ const PlanEditor = () => {
   }, [distanceMatrix, getSpot, places, setEvents])
 
   const renderEvent = (eventInfo: EventContentArg) => {
-    console.log(eventInfo)
-
     if (eventInfo.event.extendedProps.placeId) {
-      return <SpotCard placeId={eventInfo.event.extendedProps.placeId} />
+      return <SpotEventCard event={eventInfo.event} />
     }
 
     return (
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <>{eventInfo.event.title}</>
-        {eventInfo.event.extendedProps.imageUrl && (
-          <img
-            className="eventimage"
-            alt="test"
-            src={eventInfo.event.extendedProps.imageUrl}
-            style={{
-              maxHeight: '80px',
-              maxWidth: '80px',
-              aspectRatio: '1/1',
-            }}
-          />
-        )}
       </div>
     )
   }
