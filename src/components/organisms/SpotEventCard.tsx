@@ -1,7 +1,6 @@
 import * as React from 'react'
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import CardMedia from '@mui/material/CardMedia'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import { EventApi } from '@fullcalendar/react'
 
 type Props = {
@@ -9,25 +8,27 @@ type Props = {
 }
 const SpotEventCard: React.FC<Props> = ({ event }) => {
   return (
-    <Card sx={{ height: '100%' }}>
-      <Grid container sx={{}}>
-        <Grid item xs={8}>
-          {event.title}
-        </Grid>
-        <Grid item xs={4} justifyContent="center">
-          {event.extendedProps.imageUrl && (
-            <CardMedia
-              component="img"
-              src={`${event.extendedProps.imageUrl}?w=164&h=164&fit=crop&auto=format`}
-              srcSet={`${event.extendedProps.imageUrl}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-              alt={'spot'}
-              loading="lazy"
-              style={{ maxHeight: '100%', objectFit: 'cover' }}
-            />
-          )}
-        </Grid>
-      </Grid>
-    </Card>
+    <Box sx={{ height: '100%', display: 'grid' }}>
+      <Box
+        sx={{
+          height: '100%',
+          gridArea: '1/-1',
+          backgroundImage: `url(${event.extendedProps.imageUrl})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }}
+      />
+      <Box
+        sx={{
+          display: 'flex',
+          gridArea: '1/-1',
+          margin: 'auto',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+        }}>
+        <Typography>{event.title}</Typography>
+      </Box>
+    </Box>
   )
 }
 
