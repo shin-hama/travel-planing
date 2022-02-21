@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
-import FullCalendar, { EventInput } from '@fullcalendar/react' // must go before plugins
+import FullCalendar, { EventContentArg, EventInput } from '@fullcalendar/react' // must go before plugins
 import timeGridPlugin from '@fullcalendar/timegrid' // a plugin!
 import interactionPlugin from '@fullcalendar/interaction'
 import moment from 'moment'
@@ -44,6 +44,7 @@ const createEvent = (e: {
 }): EventInput => {
   return {
     id: createEventId(),
+    imageUrl: 'image',
     ...e,
   }
 }
@@ -51,7 +52,7 @@ const createEvent = (e: {
 export const createEvents = () => {
   const start = moment('09:00:00', 'HH:mm:ss')
 
-  const events = EVENTS.map(event => {
+  const events = EVENTS.map((event) => {
     const startClone = start.clone()
     start.add(event.time)
     const newEvent = createEvent({
@@ -134,12 +135,27 @@ const PlanEditor = () => {
     func()
   }, [distanceMatrix, getSpot, places, setEvents])
 
+  const renderEvent = (eventInfo: EventContentArg) => {
+    console.log(eventInfo)
+
+    return (
+      <div>
+        <p>{eventInfo.event.title}</p>
+        <img
+          className="eventimage"
+          alt="test"
+          src={eventInfo.event.extendedProps.imageUrl}
+        />
+      </div>
+    )
+  }
   return (
     <Box
       sx={{
         flexGrow: 1,
         height: '100%',
-      }}>
+      }}
+    >
       <StyledWrapper>
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
@@ -167,6 +183,7 @@ const PlanEditor = () => {
           dayMaxEvents={true}
           weekends={true}
           eventMinHeight={5}
+          eventContent={renderEvent}
           events={events} // alternatively, use the `events` setting to fetch from a feed
           // select={handleDateSelect}
           // eventContent={renderEventContent} // custom render function

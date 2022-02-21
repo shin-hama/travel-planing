@@ -67,10 +67,11 @@ const SpotsMap = () => {
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       <GoogleMap
         center={target ? { lat: target.lat, lng: target.lng } : undefined}
-        zoom={target?.zoom}>
+        zoom={target?.zoom}
+      >
         <>
           {target &&
-            spots.map(item => (
+            spots.map((item) => (
               <PlaceMarker
                 key={item.place_id}
                 placeId={item.place_id}
@@ -98,7 +99,8 @@ const SpotsMap = () => {
           width: '90%',
           maxWidth: '400px',
           maxHeight: '150px',
-        }}>
+        }}
+      >
         {focusedSpot && <SpotsList spots={[focusedSpot]} />}
       </Box>
     </Box>

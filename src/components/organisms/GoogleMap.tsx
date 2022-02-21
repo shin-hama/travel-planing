@@ -73,7 +73,8 @@ const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
       zoom={zoom}
       onIdle={handleIdled}
       onZoomChanged={handleZoomChanged}
-      onLoad={onLoad}>
+      onLoad={onLoad}
+    >
       {/* Child components, such as markers, info windows, etc. */}
       {children}
     </GoogleMapLib>

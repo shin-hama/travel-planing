@@ -24,11 +24,11 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
   const actions = useSelectedPlacesActions()
 
-  const isSelected = selectedSpots.some(item => item.placeId === placeId)
+  const isSelected = selectedSpots.some((item) => item.placeId === placeId)
 
   const handleClick = () => {
     if (isSelected) {
-      actions.filter(item => item.placeId !== placeId)
+      actions.filter((item) => item.placeId !== placeId)
     } else {
       actions.push({ placeId })
     }
@@ -64,8 +64,8 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
       const result = await getSpot({ variables: { place_id: placeId } })
 
       const categories = result.data?.spots_by_pk?.spots_types
-        .map(types => {
-          return types.type.category_types.map(cate => cate.category.name)
+        .map((types) => {
+          return types.type.category_types.map((cate) => cate.category.name)
         })
         .flat()
 
@@ -82,7 +82,7 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
     countRef.current += 1
     console.log('get photos')
 
-    placesService.getPhotos(placeId).then(results => {
+    placesService.getPhotos(placeId).then((results) => {
       setPhotos(results)
     })
   }, [placeId, placesService])
@@ -110,11 +110,12 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
               <IconButton
                 href={`https://www.instagram.com/explore/tags/${data.spots_by_pk.name}`}
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 <FontAwesomeIcon icon={faInstagram} />
               </IconButton>
               <div style={{ marginLeft: 'auto' }}>
-                <SelectButton placeId={data.spots_by_pk.name} />
+                <SelectButton placeId={data.spots_by_pk.place_id} />
               </div>
             </CardActions>
           </Grid>

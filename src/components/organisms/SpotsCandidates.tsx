@@ -30,17 +30,19 @@ const SpotsCandidates: React.FC<Props> = ({
         swipeAreaWidth={15}
         ModalProps={{
           keepMounted: true,
-        }}>
+        }}
+      >
         <Box
           sx={{
             maxHeight: '50vh',
-          }}>
+          }}
+        >
           <Box sx={{ position: 'sticky', top: 0, backgroundColor: 'white' }}>
             <Box
               sx={{
                 width: 30,
                 height: 6,
-                backgroundColor: theme => theme.palette.grey[300],
+                backgroundColor: (theme) => theme.palette.grey[300],
                 borderRadius: 3,
                 position: 'absolute',
                 top: 8,
@@ -55,9 +57,10 @@ const SpotsCandidates: React.FC<Props> = ({
             sx={{
               p: 2,
               overflow: 'auto',
-            }}>
+            }}
+          >
             <Container maxWidth="xs">
-              <SpotsList spots={places.map(place => place.placeId)} />
+              <SpotsList spots={places.map((place) => place.placeId)} />
             </Container>
           </Box>
         </Box>

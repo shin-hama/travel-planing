@@ -11,7 +11,8 @@ const RouteViewer = () => {
         display: 'flex',
         width: '100%',
         height: '100%',
-      }}>
+      }}
+    >
       <PlanEditor />
     </Container>
   )

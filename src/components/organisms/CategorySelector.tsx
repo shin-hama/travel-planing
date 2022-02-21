@@ -45,7 +45,9 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   }, [data?.categories])
 
   React.useEffect(() => {
-    setLabel(data?.categories.find(item => item.id === selectedId)?.name || '')
+    setLabel(
+      data?.categories.find((item) => item.id === selectedId)?.name || ''
+    )
   }, [data?.categories, selectedId])
 
   if (error) {
@@ -72,7 +74,8 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
         open={open}
         anchorEl={anchorEl}
         placement="bottom-start"
-        style={{ width: '80%' }}>
+        style={{ width: '80%' }}
+      >
         <Paper>
           <Box sx={{ p: 1.5 }}>
             <FormControl>
@@ -82,8 +85,9 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
                 aria-labelledby="categories-group-label"
                 name="categories-group"
                 onChange={handleChange}
-                value={selectedId}>
-                {data?.categories.map(category => (
+                value={selectedId}
+              >
+                {data?.categories.map((category) => (
                   <FormControlLabel
                     key={category.id}
                     value={category.id}

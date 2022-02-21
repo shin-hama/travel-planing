@@ -31,12 +31,14 @@ const FeaturedPlaces = () => {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-        }}>
+        }}
+      >
         <SpotsMap />
         <Stack
           direction="row"
           justifyContent="space-between"
-          alignItems="baseline">
+          alignItems="baseline"
+        >
           <Badge badgeContent={places.length} color="primary">
             <Button variant="text" onClick={handleOpen}>
               Spots List
@@ -46,14 +48,15 @@ const FeaturedPlaces = () => {
             sx={{
               width: 30,
               height: 6,
-              backgroundColor: theme => theme.palette.grey[300],
+              backgroundColor: (theme) => theme.palette.grey[300],
               borderRadius: 3,
             }}
           />
           <Button
             variant="contained"
             disabled={places.length < 2}
-            onClick={handleNext}>
+            onClick={handleNext}
+          >
             Get Route
           </Button>
         </Stack>

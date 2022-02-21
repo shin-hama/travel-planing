@@ -22,7 +22,7 @@ export const usePlaces = () => {
               reject(new Error('Fail to connect google maps api'))
             }
 
-            resolve(result?.photos?.map(item => item.getUrl()) || [])
+            resolve(result?.photos?.map((item) => item.getUrl()) || [])
           }
         )
       })

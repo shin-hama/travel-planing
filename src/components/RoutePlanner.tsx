@@ -31,11 +31,11 @@ const RoutePlanner = () => {
   const [activeStep, setActiveStep] = React.useState(0)
 
   const handleNext = () => {
-    setActiveStep(prevActiveStep => prevActiveStep + 1)
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
   }
 
   const handleBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1)
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
   }
 
   const handleReset = () => {
@@ -51,20 +51,22 @@ const RoutePlanner = () => {
           flexDirection: 'column',
           flex: 1,
           position: 'relative',
-        }}>
+        }}
+      >
         <Stack direction="row">
           <Button
             color="inherit"
             disabled={activeStep === 0}
             onClick={handleBack}
-            sx={{ mr: 1 }}>
+            sx={{ mr: 1 }}
+          >
             <Box pr={1}>
               <FontAwesomeIcon icon={faAngleLeft} />
             </Box>
             Back
           </Button>
           <Stepper activeStep={activeStep} sx={{ flexGrow: 1 }}>
-            {steps.map(step => (
+            {steps.map((step) => (
               <Step key={step.label}>
                 <StepLabel>{step.label}</StepLabel>
               </Step>
@@ -76,14 +78,16 @@ const RoutePlanner = () => {
             height: '100%',
             position: 'relative',
             flex: '1 1 0%',
-          }}>
+          }}
+        >
           <Box
             sx={{
               width: '100%',
               height: '100%',
               position: 'absolute',
               overflow: 'hidden auto',
-            }}>
+            }}
+          >
             <StepperHandlerContext.Provider value={handleNext}>
               {steps[activeStep].content}
             </StepperHandlerContext.Provider>
