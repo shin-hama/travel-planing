@@ -19,8 +19,9 @@ import {
 
 type ButtonProps = {
   placeId: string
+  photo: string
 }
-const SelectButton: React.FC<ButtonProps> = ({ placeId }) => {
+const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
   const actions = useSelectedPlacesActions()
 
@@ -30,7 +31,7 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId }) => {
     if (isSelected) {
       actions.filter((item) => item.placeId !== placeId)
     } else {
-      actions.push({ placeId })
+      actions.push({ placeId, photo })
     }
   }
 
@@ -85,6 +86,10 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
     placesService.getPhotos(placeId).then((results) => {
       setPhotos(results)
     })
+
+    return () => {
+      setPhotos([])
+    }
   }, [placeId, placesService])
 
   if (error) {
@@ -110,12 +115,14 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
               <IconButton
                 href={`https://www.instagram.com/explore/tags/${data.spots_by_pk.name}`}
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <FontAwesomeIcon icon={faInstagram} />
               </IconButton>
               <div style={{ marginLeft: 'auto' }}>
-                <SelectButton placeId={data.spots_by_pk.place_id} />
+                <SelectButton
+                  placeId={data.spots_by_pk.place_id}
+                  photo={photos[0] || ''}
+                />
               </div>
             </CardActions>
           </Grid>

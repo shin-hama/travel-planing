@@ -4,6 +4,7 @@ import { ListActions } from 'react-use/lib/useList'
 
 export type Spot = {
   placeId: string
+  photo: string
 }
 export const SelectedPlacesContext = React.createContext<Array<Spot>>([])
 const SelectedPlacesActionsContext =

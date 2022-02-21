@@ -10,6 +10,7 @@ import { useList } from 'react-use'
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
+import SpotCard from './SpotCard'
 
 const StyledWrapper = styled('div')`
   height: 100%;
@@ -18,19 +19,6 @@ const StyledWrapper = styled('div')`
   }
 `
 let eventGuid = 0
-
-type EVENT = {
-  name: string
-  time: string
-  kind: string
-}
-const EVENTS: EVENT[] = [
-  { name: 'spot1', time: '00:60:00', kind: 'spot' },
-  { name: 'Train', time: '00:30:00', kind: 'move' },
-  { name: 'spot2', time: '00:45:00', kind: 'spot' },
-  { name: 'walk', time: '00:10:00', kind: 'move' },
-  { name: 'spot3', time: '00:20:00', kind: 'spot' },
-]
 
 function createEventId() {
   return String(eventGuid++)
@@ -41,30 +29,13 @@ const createEvent = (e: {
   start: Date
   end: Date
   color: string
+  placeId?: string
+  imageUrl?: string
 }): EventInput => {
   return {
     id: createEventId(),
-    imageUrl: 'image',
     ...e,
   }
-}
-
-export const createEvents = () => {
-  const start = moment('09:00:00', 'HH:mm:ss')
-
-  const events = EVENTS.map((event) => {
-    const startClone = start.clone()
-    start.add(event.time)
-    const newEvent = createEvent({
-      title: event.name,
-      start: startClone.toDate(),
-      end: start.toDate(),
-      color: event.kind === 'spot' ? 'cornflowerblue' : 'lightgreen',
-    })
-    return newEvent
-  })
-  console.log(events)
-  return events
 }
 
 const PlanEditor = () => {
@@ -110,6 +81,8 @@ const PlanEditor = () => {
           start: startClone.toDate(),
           end: start.toDate(),
           color: '',
+          placeId: spot.data?.spots_by_pk?.place_id,
+          imageUrl: place.photo,
         })
         setEvents.push(spotEvent)
         if (i === places.length - 1) {
@@ -138,14 +111,25 @@ const PlanEditor = () => {
   const renderEvent = (eventInfo: EventContentArg) => {
     console.log(eventInfo)
 
+    if (eventInfo.event.extendedProps.placeId) {
+      return <SpotCard placeId={eventInfo.event.extendedProps.placeId} />
+    }
+
     return (
-      <div>
-        <p>{eventInfo.event.title}</p>
-        <img
-          className="eventimage"
-          alt="test"
-          src={eventInfo.event.extendedProps.imageUrl}
-        />
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <>{eventInfo.event.title}</>
+        {eventInfo.event.extendedProps.imageUrl && (
+          <img
+            className="eventimage"
+            alt="test"
+            src={eventInfo.event.extendedProps.imageUrl}
+            style={{
+              maxHeight: '80px',
+              maxWidth: '80px',
+              aspectRatio: '1/1',
+            }}
+          />
+        )}
       </div>
     )
   }
@@ -154,8 +138,7 @@ const PlanEditor = () => {
       sx={{
         flexGrow: 1,
         height: '100%',
-      }}
-    >
+      }}>
       <StyledWrapper>
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
