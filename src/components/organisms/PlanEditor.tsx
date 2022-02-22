@@ -80,7 +80,7 @@ const PlanEditor = () => {
           title: spot.data?.spots_by_pk?.name || '',
           start: startClone.toDate(),
           end: start.toDate(),
-          color: '',
+          color: 'transparent',
           placeId: spot.data?.spots_by_pk?.place_id,
           imageUrl: place.photo,
         })
