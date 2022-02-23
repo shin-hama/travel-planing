@@ -87,34 +87,39 @@ const PlanEditor = () => {
           variables: { place_id: place.placeId },
         })
 
-        const end = start.add(1, 'hour')
+        const spotEnd = start.add(1, 'hour')
         const spotEvent = createEvent({
           title: spot.data?.spots_by_pk?.name || '',
           start: start.toDate(),
-          end: end.toDate(),
+          end: spotEnd.toDate(),
           color: 'transparent',
           placeId: spot.data?.spots_by_pk?.place_id,
           imageUrl: place.photo,
         })
-        console.log(spotEvent)
+
         setEvents.push(spotEvent)
-        start = end
 
         if (i === places.length - 1) {
+          // 末尾のイベントの場合は次の距離を測れないので抜ける
           break
+        }
+        if (spotEnd.hour() >= 18) {
+          // 時刻がlimit を超えた場合は次の日へ移行する
+          start = spotEnd.add(1, 'day').hour(9).minute(0).second(0)
+          continue
         }
 
         const org = [{ placeId: place.placeId }]
         const dest = [{ placeId: places[i + 1].placeId }]
         const result = await distanceMatrix.search(org, dest)
 
-        const moveEnd = start.add(
+        const moveEnd = spotEnd.add(
           result.rows[0].elements[0].duration.value,
           's'
         )
         const durationEvent = createEvent({
           title: 'Car',
-          start: start.toDate(),
+          start: spotEnd.toDate(),
           end: moveEnd.toDate(),
           color: 'transparent',
         })

@@ -15,7 +15,6 @@ type Props = {
   event: EventApi
 }
 const MoveEventCard: React.FC<Props> = ({ event }) => {
-  console.log(event)
   return (
     <Box
       display="flex"
