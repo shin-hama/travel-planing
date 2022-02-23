@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import FullCalendar, {
   DayHeaderContentArg,
   EventApi,
+  EventChangeArg,
   EventContentArg,
   EventInput,
 } from '@fullcalendar/react' // must go before plugins
@@ -203,6 +204,10 @@ const PlanEditor = () => {
     }
   }
 
+  const handleEventChanged = (e: EventChangeArg) => {
+    console.log(e)
+  }
+
   const renderEvent = (eventInfo: EventContentArg) => {
     if (eventInfo.event.extendedProps.placeId) {
       return <SpotEventCard event={eventInfo.event} />
@@ -265,19 +270,11 @@ const PlanEditor = () => {
           weekends={true}
           longPressDelay={500}
           eventMinHeight={5}
-          eventContent={renderEvent}
-          eventsSet={handleEventsSet}
           nowIndicator={false}
-          events={events} // alternatively, use the `events` setting to fetch from a feed
-          // select={handleDateSelect}
-          // eventContent={renderEventContent} // custom render function
-          // eventClick={handleEventClick}
-          // eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-          /* you can update a remote database when these fire:
-        eventAdd={function(){}}
-        eventChange={function(){}}
-        eventRemove={function(){}}
-        */
+          events={events}
+          eventChange={handleEventChanged}
+          eventContent={renderEvent} // custom render function
+          eventsSet={handleEventsSet} // called after events are initialized/added/changed/removed
         />
       </StyledWrapper>
     </Box>
