@@ -26,10 +26,20 @@ const StyledWrapper = styled('div')<{ width: string }>`
   .fc {
     height: 100%;
   }
+  .fc-bg-event {
+    opacity: 0.6;
+    border-radius: ${(props) => props.theme.spacing(1)};
+    margin-right: ${(props) => props.theme.spacing(1)};
+    margin-left: ${(props) => props.theme.spacing(0.5)};
+  }
+  .fc-timegrid-event-harness-inset .fc-timegrid-event {
+    box-shadow: none;
+  }
   // Adjust height to duration of slot row
   .fc-timegrid-slot {
     height: 8em;
     border-bottom: 0;
+    vertical-align: top;
   }
   .fc-timegrid-col.fc-day-today {
     background: inherit;
@@ -58,6 +68,20 @@ const StyledWrapper = styled('div')<{ width: string }>`
     left: 0;
     background: white;
   }
+
+  .fc-scrollgrid {
+    border: none !important;
+  }
+
+  .fc-scrollgrid td:last-of-type {
+    border-right: none !important;
+  }
+
+  .fc .fc-timegrid-slot-label-cushion {
+    position: relative;
+    top: -13.5px;
+    background-color: white;
+  }
 `
 let eventGuid = 0
 
@@ -65,14 +89,12 @@ function createEventId() {
   return String(eventGuid++)
 }
 
-const createEvent = (e: {
-  title: string
-  start: Date
-  end: Date
-  color: string
-  placeId?: string
-  imageUrl?: string
-}): EventInput => {
+const createEvent = (
+  e: EventInput & {
+    placeId?: string
+    imageUrl?: string
+  }
+): EventInput => {
   return {
     id: createEventId(),
     ...e,
@@ -160,7 +182,9 @@ const PlanEditor = () => {
           title: 'Car',
           start: spotEnd.toDate(),
           end: moveEnd.toDate(),
-          color: 'transparent',
+          color: 'limegreen',
+          display: 'background',
+          overlap: false,
         })
 
         setEvents.push(durationEvent)
@@ -208,11 +232,7 @@ const PlanEditor = () => {
       <StyledWrapper width={`${gridWidth}px`}>
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: 'prev,next',
-            center: '',
-            right: '',
-          }}
+          headerToolbar={false}
           initialView="customTimeGridDay"
           views={{
             customTimeGridDay: {
@@ -243,6 +263,7 @@ const PlanEditor = () => {
           droppable={true}
           dayMaxEvents={true}
           weekends={true}
+          longPressDelay={500}
           eventMinHeight={5}
           eventContent={renderEvent}
           eventsSet={handleEventsSet}
