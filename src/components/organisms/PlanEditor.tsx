@@ -1,7 +1,11 @@
 import * as React from 'react'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
-import FullCalendar, { EventContentArg, EventInput } from '@fullcalendar/react' // must go before plugins
+import FullCalendar, {
+  EventApi,
+  EventContentArg,
+  EventInput,
+} from '@fullcalendar/react' // must go before plugins
 import timeGridPlugin from '@fullcalendar/timegrid' // a plugin!
 import interactionPlugin from '@fullcalendar/interaction'
 import { useList } from 'react-use'
@@ -16,7 +20,7 @@ import MoveEventCard from './MoveEventCard'
 
 dayjs.extend(customParseFormat)
 
-const StyledWrapper = styled('div')`
+const StyledWrapper = styled('div')<{ width: string }>`
   height: 100%;
   .fc {
     height: 100%;
@@ -28,6 +32,30 @@ const StyledWrapper = styled('div')`
   }
   .fc-timegrid-col.fc-day-today {
     background: inherit;
+  }
+
+  .fc-view {
+    overflow-x: auto;
+  }
+
+  .fc-view > table {
+    min-width: 100%;
+    width: ${(props) => props.width};
+  }
+
+  .fc-time-grid .fc-slats {
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .fc-scroller.fc-time-grid-container {
+    overflow: initial !important;
+  }
+
+  .fc-axis {
+    position: sticky;
+    left: 0;
+    background: white;
   }
 `
 let eventGuid = 0
@@ -57,6 +85,9 @@ const PlanEditor = () => {
   const distanceMatrix = useDistanceMatrix()
   // to avoid the bug that infinite rerender and recall api after every api call
   const distCountRef = React.useRef(0)
+
+  const [daysDuration, setDaysDuration] = React.useState(1)
+  const gridWidth = daysDuration * 300
 
   const [events, setEvents] = useList<EventInput>([])
 
@@ -117,6 +148,13 @@ const PlanEditor = () => {
           result.rows[0].elements[0].duration.value,
           's'
         )
+
+        if (moveEnd.hour() >= 19) {
+          // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
+          start = spotEnd.add(1, 'day').hour(9).minute(0).second(0)
+          continue
+        }
+
         const durationEvent = createEvent({
           title: 'Car',
           start: spotEnd.toDate(),
@@ -131,6 +169,17 @@ const PlanEditor = () => {
     func()
   }, [distanceMatrix, getSpot, places, setEvents])
 
+  const handleEventsSet = (_events: EventApi[]) => {
+    console.log('event set')
+    console.log(_events)
+    if (_events.length > 0) {
+      const first = _events[0].start
+      const last = _events[events.length - 1].start
+      const diff = dayjs(last).diff(first, 'day')
+      setDaysDuration(diff + 1)
+    }
+  }
+
   const renderEvent = (eventInfo: EventContentArg) => {
     if (eventInfo.event.extendedProps.placeId) {
       return <SpotEventCard event={eventInfo.event} />
@@ -144,15 +193,21 @@ const PlanEditor = () => {
         flexGrow: 1,
         height: '100%',
       }}>
-      <StyledWrapper>
+      <StyledWrapper width={`${gridWidth}px`}>
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
           headerToolbar={{
             left: 'prev,next',
             center: '',
-            right: 'timeGridDay',
+            right: '',
           }}
-          initialView="timeGridDay"
+          initialView="customTimeGridDay"
+          views={{
+            customTimeGridDay: {
+              type: 'timeGrid',
+              duration: { days: daysDuration },
+            },
+          }}
           scrollTime="08:00:00" // Default start time when render the timegrid.
           dayCellClassNames="my-day-cell"
           snapDuration="00:15:00"
@@ -175,10 +230,8 @@ const PlanEditor = () => {
           weekends={true}
           eventMinHeight={5}
           eventContent={renderEvent}
+          eventsSet={handleEventsSet}
           nowIndicator={false}
-          views={{
-            timeGridDay: {},
-          }}
           events={events} // alternatively, use the `events` setting to fetch from a feed
           // select={handleDateSelect}
           // eventContent={renderEventContent} // custom render function

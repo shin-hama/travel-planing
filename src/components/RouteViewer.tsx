@@ -6,13 +6,11 @@ import PlanEditor from './organisms/PlanEditor'
 const RouteViewer = () => {
   return (
     <Container
-      maxWidth="xs"
+      maxWidth="md"
       sx={{
         display: 'flex',
-        width: '100%',
         height: '100%',
-      }}
-    >
+      }}>
       <PlanEditor />
     </Container>
   )
