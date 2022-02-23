@@ -4,13 +4,17 @@ import Box from '@mui/material/Box'
 import FullCalendar, { EventContentArg, EventInput } from '@fullcalendar/react' // must go before plugins
 import timeGridPlugin from '@fullcalendar/timegrid' // a plugin!
 import interactionPlugin from '@fullcalendar/interaction'
-import moment from 'moment'
 import { useList } from 'react-use'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import SpotEventCard from './SpotEventCard'
+import MoveEventCard from './MoveEventCard'
+
+dayjs.extend(customParseFormat)
 
 const StyledWrapper = styled('div')`
   height: 100%;
@@ -68,23 +72,25 @@ const PlanEditor = () => {
     // 例: 3地点の距離を計算するとき、3*3でリクエストすると9回分だが、
     // 1,2点目 + 2,3 点目というようにすれば 2 回分ですむ
     const func = async () => {
-      const start = moment('08:00:00', 'HH:mm:ss')
+      let start = dayjs('09:00:00', 'HH:mm:ss')
+
       for (const [i, place] of places.entries()) {
         const spot = await getSpot({
           variables: { place_id: place.placeId },
         })
 
-        const startClone = start.clone()
-        start.add('00:60:00')
+        const end = start.add(1, 'hour')
         const spotEvent = createEvent({
           title: spot.data?.spots_by_pk?.name || '',
-          start: startClone.toDate(),
-          end: start.toDate(),
+          start: start.toDate(),
+          end: end.toDate(),
           color: 'transparent',
           placeId: spot.data?.spots_by_pk?.place_id,
           imageUrl: place.photo,
         })
         setEvents.push(spotEvent)
+        start = end
+
         if (i === places.length - 1) {
           break
         }
@@ -93,16 +99,19 @@ const PlanEditor = () => {
         const dest = [{ placeId: places[i + 1].placeId }]
         const result = await distanceMatrix.search(org, dest)
 
-        const moveStart = start.clone()
-        start.add(result.rows[0].elements[0].duration.value, 's')
+        const moveEnd = start.add(
+          result.rows[0].elements[0].duration.value,
+          's'
+        )
         const durationEvent = createEvent({
           title: 'Car',
-          start: moveStart.toDate(),
-          end: start.toDate(),
-          color: 'limegreen',
+          start: start.toDate(),
+          end: moveEnd.toDate(),
+          color: 'transparent',
         })
 
         setEvents.push(durationEvent)
+        start = moveEnd
       }
     }
     func()
@@ -113,11 +122,7 @@ const PlanEditor = () => {
       return <SpotEventCard event={eventInfo.event} />
     }
 
-    return (
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <>{eventInfo.event.title}</>
-      </div>
-    )
+    return <MoveEventCard event={eventInfo.event} />
   }
   return (
     <Box
