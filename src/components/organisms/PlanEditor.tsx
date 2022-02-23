@@ -2,6 +2,7 @@ import * as React from 'react'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import FullCalendar, {
+  DayHeaderContentArg,
   EventApi,
   EventContentArg,
   EventInput,
@@ -170,8 +171,6 @@ const PlanEditor = () => {
   }, [distanceMatrix, getSpot, places, setEvents])
 
   const handleEventsSet = (_events: EventApi[]) => {
-    console.log('event set')
-    console.log(_events)
     if (_events.length > 0) {
       const first = _events[0].start
       const last = _events[events.length - 1].start
@@ -187,6 +186,19 @@ const PlanEditor = () => {
 
     return <MoveEventCard event={eventInfo.event} />
   }
+
+  const renderDayHeader = (props: DayHeaderContentArg) => {
+    const yesterday = dayjs()
+      .add(-1, 'day')
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0)
+    const diff = dayjs(props.date).diff(yesterday, 'day')
+
+    return `Day ${diff}`
+  }
+
   return (
     <Box
       sx={{
@@ -220,7 +232,10 @@ const PlanEditor = () => {
             omitZeroMinute: false,
             meridiem: 'short',
           }}
-          dayHeaders={false}
+          slotMinTime={'05:00:00'}
+          slotMaxTime={'21:00:00'}
+          dayHeaders={true}
+          dayHeaderContent={renderDayHeader}
           allDaySlot={false}
           editable={true}
           selectable={true}
