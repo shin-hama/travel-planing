@@ -51,15 +51,13 @@ const RoutePlanner = () => {
           flexDirection: 'column',
           flex: 1,
           position: 'relative',
-        }}
-      >
+        }}>
         <Stack direction="row">
           <Button
             color="inherit"
             disabled={activeStep === 0}
             onClick={handleBack}
-            sx={{ mr: 1 }}
-          >
+            sx={{ mr: 1 }}>
             <Box pr={1}>
               <FontAwesomeIcon icon={faAngleLeft} />
             </Box>
@@ -78,16 +76,14 @@ const RoutePlanner = () => {
             height: '100%',
             position: 'relative',
             flex: '1 1 0%',
-          }}
-        >
+          }}>
           <Box
             sx={{
               width: '100%',
               height: '100%',
               position: 'absolute',
               overflow: 'hidden auto',
-            }}
-          >
+            }}>
             <StepperHandlerContext.Provider value={handleNext}>
               {steps[activeStep].content}
             </StepperHandlerContext.Provider>

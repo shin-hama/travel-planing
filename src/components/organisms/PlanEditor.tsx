@@ -21,6 +21,14 @@ const StyledWrapper = styled('div')`
   .fc {
     height: 100%;
   }
+  // Adjust height to duration of slot row
+  .fc-timegrid-slot {
+    height: 8em;
+    border-bottom: 0;
+  }
+  .fc-timegrid-col.fc-day-today {
+    background: inherit;
+  }
 `
 let eventGuid = 0
 
@@ -88,6 +96,7 @@ const PlanEditor = () => {
           placeId: spot.data?.spots_by_pk?.place_id,
           imageUrl: place.photo,
         })
+        console.log(spotEvent)
         setEvents.push(spotEvent)
         start = end
 
@@ -139,8 +148,11 @@ const PlanEditor = () => {
             right: 'timeGridDay',
           }}
           initialView="timeGridDay"
-          slotDuration={'00:15:00'}
-          slotLabelInterval={'01:00:00'}
+          scrollTime="08:00:00" // Default start time when render the timegrid.
+          dayCellClassNames="my-day-cell"
+          snapDuration="00:15:00"
+          slotDuration="01:00:00"
+          slotLabelInterval="01:00:00"
           slotLabelFormat={{
             hour: 'numeric',
             minute: '2-digit',
@@ -158,6 +170,10 @@ const PlanEditor = () => {
           weekends={true}
           eventMinHeight={5}
           eventContent={renderEvent}
+          nowIndicator={false}
+          views={{
+            timeGridDay: {},
+          }}
           events={events} // alternatively, use the `events` setting to fetch from a feed
           // select={handleDateSelect}
           // eventContent={renderEventContent} // custom render function

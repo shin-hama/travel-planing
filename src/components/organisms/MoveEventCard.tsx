@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowDownLong, faCarSide } from '@fortawesome/free-solid-svg-icons'
+import { faCarSide } from '@fortawesome/free-solid-svg-icons'
 import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
@@ -17,10 +17,11 @@ type Props = {
 const MoveEventCard: React.FC<Props> = ({ event }) => {
   console.log(event)
   return (
-    <Stack alignItems="center" sx={{ height: '100%', color: 'black' }}>
-      <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-        <FontAwesomeIcon icon={faArrowDownLong} size="4x" />
-      </Box>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      sx={{ height: '100%', color: 'black' }}>
       <Typography variant={'h5'}>
         <Stack direction="row" spacing={1} alignItems="center">
           <FontAwesomeIcon icon={faCarSide} />
@@ -29,10 +30,7 @@ const MoveEventCard: React.FC<Props> = ({ event }) => {
           </span>
         </Stack>
       </Typography>
-      <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-        <FontAwesomeIcon icon={faArrowDownLong} size="4x" />
-      </Box>
-    </Stack>
+    </Box>
   )
 }
 
