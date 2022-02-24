@@ -16,11 +16,16 @@ function createEventId() {
   return String(eventGuid++)
 }
 
-const createEvent = (e: SpotEvent): SpotEvent => {
-  return {
-    id: createEventId(),
-    ...e,
+const findLastSpot = (spots: SpotEvent[]) => {
+  let max = spots[0]
+  for (let i = 1; i < spots.length; i++) {
+    const end = spots[i].end
+    if (max.end && end !== null && max.end < end) {
+      max = spots[i]
+    }
   }
+
+  return max
 }
 
 export const useSelectSpots = () => {
@@ -29,15 +34,17 @@ export const useSelectSpots = () => {
   const distanceMatrix = useDistanceMatrix()
   const [getSpot] = useGetSpotByPkLazyQuery()
 
+  console.log(places)
+
   const add = React.useCallback(
     async (newSpot: Required<Spot>) => {
       // Create new spot event
       let start = dayjs('09:00:00', 'HH:mm:ss')
-      if (places.length > 0) {
+      if (Object.keys(places).length > 0) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
-        const prevSpot = places[places.length - 1]
-        const org = [{ placeId: prevSpot.placeId }]
-        start = dayjs(prevSpot.end)
+        const lastSpot = findLastSpot(Object.values(places))
+        const org = [{ placeId: lastSpot.extendedProps?.placeId }]
+        start = dayjs(lastSpot.end)
         const dest = [{ placeId: newSpot.placeId }]
         const result = await distanceMatrix.search(org, dest)
 
@@ -50,16 +57,16 @@ export const useSelectSpots = () => {
           // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
           start = start.add(1, 'day').hour(9).minute(0).second(0)
         } else {
-          const moveEvent = createEvent({
+          const moveEvent = {
+            id: createEventId(),
             title: 'Car',
             start: start.toDate(),
             end: moveEnd.toDate(),
             color: 'limegreen',
             display: 'background',
-            overlap: false,
-          })
+          }
 
-          actions.push(moveEvent)
+          actions.set(moveEvent.id, moveEvent)
           start = moveEnd
         }
       }
@@ -69,19 +76,37 @@ export const useSelectSpots = () => {
       })
 
       const spotEnd = start.add(1, 'hour')
-      const spotEvent = createEvent({
+      const spotEvent = {
+        id: createEventId(),
         title: spot.data?.spots_by_pk?.name || '',
         start: start.toDate(),
         end: spotEnd.toDate(),
         color: 'transparent',
-        placeId: spot.data?.spots_by_pk?.place_id,
-        imageUrl: newSpot.imageUrl,
-      })
+        extendedProps: {
+          placeId: spot.data?.spots_by_pk?.place_id,
+          imageUrl: newSpot.imageUrl,
+        },
+      }
+      console.log(spotEvent)
 
-      actions.push(spotEvent)
+      actions.set(spotEvent.id, spotEvent)
     },
     [actions, distanceMatrix, getSpot, places]
   )
 
-  return [places, { add }] as const
+  const remove = React.useCallback(
+    (placeId: string) => {
+      actions.remove(placeId)
+    },
+    [actions]
+  )
+
+  const update = React.useCallback(
+    (newSpot: SpotEvent) => {
+      actions.set(newSpot.id, newSpot)
+    },
+    [actions]
+  )
+
+  return [places, { add, remove, update }] as const
 }

@@ -12,9 +12,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
-import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
-import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
@@ -85,10 +83,8 @@ const StyledWrapper = styled('div')<{ width: string }>`
 `
 
 const PlanEditor = () => {
-  const places = React.useContext(SelectedPlacesContext)
-  const [events] = useSelectSpots()
+  const [events, eventsApi] = useSelectSpots()
 
-  const [getSpot] = useGetSpotByPkLazyQuery()
   const distanceMatrix = useDistanceMatrix()
   // to avoid the bug that infinite rerender and recall api after every api call
   const distCountRef = React.useRef(0)
@@ -112,7 +108,7 @@ const PlanEditor = () => {
     // マトリックスの要素数で課金されるので、できるだけ少なくなるようにリクエストを考える
     // 例: 3地点の距離を計算するとき、3*3でリクエストすると9回分だが、
     // 1,2点目 + 2,3 点目というようにすれば 2 回分ですむ
-  }, [distanceMatrix, getSpot, places])
+  }, [distanceMatrix])
 
   const handleEventsSet = (_events: EventApi[]) => {
     if (_events.length > 0) {
@@ -124,7 +120,7 @@ const PlanEditor = () => {
   }
 
   const handleEventChanged = (e: EventChangeArg) => {
-    console.log(e)
+    eventsApi.update(e.event.toJSON())
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {
@@ -190,7 +186,7 @@ const PlanEditor = () => {
           longPressDelay={500}
           eventMinHeight={5}
           nowIndicator={false}
-          events={events}
+          events={Object.values(events)}
           eventChange={handleEventChanged}
           eventContent={renderEvent} // custom render function
           eventsSet={handleEventsSet} // called after events are initialized/added/changed/removed

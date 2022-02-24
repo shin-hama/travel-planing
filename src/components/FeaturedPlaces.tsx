@@ -38,7 +38,11 @@ const FeaturedPlaces = () => {
           justifyContent="space-between"
           alignItems="baseline">
           <Badge
-            badgeContent={places.filter((item) => item.placeId).length}
+            badgeContent={
+              Object.values(places).filter(
+                (item) => item.extendedProps?.placeId
+              ).length
+            }
             color="primary">
             <Button variant="text" onClick={handleOpen}>
               Spots List
@@ -54,7 +58,7 @@ const FeaturedPlaces = () => {
           />
           <Button
             variant="contained"
-            disabled={places.length < 2}
+            disabled={Object.keys(places).length === 0}
             onClick={handleNext}>
             Get Route
           </Button>
@@ -62,7 +66,9 @@ const FeaturedPlaces = () => {
       </Box>
       <SpotsCandidates
         open={open}
-        places={places}
+        places={Object.values(places)
+          .map((place) => place.extendedProps?.placeId)
+          .filter((item): item is string => typeof item === 'string')}
         onOpen={handleOpen}
         onClose={handleClose}
       />
