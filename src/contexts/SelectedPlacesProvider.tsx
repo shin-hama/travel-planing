@@ -1,14 +1,17 @@
 import * as React from 'react'
 import { useList } from 'react-use'
 import { ListActions } from 'react-use/lib/useList'
+import { EventInput } from '@fullcalendar/react' // must go before plugins
 
-export type Spot = {
-  placeId: string
-  photo: string
-}
-export const SelectedPlacesContext = React.createContext<Array<Spot>>([])
+export type Spot = { placeId?: string; imageUrl?: string }
+export type SpotEvent = Spot &
+  EventInput & {
+    start: Date
+    end: Date
+  }
+export const SelectedPlacesContext = React.createContext<Array<SpotEvent>>([])
 const SelectedPlacesActionsContext =
-  React.createContext<ListActions<Spot> | null>(null)
+  React.createContext<ListActions<SpotEvent> | null>(null)
 
 export const useSelectedPlacesActions = () => {
   const actions = React.useContext(SelectedPlacesActionsContext)
@@ -20,7 +23,7 @@ export const useSelectedPlacesActions = () => {
 }
 
 export const SelectedPlacesProvider: React.FC = ({ children }) => {
-  const [places, actions] = useList<Spot>([])
+  const [places, actions] = useList<SpotEvent>([])
   return (
     <SelectedPlacesContext.Provider value={places}>
       <SelectedPlacesActionsContext.Provider value={actions}>

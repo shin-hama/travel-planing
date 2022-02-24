@@ -16,6 +16,7 @@ import {
   SelectedPlacesContext,
   useSelectedPlacesActions,
 } from 'contexts/SelectedPlacesProvider'
+import { useSelectSpots } from 'hooks/useSelectSpots'
 
 type ButtonProps = {
   placeId: string
@@ -24,6 +25,7 @@ type ButtonProps = {
 const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
   const actions = useSelectedPlacesActions()
+  const [, { add }] = useSelectSpots()
 
   const isSelected = selectedSpots.some((item) => item.placeId === placeId)
 
@@ -31,7 +33,7 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
     if (isSelected) {
       actions.filter((item) => item.placeId !== placeId)
     } else {
-      actions.push({ placeId, photo })
+      add({ placeId, imageUrl: photo })
     }
   }
 
@@ -44,12 +46,8 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
 
 type Props = {
   placeId: string
-  actionNode?: React.ReactNode
 }
-const SpotCard: React.FC<Props> = React.memo(function SpotCard({
-  placeId,
-  actionNode,
-}) {
+const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   const [getSpot, { data, loading, error }] = useGetSpotByPkLazyQuery()
   const [subtitle, setSubtitle] = React.useState('')
   const placesService = usePlaces()

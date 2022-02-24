@@ -6,11 +6,9 @@ import FullCalendar, {
   EventApi,
   EventChangeArg,
   EventContentArg,
-  EventInput,
 } from '@fullcalendar/react' // must go before plugins
 import timeGridPlugin from '@fullcalendar/timegrid' // a plugin!
 import interactionPlugin from '@fullcalendar/interaction'
-import { useList } from 'react-use'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
@@ -19,6 +17,7 @@ import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
+import { useSelectSpots } from 'hooks/useSelectSpots'
 
 dayjs.extend(customParseFormat)
 
@@ -84,26 +83,10 @@ const StyledWrapper = styled('div')<{ width: string }>`
     background-color: white;
   }
 `
-let eventGuid = 0
-
-function createEventId() {
-  return String(eventGuid++)
-}
-
-const createEvent = (
-  e: EventInput & {
-    placeId?: string
-    imageUrl?: string
-  }
-): EventInput => {
-  return {
-    id: createEventId(),
-    ...e,
-  }
-}
 
 const PlanEditor = () => {
   const places = React.useContext(SelectedPlacesContext)
+  const [events] = useSelectSpots()
 
   const [getSpot] = useGetSpotByPkLazyQuery()
   const distanceMatrix = useDistanceMatrix()
@@ -113,17 +96,12 @@ const PlanEditor = () => {
   const [daysDuration, setDaysDuration] = React.useState(1)
   const gridWidth = daysDuration * 300
 
-  const [events, setEvents] = useList<EventInput>([])
-
   React.useEffect(() => {
     // Need to call before distance matrix api
     // APIよりあとにこれを実行すると、APIが二回実行されてしまうので注意
     // Reset count to make to be callable
     distCountRef.current = 0
-    return () => {
-      setEvents.clear()
-    }
-  }, [setEvents])
+  }, [])
 
   React.useEffect(() => {
     if (distCountRef.current !== 0) {
@@ -134,71 +112,12 @@ const PlanEditor = () => {
     // マトリックスの要素数で課金されるので、できるだけ少なくなるようにリクエストを考える
     // 例: 3地点の距離を計算するとき、3*3でリクエストすると9回分だが、
     // 1,2点目 + 2,3 点目というようにすれば 2 回分ですむ
-    const func = async () => {
-      let start = dayjs('09:00:00', 'HH:mm:ss')
-
-      for (const [i, place] of places.entries()) {
-        const spot = await getSpot({
-          variables: { place_id: place.placeId },
-        })
-
-        const spotEnd = start.add(1, 'hour')
-        const spotEvent = createEvent({
-          title: spot.data?.spots_by_pk?.name || '',
-          start: start.toDate(),
-          end: spotEnd.toDate(),
-          color: 'transparent',
-          placeId: spot.data?.spots_by_pk?.place_id,
-          imageUrl: place.photo,
-        })
-
-        setEvents.push(spotEvent)
-
-        if (i === places.length - 1) {
-          // 末尾のイベントの場合は次の距離を測れないので抜ける
-          break
-        }
-        if (spotEnd.hour() >= 18) {
-          // 時刻がlimit を超えた場合は次の日へ移行する
-          start = spotEnd.add(1, 'day').hour(9).minute(0).second(0)
-          continue
-        }
-
-        const org = [{ placeId: place.placeId }]
-        const dest = [{ placeId: places[i + 1].placeId }]
-        const result = await distanceMatrix.search(org, dest)
-
-        const moveEnd = spotEnd.add(
-          result.rows[0].elements[0].duration.value,
-          's'
-        )
-
-        if (moveEnd.hour() >= 19) {
-          // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
-          start = spotEnd.add(1, 'day').hour(9).minute(0).second(0)
-          continue
-        }
-
-        const durationEvent = createEvent({
-          title: 'Car',
-          start: spotEnd.toDate(),
-          end: moveEnd.toDate(),
-          color: 'limegreen',
-          display: 'background',
-          overlap: false,
-        })
-
-        setEvents.push(durationEvent)
-        start = moveEnd
-      }
-    }
-    func()
-  }, [distanceMatrix, getSpot, places, setEvents])
+  }, [distanceMatrix, getSpot, places])
 
   const handleEventsSet = (_events: EventApi[]) => {
     if (_events.length > 0) {
       const first = _events[0].start
-      const last = _events[events.length - 1].start
+      const last = _events[_events.length - 1].start
       const diff = dayjs(last).diff(first, 'day')
       setDaysDuration(diff + 1)
     }
