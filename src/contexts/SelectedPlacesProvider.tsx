@@ -1,17 +1,16 @@
 import * as React from 'react'
 import { useMap } from 'react-use'
 import { StableActions } from 'react-use/lib/useMap'
-import { Dictionary, EventInput } from '@fullcalendar/react' // must go before plugins
+import { EventInput } from '@fullcalendar/react' // must go before plugins
 
 export type Spot = { placeId?: string; imageUrl?: string }
 export type SpotEvent =
-  | (EventInput & {
+  | EventInput & {
       id: string
       start: Date
       end: Date
       extendedProps?: Spot
-    })
-  | Dictionary
+    }
 export const SelectedPlacesContext = React.createContext<
   Record<string, SpotEvent>
 >({})

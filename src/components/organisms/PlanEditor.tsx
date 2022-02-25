@@ -16,6 +16,7 @@ import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
+import { SpotEvent } from 'contexts/SelectedPlacesProvider'
 
 dayjs.extend(customParseFormat)
 
@@ -112,15 +113,33 @@ const PlanEditor = () => {
 
   const handleEventsSet = (_events: EventApi[]) => {
     if (_events.length > 0) {
-      const first = _events[0].start
-      const last = _events[_events.length - 1].start
-      const diff = dayjs(last).diff(first, 'day')
-      setDaysDuration(diff + 1)
+      const first = _events[0].start?.getDate() || 0
+      const last = _events[_events.length - 1].start?.getDate() || 0
+      setDaysDuration(last - first + 1)
     }
   }
 
   const handleEventChanged = (e: EventChangeArg) => {
-    eventsApi.update(e.event.toJSON())
+    eventsApi.update(e.event.toJSON() as SpotEvent)
+
+    if (e.event.end && e.oldEvent.end) {
+      const endDiff = dayjs(e.event.end).diff(e.oldEvent.end, 'minute')
+
+      Object.values(events)
+        .filter(
+          (event) =>
+            e.oldEvent.end &&
+            dayjs(event.start).date() === dayjs(e.oldEvent.end).date()
+        )
+        .forEach((event) => {
+          eventsApi.update({
+            ...event,
+            start: dayjs(event.start).add(endDiff, 'minute').toDate(),
+            end: dayjs(event.end).add(endDiff, 'minute').toDate(),
+          })
+        })
+      console.log(events)
+    }
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {

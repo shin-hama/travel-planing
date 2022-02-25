@@ -34,8 +34,6 @@ export const useSelectSpots = () => {
   const distanceMatrix = useDistanceMatrix()
   const [getSpot] = useGetSpotByPkLazyQuery()
 
-  console.log(places)
-
   const add = React.useCallback(
     async (newSpot: Required<Spot>) => {
       // Create new spot event
