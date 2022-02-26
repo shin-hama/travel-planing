@@ -204,57 +204,59 @@ const PlanEditor = () => {
   }
 
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-      }}>
-      <StyledWrapper width={`${gridWidth}px`}>
-        <FullCalendar
-          plugins={[timeGridPlugin, interactionPlugin]}
-          headerToolbar={false}
-          initialView="customTimeGridDay"
-          views={{
-            customTimeGridDay: {
-              type: 'timeGrid',
-              duration: { days: daysDuration },
-            },
-          }}
-          scrollTime="08:00:00" // Default start time when render the timegrid.
-          dayCellClassNames="my-day-cell"
-          snapDuration="00:15:00"
-          slotDuration="01:00:00"
-          slotLabelInterval="01:00:00"
-          slotLabelFormat={{
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: false,
-            omitZeroMinute: false,
-            meridiem: 'short',
-          }}
-          slotMinTime={'05:00:00'}
-          slotMaxTime={'21:00:00'}
-          dayHeaders={true}
-          dayHeaderContent={renderDayHeader}
-          allDaySlot={false}
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          droppable={true}
-          dayMaxEvents={true}
-          weekends={true}
-          longPressDelay={500}
-          eventMinHeight={5}
-          nowIndicator={false}
-          events={Object.values(events)}
-          eventResizableFromStart
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
-          eventContent={renderEvent} // custom render function
-          eventsSet={handleEventsSet} // called after events are initialized/added/changed/removed
-        />
-      </StyledWrapper>
-    </Box>
+    <>
+      <Box
+        sx={{
+          flexGrow: 1,
+          height: '100%',
+        }}>
+        <StyledWrapper width={`${gridWidth}px`}>
+          <FullCalendar
+            plugins={[timeGridPlugin, interactionPlugin]}
+            headerToolbar={false}
+            initialView="customTimeGridDay"
+            views={{
+              customTimeGridDay: {
+                type: 'timeGrid',
+                duration: { days: daysDuration },
+              },
+            }}
+            scrollTime="08:00:00" // Default start time when render the timegrid.
+            dayCellClassNames="my-day-cell"
+            snapDuration="00:15:00"
+            slotDuration="01:00:00"
+            slotLabelInterval="01:00:00"
+            slotLabelFormat={{
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: false,
+              omitZeroMinute: false,
+              meridiem: 'short',
+            }}
+            slotMinTime={'05:00:00'}
+            slotMaxTime={'21:00:00'}
+            dayHeaders={true}
+            dayHeaderContent={renderDayHeader}
+            allDaySlot={false}
+            editable={true}
+            selectable={true}
+            selectMirror={true}
+            droppable={true}
+            dayMaxEvents={true}
+            weekends={true}
+            longPressDelay={500}
+            eventMinHeight={5}
+            nowIndicator={false}
+            events={Object.values(events)}
+            eventResizableFromStart
+            eventDrop={handleEventDrop}
+            eventResize={handleEventResize}
+            eventContent={renderEvent} // custom render function
+            eventsSet={handleEventsSet} // called after events are initialized/added/changed/removed
+          />
+        </StyledWrapper>
+      </Box>
+    </>
   )
 }
 
