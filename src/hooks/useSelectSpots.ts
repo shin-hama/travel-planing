@@ -38,9 +38,9 @@ export const useSelectSpots = () => {
     async (newSpot: Required<Spot>) => {
       // Create new spot event
       let start = dayjs('09:00:00', 'HH:mm:ss')
-      if (Object.keys(places).length > 0) {
+      if (places.length > 0) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
-        const lastSpot = findLastSpot(Object.values(places))
+        const lastSpot = findLastSpot(places)
         const org = [{ placeId: lastSpot.extendedProps?.placeId }]
         start = dayjs(lastSpot.end)
         const dest = [{ placeId: newSpot.placeId }]
@@ -64,7 +64,7 @@ export const useSelectSpots = () => {
             display: 'background',
           }
 
-          actions.set(moveEvent.id, moveEvent)
+          actions.push(moveEvent)
           start = moveEnd
         }
       }
@@ -87,21 +87,21 @@ export const useSelectSpots = () => {
       }
       console.log(spotEvent)
 
-      actions.set(spotEvent.id, spotEvent)
+      actions.push(spotEvent)
     },
     [actions, distanceMatrix, getSpot, places]
   )
 
   const remove = React.useCallback(
-    (placeId: string) => {
-      actions.remove(placeId)
+    (eventId: string) => {
+      actions.filter((spot) => spot.id !== eventId)
     },
     [actions]
   )
 
   const update = React.useCallback(
     (newSpot: SpotEvent) => {
-      actions.set(newSpot.id, newSpot)
+      actions.update((spot) => spot.id === newSpot.id, newSpot)
     },
     [actions]
   )

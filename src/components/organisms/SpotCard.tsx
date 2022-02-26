@@ -23,7 +23,7 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
   const [, actions] = useSelectSpots()
 
-  const selected = Object.values(selectedSpots).find(
+  const selected = selectedSpots.find(
     (spot) => spot.extendedProps?.placeId === placeId
   )
 

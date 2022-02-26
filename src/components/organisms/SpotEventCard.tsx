@@ -66,7 +66,7 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
             gridArea: '1/-1',
             alignItems: 'end',
           }}>
-          <EventToolbar />
+          <EventToolbar event={event} />
         </Box>
       </Box>
     </ClickAwayListener>
