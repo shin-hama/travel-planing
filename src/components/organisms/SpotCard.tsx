@@ -23,13 +23,13 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
   const [, actions] = useSelectSpots()
 
-  const isSelected = Object.values(selectedSpots).some(
+  const selected = Object.values(selectedSpots).find(
     (spot) => spot.extendedProps?.placeId === placeId
   )
 
   const handleClick = () => {
-    if (isSelected) {
-      actions.remove(placeId)
+    if (selected) {
+      actions.remove(selected.id)
     } else {
       actions.add({ placeId, imageUrl: photo })
     }
@@ -37,7 +37,7 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
 
   return (
     <Button variant="contained" size="small" onClick={handleClick}>
-      {isSelected ? 'Remove' : 'Add'}
+      {selected ? 'Remove' : 'Add'}
     </Button>
   )
 }

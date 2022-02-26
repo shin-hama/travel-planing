@@ -4,11 +4,13 @@ import Box from '@mui/material/Box'
 import FullCalendar, {
   DayHeaderContentArg,
   EventApi,
-  EventChangeArg,
   EventContentArg,
+  EventDropArg,
 } from '@fullcalendar/react' // must go before plugins
 import timeGridPlugin from '@fullcalendar/timegrid' // a plugin!
-import interactionPlugin from '@fullcalendar/interaction'
+import interactionPlugin, {
+  EventResizeDoneArg,
+} from '@fullcalendar/interaction'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
@@ -119,26 +121,65 @@ const PlanEditor = () => {
     }
   }
 
-  const handleEventChanged = (e: EventChangeArg) => {
+  const handleEventDrop = (e: EventDropArg) => {
+    console.log(e)
     eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
-      const endDiff = dayjs(e.event.end).diff(e.oldEvent.end, 'minute')
-
       Object.values(events)
         .filter(
           (event) =>
-            e.oldEvent.end &&
-            dayjs(event.start).date() === dayjs(e.oldEvent.end).date()
+            dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
+            event.id !== e.event.id
         )
         .forEach((event) => {
           eventsApi.update({
             ...event,
-            start: dayjs(event.start).add(endDiff, 'minute').toDate(),
-            end: dayjs(event.end).add(endDiff, 'minute').toDate(),
+            start: dayjs(event.start).add(e.delta.milliseconds, 'ms').toDate(),
+            end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
           })
         })
       console.log(events)
+    }
+  }
+
+  const handleEventResize = (e: EventResizeDoneArg) => {
+    eventsApi.update(e.event.toJSON() as SpotEvent)
+
+    if (e.startDelta.milliseconds !== 0) {
+      console.log('edit start')
+      Object.values(events)
+        .filter(
+          (event) =>
+            dayjs(event.start).date() === dayjs(e.event.start).date() &&
+            dayjs(event.start) < dayjs(e.oldEvent.start)
+        )
+        .forEach((event) => {
+          eventsApi.update({
+            ...event,
+            start: dayjs(event.start)
+              .add(e.startDelta.milliseconds, 'ms')
+              .toDate(),
+            end: dayjs(event.end).add(e.startDelta.milliseconds, 'ms').toDate(),
+          })
+        })
+    } else if (e.endDelta.milliseconds !== 0) {
+      console.log('edit end')
+      Object.values(events)
+        .filter(
+          (event) =>
+            dayjs(event.start).date() === dayjs(e.event.start).date() &&
+            dayjs(event.start) >= dayjs(e.oldEvent.end)
+        )
+        .forEach((event) => {
+          eventsApi.update({
+            ...event,
+            start: dayjs(event.start)
+              .add(e.endDelta.milliseconds, 'ms')
+              .toDate(),
+            end: dayjs(event.end).add(e.endDelta.milliseconds, 'ms').toDate(),
+          })
+        })
     }
   }
 
@@ -206,7 +247,9 @@ const PlanEditor = () => {
           eventMinHeight={5}
           nowIndicator={false}
           events={Object.values(events)}
-          eventChange={handleEventChanged}
+          eventResizableFromStart
+          eventDrop={handleEventDrop}
+          eventResize={handleEventResize}
           eventContent={renderEvent} // custom render function
           eventsSet={handleEventsSet} // called after events are initialized/added/changed/removed
         />

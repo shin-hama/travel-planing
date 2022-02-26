@@ -74,7 +74,7 @@ export const useSelectSpots = () => {
       })
 
       const spotEnd = start.add(1, 'hour')
-      const spotEvent = {
+      const spotEvent: SpotEvent = {
         id: createEventId(),
         title: spot.data?.spots_by_pk?.name || '',
         start: start.toDate(),
