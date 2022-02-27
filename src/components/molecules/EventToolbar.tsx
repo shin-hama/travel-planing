@@ -11,15 +11,72 @@ import {
 import { EventApi } from '@fullcalendar/react'
 
 import { useSelectSpots } from 'hooks/useSelectSpots'
+import { MoveEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
   event: EventApi
 }
 const EventToolbar: React.FC<Props> = ({ event }) => {
-  const [, spotsApi] = useSelectSpots()
+  const [spots, spotsApi] = useSelectSpots()
 
-  const handleUp = () => {
+  const handleUp = async () => {
     console.log('up')
+    const i = spots
+      .filter((spot): spot is SpotEvent => spot.extendedProps.type === 'spot')
+      .findIndex((spot) => spot.id === event.id)
+    if (i === 0) {
+      console.log('cannot move up event')
+      return
+    }
+
+    const moveTo = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' &&
+        spot.extendedProps.from === event.extendedProps.placeId
+    )
+    const moveFrom = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' &&
+        spot.extendedProps.to === event.extendedProps.placeId
+    )
+
+    const beforeSpotPlaceId = moveFrom?.extendedProps.from
+    const beforeSpotMoveFrom = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' &&
+        spot.extendedProps.to === beforeSpotPlaceId
+    )
+
+    const insertSpotId = beforeSpotMoveFrom?.extendedProps.from
+
+    moveFrom && spotsApi.remove(moveFrom.id)
+    moveTo && spotsApi.remove(moveTo.id)
+    beforeSpotMoveFrom && spotsApi.remove(beforeSpotMoveFrom.id)
+
+    await spotsApi.add(
+      {
+        placeId: event.extendedProps.placeId,
+        imageUrl: event.extendedProps.imageUrl,
+      },
+      insertSpotId
+    )
+    beforeSpotPlaceId &&
+      (await spotsApi.add(
+        {
+          placeId: beforeSpotPlaceId,
+          imageUrl: event.extendedProps.imageUrl,
+        },
+        event.extendedProps.placeId
+      ))
+
+    moveTo &&
+      spotsApi.add(
+        {
+          placeId: moveTo.extendedProps.to,
+          imageUrl: event.extendedProps.imageUrl,
+        },
+        beforeSpotPlaceId
+      )
   }
 
   const handleDown = () => {

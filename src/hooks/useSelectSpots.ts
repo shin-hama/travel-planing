@@ -2,6 +2,8 @@ import * as React from 'react'
 import dayjs from 'dayjs'
 
 import {
+  MoveEvent,
+  ScheduleEvent,
   SelectedPlacesContext,
   Spot,
   SpotEvent,
@@ -16,14 +18,21 @@ function createEventId() {
   return String(eventGuid++)
 }
 
-const findLastSpot = (spots: SpotEvent[]) => {
-  let max = spots[0]
-  for (let i = 1; i < spots.length; i++) {
-    const end = spots[i].end
-    if (max.end && end !== null && max.end < end) {
-      max = spots[i]
+const findLastSpot = (spots: ScheduleEvent[]): SpotEvent | null => {
+  const spotEvents = spots.filter(
+    (spot): spot is SpotEvent => spot.extendedProps.type === 'spot'
+  )
+
+  let max: SpotEvent | null = null
+  spotEvents.forEach((spot) => {
+    if (!max) {
+      max = spot
     }
-  }
+
+    if (max.extendedProps.type === 'spot' && max.end < spot.end) {
+      max = spot
+    }
+  })
 
   return max
 }
@@ -35,37 +44,50 @@ export const useSelectSpots = () => {
   const [getSpot] = useGetSpotByPkLazyQuery()
 
   const add = React.useCallback(
-    async (newSpot: Required<Spot>) => {
+    async (newSpot: Required<Omit<Spot, 'type'>>, placeId?: string) => {
       // Create new spot event
       let start = dayjs('09:00:00', 'HH:mm:ss')
       if (places.length > 0) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
-        const lastSpot = findLastSpot(places)
-        const org = [{ placeId: lastSpot.extendedProps?.placeId }]
-        start = dayjs(lastSpot.end)
-        const dest = [{ placeId: newSpot.placeId }]
-        const result = await distanceMatrix.search(org, dest)
+        const lastSpot = placeId
+          ? places.find(
+              (place): place is SpotEvent =>
+                place.extendedProps.type === 'spot' &&
+                place.extendedProps.placeId === placeId
+            )
+          : findLastSpot(places)
+        if (lastSpot) {
+          const org = [{ placeId: lastSpot.extendedProps.placeId }]
+          start = dayjs(lastSpot.end)
+          const dest = [{ placeId: newSpot.placeId }]
+          const result = await distanceMatrix.search(org, dest)
 
-        const moveEnd = start.add(
-          result.rows[0].elements[0].duration.value,
-          's'
-        )
+          const moveEnd = start.add(
+            result.rows[0].elements[0].duration.value,
+            's'
+          )
 
-        if (moveEnd.hour() >= 19) {
-          // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
-          start = start.add(1, 'day').hour(9).minute(0).second(0)
-        } else {
-          const moveEvent = {
-            id: createEventId(),
-            title: 'Car',
-            start: start.toDate(),
-            end: moveEnd.toDate(),
-            color: 'limegreen',
-            display: 'background',
+          if (moveEnd.hour() >= 19) {
+            // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
+            start = start.add(1, 'day').hour(9).minute(0).second(0)
+          } else {
+            const moveEvent: MoveEvent = {
+              id: createEventId(),
+              title: 'Car',
+              start: start.toDate(),
+              end: moveEnd.toDate(),
+              color: 'limegreen',
+              display: 'background',
+              extendedProps: {
+                type: 'move',
+                from: lastSpot.extendedProps.placeId,
+                to: newSpot.placeId,
+              },
+            }
+
+            actions.push(moveEvent)
+            start = moveEnd
           }
-
-          actions.push(moveEvent)
-          start = moveEnd
         }
       }
 
@@ -74,6 +96,7 @@ export const useSelectSpots = () => {
       })
 
       const spotEnd = start.add(1, 'hour')
+
       const spotEvent: SpotEvent = {
         id: createEventId(),
         title: spot.data?.spots_by_pk?.name || '',
@@ -81,7 +104,8 @@ export const useSelectSpots = () => {
         end: spotEnd.toDate(),
         color: 'transparent',
         extendedProps: {
-          placeId: spot.data?.spots_by_pk?.place_id,
+          type: 'spot',
+          placeId: newSpot.placeId,
           imageUrl: newSpot.imageUrl,
         },
       }
@@ -100,7 +124,7 @@ export const useSelectSpots = () => {
   )
 
   const update = React.useCallback(
-    (newSpot: SpotEvent) => {
+    (newSpot: ScheduleEvent) => {
       actions.update((spot) => spot.id === newSpot.id, newSpot)
     },
     [actions]

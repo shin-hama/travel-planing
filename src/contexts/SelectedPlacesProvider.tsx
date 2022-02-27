@@ -3,17 +3,28 @@ import { useList } from 'react-use'
 import { ListActions } from 'react-use/lib/useList'
 import { EventInput } from '@fullcalendar/react' // must go before plugins
 
-export type Spot = { placeId?: string; imageUrl?: string }
-export type SpotEvent =
-  | EventInput & {
-      id: string
-      start: Date
-      end: Date
-      extendedProps?: Spot
-    }
-export const SelectedPlacesContext = React.createContext<Array<SpotEvent>>([])
+export type Spot = { type: 'spot'; placeId: string; imageUrl: string }
+export type Move = { type: 'move'; from: string; to: string }
+type CustomEventInput = Omit<EventInput, 'extendedProps'>
+export type SpotEvent = CustomEventInput & {
+  id: string
+  start: Date
+  end: Date
+  extendedProps: Spot
+}
+export type MoveEvent = CustomEventInput & {
+  id: string
+  start: Date
+  end: Date
+  extendedProps: Move
+}
+
+export type ScheduleEvent = SpotEvent | MoveEvent
+export const SelectedPlacesContext = React.createContext<Array<ScheduleEvent>>(
+  []
+)
 const SelectedPlacesActionsContext =
-  React.createContext<ListActions<SpotEvent> | null>(null)
+  React.createContext<ListActions<ScheduleEvent> | null>(null)
 
 export const useSelectedPlacesActions = () => {
   const actions = React.useContext(SelectedPlacesActionsContext)
@@ -25,7 +36,7 @@ export const useSelectedPlacesActions = () => {
 }
 
 export const SelectedPlacesProvider: React.FC = ({ children }) => {
-  const [places, actions] = useList<SpotEvent>()
+  const [places, actions] = useList<ScheduleEvent>()
   return (
     <SelectedPlacesContext.Provider value={places}>
       <SelectedPlacesActionsContext.Provider value={actions}>

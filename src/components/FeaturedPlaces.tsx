@@ -4,7 +4,10 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
-import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
+import {
+  SelectedPlacesContext,
+  SpotEvent,
+} from 'contexts/SelectedPlacesProvider'
 import { StepperHandlerContext } from './RoutePlanner'
 import SpotsCandidates from './organisms/SpotsCandidates'
 import SpotsMap from './organisms/SpotsMap'
@@ -39,7 +42,7 @@ const FeaturedPlaces = () => {
           alignItems="baseline">
           <Badge
             badgeContent={
-              places.filter((item) => item.extendedProps?.placeId).length
+              places.filter((item) => item.extendedProps.type === 'spot').length
             }
             color="primary">
             <Button variant="text" onClick={handleOpen}>
@@ -65,8 +68,10 @@ const FeaturedPlaces = () => {
       <SpotsCandidates
         open={open}
         places={places
-          .map((place) => place.extendedProps?.placeId)
-          .filter((item): item is string => typeof item === 'string')}
+          .filter(
+            (place): place is SpotEvent => place.extendedProps.type === 'spot'
+          )
+          .map((spot) => spot.extendedProps.placeId)}
         onOpen={handleOpen}
         onClose={handleClose}
       />

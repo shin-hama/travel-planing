@@ -126,7 +126,7 @@ const PlanEditor = () => {
     eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
-      Object.values(events)
+      events
         .filter(
           (event) =>
             dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
@@ -148,7 +148,7 @@ const PlanEditor = () => {
 
     if (e.startDelta.milliseconds !== 0) {
       console.log('edit start')
-      Object.values(events)
+      events
         .filter(
           (event) =>
             dayjs(event.start).date() === dayjs(e.event.start).date() &&
@@ -165,7 +165,7 @@ const PlanEditor = () => {
         })
     } else if (e.endDelta.milliseconds !== 0) {
       console.log('edit end')
-      Object.values(events)
+      events
         .filter(
           (event) =>
             dayjs(event.start).date() === dayjs(e.event.start).date() &&
@@ -247,7 +247,7 @@ const PlanEditor = () => {
             longPressDelay={500}
             eventMinHeight={5}
             nowIndicator={false}
-            events={Object.values(events)}
+            events={events}
             eventResizableFromStart
             eventDrop={handleEventDrop}
             eventResize={handleEventResize}
