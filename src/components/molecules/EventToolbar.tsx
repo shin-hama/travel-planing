@@ -39,27 +39,36 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       return
     }
 
-    moveToSelected.extendedProps.from = event.extendedProps.placeId
-    moveToSelected.extendedProps.to = beforeSpot.id
-    spotsApi.update(moveToSelected)
-
     const duration = dayjs(event.end).diff(event.start, 'minute')
+    const newEnd = dayjs(beforeSpot.start).add(duration, 'minute')
     spotsApi.update({
       ...event.toJSON(),
       start: beforeSpot.start,
-      end: dayjs(beforeSpot.start).add(duration, 'minute').toDate(),
+      end: newEnd.toDate(),
     } as SpotEvent)
 
+    const moveDuration = dayjs(moveToSelected.end).diff(
+      moveToSelected.start,
+      'minute'
+    )
+    const moveEnd = newEnd.add(moveDuration, 'minute')
+    spotsApi.update({
+      ...moveToSelected,
+      start: newEnd.toDate(),
+      end: moveEnd.toDate(),
+    })
     const beforeDuration = dayjs(beforeSpot.end).diff(
       beforeSpot.start,
       'minute'
     )
     spotsApi.update({
       ...beforeSpot,
-      start: event.start,
-      end: dayjs(event.start).add(beforeDuration, 'minute').toDate(),
+      start: moveEnd.toDate(),
+      end: dayjs(moveEnd).add(beforeDuration, 'minute').toDate(),
     } as SpotEvent)
 
+    moveToSelected.extendedProps.from = event.extendedProps.placeId
+    moveToSelected.extendedProps.to = beforeSpot.id
     // const beforeSpotMoveFrom = spots.find(
     //   (spot): spot is MoveEvent =>
     //     spot.extendedProps.type === 'move' &&
