@@ -10,73 +10,66 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { EventApi } from '@fullcalendar/react'
 
+// import { useDistanceMatrix } from './useDistanceMatrix'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { MoveEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import dayjs from 'dayjs'
 
 type Props = {
   event: EventApi
 }
 const EventToolbar: React.FC<Props> = ({ event }) => {
   const [spots, spotsApi] = useSelectSpots()
+  // const distanceMatrix = useDistanceMatrix()
 
   const handleUp = async () => {
     console.log('up')
-    const i = spots
-      .filter((spot): spot is SpotEvent => spot.extendedProps.type === 'spot')
-      .findIndex((spot) => spot.id === event.id)
-    if (i === 0) {
-      console.log('cannot move up event')
-      return
-    }
 
-    const moveTo = spots.find(
-      (spot): spot is MoveEvent =>
-        spot.extendedProps.type === 'move' &&
-        spot.extendedProps.from === event.extendedProps.placeId
-    )
-    const moveFrom = spots.find(
+    const moveToSelected = spots.find(
       (spot): spot is MoveEvent =>
         spot.extendedProps.type === 'move' &&
         spot.extendedProps.to === event.extendedProps.placeId
     )
-
-    const beforeSpotPlaceId = moveFrom?.extendedProps.from
-    const beforeSpotMoveFrom = spots.find(
-      (spot): spot is MoveEvent =>
-        spot.extendedProps.type === 'move' &&
-        spot.extendedProps.to === beforeSpotPlaceId
+    const beforeSpot = spots.find(
+      (spot) => spot.id === moveToSelected?.extendedProps.from
     )
 
-    const insertSpotId = beforeSpotMoveFrom?.extendedProps.from
+    if (moveToSelected === undefined || beforeSpot === undefined) {
+      console.log('cannot move up event')
+      return
+    }
 
-    moveFrom && spotsApi.remove(moveFrom.id)
-    moveTo && spotsApi.remove(moveTo.id)
-    beforeSpotMoveFrom && spotsApi.remove(beforeSpotMoveFrom.id)
+    moveToSelected.extendedProps.from = event.extendedProps.placeId
+    moveToSelected.extendedProps.to = beforeSpot.id
+    spotsApi.update(moveToSelected)
 
-    await spotsApi.add(
-      {
-        placeId: event.extendedProps.placeId,
-        imageUrl: event.extendedProps.imageUrl,
-      },
-      insertSpotId
+    const duration = dayjs(event.end).diff(event.start, 'minute')
+    spotsApi.update({
+      ...event.toJSON(),
+      start: beforeSpot.start,
+      end: dayjs(beforeSpot.start).add(duration, 'minute').toDate(),
+    } as SpotEvent)
+
+    const beforeDuration = dayjs(beforeSpot.end).diff(
+      beforeSpot.start,
+      'minute'
     )
-    beforeSpotPlaceId &&
-      (await spotsApi.add(
-        {
-          placeId: beforeSpotPlaceId,
-          imageUrl: event.extendedProps.imageUrl,
-        },
-        event.extendedProps.placeId
-      ))
+    spotsApi.update({
+      ...beforeSpot,
+      start: event.start,
+      end: dayjs(event.start).add(beforeDuration, 'minute').toDate(),
+    } as SpotEvent)
 
-    moveTo &&
-      spotsApi.add(
-        {
-          placeId: moveTo.extendedProps.to,
-          imageUrl: event.extendedProps.imageUrl,
-        },
-        beforeSpotPlaceId
-      )
+    // const beforeSpotMoveFrom = spots.find(
+    //   (spot): spot is MoveEvent =>
+    //     spot.extendedProps.type === 'move' &&
+    //     spot.extendedProps.to === beforeSpot.placeId
+    // )
+    // const moveFromSelected = spots.find(
+    //   (spot): spot is MoveEvent =>
+    //     spot.extendedProps.type === 'move' &&
+    //     spot.extendedProps.from === event.extendedProps.placeId
+    // )
   }
 
   const handleDown = () => {

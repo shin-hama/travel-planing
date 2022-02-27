@@ -55,7 +55,7 @@ export const useSelectSpots = () => {
         const dest = [{ placeId: newSpot.placeId }]
         const result = await distanceMatrix.search(org, dest)
 
-        const moveStart = dayjs(lastSpot.start)
+        const moveStart = dayjs(lastSpot.end)
         const moveEnd = moveStart.add(
           result.rows[0].elements[0].duration.value,
           's'
