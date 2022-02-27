@@ -18,7 +18,7 @@ import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
-import { SpotEvent } from 'contexts/SelectedPlacesProvider'
+import { MoveEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
 
 dayjs.extend(customParseFormat)
 
@@ -184,11 +184,19 @@ const PlanEditor = () => {
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {
-    if (eventInfo.event.extendedProps.placeId) {
+    if (eventInfo.event.extendedProps.type === 'spot') {
       return <SpotEventCard event={eventInfo.event} />
+    } else if (eventInfo.event.extendedProps.type === 'move') {
+      return (
+        <MoveEventCard
+          event={
+            eventInfo.event as EventApi & {
+              extendedProps: MoveEvent['extendedProps']
+            }
+          }
+        />
+      )
     }
-
-    return <MoveEventCard event={eventInfo.event} />
   }
 
   const renderDayHeader = (props: DayHeaderContentArg) => {

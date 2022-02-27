@@ -7,12 +7,14 @@ import { faCarSide } from '@fortawesome/free-solid-svg-icons'
 import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
+import { MoveEvent } from 'contexts/SelectedPlacesProvider'
+
 const calcDiff = (start: Date, end: Date) => {
   const min = dayjs(end).diff(dayjs(start), 'minute')
   return `${Math.floor(min / 60)}時間${min % 60}分`
 }
 type Props = {
-  event: EventApi
+  event: EventApi & { extendedProps: MoveEvent['extendedProps'] }
 }
 const MoveEventCard: React.FC<Props> = ({ event }) => {
   return (
@@ -33,4 +35,4 @@ const MoveEventCard: React.FC<Props> = ({ event }) => {
   )
 }
 
-export default MoveEventCard
+export default React.memo(MoveEventCard)

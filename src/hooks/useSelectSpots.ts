@@ -41,53 +41,44 @@ export const useSelectSpots = () => {
   const places = React.useContext(SelectedPlacesContext)
   const actions = useSelectedPlacesActions()
   const distanceMatrix = useDistanceMatrix()
+
   const [getSpot] = useGetSpotByPkLazyQuery()
 
   const add = React.useCallback(
-    async (newSpot: Required<Omit<Spot, 'type'>>, placeId?: string) => {
-      // Create new spot event
+    async (newSpot: Required<Omit<Spot, 'type'>>, prevPlaceId?: string) => {
       let start = dayjs('09:00:00', 'HH:mm:ss')
-      if (places.length > 0) {
+
+      const lastSpot = findLastSpot(places)
+      if (lastSpot) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
-        const lastSpot = placeId
-          ? places.find(
-              (place): place is SpotEvent =>
-                place.extendedProps.type === 'spot' &&
-                place.extendedProps.placeId === placeId
-            )
-          : findLastSpot(places)
-        if (lastSpot) {
-          const org = [{ placeId: lastSpot.extendedProps.placeId }]
-          start = dayjs(lastSpot.end)
-          const dest = [{ placeId: newSpot.placeId }]
-          const result = await distanceMatrix.search(org, dest)
+        const org = [{ placeId: lastSpot.extendedProps.placeId }]
+        const dest = [{ placeId: newSpot.placeId }]
+        const result = await distanceMatrix.search(org, dest)
 
-          const moveEnd = start.add(
-            result.rows[0].elements[0].duration.value,
-            's'
-          )
-
-          if (moveEnd.hour() >= 19) {
-            // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
-            start = start.add(1, 'day').hour(9).minute(0).second(0)
-          } else {
-            const moveEvent: MoveEvent = {
-              id: createEventId(),
-              title: 'Car',
-              start: start.toDate(),
-              end: moveEnd.toDate(),
-              color: 'limegreen',
-              display: 'background',
-              extendedProps: {
-                type: 'move',
-                from: lastSpot.extendedProps.placeId,
-                to: newSpot.placeId,
-              },
-            }
-
-            actions.push(moveEvent)
-            start = moveEnd
+        const moveStart = dayjs(lastSpot.start)
+        const moveEnd = moveStart.add(
+          result.rows[0].elements[0].duration.value,
+          's'
+        )
+        if (moveEnd.hour() >= 19) {
+          // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
+          start = start.add(1, 'day').hour(9).minute(0).second(0)
+        } else {
+          const moveEvent: MoveEvent = {
+            id: createEventId(),
+            title: 'Car',
+            start: moveStart.toDate(),
+            end: moveEnd.toDate(),
+            color: 'limegreen',
+            display: 'background',
+            extendedProps: {
+              type: 'move',
+              from: prevPlaceId || lastSpot.extendedProps.placeId,
+              to: newSpot.placeId,
+            },
           }
+          actions.push(moveEvent)
+          start = moveEnd
         }
       }
 
@@ -98,7 +89,7 @@ export const useSelectSpots = () => {
       const spotEnd = start.add(1, 'hour')
 
       const spotEvent: SpotEvent = {
-        id: createEventId(),
+        id: newSpot.placeId,
         title: spot.data?.spots_by_pk?.name || '',
         start: start.toDate(),
         end: spotEnd.toDate(),
