@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import { EventApi } from '@fullcalendar/react'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import EventToolbar from 'components/molecules/EventToolbar'
+import EventToolbar from 'components/organisms/EventToolbar'
 
 type Props = {
   event: EventApi
