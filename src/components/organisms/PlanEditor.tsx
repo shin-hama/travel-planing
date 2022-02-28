@@ -117,22 +117,30 @@ const PlanEditor = () => {
   }
 
   const handleEventDrop = (e: EventDropArg) => {
+    console.log(e)
     eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
-      events
-        .filter(
-          (event) =>
-            dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
-            event.id !== e.event.id
-        )
-        .forEach((event) => {
-          eventsApi.update({
-            ...event,
-            start: dayjs(event.start).add(e.delta.milliseconds, 'ms').toDate(),
-            end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
+      console.log(Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()))
+      if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
+        console.log('Move day')
+      } else {
+        events
+          .filter(
+            (event) =>
+              dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
+              event.id !== e.event.id
+          )
+          .forEach((event) => {
+            eventsApi.update({
+              ...event,
+              start: dayjs(event.start)
+                .add(e.delta.milliseconds, 'ms')
+                .toDate(),
+              end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
+            })
           })
-        })
+      }
     }
   }
 
