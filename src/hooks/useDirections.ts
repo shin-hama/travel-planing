@@ -18,7 +18,7 @@ export const useDirections = () => {
 
       const origin = { placeId: cloned.shift()?.placeId }
       const destination = { placeId: cloned.pop()?.placeId }
-      const waypoints = cloned.map(place => ({
+      const waypoints = cloned.map((place) => ({
         location: { placeId: place.placeId },
       }))
       const result = await direction.route(

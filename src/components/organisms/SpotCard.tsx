@@ -12,43 +12,42 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/usePlaces'
-import {
-  SelectedPlacesContext,
-  useSelectedPlacesActions,
-} from 'contexts/SelectedPlacesProvider'
+import { SelectedPlacesContext, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import { useSelectSpots } from 'hooks/useSelectSpots'
 
 type ButtonProps = {
   placeId: string
+  photo: string
 }
-const SelectButton: React.FC<ButtonProps> = ({ placeId }) => {
+const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
-  const actions = useSelectedPlacesActions()
+  const [, actions] = useSelectSpots()
 
-  const isSelected = selectedSpots.some(item => item.placeId === placeId)
+  const selected = selectedSpots.find(
+    (spot): spot is SpotEvent =>
+      spot.extendedProps.type === 'spot' &&
+      spot.extendedProps?.placeId === placeId
+  )
 
   const handleClick = () => {
-    if (isSelected) {
-      actions.filter(item => item.placeId !== placeId)
+    if (selected) {
+      actions.remove(selected.id)
     } else {
-      actions.push({ placeId })
+      actions.add({ placeId, imageUrl: photo })
     }
   }
 
   return (
     <Button variant="contained" size="small" onClick={handleClick}>
-      {isSelected ? 'Remove' : 'Add'}
+      {selected ? 'Remove' : 'Add'}
     </Button>
   )
 }
 
 type Props = {
   placeId: string
-  actionNode?: React.ReactNode
 }
-const SpotCard: React.FC<Props> = React.memo(function SpotCard({
-  placeId,
-  actionNode,
-}) {
+const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   const [getSpot, { data, loading, error }] = useGetSpotByPkLazyQuery()
   const [subtitle, setSubtitle] = React.useState('')
   const placesService = usePlaces()
@@ -64,8 +63,8 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
       const result = await getSpot({ variables: { place_id: placeId } })
 
       const categories = result.data?.spots_by_pk?.spots_types
-        .map(types => {
-          return types.type.category_types.map(cate => cate.category.name)
+        .map((types) => {
+          return types.type.category_types.map((cate) => cate.category.name)
         })
         .flat()
 
@@ -82,9 +81,13 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
     countRef.current += 1
     console.log('get photos')
 
-    placesService.getPhotos(placeId).then(results => {
+    placesService.getPhotos(placeId).then((results) => {
       setPhotos(results)
     })
+
+    return () => {
+      setPhotos([])
+    }
   }, [placeId, placesService])
 
   if (error) {
@@ -114,7 +117,10 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({
                 <FontAwesomeIcon icon={faInstagram} />
               </IconButton>
               <div style={{ marginLeft: 'auto' }}>
-                <SelectButton placeId={data.spots_by_pk.name} />
+                <SelectButton
+                  placeId={data.spots_by_pk.place_id}
+                  photo={photos[0] || ''}
+                />
               </div>
             </CardActions>
           </Grid>

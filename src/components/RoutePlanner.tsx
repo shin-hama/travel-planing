@@ -31,11 +31,11 @@ const RoutePlanner = () => {
   const [activeStep, setActiveStep] = React.useState(0)
 
   const handleNext = () => {
-    setActiveStep(prevActiveStep => prevActiveStep + 1)
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
   }
 
   const handleBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1)
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
   }
 
   const handleReset = () => {
@@ -64,7 +64,7 @@ const RoutePlanner = () => {
             Back
           </Button>
           <Stepper activeStep={activeStep} sx={{ flexGrow: 1 }}>
-            {steps.map(step => (
+            {steps.map((step) => (
               <Step key={step.label}>
                 <StepLabel>{step.label}</StepLabel>
               </Step>

@@ -4,13 +4,12 @@ import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import { Spot } from 'contexts/SelectedPlacesProvider'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import SpotsList from './SpotsList'
 
 type Props = {
   open: boolean
-  places: Array<Spot>
+  places: Array<string>
   onOpen: () => void
   onClose: () => void
 }
@@ -40,7 +39,7 @@ const SpotsCandidates: React.FC<Props> = ({
               sx={{
                 width: 30,
                 height: 6,
-                backgroundColor: theme => theme.palette.grey[300],
+                backgroundColor: (theme) => theme.palette.grey[300],
                 borderRadius: 3,
                 position: 'absolute',
                 top: 8,
@@ -57,7 +56,7 @@ const SpotsCandidates: React.FC<Props> = ({
               overflow: 'auto',
             }}>
             <Container maxWidth="xs">
-              <SpotsList spots={places.map(place => place.placeId)} />
+              <SpotsList spots={places} />
             </Container>
           </Box>
         </Box>

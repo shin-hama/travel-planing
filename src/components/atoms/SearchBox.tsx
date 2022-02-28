@@ -12,8 +12,9 @@ const SearchBox = () => {
 
   return (
     <StandaloneSearchBox
-      onLoad={ref => setSearchBox(ref)}
-      onPlacesChanged={handlePlaceChanged}>
+      onLoad={(ref) => setSearchBox(ref)}
+      onPlacesChanged={handlePlaceChanged}
+    >
       <input
         type="text"
         placeholder="Customized your placeholder"

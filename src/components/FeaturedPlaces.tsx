@@ -4,7 +4,10 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
-import { SelectedPlacesContext } from 'contexts/SelectedPlacesProvider'
+import {
+  SelectedPlacesContext,
+  SpotEvent,
+} from 'contexts/SelectedPlacesProvider'
 import { StepperHandlerContext } from './RoutePlanner'
 import SpotsCandidates from './organisms/SpotsCandidates'
 import SpotsMap from './organisms/SpotsMap'
@@ -37,7 +40,11 @@ const FeaturedPlaces = () => {
           direction="row"
           justifyContent="space-between"
           alignItems="baseline">
-          <Badge badgeContent={places.length} color="primary">
+          <Badge
+            badgeContent={
+              places.filter((item) => item.extendedProps.type === 'spot').length
+            }
+            color="primary">
             <Button variant="text" onClick={handleOpen}>
               Spots List
             </Button>
@@ -46,13 +53,13 @@ const FeaturedPlaces = () => {
             sx={{
               width: 30,
               height: 6,
-              backgroundColor: theme => theme.palette.grey[300],
+              backgroundColor: (theme) => theme.palette.grey[300],
               borderRadius: 3,
             }}
           />
           <Button
             variant="contained"
-            disabled={places.length < 2}
+            disabled={places.length === 0}
             onClick={handleNext}>
             Get Route
           </Button>
@@ -60,7 +67,11 @@ const FeaturedPlaces = () => {
       </Box>
       <SpotsCandidates
         open={open}
-        places={places}
+        places={places
+          .filter(
+            (place): place is SpotEvent => place.extendedProps.type === 'spot'
+          )
+          .map((spot) => spot.extendedProps.placeId)}
         onOpen={handleOpen}
         onClose={handleClose}
       />

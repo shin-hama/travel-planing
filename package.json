@@ -27,6 +27,7 @@
     "@types/node": "^16.11.22",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
+    "dayjs": "^1.10.7",
     "graphql": "^16.3.0",
     "moment": "^2.29.1",
     "react": "^17.0.2",
@@ -67,6 +68,7 @@
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "sass": "^1.49.8"
   }
 }

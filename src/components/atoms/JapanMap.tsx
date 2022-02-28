@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles'
 
 import { usePrefectures } from 'constant/prefectures'
 import { SetSelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
-import { useSelectedPlacesActions } from 'contexts/SelectedPlacesProvider'
 import { StepperHandlerContext } from 'components/RoutePlanner'
 
 const InteractiveGElement = styled('g')(() => ({
@@ -24,17 +23,15 @@ const Prefecture: React.FC<PrefectureProps> = ({
 }) => {
   const setSelected = React.useContext(SetSelectedPrefectureContext)
   const prefectures = usePrefectures()
-  const { clear } = useSelectedPlacesActions()
   const handleNext = React.useContext(StepperHandlerContext)
 
   const handleClick = () => {
     if (!prefectures) {
       return
     }
-    const prefecture = prefectures.find(item => item.code === code)
+    const prefecture = prefectures.find((item) => item.code === code)
     if (prefecture) {
       setSelected(prefecture.code)
-      clear()
       handleNext()
     }
   }
