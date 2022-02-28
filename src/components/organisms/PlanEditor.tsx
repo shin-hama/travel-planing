@@ -241,8 +241,8 @@ const PlanEditor = () => {
               omitZeroMinute: false,
               meridiem: 'short',
             }}
-            slotMinTime={'05:00:00'}
-            slotMaxTime={'21:00:00'}
+            // slotMinTime={'05:00:00'}
+            // slotMaxTime={'21:00:00'}
             dayHeaders={true}
             dayHeaderContent={renderDayHeader}
             allDaySlot={false}

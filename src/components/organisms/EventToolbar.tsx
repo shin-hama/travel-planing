@@ -25,11 +25,17 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
   const handleUp = async () => {
     console.log('up')
 
+    const moveFromSelected = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' &&
+        spot.extendedProps.from === event.extendedProps.placeId
+    )
     const moveToSelected = spots.find(
       (spot): spot is MoveEvent =>
         spot.extendedProps.type === 'move' &&
         spot.extendedProps.to === event.extendedProps.placeId
     )
+
     const beforeSpot = spots.find(
       (spot) => spot.id === moveToSelected?.extendedProps.from
     )
@@ -60,6 +66,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       spotsApi.update({ ...moveToBeforeSpot })
     }
 
+    // 選択中のスポットイベントを直前のスポットイベントと入れ替える
     const duration = dayjs(event.end).diff(event.start, 'minute')
     const newStart = moveToBeforeSpot ? moveToBeforeSpot.end : beforeSpot.start
     const newEnd = dayjs(newStart).add(duration, 'minute')
@@ -69,6 +76,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       end: newEnd.toDate(),
     })
 
+    // 移動イベントを入れ替えたスポットイベントに合わせて更新する
     const moveDuration = dayjs(moveToSelected.end).diff(
       moveToSelected.start,
       'minute'
@@ -84,6 +92,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       },
     })
 
+    // 入れ替える対象になる直前のイベントを更新する
     const beforeDuration = dayjs(beforeSpot.end).diff(
       beforeSpot.start,
       'minute'
@@ -94,11 +103,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       .toDate()
     spotsApi.update({ ...beforeSpot })
 
-    const moveFromSelected = spots.find(
-      (spot): spot is MoveEvent =>
-        spot.extendedProps.type === 'move' &&
-        spot.extendedProps.from === event.extendedProps.placeId
-    )
+    // 選択したイベントより後のイベントを更新する
     if (moveFromSelected) {
       const org = [{ placeId: beforeSpot.id }]
       const dest = [{ placeId: moveFromSelected.extendedProps.to }]
@@ -131,8 +136,119 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
     }
   }
 
-  const handleDown = () => {
+  const handleDown = async () => {
     console.log('down')
+
+    const moveFromSelected = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' &&
+        spot.extendedProps.from === event.id
+    )
+    const afterSpot = spots.find(
+      (spot) => spot.id === moveFromSelected?.extendedProps.to
+    )
+
+    const moveFromAfter = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' &&
+        spot.extendedProps.from === afterSpot?.id
+    )
+
+    // 直後に移動イベントがない場合は移動不可
+    if (moveFromSelected === undefined || afterSpot === undefined) {
+      console.log('cannot move down event')
+      return
+    }
+
+    // 選択したスポットへの移動イベントを取得
+    const moveToSelected = spots.find(
+      (spot): spot is MoveEvent =>
+        spot.extendedProps.type === 'move' && spot.extendedProps.to === event.id
+    )
+
+    if (moveToSelected) {
+      // 直後のスポットへの移動イベントを選択中のイベントへの移動イベントに更新
+      const org = [{ placeId: moveToSelected.extendedProps.from }]
+      const dest = [{ placeId: afterSpot.id }]
+      const result = await distanceMatrix.search(org, dest)
+
+      moveToSelected.end = dayjs(moveToSelected.start)
+        .add(result.rows[0].elements[0].duration.value, 's')
+        .toDate()
+      moveToSelected.extendedProps.to = afterSpot.id
+      spotsApi.update({ ...moveToSelected })
+    }
+
+    // 直前のスポットイベントを選択中のイベントに入れ替える
+    const duration = dayjs(afterSpot.end).diff(afterSpot.start, 'minute')
+    afterSpot.start = moveToSelected
+      ? moveToSelected.end
+      : event.start || new Date()
+    afterSpot.end = dayjs(afterSpot.start).add(duration, 'minute').toDate()
+    spotsApi.update({ ...afterSpot })
+
+    // 移動イベントを入れ替えたスポットイベントに合わせて更新する
+    const moveDuration = dayjs(moveFromSelected.end).diff(
+      moveFromSelected.start,
+      'minute'
+    )
+    moveFromSelected.start = afterSpot.end
+    moveFromSelected.end = dayjs(afterSpot.end)
+      .add(moveDuration, 'minute')
+      .toDate()
+    moveFromSelected.extendedProps.from = afterSpot.id
+    moveFromSelected.extendedProps.to = event.id
+    spotsApi.update({ ...moveFromSelected })
+
+    // 選択中のイベントを更新する
+    const eventDuration = dayjs(event.end).diff(event.start, 'minute')
+    const newStart = moveFromSelected.end
+    const newEnd = dayjs(newStart).add(eventDuration, 'minute').toDate()
+    spotsApi.update({
+      ...(event.toJSON() as SpotEvent),
+      start: newStart,
+      end: newEnd,
+    })
+
+    console.log(
+      spots.filter(
+        (spot) =>
+          spot.extendedProps.type === 'move' &&
+          spot.extendedProps.from === afterSpot.id
+      )
+    )
+
+    // 選択したイベントより後のイベントを更新する
+    if (moveFromAfter) {
+      const org = [{ placeId: event.id }]
+      const dest = [{ placeId: moveFromAfter.extendedProps.to }]
+      const result = await distanceMatrix.search(org, dest)
+
+      moveFromAfter.start = newEnd
+      const newMoveEnd = dayjs(moveFromAfter.start).add(
+        result.rows[0].elements[0].duration.value,
+        's'
+      )
+      const moveEndChange = newMoveEnd.diff(moveFromAfter.end, 'minute')
+      moveFromAfter.end = newMoveEnd.toDate()
+      moveFromAfter.extendedProps.from = event.id
+      spotsApi.update({ ...moveFromAfter })
+
+      // 移動時間の変化量を、当日のその後のイベント全てに適用する
+      spots
+        .filter(
+          (spot) =>
+            spot.start.getDate() === newMoveEnd.date() &&
+            spot.start > moveFromAfter.start
+        )
+        .forEach((spot) =>
+          spotsApi.update({
+            ...spot,
+            start: dayjs(spot.start).add(moveEndChange, 'minute').toDate(),
+            end: dayjs(spot.end).add(moveEndChange, 'minute').toDate(),
+          })
+        )
+    }
   }
 
   const handleEdit = () => {
