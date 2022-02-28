@@ -120,19 +120,39 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       spotsApi.update({ ...moveFromSelected })
 
       // 移動時間の変化量を、当日のその後のイベント全てに適用する
-      spots
-        .filter(
-          (spot) =>
-            spot.start.getDate() === newMoveEnd.date() &&
-            spot.start > moveFromSelected.start
+
+      // Move イベントをたどって時刻の変更を適用する
+      const applyChange = (move: MoveEvent) => {
+        const afterEvent = spots.find(
+          (spot) => spot.id === move.extendedProps.to
         )
-        .forEach((spot) =>
+        if (afterEvent) {
           spotsApi.update({
-            ...spot,
-            start: dayjs(spot.start).add(moveEndChange, 'minute').toDate(),
-            end: dayjs(spot.end).add(moveEndChange, 'minute').toDate(),
+            ...afterEvent,
+            start: dayjs(afterEvent.start)
+              .add(moveEndChange, 'minute')
+              .toDate(),
+            end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
           })
-        )
+          const moveFrom = spots.find(
+            (spot): spot is MoveEvent =>
+              spot.extendedProps.type === 'move' &&
+              spot.extendedProps.from === afterEvent?.id
+          )
+          if (moveFrom) {
+            spotsApi.update({
+              ...moveFrom,
+              start: dayjs(moveFrom.start)
+                .add(moveEndChange, 'minute')
+                .toDate(),
+              end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
+            })
+            applyChange(moveFrom)
+          }
+        }
+      }
+
+      applyChange(moveFromSelected)
     }
   }
 
@@ -234,20 +254,38 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       moveFromAfter.extendedProps.from = event.id
       spotsApi.update({ ...moveFromAfter })
 
-      // 移動時間の変化量を、当日のその後のイベント全てに適用する
-      spots
-        .filter(
-          (spot) =>
-            spot.start.getDate() === newMoveEnd.date() &&
-            spot.start > moveFromAfter.start
+      // Move イベントをたどって時刻の変更を適用する
+      const applyChange = (move: MoveEvent) => {
+        const afterEvent = spots.find(
+          (spot) => spot.id === move.extendedProps.to
         )
-        .forEach((spot) =>
+        if (afterEvent) {
           spotsApi.update({
-            ...spot,
-            start: dayjs(spot.start).add(moveEndChange, 'minute').toDate(),
-            end: dayjs(spot.end).add(moveEndChange, 'minute').toDate(),
+            ...afterEvent,
+            start: dayjs(afterEvent.start)
+              .add(moveEndChange, 'minute')
+              .toDate(),
+            end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
           })
-        )
+          const moveFrom = spots.find(
+            (spot): spot is MoveEvent =>
+              spot.extendedProps.type === 'move' &&
+              spot.extendedProps.from === afterEvent?.id
+          )
+          if (moveFrom) {
+            spotsApi.update({
+              ...moveFrom,
+              start: dayjs(moveFrom.start)
+                .add(moveEndChange, 'minute')
+                .toDate(),
+              end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
+            })
+            applyChange(moveFrom)
+          }
+        }
+      }
+
+      applyChange(moveFromAfter)
     }
   }
 
