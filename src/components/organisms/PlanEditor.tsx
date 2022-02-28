@@ -101,13 +101,19 @@ const PlanEditor = () => {
   const handleEventsSet = (_events: EventApi[]) => {
     const days = _events.map((e) => dayjs(e.start))
     const sorted = days.sort((a, b) => a.diff(b))
-    console.log(sorted)
-    setVisibleRange({
-      start: sorted[0].toDate(),
-      end: sorted[sorted.length - 1].toDate(),
-    })
+    const first = sorted[0]
+    const last = sorted[sorted.length - 1]
+    if (
+      first.date() !== visibleRange.start.getDate() ||
+      last.date() !== visibleRange.end.getDate()
+    ) {
+      setVisibleRange({
+        start: sorted[0].toDate(),
+        end: sorted[sorted.length - 1].toDate(),
+      })
 
-    setDaysDuration(new Set(days.map((day) => day.date())).size)
+      setDaysDuration(new Set(days.map((day) => day.date())).size)
+    }
   }
 
   const handleEventDrop = (e: EventDropArg) => {
