@@ -82,6 +82,7 @@ export const useSelectSpots = () => {
         }
       }
 
+      console.log(start)
       const spot = await getSpot({
         variables: { place_id: newSpot.placeId },
       })

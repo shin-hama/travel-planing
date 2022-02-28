@@ -14,7 +14,6 @@ import interactionPlugin, {
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
-import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
@@ -87,42 +86,31 @@ const StyledWrapper = styled('div')<{ width: string }>`
 
 const PlanEditor = () => {
   const [events, eventsApi] = useSelectSpots()
+  const calendar = React.useRef<FullCalendar>(null)
 
-  const distanceMatrix = useDistanceMatrix()
-  // to avoid the bug that infinite rerender and recall api after every api call
-  const distCountRef = React.useRef(0)
-
+  const [visibleRange, setVisibleRange] = React.useState<{
+    start: Date
+    end: Date
+  }>({
+    start: new Date(),
+    end: dayjs().add(1, 'day').toDate(),
+  })
   const [daysDuration, setDaysDuration] = React.useState(1)
   const gridWidth = daysDuration * 300
 
-  React.useEffect(() => {
-    // Need to call before distance matrix api
-    // APIよりあとにこれを実行すると、APIが二回実行されてしまうので注意
-    // Reset count to make to be callable
-    distCountRef.current = 0
-  }, [])
-
-  React.useEffect(() => {
-    if (distCountRef.current !== 0) {
-      return
-    }
-    distCountRef.current += 1
-
-    // マトリックスの要素数で課金されるので、できるだけ少なくなるようにリクエストを考える
-    // 例: 3地点の距離を計算するとき、3*3でリクエストすると9回分だが、
-    // 1,2点目 + 2,3 点目というようにすれば 2 回分ですむ
-  }, [distanceMatrix])
-
   const handleEventsSet = (_events: EventApi[]) => {
-    if (_events.length > 0) {
-      const first = _events[0].start?.getDate() || 0
-      const last = _events[_events.length - 1].start?.getDate() || 0
-      setDaysDuration(last - first + 1)
-    }
+    const days = _events.map((e) => dayjs(e.start))
+    const sorted = days.sort((a, b) => a.diff(b))
+    console.log(sorted)
+    setVisibleRange({
+      start: sorted[0].toDate(),
+      end: sorted[sorted.length - 1].toDate(),
+    })
+
+    setDaysDuration(new Set(days.map((day) => day.date())).size)
   }
 
   const handleEventDrop = (e: EventDropArg) => {
-    console.log(e)
     eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
@@ -139,7 +127,6 @@ const PlanEditor = () => {
             end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
           })
         })
-      console.log(events)
     }
   }
 
@@ -220,13 +207,15 @@ const PlanEditor = () => {
         }}>
         <StyledWrapper width={`${gridWidth}px`}>
           <FullCalendar
+            ref={calendar}
             plugins={[timeGridPlugin, interactionPlugin]}
             headerToolbar={false}
             initialView="customTimeGridDay"
             views={{
               customTimeGridDay: {
                 type: 'timeGrid',
-                duration: { days: daysDuration },
+                // duration: { days: daysDuration },
+                visibleRange: visibleRange,
               },
             }}
             scrollTime="08:00:00" // Default start time when render the timegrid.
