@@ -12,7 +12,10 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/usePlaces'
-import { SelectedPlacesContext, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import {
+  SelectedPlacesContext,
+  SpotEvent,
+} from 'contexts/SelectedPlacesProvider'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 
 type ButtonProps = {
@@ -31,7 +34,7 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
 
   const handleClick = () => {
     if (selected) {
-      actions.remove(selected.id)
+      actions.remove(selected)
     } else {
       actions.add({ placeId, imageUrl: photo })
     }

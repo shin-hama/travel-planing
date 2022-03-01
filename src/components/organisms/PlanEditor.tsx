@@ -136,7 +136,7 @@ const PlanEditor = () => {
         )
         const beforeSpotId = beforeMove?.extendedProps.from
         if (beforeSpotId) {
-          eventsApi.remove(beforeMove.id)
+          eventsApi.remove(beforeMove)
         }
         // update after move if exists
         const afterMove = events.find(
@@ -201,7 +201,7 @@ const PlanEditor = () => {
             applyChange(afterMove)
           } else {
             // Remove move event if previous spot is not exists
-            eventsApi.remove(afterMove.id)
+            eventsApi.remove(afterMove)
           }
         }
 
