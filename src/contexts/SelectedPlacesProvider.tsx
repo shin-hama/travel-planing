@@ -8,14 +8,14 @@ export type Move = { type: 'move'; from: string; to: string }
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
 export type SpotEvent = CustomEventInput & {
   id: string
-  start: Date
-  end: Date
+  start: Date | string
+  end: Date | string
   extendedProps: Spot
 }
 export type MoveEvent = CustomEventInput & {
   id: string
-  start: Date
-  end: Date
+  start: Date | string
+  end: Date | string
   extendedProps: Move
 }
 

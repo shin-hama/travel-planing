@@ -18,6 +18,7 @@ import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { MoveEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 
 dayjs.extend(customParseFormat)
 
@@ -88,6 +89,8 @@ const PlanEditor = () => {
   const [events, eventsApi] = useSelectSpots()
   const calendar = React.useRef<FullCalendar>(null)
 
+  const distanceMatrix = useDistanceMatrix()
+
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
     end: Date
@@ -116,23 +119,111 @@ const PlanEditor = () => {
     }
   }
 
-  const handleEventDrop = (e: EventDropArg) => {
+  const handleEventDrop = async (e: EventDropArg) => {
+    console.log(e)
+
+    // 画面上で移動させるためにとりあえず Event を更新する
     eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
-      events
-        .filter(
-          (event) =>
-            dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
-            event.id !== e.event.id
+      if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
+        console.log('Move day')
+        // remove before move
+        const beforeMove = events.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.extendedProps.to === e.event.id
         )
-        .forEach((event) => {
-          eventsApi.update({
-            ...event,
-            start: dayjs(event.start).add(e.delta.milliseconds, 'ms').toDate(),
-            end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
+        const beforeSpotId = beforeMove?.extendedProps.from
+        if (beforeSpotId) {
+          eventsApi.remove(beforeMove.id)
+        }
+        // update after move if exists
+        const afterMove = events.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.extendedProps.from === e.event.id
+        )
+        if (afterMove) {
+          if (beforeSpotId) {
+            // Calc distance between prev and next spot
+            afterMove.extendedProps.from = beforeSpotId
+
+            const org = [{ placeId: beforeSpotId }]
+            const dest = [{ placeId: afterMove.extendedProps.to }]
+            const result = await distanceMatrix.search(org, dest)
+
+            afterMove.start = beforeMove.start
+            const newMoveEnd = dayjs(afterMove.start).add(
+              result.rows[0].elements[0].duration.value,
+              's'
+            )
+            const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
+            afterMove.end = newMoveEnd.toDate()
+
+            eventsApi.update({ ...afterMove })
+
+            // Update all events after moved event
+            const applyChange = (move: MoveEvent) => {
+              const afterEvent = events.find(
+                (spot) => spot.id === move.extendedProps.to
+              )
+              if (afterEvent) {
+                eventsApi.update({
+                  ...afterEvent,
+                  start: dayjs(afterEvent.start)
+                    .add(moveEndChange, 'minute')
+                    .toDate(),
+                  end: dayjs(afterEvent.end)
+                    .add(moveEndChange, 'minute')
+                    .toDate(),
+                })
+                const moveFrom = events.find(
+                  (spot): spot is MoveEvent =>
+                    spot.extendedProps.type === 'move' &&
+                    spot.extendedProps.from === afterEvent?.id
+                )
+                if (moveFrom) {
+                  eventsApi.update({
+                    ...moveFrom,
+                    start: dayjs(moveFrom.start)
+                      .add(moveEndChange, 'minute')
+                      .toDate(),
+                    end: dayjs(moveFrom.end)
+                      .add(moveEndChange, 'minute')
+                      .toDate(),
+                  })
+                  applyChange(moveFrom)
+                }
+              }
+            }
+
+            applyChange(afterMove)
+          } else {
+            // Remove move event if previous spot is not exists
+            eventsApi.remove(afterMove.id)
+          }
+        }
+
+        // Move to target day
+        eventsApi.insert(e.event.toJSON() as SpotEvent)
+      } else {
+        events
+          .filter(
+            (event) =>
+              dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
+              event.id !== e.event.id
+          )
+          .forEach((event) => {
+            eventsApi.update({
+              ...event,
+              start: dayjs(event.start)
+                .add(e.delta.milliseconds, 'ms')
+                .toDate(),
+              end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
+            })
           })
-        })
+      }
     }
   }
 
