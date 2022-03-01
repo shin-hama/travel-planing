@@ -62,7 +62,7 @@ export const useSelectSpots = () => {
         )
         if (moveEnd.hour() >= 19) {
           // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
-          start = start.add(1, 'day').hour(9).minute(0).second(0)
+          start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
         } else {
           const moveEvent: MoveEvent = {
             id: createEventId(),
