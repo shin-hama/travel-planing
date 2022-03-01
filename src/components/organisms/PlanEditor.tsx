@@ -102,6 +102,9 @@ const PlanEditor = () => {
   const gridWidth = daysDuration * 300
 
   const handleEventsSet = (_events: EventApi[]) => {
+    if (_events.length === 0) {
+      return
+    }
     const days = _events.map((e) => dayjs(e.start))
     const sorted = days.sort((a, b) => a.diff(b))
     const first = sorted[0]
@@ -136,7 +139,7 @@ const PlanEditor = () => {
         )
         const beforeSpotId = beforeMove?.extendedProps.from
         if (beforeSpotId) {
-          eventsApi.remove(beforeMove.id)
+          eventsApi.remove(beforeMove)
         }
         // update after move if exists
         const afterMove = events.find(
@@ -201,7 +204,7 @@ const PlanEditor = () => {
             applyChange(afterMove)
           } else {
             // Remove move event if previous spot is not exists
-            eventsApi.remove(afterMove.id)
+            eventsApi.remove(afterMove)
           }
         }
 

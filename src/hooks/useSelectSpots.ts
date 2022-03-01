@@ -69,7 +69,7 @@ export const useSelectSpots = () => {
             title: 'Car',
             start: moveStart.toDate(),
             end: moveEnd.toDate(),
-            color: 'limegreen',
+            color: 'white',
             display: 'background',
             extendedProps: {
               type: 'move',
@@ -108,18 +108,101 @@ export const useSelectSpots = () => {
     [actions, distanceMatrix, getSpot, places]
   )
 
-  const remove = React.useCallback(
-    (eventId: string) => {
-      actions.filter((spot) => spot.id !== eventId)
-    },
-    [actions]
-  )
-
   const update = React.useCallback(
     (newSpot: ScheduleEvent) => {
       actions.update((spot) => spot.id === newSpot.id, newSpot)
     },
     [actions]
+  )
+
+  const remove = React.useCallback(
+    async (removed: ScheduleEvent) => {
+      actions.filter((spot) => spot.id !== removed.id)
+
+      console.log(places)
+
+      if (removed.extendedProps.type === 'spot') {
+        console.log('update Move event')
+        console.log(removed)
+        const beforeMove = places.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.extendedProps.to === removed.id
+        )
+        const beforeSpotId = beforeMove?.extendedProps.from
+        console.log(beforeMove)
+        if (beforeSpotId) {
+          remove(beforeMove)
+        }
+        // update after move if exists
+        const afterMove = places.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.extendedProps.from === removed.id
+        )
+        if (afterMove) {
+          if (beforeSpotId) {
+            // Calc distance between prev and next spot
+            afterMove.extendedProps.from = beforeSpotId
+
+            const org = [{ placeId: beforeSpotId }]
+            const dest = [{ placeId: afterMove.extendedProps.to }]
+            const result = await distanceMatrix.search(org, dest)
+
+            afterMove.start = beforeMove.start
+            const newMoveEnd = dayjs(afterMove.start).add(
+              result.rows[0].elements[0].duration.value,
+              's'
+            )
+            const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
+            afterMove.end = newMoveEnd.toDate()
+
+            update({ ...afterMove })
+
+            // Update all events after moved event
+            const applyChange = (move: MoveEvent) => {
+              const afterEvent = places.find(
+                (spot) => spot.id === move.extendedProps.to
+              )
+              if (afterEvent) {
+                update({
+                  ...afterEvent,
+                  start: dayjs(afterEvent.start)
+                    .add(moveEndChange, 'minute')
+                    .toDate(),
+                  end: dayjs(afterEvent.end)
+                    .add(moveEndChange, 'minute')
+                    .toDate(),
+                })
+                const moveFrom = places.find(
+                  (spot): spot is MoveEvent =>
+                    spot.extendedProps.type === 'move' &&
+                    spot.extendedProps.from === afterEvent?.id
+                )
+                if (moveFrom) {
+                  update({
+                    ...moveFrom,
+                    start: dayjs(moveFrom.start)
+                      .add(moveEndChange, 'minute')
+                      .toDate(),
+                    end: dayjs(moveFrom.end)
+                      .add(moveEndChange, 'minute')
+                      .toDate(),
+                  })
+                  applyChange(moveFrom)
+                }
+              }
+            }
+
+            applyChange(afterMove)
+          } else {
+            // Remove move event if previous spot is not exists
+            remove(afterMove)
+          }
+        }
+      }
+    },
+    [actions, distanceMatrix, places, update]
   )
 
   const insert = React.useCallback(
@@ -152,7 +235,7 @@ export const useSelectSpots = () => {
           title: 'Car',
           start: moveStart.toDate(),
           end: moveEnd.toDate(),
-          color: 'limegreen',
+          color: 'white',
           display: 'background',
           extendedProps: {
             type: 'move',
@@ -189,7 +272,7 @@ export const useSelectSpots = () => {
           title: 'Car',
           start: moveStart.toDate(),
           end: moveEnd.toDate(),
-          color: 'limegreen',
+          color: 'white',
           display: 'background',
           extendedProps: {
             type: 'move',
@@ -243,11 +326,11 @@ export const useSelectSpots = () => {
             event.extendedProps.to === nextSpot.id
         )
         if (overlappedEvent) {
-          remove(overlappedEvent.id)
+          actions.filter((spot) => spot.id !== overlappedEvent.id)
         }
       }
     },
-    [actions, distanceMatrix, places, remove, update]
+    [actions, distanceMatrix, places, update]
   )
 
   return [places, { add, insert, remove, update }] as const

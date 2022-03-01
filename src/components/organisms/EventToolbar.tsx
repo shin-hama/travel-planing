@@ -12,7 +12,11 @@ import { EventApi } from '@fullcalendar/react'
 
 import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 import { useSelectSpots } from 'hooks/useSelectSpots'
-import { MoveEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import {
+  MoveEvent,
+  ScheduleEvent,
+  SpotEvent,
+} from 'contexts/SelectedPlacesProvider'
 import dayjs from 'dayjs'
 
 type Props = {
@@ -294,7 +298,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
   }
 
   const handleRemove = () => {
-    spotsApi.remove(event.id)
+    spotsApi.remove(event.toJSON() as ScheduleEvent)
   }
 
   return (
