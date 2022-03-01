@@ -135,9 +135,18 @@ const PlanEditor = () => {
       },
     })
 
+    const draggedEvent = events.find(
+      (event): event is SpotEvent => event.id === e.event.id
+    )
+    if (draggedEvent === undefined) {
+      console.error('no event')
+      return
+    }
+
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
+        // Update from date schedule
         // remove before move
         const beforeMove = events.find(
           (event): event is MoveEvent =>
@@ -216,7 +225,7 @@ const PlanEditor = () => {
         }
 
         // Move to target day
-        eventsApi.insert(e.event.toJSON() as SpotEvent)
+        eventsApi.insert(draggedEvent)
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
         events

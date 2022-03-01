@@ -227,7 +227,6 @@ export const useSelectSpots = () => {
 
       if (prevSpot) {
         // 直前のイベントから移動したスポットへの MoveEvent を追加する
-
         const org = [{ placeId: prevSpot.id }]
         const dest = [{ placeId: inserted.id }]
         const result = await distanceMatrix.search(org, dest)
@@ -252,6 +251,17 @@ export const useSelectSpots = () => {
         }
         actions.push(moveEvent)
 
+        if (prevSpot.extendedProps.to) {
+          const overlappedEvent = places.find(
+            (event): event is MoveEvent =>
+              event.id === prevSpot.extendedProps.to
+          )
+          if (overlappedEvent) {
+            inserted.extendedProps.to = overlappedEvent.extendedProps.to
+            actions.filter((spot) => spot.id !== overlappedEvent.id)
+          }
+        }
+
         const spotDuration = dayjs(inserted.end).diff(inserted.start, 'minute')
         inserted.start = moveEnd.toDate()
         inserted.end = moveEnd.add(spotDuration, 'minute').toDate()
@@ -259,10 +269,10 @@ export const useSelectSpots = () => {
         actions.update((spot) => spot.id === inserted.id, inserted)
       }
 
-      const destNextSpots = destSpots
-        .filter((spot) => dayjs(spot.start) > dayjs(inserted.start))
-        .sort((a, b) => dayjs(a.start).diff(b.start))
-      const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
+      const nextSpot = destSpots.find(
+        (event): event is SpotEvent => event.id === inserted.extendedProps.to
+      )
+      console.log(nextSpot)
       if (nextSpot) {
         // 直前のイベントから移動したスポットへの MoveEvent を追加する
 
@@ -323,19 +333,6 @@ export const useSelectSpots = () => {
         }
 
         applyChange(moveEvent)
-      }
-
-      if (prevSpot !== null && nextSpot !== null) {
-        // remove overlapped MoveEvent
-        const overlappedEvent = places.find(
-          (event) =>
-            event.extendedProps.type === 'move' &&
-            event.extendedProps.from === prevSpot.id &&
-            event.extendedProps.to === nextSpot.id
-        )
-        if (overlappedEvent) {
-          actions.filter((spot) => spot.id !== overlappedEvent.id)
-        }
       }
     },
     [actions, distanceMatrix, places, update]
