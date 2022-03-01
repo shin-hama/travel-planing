@@ -102,6 +102,9 @@ const PlanEditor = () => {
   const gridWidth = daysDuration * 300
 
   const handleEventsSet = (_events: EventApi[]) => {
+    if (_events.length === 0) {
+      return
+    }
     const days = _events.map((e) => dayjs(e.start))
     const sorted = days.sort((a, b) => a.diff(b))
     const first = sorted[0]
