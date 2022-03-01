@@ -121,46 +121,49 @@ const PlanEditor = () => {
 
   const handleEventDrop = async (e: EventDropArg) => {
     console.log(e)
+
+    // 画面上で移動させるためにとりあえず Event を更新する
     eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
-      console.log(Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()))
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
         // remove before move
-        const before = events.find(
+        const beforeMove = events.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
             event.extendedProps.to === e.event.id
         )
-        const beforeSpotId = before?.extendedProps.from
+        const beforeSpotId = beforeMove?.extendedProps.from
         if (beforeSpotId) {
-          eventsApi.remove(before.id)
+          eventsApi.remove(beforeMove.id)
         }
         // update after move if exists
-        const after = events.find(
+        const afterMove = events.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
             event.extendedProps.from === e.event.id
         )
-        if (after) {
+        if (afterMove) {
           if (beforeSpotId) {
-            after.extendedProps.from = beforeSpotId
+            // Calc distance between prev and next spot
+            afterMove.extendedProps.from = beforeSpotId
 
             const org = [{ placeId: beforeSpotId }]
-            const dest = [{ placeId: after.extendedProps.to }]
+            const dest = [{ placeId: afterMove.extendedProps.to }]
             const result = await distanceMatrix.search(org, dest)
 
-            after.start = before.start
-            const newMoveEnd = dayjs(after.start).add(
+            afterMove.start = beforeMove.start
+            const newMoveEnd = dayjs(afterMove.start).add(
               result.rows[0].elements[0].duration.value,
               's'
             )
-            const moveEndChange = newMoveEnd.diff(after.end, 'minute')
-            after.end = newMoveEnd.toDate()
+            const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
+            afterMove.end = newMoveEnd.toDate()
 
-            eventsApi.update({ ...after })
+            eventsApi.update({ ...afterMove })
 
+            // Update all events after moved event
             const applyChange = (move: MoveEvent) => {
               const afterEvent = events.find(
                 (spot) => spot.id === move.extendedProps.to
@@ -195,11 +198,15 @@ const PlanEditor = () => {
               }
             }
 
-            applyChange(after)
+            applyChange(afterMove)
           } else {
-            eventsApi.remove(after.id)
+            // Remove move event if previous spot is not exists
+            eventsApi.remove(afterMove.id)
           }
         }
+
+        // Move to target day
+        eventsApi.insert(e.event.toJSON() as SpotEvent)
       } else {
         events
           .filter(
