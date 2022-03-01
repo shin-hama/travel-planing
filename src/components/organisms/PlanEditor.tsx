@@ -126,7 +126,14 @@ const PlanEditor = () => {
     console.log(e)
 
     // 画面上で移動させるためにとりあえず Event を更新する
-    eventsApi.update(e.event.toJSON() as SpotEvent)
+    eventsApi.update({
+      ...(e.event.toJSON() as SpotEvent),
+      extendedProps: {
+        ...(e.event.extendedProps as SpotEvent['extendedProps']),
+        from: null,
+        to: null,
+      },
+    })
 
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
@@ -211,6 +218,7 @@ const PlanEditor = () => {
         // Move to target day
         eventsApi.insert(e.event.toJSON() as SpotEvent)
       } else {
+        // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
         events
           .filter(
             (event) =>
@@ -272,7 +280,15 @@ const PlanEditor = () => {
 
   const renderEvent = (eventInfo: EventContentArg) => {
     if (eventInfo.event.extendedProps.type === 'spot') {
-      return <SpotEventCard event={eventInfo.event} />
+      return (
+        <SpotEventCard
+          event={
+            eventInfo.event as EventApi & {
+              extendedProps: SpotEvent['extendedProps']
+            }
+          }
+        />
+      )
     } else if (eventInfo.event.extendedProps.type === 'move') {
       return (
         <MoveEventCard

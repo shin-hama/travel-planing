@@ -20,7 +20,7 @@ import {
 import dayjs from 'dayjs'
 
 type Props = {
-  event: EventApi
+  event: EventApi & { extendedProps: SpotEvent['extendedProps'] }
 }
 const EventToolbar: React.FC<Props> = ({ event }) => {
   const [spots, spotsApi] = useSelectSpots()
@@ -41,7 +41,8 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
     )
 
     const beforeSpot = spots.find(
-      (spot) => spot.id === moveToSelected?.extendedProps.from
+      (spot): spot is SpotEvent =>
+        spot.id === moveToSelected?.extendedProps.from
     )
 
     // 直前に移動イベントがない場合は移動不可
@@ -78,6 +79,11 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       ...(event.toJSON() as SpotEvent),
       start: newStart,
       end: newEnd.toDate(),
+      extendedProps: {
+        ...event.extendedProps,
+        from: beforeSpot.extendedProps.from,
+        to: beforeSpot.extendedProps.to,
+      },
     })
 
     // 移動イベントを入れ替えたスポットイベントに合わせて更新する
@@ -105,7 +111,14 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
     beforeSpot.end = dayjs(beforeSpot.start)
       .add(beforeDuration, 'minute')
       .toDate()
-    spotsApi.update({ ...beforeSpot })
+    spotsApi.update({
+      ...beforeSpot,
+      extendedProps: {
+        ...beforeSpot.extendedProps,
+        from: event.extendedProps.from,
+        to: event.extendedProps.to,
+      },
+    })
 
     // 選択したイベントより後のイベントを更新する
     if (moveFromSelected) {
@@ -169,7 +182,8 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
         spot.extendedProps.from === event.id
     )
     const afterSpot = spots.find(
-      (spot) => spot.id === moveFromSelected?.extendedProps.to
+      (spot): spot is SpotEvent =>
+        spot.id === moveFromSelected?.extendedProps.to
     )
 
     const moveFromAfter = spots.find(
@@ -209,7 +223,14 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       ? moveToSelected.end
       : event.start || new Date()
     afterSpot.end = dayjs(afterSpot.start).add(duration, 'minute').toDate()
-    spotsApi.update({ ...afterSpot })
+    spotsApi.update({
+      ...afterSpot,
+      extendedProps: {
+        ...afterSpot.extendedProps,
+        from: event.extendedProps.from,
+        to: event.extendedProps.to,
+      },
+    })
 
     // 移動イベントを入れ替えたスポットイベントに合わせて更新する
     const moveDuration = dayjs(moveFromSelected.end).diff(
@@ -232,6 +253,11 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       ...(event.toJSON() as SpotEvent),
       start: newStart,
       end: newEnd,
+      extendedProps: {
+        ...event.extendedProps,
+        from: afterSpot.from,
+        to: afterSpot.to,
+      },
     })
 
     console.log(

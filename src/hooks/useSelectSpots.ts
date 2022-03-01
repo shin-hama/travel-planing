@@ -44,11 +44,19 @@ export const useSelectSpots = () => {
 
   const [getSpot] = useGetSpotByPkLazyQuery()
 
+  const update = React.useCallback(
+    (newSpot: ScheduleEvent) => {
+      actions.update((spot) => spot.id === newSpot.id, newSpot)
+    },
+    [actions]
+  )
+
   const add = React.useCallback(
-    async (newSpot: Required<Omit<Spot, 'type'>>) => {
+    async (newSpot: Required<Pick<Spot, 'placeId' | 'imageUrl'>>) => {
       let start = dayjs('09:00:00', 'HH:mm:ss')
 
       const lastSpot = findLastSpot(places)
+      let fromId: string | null = null
       if (lastSpot) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
         const org = [{ placeId: lastSpot.extendedProps.placeId }]
@@ -63,6 +71,7 @@ export const useSelectSpots = () => {
         if (moveEnd.hour() >= 19) {
           // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
           start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
+          fromId = lastSpot.id
         } else {
           const moveEvent: MoveEvent = {
             id: createEventId(),
@@ -78,11 +87,14 @@ export const useSelectSpots = () => {
             },
           }
           actions.push(moveEvent)
+
+          lastSpot.extendedProps.to = moveEvent.id
+          update(lastSpot)
           start = moveEnd
+          fromId = moveEvent.id
         }
       }
 
-      console.log(start)
       const spot = await getSpot({
         variables: { place_id: newSpot.placeId },
       })
@@ -99,20 +111,15 @@ export const useSelectSpots = () => {
           type: 'spot',
           placeId: newSpot.placeId,
           imageUrl: newSpot.imageUrl,
+          from: fromId,
+          to: null,
         },
       }
       console.log(spotEvent)
 
       actions.push(spotEvent)
     },
-    [actions, distanceMatrix, getSpot, places]
-  )
-
-  const update = React.useCallback(
-    (newSpot: ScheduleEvent) => {
-      actions.update((spot) => spot.id === newSpot.id, newSpot)
-    },
-    [actions]
+    [actions, distanceMatrix, getSpot, places, update]
   )
 
   const remove = React.useCallback(
@@ -248,6 +255,7 @@ export const useSelectSpots = () => {
         const spotDuration = dayjs(inserted.end).diff(inserted.start, 'minute')
         inserted.start = moveEnd.toDate()
         inserted.end = moveEnd.add(spotDuration, 'minute').toDate()
+        inserted.from = moveEvent.id
         actions.update((spot) => spot.id === inserted.id, inserted)
       }
 

@@ -3,8 +3,18 @@ import { useList } from 'react-use'
 import { ListActions } from 'react-use/lib/useList'
 import { EventInput } from '@fullcalendar/react' // must go before plugins
 
-export type Spot = { type: 'spot'; placeId: string; imageUrl: string }
-export type Move = { type: 'move'; from: string; to: string }
+export type Spot = {
+  type: 'spot'
+  placeId: string
+  imageUrl: string
+  from: string | null
+  to: string | null
+}
+export type Move = {
+  type: 'move'
+  from: string
+  to: string
+}
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
 export type SpotEvent = CustomEventInput & {
   id: string
