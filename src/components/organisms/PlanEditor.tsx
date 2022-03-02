@@ -126,61 +126,46 @@ const PlanEditor = () => {
     console.log(e)
 
     // 画面上で移動させるためにとりあえず Event を更新する
-    eventsApi.update({
-      ...(e.event.toJSON() as SpotEvent),
-      extendedProps: {
-        ...(e.event.extendedProps as SpotEvent['extendedProps']),
-        from: null,
-        to: null,
-      },
-    })
-
-    const draggedEvent = events.find(
-      (event): event is SpotEvent => event.id === e.event.id
-    )
-    if (draggedEvent === undefined) {
-      console.error('no event')
-      return
-    }
+    eventsApi.update(e.event.toJSON() as SpotEvent)
 
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
+
         // Update from date schedule
-        // remove before move
-        const beforeMove = events.find(
-          (event): event is MoveEvent =>
-            event.extendedProps.type === 'move' &&
-            event.extendedProps.to === e.event.id
-        )
-        const beforeSpotId = beforeMove?.extendedProps.from
-        if (beforeSpotId) {
-          eventsApi.remove(beforeMove)
-        }
-        // update after move if exists
+        // remove after move if exists
         const afterMove = events.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
-            event.extendedProps.from === e.event.id
+            event.id === e.event.extendedProps.to
         )
         if (afterMove) {
-          if (beforeSpotId) {
-            // Calc distance between prev and next spot
-            afterMove.extendedProps.from = beforeSpotId
+          eventsApi.remove(afterMove)
+        }
+        // update before move
+        const beforeMove = events.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.id === e.event.extendedProps.from
+        )
 
-            const org = [{ placeId: beforeSpotId }]
-            const dest = [{ placeId: afterMove.extendedProps.to }]
+        if (beforeMove) {
+          if (afterMove) {
+            // Calc distance between prev and next spot
+            beforeMove.extendedProps.to = afterMove.extendedProps.to
+
+            const org = [{ placeId: beforeMove.extendedProps.from }]
+            const dest = [{ placeId: beforeMove.extendedProps.to }]
             const result = await distanceMatrix.search(org, dest)
 
-            afterMove.start = beforeMove.start
-            const newMoveEnd = dayjs(afterMove.start).add(
+            const newMoveEnd = dayjs(beforeMove.start).add(
               result.rows[0].elements[0].duration.value,
               's'
             )
             const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
-            afterMove.end = newMoveEnd.toDate()
+            beforeMove.end = newMoveEnd.toDate()
 
-            eventsApi.update({ ...afterMove })
+            eventsApi.update({ ...beforeMove })
 
             // Update all events after moved event
             const applyChange = (move: MoveEvent) => {
@@ -217,15 +202,15 @@ const PlanEditor = () => {
               }
             }
 
-            applyChange(afterMove)
+            applyChange(beforeMove)
           } else {
             // Remove move event if previous spot is not exists
-            eventsApi.remove(afterMove)
+            eventsApi.remove(beforeMove)
           }
         }
 
         // Move to target day
-        eventsApi.insert(draggedEvent)
+        eventsApi.insert(e.event.toJSON() as SpotEvent)
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
         events
