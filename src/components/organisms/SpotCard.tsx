@@ -4,6 +4,7 @@ import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -25,6 +26,7 @@ type ButtonProps = {
 const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
   const [, actions] = useSelectSpots()
+  const [loading, setLoading] = React.useState(false)
 
   const selected = selectedSpots.find(
     (spot): spot is SpotEvent =>
@@ -32,12 +34,22 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
       spot.extendedProps?.placeId === placeId
   )
 
-  const handleClick = () => {
+  const handleClick = async () => {
+    setLoading(true)
     if (selected) {
-      actions.remove(selected)
+      await actions.remove(selected)
     } else {
-      actions.add({ placeId, imageUrl: photo })
+      await actions.add({ placeId, imageUrl: photo })
     }
+    setLoading(false)
+  }
+
+  if (loading === true) {
+    return (
+      <div style={{ display: 'flex' }}>
+        <CircularProgress size={28} />
+      </div>
+    )
   }
 
   return (

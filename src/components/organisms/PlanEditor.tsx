@@ -22,6 +22,8 @@ import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
 
 dayjs.extend(customParseFormat)
 
+const MIN_COLUMN_WIDTH = 260
+
 const StyledWrapper = styled('div')<{ width: string }>`
   height: 100%;
   .fc {
@@ -96,10 +98,12 @@ const PlanEditor = () => {
     end: Date
   }>({
     start: new Date(),
-    end: dayjs().add(1, 'day').toDate(),
+    end: new Date(),
   })
-  const [daysDuration, setDaysDuration] = React.useState(1)
-  const gridWidth = daysDuration * 300
+  /**
+   * The minimum column width of the time grid
+   */
+  const [gridWidth, setGridWidth] = React.useState(MIN_COLUMN_WIDTH)
 
   const handleEventsSet = (_events: EventApi[]) => {
     if (_events.length === 0) {
@@ -109,16 +113,17 @@ const PlanEditor = () => {
     const sorted = days.sort((a, b) => a.diff(b))
     const first = sorted[0]
     const last = sorted[sorted.length - 1]
+    // Not update visibleRange if range is not changed
     if (
       first.date() !== visibleRange.start.getDate() ||
       last.date() !== visibleRange.end.getDate()
     ) {
       setVisibleRange({
-        start: sorted[0].toDate(),
-        end: sorted[sorted.length - 1].toDate(),
+        start: first.toDate(),
+        end: last.toDate(),
       })
 
-      setDaysDuration(new Set(days.map((day) => day.date())).size)
+      setGridWidth(MIN_COLUMN_WIDTH * (last.date() - first.date() + 1))
     }
   }
 
