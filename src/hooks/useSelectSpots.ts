@@ -218,6 +218,7 @@ export const useSelectSpots = () => {
           event.extendedProps.type === 'spot' &&
           dayjs(event.start).date() === dayjs(inserted.start).date()
       )
+
       const destPrevSpots = destSpots
         .filter((spot) => dayjs(spot.start) < dayjs(inserted.start))
         .sort((a, b) => dayjs(b.start).diff(a.start))
@@ -226,10 +227,6 @@ export const useSelectSpots = () => {
       const overlappedMoveEvent = places.find(
         (event): event is MoveEvent => event.id === prevSpot?.extendedProps.to
       )
-      // save for update event start after inserted
-      const orgMoveEnd = overlappedMoveEvent?.end
-      const orgTo = overlappedMoveEvent?.extendedProps.to
-      console.log(orgTo)
 
       let beforeMoveId: string | null = null
       if (prevSpot) {
@@ -282,10 +279,15 @@ export const useSelectSpots = () => {
       }
 
       let afterMoveId: string | null = null
-      if (orgTo) {
+
+      const destNextSpots = destSpots
+        .filter((spot) => dayjs(spot.start) > dayjs(inserted.start))
+        .sort((a, b) => dayjs(a.start).diff(b.start))
+      const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
+      if (nextSpot) {
         // 移動したスポットから直後のスポットへの MoveEvent を追加する
         const org = [{ placeId: inserted.id }]
-        const dest = [{ placeId: orgTo }]
+        const dest = [{ placeId: nextSpot.id }]
 
         const result = await distanceMatrix.search(org, dest)
 
@@ -294,7 +296,7 @@ export const useSelectSpots = () => {
           result.rows[0].elements[0].duration.value,
           's'
         )
-        const moveEndChange = moveEnd.diff(orgMoveEnd, 'minute')
+        const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
 
         const moveEvent: MoveEvent = {
           id: createEventId(),
@@ -317,7 +319,6 @@ export const useSelectSpots = () => {
           const afterEvent = places.find(
             (spot): spot is SpotEvent => spot.id === move.extendedProps.to
           )
-          console.log(afterEvent)
           if (afterEvent) {
             update({
               ...afterEvent,
