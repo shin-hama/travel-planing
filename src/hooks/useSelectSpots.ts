@@ -51,6 +51,39 @@ export const useSelectSpots = () => {
     [actions]
   )
 
+  const applyChange = React.useCallback(
+    (move: MoveEvent, moveEndChange: number) => {
+      const afterEvent = places.find(
+        (spot): spot is SpotEvent => spot.id === move.extendedProps.to
+      )
+      if (afterEvent) {
+        update({
+          ...afterEvent,
+          start: dayjs(afterEvent.start).add(moveEndChange, 'minute').toDate(),
+          end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
+          extendedProps: {
+            ...afterEvent.extendedProps,
+            from: move.id,
+          },
+        })
+        const moveFrom = places.find(
+          (spot): spot is MoveEvent =>
+            spot.extendedProps.type === 'move' &&
+            spot.extendedProps.from === afterEvent?.id
+        )
+        if (moveFrom) {
+          update({
+            ...moveFrom,
+            start: dayjs(moveFrom.start).add(moveEndChange, 'minute').toDate(),
+            end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
+          })
+          applyChange(moveFrom, moveEndChange)
+        }
+      }
+    },
+    [places, update]
+  )
+
   const add = React.useCallback(
     async (newSpot: Required<Pick<Spot, 'placeId' | 'imageUrl'>>) => {
       let start = dayjs('09:00:00', 'HH:mm:ss')
@@ -127,86 +160,48 @@ export const useSelectSpots = () => {
       actions.filter((spot) => spot.id !== removed.id)
 
       if (removed.extendedProps.type === 'spot') {
-        console.log('update Move event')
-        console.log(removed)
-        const beforeMove = places.find(
-          (event): event is MoveEvent =>
-            event.extendedProps.type === 'move' &&
-            event.extendedProps.to === removed.id
-        )
-        const beforeSpotId = beforeMove?.extendedProps.from
-        console.log(beforeMove)
-        if (beforeSpotId) {
-          remove(beforeMove)
-        }
-        // update after move if exists
         const afterMove = places.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
-            event.extendedProps.from === removed.id
+            event.id === removed.extendedProps.to
         )
         if (afterMove) {
-          if (beforeSpotId) {
-            // Calc distance between prev and next spot
-            afterMove.extendedProps.from = beforeSpotId
+          remove(afterMove)
+        }
 
-            const org = [{ placeId: beforeSpotId }]
-            const dest = [{ placeId: afterMove.extendedProps.to }]
+        // update before move
+        const beforeMove = places.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.id === removed.extendedProps.from
+        )
+
+        if (beforeMove) {
+          if (afterMove) {
+            // Calc distance between prev and next spot
+            beforeMove.extendedProps.to = afterMove.extendedProps.to
+
+            const org = [{ placeId: beforeMove.extendedProps.from }]
+            const dest = [{ placeId: beforeMove.extendedProps.to }]
             const result = await distanceMatrix.search(org, dest)
 
-            afterMove.start = beforeMove.start
-            const newMoveEnd = dayjs(afterMove.start).add(
+            const newMoveEnd = dayjs(beforeMove.start).add(
               result.rows[0].elements[0].duration.value,
               's'
             )
             const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
-            afterMove.end = newMoveEnd.toDate()
+            beforeMove.end = newMoveEnd.toDate()
 
-            update({ ...afterMove })
+            update({ ...beforeMove })
 
-            // Update all events after moved event
-            const applyChange = (move: MoveEvent) => {
-              const afterEvent = places.find(
-                (spot) => spot.id === move.extendedProps.to
-              )
-              if (afterEvent) {
-                update({
-                  ...afterEvent,
-                  start: dayjs(afterEvent.start)
-                    .add(moveEndChange, 'minute')
-                    .toDate(),
-                  end: dayjs(afterEvent.end)
-                    .add(moveEndChange, 'minute')
-                    .toDate(),
-                })
-                const moveFrom = places.find(
-                  (spot): spot is MoveEvent =>
-                    spot.extendedProps.type === 'move' &&
-                    spot.extendedProps.from === afterEvent?.id
-                )
-                if (moveFrom) {
-                  update({
-                    ...moveFrom,
-                    start: dayjs(moveFrom.start)
-                      .add(moveEndChange, 'minute')
-                      .toDate(),
-                    end: dayjs(moveFrom.end)
-                      .add(moveEndChange, 'minute')
-                      .toDate(),
-                  })
-                  applyChange(moveFrom)
-                }
-              }
-            }
-
-            applyChange(afterMove)
+            applyChange(beforeMove, moveEndChange)
           } else {
-            // Remove move event if previous spot is not exists
-            remove(afterMove)
+            remove(beforeMove)
           }
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [actions, distanceMatrix, places, update]
   )
 
@@ -315,41 +310,7 @@ export const useSelectSpots = () => {
         actions.push(moveEvent)
         afterMoveId = moveEvent.id
 
-        const applyChange = (move: MoveEvent) => {
-          const afterEvent = places.find(
-            (spot): spot is SpotEvent => spot.id === move.extendedProps.to
-          )
-          if (afterEvent) {
-            update({
-              ...afterEvent,
-              start: dayjs(afterEvent.start)
-                .add(moveEndChange, 'minute')
-                .toDate(),
-              end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
-              extendedProps: {
-                ...afterEvent.extendedProps,
-                from: move.id,
-              },
-            })
-            const moveFrom = places.find(
-              (spot): spot is MoveEvent =>
-                spot.extendedProps.type === 'move' &&
-                spot.extendedProps.from === afterEvent?.id
-            )
-            if (moveFrom) {
-              update({
-                ...moveFrom,
-                start: dayjs(moveFrom.start)
-                  .add(moveEndChange, 'minute')
-                  .toDate(),
-                end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
-              })
-              applyChange(moveFrom)
-            }
-          }
-        }
-
-        applyChange(moveEvent)
+        applyChange(moveEvent, moveEndChange)
       }
 
       actions.update((spot) => spot.id === inserted.id, {
@@ -361,8 +322,8 @@ export const useSelectSpots = () => {
         },
       })
     },
-    [actions, distanceMatrix, places, update]
+    [actions, applyChange, distanceMatrix, places, update]
   )
 
-  return [places, { add, insert, remove, update }] as const
+  return [places, { add, insert, remove, update, applyChange }] as const
 }

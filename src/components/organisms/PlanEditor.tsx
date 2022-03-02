@@ -168,41 +168,7 @@ const PlanEditor = () => {
             eventsApi.update({ ...beforeMove })
 
             // Update all events after moved event
-            const applyChange = (move: MoveEvent) => {
-              const afterEvent = events.find(
-                (spot) => spot.id === move.extendedProps.to
-              )
-              if (afterEvent) {
-                eventsApi.update({
-                  ...afterEvent,
-                  start: dayjs(afterEvent.start)
-                    .add(moveEndChange, 'minute')
-                    .toDate(),
-                  end: dayjs(afterEvent.end)
-                    .add(moveEndChange, 'minute')
-                    .toDate(),
-                })
-                const moveFrom = events.find(
-                  (spot): spot is MoveEvent =>
-                    spot.extendedProps.type === 'move' &&
-                    spot.extendedProps.from === afterEvent?.id
-                )
-                if (moveFrom) {
-                  eventsApi.update({
-                    ...moveFrom,
-                    start: dayjs(moveFrom.start)
-                      .add(moveEndChange, 'minute')
-                      .toDate(),
-                    end: dayjs(moveFrom.end)
-                      .add(moveEndChange, 'minute')
-                      .toDate(),
-                  })
-                  applyChange(moveFrom)
-                }
-              }
-            }
-
-            applyChange(beforeMove)
+            eventsApi.applyChange(beforeMove, moveEndChange)
           } else {
             // Remove move event if previous spot is not exists
             eventsApi.remove(beforeMove)
