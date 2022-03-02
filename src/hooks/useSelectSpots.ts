@@ -44,11 +44,52 @@ export const useSelectSpots = () => {
 
   const [getSpot] = useGetSpotByPkLazyQuery()
 
+  const update = React.useCallback(
+    (newSpot: ScheduleEvent) => {
+      actions.update((spot) => spot.id === newSpot.id, newSpot)
+    },
+    [actions]
+  )
+
+  const applyChange = React.useCallback(
+    (move: MoveEvent, moveEndChange: number) => {
+      const afterEvent = places.find(
+        (spot): spot is SpotEvent => spot.id === move.extendedProps.to
+      )
+      if (afterEvent) {
+        update({
+          ...afterEvent,
+          start: dayjs(afterEvent.start).add(moveEndChange, 'minute').toDate(),
+          end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
+          extendedProps: {
+            ...afterEvent.extendedProps,
+            from: move.id,
+          },
+        })
+        const moveFrom = places.find(
+          (spot): spot is MoveEvent =>
+            spot.extendedProps.type === 'move' &&
+            spot.extendedProps.from === afterEvent?.id
+        )
+        if (moveFrom) {
+          update({
+            ...moveFrom,
+            start: dayjs(moveFrom.start).add(moveEndChange, 'minute').toDate(),
+            end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
+          })
+          applyChange(moveFrom, moveEndChange)
+        }
+      }
+    },
+    [places, update]
+  )
+
   const add = React.useCallback(
-    async (newSpot: Required<Omit<Spot, 'type'>>) => {
+    async (newSpot: Required<Pick<Spot, 'placeId' | 'imageUrl'>>) => {
       let start = dayjs('09:00:00', 'HH:mm:ss')
 
       const lastSpot = findLastSpot(places)
+      let fromId: string | null = null
       if (lastSpot) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
         const org = [{ placeId: lastSpot.extendedProps.placeId }]
@@ -63,6 +104,7 @@ export const useSelectSpots = () => {
         if (moveEnd.hour() >= 19) {
           // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
           start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
+          fromId = lastSpot.id
         } else {
           const moveEvent: MoveEvent = {
             id: createEventId(),
@@ -78,11 +120,14 @@ export const useSelectSpots = () => {
             },
           }
           actions.push(moveEvent)
+
+          lastSpot.extendedProps.to = moveEvent.id
+          update(lastSpot)
           start = moveEnd
+          fromId = moveEvent.id
         }
       }
 
-      console.log(start)
       const spot = await getSpot({
         variables: { place_id: newSpot.placeId },
       })
@@ -99,109 +144,64 @@ export const useSelectSpots = () => {
           type: 'spot',
           placeId: newSpot.placeId,
           imageUrl: newSpot.imageUrl,
+          from: fromId,
+          to: null,
         },
       }
       console.log(spotEvent)
 
       actions.push(spotEvent)
     },
-    [actions, distanceMatrix, getSpot, places]
-  )
-
-  const update = React.useCallback(
-    (newSpot: ScheduleEvent) => {
-      actions.update((spot) => spot.id === newSpot.id, newSpot)
-    },
-    [actions]
+    [actions, distanceMatrix, getSpot, places, update]
   )
 
   const remove = React.useCallback(
     async (removed: ScheduleEvent) => {
       actions.filter((spot) => spot.id !== removed.id)
 
-      console.log(places)
-
       if (removed.extendedProps.type === 'spot') {
-        console.log('update Move event')
-        console.log(removed)
-        const beforeMove = places.find(
-          (event): event is MoveEvent =>
-            event.extendedProps.type === 'move' &&
-            event.extendedProps.to === removed.id
-        )
-        const beforeSpotId = beforeMove?.extendedProps.from
-        console.log(beforeMove)
-        if (beforeSpotId) {
-          remove(beforeMove)
-        }
-        // update after move if exists
         const afterMove = places.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
-            event.extendedProps.from === removed.id
+            event.id === removed.extendedProps.to
         )
         if (afterMove) {
-          if (beforeSpotId) {
-            // Calc distance between prev and next spot
-            afterMove.extendedProps.from = beforeSpotId
+          remove(afterMove)
+        }
 
-            const org = [{ placeId: beforeSpotId }]
-            const dest = [{ placeId: afterMove.extendedProps.to }]
+        // update before move
+        const beforeMove = places.find(
+          (event): event is MoveEvent =>
+            event.extendedProps.type === 'move' &&
+            event.id === removed.extendedProps.from
+        )
+
+        if (beforeMove) {
+          if (afterMove) {
+            // Calc distance between prev and next spot
+            beforeMove.extendedProps.to = afterMove.extendedProps.to
+
+            const org = [{ placeId: beforeMove.extendedProps.from }]
+            const dest = [{ placeId: beforeMove.extendedProps.to }]
             const result = await distanceMatrix.search(org, dest)
 
-            afterMove.start = beforeMove.start
-            const newMoveEnd = dayjs(afterMove.start).add(
+            const newMoveEnd = dayjs(beforeMove.start).add(
               result.rows[0].elements[0].duration.value,
               's'
             )
             const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
-            afterMove.end = newMoveEnd.toDate()
+            beforeMove.end = newMoveEnd.toDate()
 
-            update({ ...afterMove })
+            update({ ...beforeMove })
 
-            // Update all events after moved event
-            const applyChange = (move: MoveEvent) => {
-              const afterEvent = places.find(
-                (spot) => spot.id === move.extendedProps.to
-              )
-              if (afterEvent) {
-                update({
-                  ...afterEvent,
-                  start: dayjs(afterEvent.start)
-                    .add(moveEndChange, 'minute')
-                    .toDate(),
-                  end: dayjs(afterEvent.end)
-                    .add(moveEndChange, 'minute')
-                    .toDate(),
-                })
-                const moveFrom = places.find(
-                  (spot): spot is MoveEvent =>
-                    spot.extendedProps.type === 'move' &&
-                    spot.extendedProps.from === afterEvent?.id
-                )
-                if (moveFrom) {
-                  update({
-                    ...moveFrom,
-                    start: dayjs(moveFrom.start)
-                      .add(moveEndChange, 'minute')
-                      .toDate(),
-                    end: dayjs(moveFrom.end)
-                      .add(moveEndChange, 'minute')
-                      .toDate(),
-                  })
-                  applyChange(moveFrom)
-                }
-              }
-            }
-
-            applyChange(afterMove)
+            applyChange(beforeMove, moveEndChange)
           } else {
-            // Remove move event if previous spot is not exists
-            remove(afterMove)
+            remove(beforeMove)
           }
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [actions, distanceMatrix, places, update]
   )
 
@@ -213,53 +213,77 @@ export const useSelectSpots = () => {
           event.extendedProps.type === 'spot' &&
           dayjs(event.start).date() === dayjs(inserted.start).date()
       )
+
       const destPrevSpots = destSpots
         .filter((spot) => dayjs(spot.start) < dayjs(inserted.start))
         .sort((a, b) => dayjs(b.start).diff(a.start))
       const prevSpot = destPrevSpots.length > 0 ? destPrevSpots[0] : null
 
+      const overlappedMoveEvent = places.find(
+        (event): event is MoveEvent => event.id === prevSpot?.extendedProps.to
+      )
+
+      let beforeMoveId: string | null = null
       if (prevSpot) {
         // 直前のイベントから移動したスポットへの MoveEvent を追加する
-
-        const org = [{ placeId: prevSpot.id }]
-        const dest = [{ placeId: inserted.id }]
-        const result = await distanceMatrix.search(org, dest)
-
-        const moveStart = dayjs(prevSpot.end)
-        const moveEnd = moveStart.add(
-          result.rows[0].elements[0].duration.value,
+        const beforeOrg = [{ placeId: prevSpot.id }]
+        const beforeDest = [{ placeId: inserted.id }]
+        const beforeResult = await distanceMatrix.search(beforeOrg, beforeDest)
+        const beforeMoveEnd = dayjs(prevSpot.end).add(
+          beforeResult.rows[0].elements[0].duration.value,
           's'
         )
-        const moveEvent: MoveEvent = {
-          id: createEventId(),
-          title: 'Car',
-          start: moveStart.toDate(),
-          end: moveEnd.toDate(),
-          color: 'white',
-          display: 'background',
-          extendedProps: {
-            type: 'move',
-            from: prevSpot.id,
-            to: inserted.id,
-          },
-        }
-        actions.push(moveEvent)
 
+        if (overlappedMoveEvent) {
+          // Update overlapped move event
+          overlappedMoveEvent.end = beforeMoveEnd.toDate()
+          overlappedMoveEvent.extendedProps.to = inserted.id
+          update(overlappedMoveEvent)
+
+          beforeMoveId = overlappedMoveEvent.id
+        } else {
+          const beforeMoveEvent: MoveEvent = {
+            id: createEventId(),
+            title: 'Car',
+            start: prevSpot.end,
+            end: beforeMoveEnd.toDate(),
+            color: 'white',
+            display: 'background',
+            extendedProps: {
+              type: 'move',
+              from: beforeOrg[0].placeId,
+              to: beforeDest[0].placeId,
+            },
+          }
+          actions.push(beforeMoveEvent)
+
+          beforeMoveId = beforeMoveEvent.id
+        }
+
+        update({
+          ...prevSpot,
+          extendedProps: {
+            ...prevSpot.extendedProps,
+            to: beforeMoveId,
+          },
+        })
+        // Update inserted spot by before move event
         const spotDuration = dayjs(inserted.end).diff(inserted.start, 'minute')
-        inserted.start = moveEnd.toDate()
-        inserted.end = moveEnd.add(spotDuration, 'minute').toDate()
-        actions.update((spot) => spot.id === inserted.id, inserted)
+        inserted.start = beforeMoveEnd.toDate()
+        inserted.end = beforeMoveEnd.add(spotDuration, 'minute').toDate()
       }
+
+      let afterMoveId: string | null = null
 
       const destNextSpots = destSpots
         .filter((spot) => dayjs(spot.start) > dayjs(inserted.start))
         .sort((a, b) => dayjs(a.start).diff(b.start))
       const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
       if (nextSpot) {
-        // 直前のイベントから移動したスポットへの MoveEvent を追加する
-
+        // 移動したスポットから直後のスポットへの MoveEvent を追加する
         const org = [{ placeId: inserted.id }]
         const dest = [{ placeId: nextSpot.id }]
+
         const result = await distanceMatrix.search(org, dest)
 
         const moveStart = dayjs(inserted.end)
@@ -267,6 +291,8 @@ export const useSelectSpots = () => {
           result.rows[0].elements[0].duration.value,
           's'
         )
+        const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
+
         const moveEvent: MoveEvent = {
           id: createEventId(),
           title: 'Car',
@@ -276,62 +302,28 @@ export const useSelectSpots = () => {
           display: 'background',
           extendedProps: {
             type: 'move',
-            from: inserted.id,
-            to: nextSpot.id,
+            from: org[0].placeId,
+            to: dest[0].placeId,
           },
         }
+
         actions.push(moveEvent)
+        afterMoveId = moveEvent.id
 
-        const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
-
-        const applyChange = (move: MoveEvent) => {
-          const afterEvent = places.find(
-            (spot) => spot.id === move.extendedProps.to
-          )
-          if (afterEvent) {
-            update({
-              ...afterEvent,
-              start: dayjs(afterEvent.start)
-                .add(moveEndChange, 'minute')
-                .toDate(),
-              end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
-            })
-            const moveFrom = places.find(
-              (spot): spot is MoveEvent =>
-                spot.extendedProps.type === 'move' &&
-                spot.extendedProps.from === afterEvent?.id
-            )
-            if (moveFrom) {
-              update({
-                ...moveFrom,
-                start: dayjs(moveFrom.start)
-                  .add(moveEndChange, 'minute')
-                  .toDate(),
-                end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
-              })
-              applyChange(moveFrom)
-            }
-          }
-        }
-
-        applyChange(moveEvent)
+        applyChange(moveEvent, moveEndChange)
       }
 
-      if (prevSpot !== null && nextSpot !== null) {
-        // remove overlapped MoveEvent
-        const overlappedEvent = places.find(
-          (event) =>
-            event.extendedProps.type === 'move' &&
-            event.extendedProps.from === prevSpot.id &&
-            event.extendedProps.to === nextSpot.id
-        )
-        if (overlappedEvent) {
-          actions.filter((spot) => spot.id !== overlappedEvent.id)
-        }
-      }
+      actions.update((spot) => spot.id === inserted.id, {
+        ...inserted,
+        extendedProps: {
+          ...inserted.extendedProps,
+          from: beforeMoveId,
+          to: afterMoveId,
+        },
+      })
     },
-    [actions, distanceMatrix, places, update]
+    [actions, applyChange, distanceMatrix, places, update]
   )
 
-  return [places, { add, insert, remove, update }] as const
+  return [places, { add, insert, remove, update, applyChange }] as const
 }

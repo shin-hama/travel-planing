@@ -6,9 +6,10 @@ import { EventApi } from '@fullcalendar/react'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import EventToolbar from 'components/organisms/EventToolbar'
+import { SpotEvent } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
-  event: EventApi
+  event: EventApi & { extendedProps: SpotEvent['extendedProps'] }
 }
 const SpotEventCard: React.FC<Props> = ({ event }) => {
   const [selected, setSelected] = React.useState(false)
