@@ -43,7 +43,10 @@ const Prefecture: React.FC<PrefectureProps> = ({
   )
 }
 
-const JapanMap = () => {
+type Props = {
+  onClickPrefecture?: () => void
+}
+const JapanMap: React.FC<Props> = ({ onClickPrefecture }) => {
   return (
     <svg
       className="map_svg__geolonia-svg-map"
