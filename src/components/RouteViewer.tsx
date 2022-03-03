@@ -26,11 +26,10 @@ const RouteViewer = () => {
           selected.home.place_id,
           waypoints.map((spot) => spot.extendedProps.placeId)
         )
-        console.log(result)
 
+        // Event をクリアしてから、最適化された順番で再登録する
         eventsApi.clear()
-        for (const i in result.routes[0].waypoint_order) {
-          console.log('add')
+        for (const i of result.routes[0].waypoint_order) {
           await eventsApi.add({
             placeId: waypoints[i].extendedProps.placeId,
             imageUrl: waypoints[i].extendedProps.imageUrl,

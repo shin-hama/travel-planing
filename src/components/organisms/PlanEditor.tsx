@@ -128,8 +128,6 @@ const PlanEditor = () => {
   }
 
   const handleEventDrop = async (e: EventDropArg) => {
-    console.log(e)
-
     // 画面上で移動させるためにとりあえず Event を更新する
     eventsApi.update(e.event.toJSON() as SpotEvent)
 

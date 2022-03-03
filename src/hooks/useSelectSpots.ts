@@ -39,6 +39,8 @@ const findLastSpot = (spots: ScheduleEvent[]): SpotEvent | null => {
 
 export const useSelectSpots = () => {
   const places = React.useContext(SelectedPlacesContext)
+  const eventsRef = React.useRef<ScheduleEvent[]>([])
+  eventsRef.current = places
   const actions = useSelectedPlacesActions()
   const distanceMatrix = useDistanceMatrix()
 
@@ -53,7 +55,7 @@ export const useSelectSpots = () => {
 
   const applyChange = React.useCallback(
     (move: MoveEvent, moveEndChange: number) => {
-      const afterEvent = places.find(
+      const afterEvent = eventsRef.current.find(
         (spot): spot is SpotEvent => spot.id === move.extendedProps.to
       )
       if (afterEvent) {
@@ -66,7 +68,7 @@ export const useSelectSpots = () => {
             from: move.id,
           },
         })
-        const moveFrom = places.find(
+        const moveFrom = eventsRef.current.find(
           (spot): spot is MoveEvent =>
             spot.extendedProps.type === 'move' &&
             spot.extendedProps.from === afterEvent?.id
@@ -81,15 +83,14 @@ export const useSelectSpots = () => {
         }
       }
     },
-    [places, update]
+    [update]
   )
 
   const add = React.useCallback(
     async (newSpot: Required<Pick<Spot, 'placeId' | 'imageUrl'>>) => {
       let start = dayjs('09:00:00', 'HH:mm:ss')
 
-      console.log([...places])
-      const lastSpot = findLastSpot(places)
+      const lastSpot = findLastSpot(eventsRef.current)
       let fromId: string | null = null
       if (lastSpot) {
         // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
@@ -149,11 +150,9 @@ export const useSelectSpots = () => {
           to: null,
         },
       }
-      console.log(spotEvent)
-
       actions.push(spotEvent)
     },
-    [actions, distanceMatrix, getSpot, places, update]
+    [actions, distanceMatrix, getSpot, update]
   )
 
   const remove = React.useCallback(
@@ -161,7 +160,7 @@ export const useSelectSpots = () => {
       actions.filter((spot) => spot.id !== removed.id)
 
       if (removed.extendedProps.type === 'spot') {
-        const afterMove = places.find(
+        const afterMove = eventsRef.current.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
             event.id === removed.extendedProps.to
@@ -171,7 +170,7 @@ export const useSelectSpots = () => {
         }
 
         // update before move
-        const beforeMove = places.find(
+        const beforeMove = eventsRef.current.find(
           (event): event is MoveEvent =>
             event.extendedProps.type === 'move' &&
             event.id === removed.extendedProps.from
@@ -203,13 +202,13 @@ export const useSelectSpots = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [actions, distanceMatrix, places, update]
+    [actions, distanceMatrix, update]
   )
 
   const insert = React.useCallback(
     async (inserted: SpotEvent) => {
       // Calc new schedule on moved date
-      const destSpots = places.filter(
+      const destSpots = eventsRef.current.filter(
         (event): event is SpotEvent =>
           event.extendedProps.type === 'spot' &&
           dayjs(event.start).date() === dayjs(inserted.start).date()
@@ -220,7 +219,7 @@ export const useSelectSpots = () => {
         .sort((a, b) => dayjs(b.start).diff(a.start))
       const prevSpot = destPrevSpots.length > 0 ? destPrevSpots[0] : null
 
-      const overlappedMoveEvent = places.find(
+      const overlappedMoveEvent = eventsRef.current.find(
         (event): event is MoveEvent => event.id === prevSpot?.extendedProps.to
       )
 
@@ -323,7 +322,7 @@ export const useSelectSpots = () => {
         },
       })
     },
-    [actions, applyChange, distanceMatrix, places, update]
+    [actions, applyChange, distanceMatrix, update]
   )
 
   const clear = React.useCallback(() => {
