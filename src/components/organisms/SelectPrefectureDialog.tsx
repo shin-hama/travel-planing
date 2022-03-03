@@ -6,26 +6,41 @@ import DialogContent from '@mui/material/DialogContent'
 import Stack from '@mui/material/Stack'
 
 import JapanMap from 'components/atoms/JapanMap'
+import { usePrefectures } from 'constant/prefectures'
+
+export type Prefecture = NonNullable<ReturnType<typeof usePrefectures>>[number]
 
 type Props = {
   open: boolean
-  onOK: () => void
+  onOK: (selected: Prefecture) => void
   onClose: () => void
 }
 const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
+  const prefectures = usePrefectures()
+
+  const handleClick = (prefectureCode: number) => {
+    if (!prefectures) {
+      return
+    }
+    const prefecture = prefectures.find((item) => item.code === prefectureCode)
+    console.log(prefecture)
+    console.log(prefectures)
+    console.log(prefectureCode)
+    if (prefecture) {
+      onOK(prefecture)
+    }
+  }
+
   return (
     <Dialog open={open} onClose={onClose} fullScreen>
       <DialogContent>
         <Stack alignItems="center" sx={{ height: '100%', pb: 1 }}>
-          <JapanMap />
+          <JapanMap onClickPrefecture={handleClick} />
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button variant="outlined" onClick={onClose}>
           Cancel
-        </Button>
-        <Button variant="contained" onClick={onOK}>
-          OK
         </Button>
       </DialogActions>
     </Dialog>

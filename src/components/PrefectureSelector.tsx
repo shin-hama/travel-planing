@@ -3,40 +3,53 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import SelectPrefectureDialog from 'components/organisms/SelectPrefectureDialog'
+import SelectPrefectureDialog, {
+  Prefecture,
+} from 'components/organisms/SelectPrefectureDialog'
 
 const PrefectureSelector = () => {
-  const [home, setHome] = React.useState('')
-  const [destination, setDestination] = React.useState('')
+  const [home, setHome] = React.useState<Prefecture | null>(null)
+  const [destination, setDestination] = React.useState<Prefecture | null>(null)
 
-  const [open, setOpen] = React.useState(false)
-  const handleOpen = () => {
-    setOpen(true)
-  }
+  const [mode, setMode] = React.useState<'home' | 'dest' | null>(null)
+
   const handleClose = () => {
-    setOpen(false)
+    setMode(null)
   }
-  const handleSelectPrefecture = () => {
-    setHome('selected')
-    setDestination('selected')
-    setOpen(false)
+  const handleSelectPrefecture = (selected: Prefecture) => {
+    switch (mode) {
+      case 'home':
+        setHome(selected)
+        break
+      case 'dest':
+        setDestination(selected)
+        break
+      default:
+        break
+    }
+    setMode(null)
   }
+
   return (
     <>
       <Stack alignItems="center" sx={{ height: '100%', pb: 1 }}>
-        <Stack spacing={2}>
+        <Stack spacing={4}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography>Start / Goal: {home}</Typography>
-            <Button onClick={handleOpen}>Select</Button>
+            <Typography>Start / Goal: {home?.name}</Typography>
+            <Button variant="contained" onClick={() => setMode('home')}>
+              Select
+            </Button>
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography>Destination: {destination}</Typography>
-            <Button onClick={handleOpen}>Select</Button>
+            <Typography>Destination: {destination?.name}</Typography>
+            <Button variant="contained" onClick={() => setMode('dest')}>
+              Select
+            </Button>
           </Stack>
         </Stack>
       </Stack>
       <SelectPrefectureDialog
-        open={open}
+        open={mode !== null}
         onClose={handleClose}
         onOK={handleSelectPrefecture}
       />
