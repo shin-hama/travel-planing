@@ -144,11 +144,11 @@ export type Categories_Mutation_Response = {
 /** input type for inserting object relation for remote table "categories" */
 export type Categories_Obj_Rel_Insert_Input = {
   data: Categories_Insert_Input;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Categories_On_Conflict>;
 };
 
-/** on conflict condition type for table "categories" */
+/** on_conflict condition type for table "categories" */
 export type Categories_On_Conflict = {
   constraint: Categories_Constraint;
   update_columns?: Array<Categories_Update_Column>;
@@ -227,7 +227,7 @@ export type Category_Type_Aggregate_Order_By = {
 /** input type for inserting array relation for remote table "category_type" */
 export type Category_Type_Arr_Rel_Insert_Input = {
   data: Array<Category_Type_Insert_Input>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Category_Type_On_Conflict>;
 };
 
@@ -289,7 +289,7 @@ export type Category_Type_Mutation_Response = {
   returning: Array<Category_Type>;
 };
 
-/** on conflict condition type for table "category_type" */
+/** on_conflict condition type for table "category_type" */
 export type Category_Type_On_Conflict = {
   constraint: Category_Type_Constraint;
   update_columns?: Array<Category_Type_Update_Column>;
@@ -731,6 +731,7 @@ export type Prefectures = {
   lat: Scalars['Float'];
   lng: Scalars['Float'];
   name: Scalars['String'];
+  place_id: Scalars['String'];
   /** An array relationship */
   spots: Array<Spots>;
   updated_at?: Maybe<Scalars['timestamptz']>;
@@ -763,6 +764,7 @@ export type Prefectures_Bool_Exp = {
   lat?: InputMaybe<Float_Comparison_Exp>;
   lng?: InputMaybe<Float_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  place_id?: InputMaybe<String_Comparison_Exp>;
   spots?: InputMaybe<Spots_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   zoom?: InputMaybe<Int_Comparison_Exp>;
@@ -773,7 +775,9 @@ export enum Prefectures_Constraint {
   /** unique or primary key constraint */
   PrefecturesNameKey = 'prefectures_name_key',
   /** unique or primary key constraint */
-  PrefecturesPkey = 'prefectures_pkey'
+  PrefecturesPkey = 'prefectures_pkey',
+  /** unique or primary key constraint */
+  PrefecturesPlaceIdKey = 'prefectures_place_id_key'
 }
 
 /** input type for incrementing numeric columns in table "prefectures" */
@@ -789,6 +793,7 @@ export type Prefectures_Insert_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
+  place_id?: InputMaybe<Scalars['String']>;
   spots?: InputMaybe<Spots_Arr_Rel_Insert_Input>;
   zoom?: InputMaybe<Scalars['Int']>;
 };
@@ -805,11 +810,11 @@ export type Prefectures_Mutation_Response = {
 /** input type for inserting object relation for remote table "prefectures" */
 export type Prefectures_Obj_Rel_Insert_Input = {
   data: Prefectures_Insert_Input;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Prefectures_On_Conflict>;
 };
 
-/** on conflict condition type for table "prefectures" */
+/** on_conflict condition type for table "prefectures" */
 export type Prefectures_On_Conflict = {
   constraint: Prefectures_Constraint;
   update_columns?: Array<Prefectures_Update_Column>;
@@ -823,6 +828,7 @@ export type Prefectures_Order_By = {
   lat?: InputMaybe<Order_By>;
   lng?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  place_id?: InputMaybe<Order_By>;
   spots_aggregate?: InputMaybe<Spots_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
   zoom?: InputMaybe<Order_By>;
@@ -846,6 +852,8 @@ export enum Prefectures_Select_Column {
   /** column name */
   Name = 'name',
   /** column name */
+  PlaceId = 'place_id',
+  /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
   Zoom = 'zoom'
@@ -856,6 +864,7 @@ export type Prefectures_Set_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
+  place_id?: InputMaybe<Scalars['String']>;
   zoom?: InputMaybe<Scalars['Int']>;
 };
 
@@ -867,6 +876,8 @@ export enum Prefectures_Update_Column {
   Lng = 'lng',
   /** column name */
   Name = 'name',
+  /** column name */
+  PlaceId = 'place_id',
   /** column name */
   Zoom = 'zoom'
 }
@@ -1020,7 +1031,7 @@ export type Spot_Type_Aggregate_Order_By = {
 /** input type for inserting array relation for remote table "spot_type" */
 export type Spot_Type_Arr_Rel_Insert_Input = {
   data: Array<Spot_Type_Insert_Input>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Spot_Type_On_Conflict>;
 };
 
@@ -1080,7 +1091,7 @@ export type Spot_Type_Mutation_Response = {
   returning: Array<Spot_Type>;
 };
 
-/** on conflict condition type for table "spot_type" */
+/** on_conflict condition type for table "spot_type" */
 export type Spot_Type_On_Conflict = {
   constraint: Spot_Type_Constraint;
   update_columns?: Array<Spot_Type_Update_Column>;
@@ -1214,7 +1225,7 @@ export type Spots_Aggregate_Order_By = {
 /** input type for inserting array relation for remote table "spots" */
 export type Spots_Arr_Rel_Insert_Input = {
   data: Array<Spots_Insert_Input>;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Spots_On_Conflict>;
 };
 
@@ -1299,11 +1310,11 @@ export type Spots_Mutation_Response = {
 /** input type for inserting object relation for remote table "spots" */
 export type Spots_Obj_Rel_Insert_Input = {
   data: Spots_Insert_Input;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Spots_On_Conflict>;
 };
 
-/** on conflict condition type for table "spots" */
+/** on_conflict condition type for table "spots" */
 export type Spots_On_Conflict = {
   constraint: Spots_Constraint;
   update_columns?: Array<Spots_Update_Column>;
@@ -1633,11 +1644,11 @@ export type Types_Mutation_Response = {
 /** input type for inserting object relation for remote table "types" */
 export type Types_Obj_Rel_Insert_Input = {
   data: Types_Insert_Input;
-  /** on conflict condition */
+  /** upsert condition */
   on_conflict?: InputMaybe<Types_On_Conflict>;
 };
 
-/** on conflict condition type for table "types" */
+/** on_conflict condition type for table "types" */
 export type Types_On_Conflict = {
   constraint: Types_Constraint;
   update_columns?: Array<Types_Update_Column>;
@@ -1687,24 +1698,10 @@ export type GetCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetCategoriesQuery = { __typename?: 'query_root', categories: Array<{ __typename?: 'categories', id: number, name: string }> };
 
-export type InsertPrefecturesMutationVariables = Exact<{
-  objects: Array<Prefectures_Insert_Input> | Prefectures_Insert_Input;
-}>;
-
-
-export type InsertPrefecturesMutation = { __typename?: 'mutation_root', insert_prefectures?: { __typename?: 'prefectures_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'prefectures', zoom: number, updated_at?: any | null, name: string, lng: number, lat: number, created_at?: any | null, code: number }> } | null };
-
 export type GetPrefecturesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number }> };
-
-export type GetPrefectureQueryVariables = Exact<{
-  code: Scalars['Int'];
-}>;
-
-
-export type GetPrefectureQuery = { __typename?: 'query_root', prefectures_by_pk?: { __typename?: 'prefectures', code: number, lat: number, lng: number, name: string, zoom: number } | null };
+export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, place_id: string }> };
 
 export type GetSpotsByCategoryQueryVariables = Exact<{
   categoryId: Scalars['Int'];
@@ -1770,48 +1767,6 @@ export function useGetCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type GetCategoriesQueryHookResult = ReturnType<typeof useGetCategoriesQuery>;
 export type GetCategoriesLazyQueryHookResult = ReturnType<typeof useGetCategoriesLazyQuery>;
 export type GetCategoriesQueryResult = Apollo.QueryResult<GetCategoriesQuery, GetCategoriesQueryVariables>;
-export const InsertPrefecturesDocument = gql`
-    mutation insertPrefectures($objects: [prefectures_insert_input!]!) {
-  insert_prefectures(objects: $objects) {
-    affected_rows
-    returning {
-      zoom
-      updated_at
-      name
-      lng
-      lat
-      created_at
-      code
-    }
-  }
-}
-    `;
-export type InsertPrefecturesMutationFn = Apollo.MutationFunction<InsertPrefecturesMutation, InsertPrefecturesMutationVariables>;
-
-/**
- * __useInsertPrefecturesMutation__
- *
- * To run a mutation, you first call `useInsertPrefecturesMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useInsertPrefecturesMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [insertPrefecturesMutation, { data, loading, error }] = useInsertPrefecturesMutation({
- *   variables: {
- *      objects: // value for 'objects'
- *   },
- * });
- */
-export function useInsertPrefecturesMutation(baseOptions?: Apollo.MutationHookOptions<InsertPrefecturesMutation, InsertPrefecturesMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<InsertPrefecturesMutation, InsertPrefecturesMutationVariables>(InsertPrefecturesDocument, options);
-      }
-export type InsertPrefecturesMutationHookResult = ReturnType<typeof useInsertPrefecturesMutation>;
-export type InsertPrefecturesMutationResult = Apollo.MutationResult<InsertPrefecturesMutation>;
-export type InsertPrefecturesMutationOptions = Apollo.BaseMutationOptions<InsertPrefecturesMutation, InsertPrefecturesMutationVariables>;
 export const GetPrefecturesDocument = gql`
     query getPrefectures {
   prefectures {
@@ -1820,6 +1775,7 @@ export const GetPrefecturesDocument = gql`
     lat
     lng
     zoom
+    place_id
   }
 }
     `;
@@ -1850,45 +1806,6 @@ export function useGetPrefecturesLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type GetPrefecturesQueryHookResult = ReturnType<typeof useGetPrefecturesQuery>;
 export type GetPrefecturesLazyQueryHookResult = ReturnType<typeof useGetPrefecturesLazyQuery>;
 export type GetPrefecturesQueryResult = Apollo.QueryResult<GetPrefecturesQuery, GetPrefecturesQueryVariables>;
-export const GetPrefectureDocument = gql`
-    query getPrefecture($code: Int!) {
-  prefectures_by_pk(code: $code) {
-    code
-    lat
-    lng
-    name
-    zoom
-  }
-}
-    `;
-
-/**
- * __useGetPrefectureQuery__
- *
- * To run a query within a React component, call `useGetPrefectureQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPrefectureQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPrefectureQuery({
- *   variables: {
- *      code: // value for 'code'
- *   },
- * });
- */
-export function useGetPrefectureQuery(baseOptions: Apollo.QueryHookOptions<GetPrefectureQuery, GetPrefectureQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPrefectureQuery, GetPrefectureQueryVariables>(GetPrefectureDocument, options);
-      }
-export function useGetPrefectureLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPrefectureQuery, GetPrefectureQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPrefectureQuery, GetPrefectureQueryVariables>(GetPrefectureDocument, options);
-        }
-export type GetPrefectureQueryHookResult = ReturnType<typeof useGetPrefectureQuery>;
-export type GetPrefectureLazyQueryHookResult = ReturnType<typeof useGetPrefectureLazyQuery>;
-export type GetPrefectureQueryResult = Apollo.QueryResult<GetPrefectureQuery, GetPrefectureQueryVariables>;
 export const GetSpotsByCategoryDocument = gql`
     query GetSpotsByCategory($categoryId: Int!) {
   spots(

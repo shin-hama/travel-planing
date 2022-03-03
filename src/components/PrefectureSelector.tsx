@@ -23,9 +23,6 @@ const PrefectureSelector = () => {
     setMode(null)
   }
   const handleSelectPrefecture = (prefecture: Prefecture) => {
-    console.log(mode)
-    console.log(prefecture)
-    console.log(selected)
     if (mode) {
       setSelected((prev) => ({ ...prev, [mode]: prefecture }))
     }

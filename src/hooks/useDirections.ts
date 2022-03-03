@@ -1,4 +1,5 @@
 import * as React from 'react'
+import dayjs from 'dayjs'
 
 import { DirectionServiceContext } from 'contexts/DirectionServiceProvider'
 
@@ -10,12 +11,9 @@ export const useDirections = () => {
    * @param placeIds PlaceID のリスト
    */
   const search = React.useCallback(
-    async (homeId: string, waypoints: Array<string>) => {
+    async (homeId: string, waypoints?: Array<string>) => {
       if (direction === null) {
         throw Error('JS Google Map api is not loaded')
-      }
-      if (waypoints.length < 2) {
-        console.error('the minimum length is 2')
       }
 
       const origin = { placeId: homeId }
@@ -25,15 +23,23 @@ export const useDirections = () => {
         {
           origin,
           destination,
-          waypoints: waypoints.map((placeId) => ({
+          waypoints: waypoints?.map((placeId) => ({
             location: { placeId: placeId },
           })),
           optimizeWaypoints: true,
           region: 'JP',
           travelMode: google.maps.TravelMode.DRIVING,
+          drivingOptions: {
+            departureTime: dayjs('09:00:00', 'HH:mm:ss').toDate(),
+          },
         },
-        () => {
-          console.log('finish search direction')
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            console.log('finish search direction')
+          } else {
+            console.error(`Fail to search directions: ${status}`)
+            throw new Error(`Fail to search directions: ${status}`)
+          }
         }
       )
       return result

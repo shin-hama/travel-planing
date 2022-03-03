@@ -13,19 +13,35 @@ import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 const RouteViewer = () => {
   const directionService = useDirections()
   const selected = React.useContext(SelectedPrefectureContext)
-  const [events] = useSelectSpots()
+  const [events, eventsApi] = useSelectSpots()
 
   const handleOptimize = async () => {
-    const result = await directionService.search(
-      selected.home.,
-      events
-        .filter(
-          (event): event is SpotEvent => event.extendedProps.type === 'spot'
+    if (selected.home) {
+      try {
+        const waypoints = events.filter(
+          (e): e is SpotEvent => e.extendedProps.type === 'spot'
         )
-        .map((spot) => spot.extendedProps.placeId)
-    )
-    console.log(result)
+
+        const result = await directionService.search(
+          selected.home.place_id,
+          waypoints.map((spot) => spot.extendedProps.placeId)
+        )
+        console.log(result)
+
+        eventsApi.clear()
+        for (const i in result.routes[0].waypoint_order) {
+          console.log('add')
+          await eventsApi.add({
+            placeId: waypoints[i].extendedProps.placeId,
+            imageUrl: waypoints[i].extendedProps.imageUrl,
+          })
+        }
+      } catch (e) {
+        alert(e)
+      }
+    }
   }
+
   return (
     <Container
       maxWidth="md"

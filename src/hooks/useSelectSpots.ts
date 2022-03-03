@@ -88,6 +88,7 @@ export const useSelectSpots = () => {
     async (newSpot: Required<Pick<Spot, 'placeId' | 'imageUrl'>>) => {
       let start = dayjs('09:00:00', 'HH:mm:ss')
 
+      console.log([...places])
       const lastSpot = findLastSpot(places)
       let fromId: string | null = null
       if (lastSpot) {
@@ -325,5 +326,9 @@ export const useSelectSpots = () => {
     [actions, applyChange, distanceMatrix, places, update]
   )
 
-  return [places, { add, insert, remove, update, applyChange }] as const
+  const clear = React.useCallback(() => {
+    actions.clear()
+  }, [actions])
+
+  return [places, { add, clear, insert, remove, update, applyChange }] as const
 }

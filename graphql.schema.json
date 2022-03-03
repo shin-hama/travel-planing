@@ -1908,7 +1908,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "categories_on_conflict",
@@ -1926,7 +1926,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "categories_on_conflict",
-        "description": "on conflict condition type for table \"categories\"",
+        "description": "on_conflict condition type for table \"categories\"",
         "fields": null,
         "inputFields": [
           {
@@ -2409,7 +2409,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "category_type_on_conflict",
@@ -2805,7 +2805,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "category_type_on_conflict",
-        "description": "on conflict condition type for table \"category_type\"",
+        "description": "on_conflict condition type for table \"category_type\"",
         "fields": null,
         "inputFields": [
           {
@@ -3708,7 +3708,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "categories_on_conflict",
@@ -3749,7 +3749,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "categories_on_conflict",
@@ -3798,7 +3798,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "category_type_on_conflict",
@@ -3839,7 +3839,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "category_type_on_conflict",
@@ -3888,7 +3888,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "prefectures_on_conflict",
@@ -3929,7 +3929,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "prefectures_on_conflict",
@@ -3978,7 +3978,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "spot_type_on_conflict",
@@ -4019,7 +4019,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "spot_type_on_conflict",
@@ -4068,7 +4068,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "spots_on_conflict",
@@ -4109,7 +4109,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "spots_on_conflict",
@@ -4158,7 +4158,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "types_on_conflict",
@@ -4199,7 +4199,7 @@
               },
               {
                 "name": "on_conflict",
-                "description": "on conflict condition",
+                "description": "upsert condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "types_on_conflict",
@@ -4941,6 +4941,22 @@
             "deprecationReason": null
           },
           {
+            "name": "place_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "spots",
             "description": "An array relationship",
             "args": [
@@ -5194,6 +5210,18 @@
             "deprecationReason": null
           },
           {
+            "name": "place_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "spots",
             "description": null,
             "type": {
@@ -5250,6 +5278,12 @@
           },
           {
             "name": "prefectures_pkey",
+            "description": "unique or primary key constraint",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "prefectures_place_id_key",
             "description": "unique or primary key constraint",
             "isDeprecated": false,
             "deprecationReason": null
@@ -5348,6 +5382,18 @@
           },
           {
             "name": "name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "place_id",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -5462,7 +5508,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "prefectures_on_conflict",
@@ -5480,7 +5526,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "prefectures_on_conflict",
-        "description": "on conflict condition type for table \"prefectures\"",
+        "description": "on_conflict condition type for table \"prefectures\"",
         "fields": null,
         "inputFields": [
           {
@@ -5607,6 +5653,18 @@
             "deprecationReason": null
           },
           {
+            "name": "place_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "spots_aggregate",
             "description": null,
             "type": {
@@ -5713,6 +5771,12 @@
             "deprecationReason": null
           },
           {
+            "name": "place_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": "column name",
             "isDeprecated": false,
@@ -5770,6 +5834,18 @@
             "deprecationReason": null
           },
           {
+            "name": "place_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "zoom",
             "description": null,
             "type": {
@@ -5808,6 +5884,12 @@
           },
           {
             "name": "name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "place_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -6894,7 +6976,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "spot_type_on_conflict",
@@ -7266,7 +7348,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "spot_type_on_conflict",
-        "description": "on conflict condition type for table \"spot_type\"",
+        "description": "on_conflict condition type for table \"spot_type\"",
         "fields": null,
         "inputFields": [
           {
@@ -8085,7 +8167,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "spots_on_conflict",
@@ -8742,7 +8824,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "spots_on_conflict",
@@ -8760,7 +8842,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "spots_on_conflict",
-        "description": "on conflict condition type for table \"spots\"",
+        "description": "on_conflict condition type for table \"spots\"",
         "fields": null,
         "inputFields": [
           {
@@ -10967,7 +11049,7 @@
           },
           {
             "name": "on_conflict",
-            "description": "on conflict condition",
+            "description": "upsert condition",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "types_on_conflict",
@@ -10985,7 +11067,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "types_on_conflict",
-        "description": "on conflict condition type for table \"types\"",
+        "description": "on_conflict condition type for table \"types\"",
         "fields": null,
         "inputFields": [
           {
