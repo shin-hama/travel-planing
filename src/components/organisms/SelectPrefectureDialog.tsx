@@ -22,10 +22,8 @@ const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
     if (!prefectures) {
       return
     }
+
     const prefecture = prefectures.find((item) => item.code === prefectureCode)
-    console.log(prefecture)
-    console.log(prefectures)
-    console.log(prefectureCode)
     if (prefecture) {
       onOK(prefecture)
     }
