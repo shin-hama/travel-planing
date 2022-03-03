@@ -6,9 +6,8 @@ import DialogContent from '@mui/material/DialogContent'
 import Stack from '@mui/material/Stack'
 
 import JapanMap from 'components/atoms/JapanMap'
-import { usePrefectures } from 'constant/prefectures'
-
-export type Prefecture = NonNullable<ReturnType<typeof usePrefectures>>[number]
+import { Prefecture } from 'contexts/SelectedPrefectureProvider'
+import { useGetPrefecturesQuery } from 'generated/graphql'
 
 type Props = {
   open: boolean
@@ -16,24 +15,34 @@ type Props = {
   onClose: () => void
 }
 const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
-  const prefectures = usePrefectures()
+  const { data, loading, error } = useGetPrefecturesQuery()
 
   const handleClick = (prefectureCode: number) => {
-    if (!prefectures) {
+    if (!data) {
       return
     }
 
-    const prefecture = prefectures.find((item) => item.code === prefectureCode)
+    const prefecture = data.prefectures.find(
+      (item) => item.code === prefectureCode
+    )
     if (prefecture) {
       onOK(prefecture)
     }
+  }
+
+  if (error) {
+    console.error(error)
   }
 
   return (
     <Dialog open={open} onClose={onClose} fullScreen>
       <DialogContent>
         <Stack alignItems="center" sx={{ height: '100%', pb: 1 }}>
-          <JapanMap onClickPrefecture={handleClick} />
+          {loading ? (
+            <>Now Loading...</>
+          ) : (
+            <JapanMap onClickPrefecture={handleClick} />
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>

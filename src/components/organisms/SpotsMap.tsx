@@ -33,8 +33,8 @@ const SpotsMap = () => {
   }, [data])
 
   React.useEffect(() => {
-    if (selected) {
-      getPrefecture({ variables: { code: selected } })
+    if (selected.destination) {
+      getPrefecture({ variables: { code: selected.destination.code } })
     }
   }, [getPrefecture, selected])
 
@@ -67,8 +67,7 @@ const SpotsMap = () => {
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       <GoogleMap
         center={target ? { lat: target.lat, lng: target.lng } : undefined}
-        zoom={target?.zoom}
-      >
+        zoom={target?.zoom}>
         <>
           {target &&
             spots.map((item) => (
@@ -99,8 +98,7 @@ const SpotsMap = () => {
           width: '90%',
           maxWidth: '400px',
           maxHeight: '150px',
-        }}
-      >
+        }}>
         {focusedSpot && <SpotsList spots={[focusedSpot]} />}
       </Box>
     </Box>
