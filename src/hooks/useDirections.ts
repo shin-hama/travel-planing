@@ -1,5 +1,4 @@
 import * as React from 'react'
-import dayjs from 'dayjs'
 
 import { DirectionServiceContext } from 'contexts/DirectionServiceProvider'
 
@@ -29,9 +28,6 @@ export const useDirections = () => {
           optimizeWaypoints: true,
           region: 'JP',
           travelMode: google.maps.TravelMode.DRIVING,
-          drivingOptions: {
-            departureTime: dayjs('09:00:00', 'HH:mm:ss').toDate(),
-          },
         },
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK) {

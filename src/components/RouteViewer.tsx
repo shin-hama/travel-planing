@@ -9,15 +9,25 @@ import { useDirections } from 'hooks/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { SpotEvent } from 'contexts/SelectedPlacesProvider'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
+import { useConfirm } from 'hooks/useConfirm'
 
 const RouteViewer = () => {
   const directionService = useDirections()
   const selected = React.useContext(SelectedPrefectureContext)
   const [events, eventsApi] = useSelectSpots()
+  const confirm = useConfirm({ allowClose: false })
 
   const handleOptimize = async () => {
     if (selected.home) {
       try {
+        try {
+          await confirm(
+            'Optimize your plan.\nWARNING: Current plan will be overwritten'
+          )
+        } catch {
+          // when cancel
+          return
+        }
         const waypoints = events.filter(
           (e): e is SpotEvent => e.extendedProps.type === 'spot'
         )
