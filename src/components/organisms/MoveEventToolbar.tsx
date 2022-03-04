@@ -5,7 +5,7 @@ import {
   FontAwesomeIcon,
   FontAwesomeIconProps,
 } from '@fortawesome/react-fontawesome'
-import { faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
+import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
@@ -13,12 +13,13 @@ import { MoveEvent } from 'contexts/SelectedPlacesProvider'
 import { useDirections } from 'hooks/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 
-const menus: Record<
+export const MoveTypes: Record<
   MoveEvent['extendedProps']['mode'],
   FontAwesomeIconProps['icon']
 > = {
   car: faCar,
   walk: faWalking,
+  bicycle: faBicycle,
 }
 
 type Props = {
@@ -28,21 +29,30 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const directions = useDirections()
   const [, eventsApi] = useSelectSpots()
 
-  const handleClickMode = (mode: keyof typeof menus) => async () => {
+  const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
     const moveEvent = eventsApi.get<MoveEvent>(event.id, 'move')
     if (moveEvent === undefined) {
       console.error('event is not managed')
       return
     }
-    const travelMode =
-      mode === 'car'
-        ? google.maps.TravelMode.DRIVING
-        : google.maps.TravelMode.WALKING
+    const travelMode = () => {
+      switch (mode) {
+        case 'car':
+          return google.maps.TravelMode.DRIVING
+        case 'walk':
+          return google.maps.TravelMode.WALKING
+        case 'bicycle':
+          return google.maps.TravelMode.BICYCLING
+
+        default:
+          throw new Error(`${mode} is not implemented`)
+      }
+    }
 
     const result = await directions.search({
       origin: { placeId: event.extendedProps.from },
       destination: { placeId: event.extendedProps.to },
-      travelMode,
+      travelMode: travelMode(),
     })
 
     if (result.routes[0].legs.length > 0) {
@@ -64,11 +74,11 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       direction="row"
       spacing={2}
       sx={{ backgroundColor: 'lightgray', width: '100%', px: 1 }}>
-      {Object.entries(menus).map(([key, icon]) => (
+      {Object.entries(MoveTypes).map(([key, icon]) => (
         <IconButton
           key={key}
           color={key === event.extendedProps.mode ? 'primary' : 'inherit'}
-          onClick={handleClickMode(key as keyof typeof menus)}>
+          onClick={handleClickMode(key as keyof typeof MoveTypes)}>
           <FontAwesomeIcon icon={icon} />
         </IconButton>
       ))}

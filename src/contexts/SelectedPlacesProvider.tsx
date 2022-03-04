@@ -14,7 +14,7 @@ export type Move = {
   type: 'move'
   from: string
   to: string
-  mode: 'car' | 'walk'
+  mode: 'bicycle' | 'car' | 'walk'
 }
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
 export type SpotEvent = CustomEventInput & {

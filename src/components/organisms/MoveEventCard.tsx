@@ -4,13 +4,12 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCarSide } from '@fortawesome/free-solid-svg-icons'
 import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
 import { MoveEvent } from 'contexts/SelectedPlacesProvider'
 import { useToggle } from 'react-use'
-import MoveEventToolbar from './MoveEventToolbar'
+import MoveEventToolbar, { MoveTypes } from './MoveEventToolbar'
 
 const calcDiff = (start: Date, end: Date) => {
   const min = dayjs(end).diff(dayjs(start), 'minute')
@@ -40,7 +39,7 @@ const MoveEventCard: React.FC<Props> = ({ event }) => {
           }}>
           <Typography variant={'h5'}>
             <Stack direction="row" spacing={1} alignItems="center">
-              <FontAwesomeIcon icon={faCarSide} />
+              <FontAwesomeIcon icon={MoveTypes[event.extendedProps.mode]} />
               <span>
                 {event.start && event.end && calcDiff(event.start, event.end)}
               </span>
