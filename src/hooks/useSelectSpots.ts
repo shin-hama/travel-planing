@@ -46,6 +46,16 @@ export const useSelectSpots = () => {
 
   const [getSpot] = useGetSpotByPkLazyQuery()
 
+  const get = React.useCallback(
+    <T extends ScheduleEvent>(id: string, type: T['extendedProps']['type']) => {
+      return eventsRef.current.find(
+        (event): event is T =>
+          event.id === id && event.extendedProps.type === type
+      )
+    },
+    []
+  )
+
   const update = React.useCallback(
     (newSpot: ScheduleEvent) => {
       actions.update((spot) => spot.id === newSpot.id, newSpot)
@@ -54,15 +64,15 @@ export const useSelectSpots = () => {
   )
 
   const applyChange = React.useCallback(
-    (move: MoveEvent, moveEndChange: number) => {
+    (move: MoveEvent, changedMinutes: number) => {
       const afterEvent = eventsRef.current.find(
         (spot): spot is SpotEvent => spot.id === move.extendedProps.to
       )
       if (afterEvent) {
         update({
           ...afterEvent,
-          start: dayjs(afterEvent.start).add(moveEndChange, 'minute').toDate(),
-          end: dayjs(afterEvent.end).add(moveEndChange, 'minute').toDate(),
+          start: dayjs(afterEvent.start).add(changedMinutes, 'minute').toDate(),
+          end: dayjs(afterEvent.end).add(changedMinutes, 'minute').toDate(),
           extendedProps: {
             ...afterEvent.extendedProps,
             from: move.id,
@@ -76,10 +86,10 @@ export const useSelectSpots = () => {
         if (moveFrom) {
           update({
             ...moveFrom,
-            start: dayjs(moveFrom.start).add(moveEndChange, 'minute').toDate(),
-            end: dayjs(moveFrom.end).add(moveEndChange, 'minute').toDate(),
+            start: dayjs(moveFrom.start).add(changedMinutes, 'minute').toDate(),
+            end: dayjs(moveFrom.end).add(changedMinutes, 'minute').toDate(),
           })
-          applyChange(moveFrom, moveEndChange)
+          applyChange(moveFrom, changedMinutes)
         }
       }
     },
@@ -329,5 +339,8 @@ export const useSelectSpots = () => {
     actions.clear()
   }, [actions])
 
-  return [places, { add, clear, insert, remove, update, applyChange }] as const
+  return [
+    places,
+    { add, clear, get, insert, remove, update, applyChange },
+  ] as const
 }

@@ -32,10 +32,16 @@ const RouteViewer = () => {
           (e): e is SpotEvent => e.extendedProps.type === 'spot'
         )
 
-        const result = await directionService.search(
-          selected.home.place_id,
-          waypoints.map((spot) => spot.extendedProps.placeId)
-        )
+        const result = await directionService.search({
+          origin: { placeId: selected.home.place_id },
+          destination: { placeId: selected.home.place_id },
+          waypoints: waypoints.map((spot) => ({
+            location: {
+              placeId: spot.extendedProps.placeId,
+            },
+          })),
+          travelMode: google.maps.TravelMode.DRIVING,
+        })
 
         // Event をクリアしてから、最適化された順番で再登録する
         eventsApi.clear()
