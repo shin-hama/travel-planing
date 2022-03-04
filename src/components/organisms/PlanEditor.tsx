@@ -316,7 +316,8 @@ const PlanEditor = () => {
             allDaySlot={false}
             editable={true}
             selectable={true}
-            selectMirror={true}
+            selectMinDistance={10} // will not fire select not to drag mouse
+            // selectMirror={true}
             droppable={true}
             dayMaxEvents={true}
             weekends={true}
