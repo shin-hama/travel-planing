@@ -2,9 +2,6 @@ import * as React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
-import Stepper from '@mui/material/Stepper'
-import Step from '@mui/material/Step'
-import StepLabel from '@mui/material/StepLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import Div100vh from 'react-div-100vh'
@@ -52,25 +49,6 @@ const RoutePlanner = () => {
           flex: 1,
           position: 'relative',
         }}>
-        <Stack direction="row">
-          <Button
-            color="inherit"
-            disabled={activeStep === 0}
-            onClick={handleBack}
-            sx={{ mr: 1 }}>
-            <Box pr={1}>
-              <FontAwesomeIcon icon={faAngleLeft} />
-            </Box>
-            Back
-          </Button>
-          <Stepper activeStep={activeStep} sx={{ flexGrow: 1 }}>
-            {steps.map((step) => (
-              <Step key={step.label}>
-                <StepLabel>{step.label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Stack>
         <Box
           sx={{
             height: '100%',
@@ -89,12 +67,22 @@ const RoutePlanner = () => {
             </StepperHandlerContext.Provider>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-          <Box sx={{ flex: '1 1 auto' }} />
-          {activeStep === steps.length - 1 && (
+        {activeStep === steps.length - 1 && (
+          <Stack direction="row">
+            <Button
+              color="inherit"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{ mr: 1 }}>
+              <Box pr={1}>
+                <FontAwesomeIcon icon={faAngleLeft} />
+              </Box>
+              Back
+            </Button>
+            <Box sx={{ flex: '1 1 auto' }} />
             <Button onClick={handleReset}>Reset</Button>
-          )}
-        </Box>
+          </Stack>
+        )}
       </Box>
     </Div100vh>
   )

@@ -32,9 +32,12 @@ const PrefectureSelector = () => {
   return (
     <>
       <Stack alignItems="center" sx={{ height: '100%', pb: 1 }}>
+        <div style={{ marginTop: '10px', marginBottom: '26px' }}>
+          <Typography variant="h3">Travel Planner</Typography>
+        </div>
         <Stack spacing={4}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography>Start / Goal: {selected.home?.name}</Typography>
+            <Typography>Home: {selected.home?.name}</Typography>
             <Button variant="outlined" onClick={() => setMode('home')}>
               Select
             </Button>
@@ -46,7 +49,7 @@ const PrefectureSelector = () => {
             </Button>
           </Stack>
           <Button
-            disabled={selected.home === null || selected.destination === null}
+            disabled={selected.destination === null}
             variant="contained"
             onClick={handleNext}>
             Plan Your Trip

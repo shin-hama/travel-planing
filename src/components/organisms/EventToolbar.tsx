@@ -96,7 +96,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
     spotsApi.update({
       ...moveToSelected,
       extendedProps: {
-        type: 'move',
+        ...moveToSelected.extendedProps,
         from: event.extendedProps.placeId,
         to: beforeSpot.id,
       },

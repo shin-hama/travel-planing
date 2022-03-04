@@ -10,24 +10,16 @@ export const useDirections = () => {
    * @param placeIds PlaceID のリスト
    */
   const search = React.useCallback(
-    async (homeId: string, waypoints?: Array<string>) => {
+    async (props: google.maps.DirectionsRequest) => {
       if (direction === null) {
         throw Error('JS Google Map api is not loaded')
       }
 
-      const origin = { placeId: homeId }
-      const destination = { placeId: homeId }
-
       const result = await direction.route(
         {
-          origin,
-          destination,
-          waypoints: waypoints?.map((placeId) => ({
-            location: { placeId: placeId },
-          })),
+          ...props,
           optimizeWaypoints: true,
           region: 'JP',
-          travelMode: google.maps.TravelMode.DRIVING,
         },
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK) {
