@@ -7,21 +7,24 @@ import { SelectedPlacesProvider } from 'contexts/SelectedPlacesProvider'
 import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
 import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
+import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 
 function App() {
   return (
     <ApolloClientProvider>
-      <DirectionServiceProvider>
-        <DistanceMatrixProvider>
-          <PlacesServiceProvider>
-            <SelectedPrefectureProvider>
-              <SelectedPlacesProvider>
-                <RoutePlanner />
-              </SelectedPlacesProvider>
-            </SelectedPrefectureProvider>
-          </PlacesServiceProvider>
-        </DistanceMatrixProvider>
-      </DirectionServiceProvider>
+      <ConfirmationProvider>
+        <DirectionServiceProvider>
+          <DistanceMatrixProvider>
+            <PlacesServiceProvider>
+              <SelectedPrefectureProvider>
+                <SelectedPlacesProvider>
+                  <RoutePlanner />
+                </SelectedPlacesProvider>
+              </SelectedPrefectureProvider>
+            </PlacesServiceProvider>
+          </DistanceMatrixProvider>
+        </DirectionServiceProvider>
+      </ConfirmationProvider>
     </ApolloClientProvider>
   )
 }

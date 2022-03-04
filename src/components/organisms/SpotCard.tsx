@@ -94,7 +94,6 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
       return
     }
     countRef.current += 1
-    console.log('get photos')
 
     placesService.getPhotos(placeId).then((results) => {
       setPhotos(results)

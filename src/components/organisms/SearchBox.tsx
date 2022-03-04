@@ -47,8 +47,8 @@ const SearchBox = () => {
       return
     }
 
+    // 連続入力中に検索用の API が連続で呼ばれないようにする
     timerRef.current = setTimeout(async () => {
-      console.log('test')
       const { data } = await getSpots({ variables: { name: `.*${text}.*` } })
       if (data) {
         setSearchedSpots(data.spots.map((spot) => spot.place_id))
@@ -62,13 +62,11 @@ const SearchBox = () => {
         sx={{
           backgroundColor: (theme) => theme.palette.primary.main,
           borderRadius: 2,
-        }}
-      >
+        }}>
         <IconButton
           disableTouchRipple
           onClick={handleOpen}
-          sx={{ borderRadius: 2 }}
-        >
+          sx={{ borderRadius: 2 }}>
           <FontAwesomeIcon color="white" size="xs" icon={faSearch} />
         </IconButton>
       </Box>
@@ -83,8 +81,7 @@ const SearchBox = () => {
             // ダイアログを画面上部に表示する
             alignItems: 'self-start',
           },
-        }}
-      >
+        }}>
         <DialogContent>
           <Stack direction="row" spacing={2}>
             <IconButton disableTouchRipple onClick={handleClose}>

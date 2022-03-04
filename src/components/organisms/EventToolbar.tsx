@@ -230,14 +230,6 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       },
     })
 
-    console.log(
-      spots.filter(
-        (spot) =>
-          spot.extendedProps.type === 'move' &&
-          spot.extendedProps.from === afterSpot.id
-      )
-    )
-
     // 選択したイベントより後のイベントを更新する
     if (moveFromAfter) {
       const org = [{ placeId: event.id }]
