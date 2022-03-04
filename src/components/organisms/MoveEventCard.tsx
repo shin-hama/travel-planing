@@ -22,11 +22,7 @@ type Props = {
 const MoveEventCard: React.FC<Props> = ({ event }) => {
   const [open, toggle] = useToggle(false)
   return (
-    <ClickAwayListener
-      onClickAway={(e) => {
-        console.log(e)
-        toggle(false)
-      }}>
+    <ClickAwayListener onClickAway={(e) => toggle(false)}>
       <Box
         onClick={() => toggle(true)}
         sx={{

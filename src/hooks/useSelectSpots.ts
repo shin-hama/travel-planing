@@ -18,6 +18,26 @@ function createEventId() {
   return String(eventGuid++)
 }
 
+const buildMoveEvent = (
+  start: MoveEvent['start'],
+  end: MoveEvent['end'],
+  props: Pick<MoveEvent['extendedProps'], 'from' | 'to'>
+): MoveEvent => {
+  return {
+    id: createEventId(),
+    title: 'Move',
+    color: 'white',
+    display: 'background',
+    start,
+    end,
+    extendedProps: {
+      type: 'move',
+      mode: 'car',
+      ...props,
+    },
+  }
+}
+
 const findLastSpot = (spots: ScheduleEvent[]): SpotEvent | null => {
   const spotEvents = spots.filter(
     (spot): spot is SpotEvent => spot.extendedProps.type === 'spot'
@@ -118,23 +138,23 @@ export const useSelectSpots = () => {
           start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
           fromId = lastSpot.id
         } else {
-          const moveEvent: MoveEvent = {
-            id: createEventId(),
-            title: 'Car',
-            start: moveStart.toDate(),
-            end: moveEnd.toDate(),
-            color: 'white',
-            display: 'background',
-            extendedProps: {
-              type: 'move',
+          const moveEvent: MoveEvent = buildMoveEvent(
+            moveStart.toDate(),
+            moveEnd.toDate(),
+            {
               from: lastSpot.extendedProps.placeId,
               to: newSpot.placeId,
-            },
-          }
+            }
+          )
           actions.push(moveEvent)
 
-          lastSpot.extendedProps.to = moveEvent.id
-          update(lastSpot)
+          update({
+            ...lastSpot,
+            extendedProps: {
+              ...lastSpot.extendedProps,
+              to: moveEvent.id,
+            },
+          })
           start = moveEnd
           fromId = moveEvent.id
         }
@@ -252,19 +272,14 @@ export const useSelectSpots = () => {
 
           beforeMoveId = overlappedMoveEvent.id
         } else {
-          const beforeMoveEvent: MoveEvent = {
-            id: createEventId(),
-            title: 'Car',
-            start: prevSpot.end,
-            end: beforeMoveEnd.toDate(),
-            color: 'white',
-            display: 'background',
-            extendedProps: {
-              type: 'move',
+          const beforeMoveEvent = buildMoveEvent(
+            prevSpot.end,
+            beforeMoveEnd.toDate(),
+            {
               from: beforeOrg[0].placeId,
               to: beforeDest[0].placeId,
-            },
-          }
+            }
+          )
           actions.push(beforeMoveEvent)
 
           beforeMoveId = beforeMoveEvent.id
@@ -303,19 +318,14 @@ export const useSelectSpots = () => {
         )
         const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
 
-        const moveEvent: MoveEvent = {
-          id: createEventId(),
-          title: 'Car',
-          start: moveStart.toDate(),
-          end: moveEnd.toDate(),
-          color: 'white',
-          display: 'background',
-          extendedProps: {
-            type: 'move',
+        const moveEvent: MoveEvent = buildMoveEvent(
+          moveStart.toDate(),
+          moveEnd.toDate(),
+          {
             from: org[0].placeId,
             to: dest[0].placeId,
-          },
-        }
+          }
+        )
 
         actions.push(moveEvent)
         afterMoveId = moveEvent.id
