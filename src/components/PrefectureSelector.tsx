@@ -49,7 +49,7 @@ const PrefectureSelector = () => {
             </Button>
           </Stack>
           <Button
-            disabled={selected.destination === null}
+            disabled={!selected.destination}
             variant="contained"
             onClick={handleNext}>
             Plan Your Trip
