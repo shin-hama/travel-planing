@@ -299,7 +299,7 @@ const PlanEditor = () => {
             }}
             scrollTime="08:00:00" // Default start time when render the timegrid.
             dayCellClassNames="my-day-cell"
-            snapDuration="00:15:00"
+            snapDuration="00:30:00" // Cause unintentional movement if this is small
             slotDuration="01:00:00"
             slotLabelInterval="01:00:00"
             slotLabelFormat={{
