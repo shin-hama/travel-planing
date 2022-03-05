@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
 import Stack from '@mui/material/Stack'
 
 import CategorySelector from './CategorySelector'
@@ -78,20 +79,24 @@ const SpotsMap = () => {
           <CategorySelector onChange={handleSelectCategory} />
         </Stack>
       </Box>
-      <Box
-        sx={{
-          zIndex: 10,
-          position: 'absolute',
-          bottom: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          pb: 2,
-          width: '90%',
-          maxWidth: '400px',
-          maxHeight: '150px',
-        }}>
-        {focusedSpot && <SpotsList spots={[focusedSpot]} />}
-      </Box>
+      {focusedSpot && (
+        <ClickAwayListener onClickAway={() => setFocusedSpot('')}>
+          <Box
+            sx={{
+              zIndex: 10,
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              pb: 2,
+              width: '90%',
+              maxWidth: '400px',
+              maxHeight: '150px',
+            }}>
+            <SpotsList spots={[focusedSpot]} />
+          </Box>
+        </ClickAwayListener>
+      )}
     </Box>
   )
 }
