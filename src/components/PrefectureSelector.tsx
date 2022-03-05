@@ -10,11 +10,13 @@ import {
   SelectedPrefectureContext,
   SetSelectedPrefectureContext,
 } from 'contexts/SelectedPrefectureProvider'
+import { useMapProps } from 'hooks/useMapProps'
 
 const PrefectureSelector = () => {
   const handleNext = React.useContext(StepperHandlerContext)
   const selected = React.useContext(SelectedPrefectureContext)
   const setSelected = React.useContext(SetSelectedPrefectureContext)
+  const [, setMapProps] = useMapProps()
 
   const [mode, setMode] = React.useState<
     keyof NonNullable<typeof selected> | null
@@ -25,6 +27,14 @@ const PrefectureSelector = () => {
   const handleSelectPrefecture = (prefecture: Prefecture) => {
     if (mode) {
       setSelected((prev) => ({ ...prev, [mode]: prefecture }))
+
+      if (mode === 'destination') {
+        setMapProps((prev) => ({
+          ...prev,
+          center: { lat: prefecture.lat, lng: prefecture.lng },
+          zoom: prefecture.zoom,
+        }))
+      }
     }
     setMode(null)
   }

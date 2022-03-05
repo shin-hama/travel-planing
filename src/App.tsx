@@ -8,6 +8,7 @@ import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
 import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
 import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
+import { MapPropsProvider } from 'contexts/MapPropsProvider'
 
 function App() {
   return (
@@ -15,13 +16,15 @@ function App() {
       <ConfirmationProvider>
         <DirectionServiceProvider>
           <DistanceMatrixProvider>
-            <PlacesServiceProvider>
-              <SelectedPrefectureProvider>
-                <SelectedPlacesProvider>
-                  <RoutePlanner />
-                </SelectedPlacesProvider>
-              </SelectedPrefectureProvider>
-            </PlacesServiceProvider>
+            <MapPropsProvider>
+              <PlacesServiceProvider>
+                <SelectedPrefectureProvider>
+                  <SelectedPlacesProvider>
+                    <RoutePlanner />
+                  </SelectedPlacesProvider>
+                </SelectedPrefectureProvider>
+              </PlacesServiceProvider>
+            </MapPropsProvider>
           </DistanceMatrixProvider>
         </DirectionServiceProvider>
       </ConfirmationProvider>

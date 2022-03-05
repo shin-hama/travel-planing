@@ -133,7 +133,7 @@ export const useSelectSpots = () => {
           result.rows[0].elements[0].duration.value,
           's'
         )
-        if (moveEnd.hour() >= 19) {
+        if (moveEnd.isAfter(moveEnd.set('hour', 19).set('minute', 0))) {
           // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
           start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
           fromId = lastSpot.id
