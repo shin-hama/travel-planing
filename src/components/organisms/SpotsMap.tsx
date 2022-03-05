@@ -23,6 +23,7 @@ const SpotsMap = () => {
 
   const handleSelectCategory = React.useCallback(
     async (id: number) => {
+      console.log(mapBounds)
       if (mapBounds.ne && mapBounds.sw) {
         const results = await getSpots({
           variables: {
@@ -37,6 +38,7 @@ const SpotsMap = () => {
         if (results.error) {
           console.error(`Fail to fetch types by category id ${id}`)
         }
+        console.log(results.data)
         setSpots(results.data?.spots || [])
       }
     },
@@ -64,6 +66,7 @@ const SpotsMap = () => {
             <PlaceMarker
               key={item.place_id}
               placeId={item.place_id}
+              selected={item.place_id === focusedSpot}
               lat={item.lat}
               lng={item.lng}
               onClick={handleMarkerClicked}

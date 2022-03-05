@@ -51,17 +51,17 @@ const RenderMap: React.FC<Props> = React.memo(function Map({
   // wrapping to a function is useful in case you want to access `window.google`
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
-  const onLoad = React.useCallback(
-    (mapInstance: google.maps.Map) => {
-      // do something with map Instance
-      setDirectionService(new window.google.maps.DirectionsService())
-      setDistanceMatrix(new window.google.maps.DistanceMatrixService())
-      setPlaces(new window.google.maps.places.PlacesService(mapInstance))
+  const onLoad = (mapInstance: google.maps.Map) => {
+    // do something with map Instance
+    setDirectionService(new window.google.maps.DirectionsService())
+    setDistanceMatrix(new window.google.maps.DistanceMatrixService())
+    setPlaces(new window.google.maps.places.PlacesService(mapInstance))
 
-      setGoogleMap(mapInstance)
-    },
-    [setDirectionService, setDistanceMatrix, setPlaces]
-  )
+    const bounds = mapInstance.getBounds()
+    setMapBounds({ ne: bounds?.getNorthEast(), sw: bounds?.getSouthWest() })
+
+    setGoogleMap(mapInstance)
+  }
 
   return (
     <GoogleMapLib
