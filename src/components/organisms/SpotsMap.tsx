@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
 import Stack from '@mui/material/Stack'
 
 import CategorySelector from './CategorySelector'
@@ -23,6 +24,7 @@ const SpotsMap = () => {
 
   const handleSelectCategory = React.useCallback(
     async (id: number) => {
+      console.log(mapBounds)
       if (mapBounds.ne && mapBounds.sw) {
         const results = await getSpots({
           variables: {
@@ -37,12 +39,11 @@ const SpotsMap = () => {
         if (results.error) {
           console.error(`Fail to fetch types by category id ${id}`)
         }
+        console.log(results.data)
         setSpots(results.data?.spots || [])
       }
     },
-    // not update callback when mapBounds is changed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getSpots]
+    [getSpots, mapBounds]
   )
 
   const handleMarkerClicked = (placeId: string) => {
@@ -64,6 +65,7 @@ const SpotsMap = () => {
             <PlaceMarker
               key={item.place_id}
               placeId={item.place_id}
+              selected={item.place_id === focusedSpot}
               lat={item.lat}
               lng={item.lng}
               onClick={handleMarkerClicked}
@@ -77,20 +79,24 @@ const SpotsMap = () => {
           <CategorySelector onChange={handleSelectCategory} />
         </Stack>
       </Box>
-      <Box
-        sx={{
-          zIndex: 10,
-          position: 'absolute',
-          bottom: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          pb: 2,
-          width: '90%',
-          maxWidth: '400px',
-          maxHeight: '150px',
-        }}>
-        {focusedSpot && <SpotsList spots={[focusedSpot]} />}
-      </Box>
+      {focusedSpot && (
+        <ClickAwayListener onClickAway={() => setFocusedSpot('')}>
+          <Box
+            sx={{
+              zIndex: 10,
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              pb: 2,
+              width: '90%',
+              maxWidth: '400px',
+              maxHeight: '150px',
+            }}>
+            <SpotsList spots={[focusedSpot]} />
+          </Box>
+        </ClickAwayListener>
+      )}
     </Box>
   )
 }

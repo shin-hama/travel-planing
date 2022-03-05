@@ -11,10 +11,9 @@ const containerStyle = {
   width: '100%',
   height: '100%',
 }
-
-const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }
-
 const libs: 'places'[] = ['places']
+
+const DEFAULT_CENTER = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
 export type Bounds = {
   sw?: google.maps.LatLng | null
@@ -25,12 +24,18 @@ type Props = {
   zoom?: number
   setMapBounds: React.Dispatch<React.SetStateAction<Bounds>>
 }
-const RenderMap: React.FC<Props> = React.memo(function Map({
-  center: defaultCenter,
-  zoom: defaultZoom,
+const GoogleMap: React.FC<Props> = React.memo(function Map({
+  center: defaultCenter = DEFAULT_CENTER,
+  zoom: defaultZoom = 4,
   setMapBounds,
   children,
 }) {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY || '',
+    libraries: libs,
+    // ...otherOptions
+  })
+
   const [center, setCenter] = React.useState(defaultCenter)
   const [zoom, setZoom] = React.useState(defaultZoom)
   const [googleMap, setGoogleMap] = React.useState<google.maps.Map | null>(null)
@@ -40,8 +45,8 @@ const RenderMap: React.FC<Props> = React.memo(function Map({
 
   const handleIdled = () => {
     if (googleMap) {
-      setCenter(googleMap.getCenter())
-      setZoom(googleMap?.getZoom())
+      setCenter((prev) => googleMap.getCenter() || prev)
+      setZoom((prev) => googleMap.getZoom() || prev)
 
       const bounds = googleMap.getBounds()
       setMapBounds({ ne: bounds?.getNorthEast(), sw: bounds?.getSouthWest() })
@@ -51,17 +56,25 @@ const RenderMap: React.FC<Props> = React.memo(function Map({
   // wrapping to a function is useful in case you want to access `window.google`
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
-  const onLoad = React.useCallback(
-    (mapInstance: google.maps.Map) => {
-      // do something with map Instance
-      setDirectionService(new window.google.maps.DirectionsService())
-      setDistanceMatrix(new window.google.maps.DistanceMatrixService())
-      setPlaces(new window.google.maps.places.PlacesService(mapInstance))
+  const onLoad = (mapInstance: google.maps.Map) => {
+    // do something with map Instance
+    setDirectionService(new window.google.maps.DirectionsService())
+    setDistanceMatrix(new window.google.maps.DistanceMatrixService())
+    setPlaces(new window.google.maps.places.PlacesService(mapInstance))
 
-      setGoogleMap(mapInstance)
-    },
-    [setDirectionService, setDistanceMatrix, setPlaces]
-  )
+    const bounds = mapInstance.getBounds()
+    setMapBounds({ ne: bounds?.getNorthEast(), sw: bounds?.getSouthWest() })
+
+    setGoogleMap(mapInstance)
+  }
+
+  if (loadError) {
+    console.log('Error has occurred when loading google map')
+  }
+
+  if (isLoaded === false) {
+    return <>Now loading...</>
+  }
 
   return (
     <GoogleMapLib
@@ -82,31 +95,5 @@ const RenderMap: React.FC<Props> = React.memo(function Map({
     </GoogleMapLib>
   )
 })
-
-const GoogleMap: React.FC<Props> = ({
-  center = defaultCenter,
-  zoom = 4,
-  setMapBounds,
-  children,
-}) => {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY || '',
-    libraries: libs,
-    // ...otherOptions
-  })
-
-  if (loadError) {
-    console.log('Error has occurred when loading google map')
-  }
-
-  return isLoaded ? (
-    <RenderMap center={center} zoom={zoom} setMapBounds={setMapBounds}>
-      {/* Child components, such as markers, info windows, etc. */}
-      {children}
-    </RenderMap>
-  ) : (
-    <>Now Loading...</>
-  )
-}
 
 export default GoogleMap
