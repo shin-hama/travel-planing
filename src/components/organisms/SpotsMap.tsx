@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 
 import CategorySelector from './CategorySelector'
-import GoogleMap from './GoogleMap'
+import GoogleMap, { Bounds } from './GoogleMap'
 import PlaceMarker from './PlaceMarker'
 import SearchBox from './SearchBox'
 import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
@@ -17,19 +17,31 @@ const SpotsMap = () => {
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
   const [getSpots] = useGetSpotsByCategoryLazyQuery()
   const { destination } = React.useContext(SelectedPrefectureContext)
+  const [mapBounds, setMapBounds] = React.useState<Bounds>({})
 
   const [focusedSpot, setFocusedSpot] = React.useState('')
 
   const handleSelectCategory = React.useCallback(
     async (id: number) => {
-      const results = await getSpots({
-        variables: { categoryId: id },
-      })
-      if (results.error) {
-        console.error(`Fail to fetch types by category id ${id}`)
+      if (mapBounds.ne && mapBounds.sw) {
+        const results = await getSpots({
+          variables: {
+            categoryId: id,
+            north: mapBounds.ne.lat(),
+            south: mapBounds.sw.lat(),
+            west: mapBounds.sw.lng(),
+            east: mapBounds.ne.lng(),
+          },
+        })
+        console.log(results)
+        if (results.error) {
+          console.error(`Fail to fetch types by category id ${id}`)
+        }
+        setSpots(results.data?.spots || [])
       }
-      setSpots(results.data?.spots || [])
     },
+    // not update callback when mapBounds is changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [getSpots]
   )
 
@@ -45,18 +57,18 @@ const SpotsMap = () => {
             ? { lat: destination.lat, lng: destination.lng }
             : undefined
         }
-        zoom={destination?.zoom}>
+        zoom={destination?.zoom}
+        setMapBounds={setMapBounds}>
         <>
-          {destination &&
-            spots.map((item) => (
-              <PlaceMarker
-                key={item.place_id}
-                placeId={item.place_id}
-                lat={item.lat}
-                lng={item.lng}
-                onClick={handleMarkerClicked}
-              />
-            ))}
+          {spots.map((item) => (
+            <PlaceMarker
+              key={item.place_id}
+              placeId={item.place_id}
+              lat={item.lat}
+              lng={item.lng}
+              onClick={handleMarkerClicked}
+            />
+          ))}
         </>
       </GoogleMap>
       <Box sx={{ position: 'absolute', left: 0, top: 0, ml: 2, mt: 2 }}>

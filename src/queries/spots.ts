@@ -1,11 +1,21 @@
 import { gql } from '@apollo/client'
 
 export const GET_SPOTS_BY_CATEGORY = gql`
-  query GetSpotsByCategory($categoryId: Int!) {
+  query GetSpotsByCategory(
+    $categoryId: Int!
+    $north: Float!
+    $south: Float!
+    $west: Float!
+    $east: Float!
+  ) {
     spots(
       where: {
         spots_types: {
           type: { category_types: { category_id: { _eq: $categoryId } } }
+          spot: {
+            lat: { _gt: $south, _lt: $north }
+            lng: { _gt: $west, _lt: $east }
+          }
         }
       }
     ) {

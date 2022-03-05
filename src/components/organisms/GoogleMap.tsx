@@ -16,13 +16,19 @@ const defaultCenter = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
 const libs: 'places'[] = ['places']
 
+export type Bounds = {
+  sw?: google.maps.LatLng | null
+  ne?: google.maps.LatLng | null
+}
 type Props = {
   center?: google.maps.LatLngLiteral | google.maps.LatLng
   zoom?: number
+  setMapBounds: React.Dispatch<React.SetStateAction<Bounds>>
 }
-const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
+const RenderMap: React.FC<Props> = React.memo(function Map({
   center: defaultCenter,
   zoom: defaultZoom,
+  setMapBounds,
   children,
 }) {
   const [center, setCenter] = React.useState(defaultCenter)
@@ -32,15 +38,13 @@ const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   const setPlaces = React.useContext(SetPlacesServiceContext)
 
-  const handleZoomChanged = () => {
-    if (googleMap) {
-      setZoom(googleMap?.getZoom())
-    }
-  }
-
   const handleIdled = () => {
     if (googleMap) {
       setCenter(googleMap.getCenter())
+      setZoom(googleMap?.getZoom())
+
+      const bounds = googleMap.getBounds()
+      setMapBounds({ ne: bounds?.getNorthEast(), sw: bounds?.getSouthWest() })
     }
   }
 
@@ -72,9 +76,7 @@ const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
       center={center}
       zoom={zoom}
       onIdle={handleIdled}
-      onZoomChanged={handleZoomChanged}
-      onLoad={onLoad}
-    >
+      onLoad={onLoad}>
       {/* Child components, such as markers, info windows, etc. */}
       {children}
     </GoogleMapLib>
@@ -84,6 +86,7 @@ const RenderMap: React.FC<Partial<Props>> = React.memo(function Map({
 const GoogleMap: React.FC<Props> = ({
   center = defaultCenter,
   zoom = 4,
+  setMapBounds,
   children,
 }) => {
   const { isLoaded, loadError } = useLoadScript({
@@ -97,7 +100,7 @@ const GoogleMap: React.FC<Props> = ({
   }
 
   return isLoaded ? (
-    <RenderMap center={center} zoom={zoom}>
+    <RenderMap center={center} zoom={zoom} setMapBounds={setMapBounds}>
       {/* Child components, such as markers, info windows, etc. */}
       {children}
     </RenderMap>

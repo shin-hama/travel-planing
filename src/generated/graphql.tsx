@@ -1705,6 +1705,10 @@ export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Arra
 
 export type GetSpotsByCategoryQueryVariables = Exact<{
   categoryId: Scalars['Int'];
+  north: Scalars['Float'];
+  south: Scalars['Float'];
+  west: Scalars['Float'];
+  east: Scalars['Float'];
 }>;
 
 
@@ -1807,9 +1811,9 @@ export type GetPrefecturesQueryHookResult = ReturnType<typeof useGetPrefecturesQ
 export type GetPrefecturesLazyQueryHookResult = ReturnType<typeof useGetPrefecturesLazyQuery>;
 export type GetPrefecturesQueryResult = Apollo.QueryResult<GetPrefecturesQuery, GetPrefecturesQueryVariables>;
 export const GetSpotsByCategoryDocument = gql`
-    query GetSpotsByCategory($categoryId: Int!) {
+    query GetSpotsByCategory($categoryId: Int!, $north: Float!, $south: Float!, $west: Float!, $east: Float!) {
   spots(
-    where: {spots_types: {type: {category_types: {category_id: {_eq: $categoryId}}}}}
+    where: {spots_types: {type: {category_types: {category_id: {_eq: $categoryId}}}, spot: {lat: {_gt: $south, _lt: $north}, lng: {_gt: $west, _lt: $east}}}}
   ) {
     name
     lat
@@ -1832,6 +1836,10 @@ export const GetSpotsByCategoryDocument = gql`
  * const { data, loading, error } = useGetSpotsByCategoryQuery({
  *   variables: {
  *      categoryId: // value for 'categoryId'
+ *      north: // value for 'north'
+ *      south: // value for 'south'
+ *      west: // value for 'west'
+ *      east: // value for 'east'
  *   },
  * });
  */
