@@ -1,6 +1,5 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
 import Stack from '@mui/material/Stack'
 
 import CategorySelector from './CategorySelector'
@@ -13,12 +12,18 @@ import {
   useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
 import SpotsList from './SpotsList'
+import { useClickAway } from 'react-use'
 
 const SpotsMap = () => {
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
   const [getSpots] = useGetSpotsByCategoryLazyQuery()
   const { destination } = React.useContext(SelectedPrefectureContext)
   const [mapBounds, setMapBounds] = React.useState<Bounds>({})
+
+  const spotCardRef = React.useRef<HTMLDivElement>(null)
+  useClickAway(spotCardRef, (e) => {
+    setFocusedSpot('')
+  })
 
   const [focusedSpot, setFocusedSpot] = React.useState('')
 
@@ -80,22 +85,21 @@ const SpotsMap = () => {
         </Stack>
       </Box>
       {focusedSpot && (
-        <ClickAwayListener onClickAway={() => setFocusedSpot('')}>
-          <Box
-            sx={{
-              zIndex: 10,
-              position: 'absolute',
-              bottom: 0,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              pb: 2,
-              width: '90%',
-              maxWidth: '400px',
-              maxHeight: '150px',
-            }}>
-            <SpotsList spots={[focusedSpot]} />
-          </Box>
-        </ClickAwayListener>
+        <Box
+          ref={spotCardRef}
+          sx={{
+            zIndex: 10,
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            pb: 2,
+            width: '90%',
+            maxWidth: '400px',
+            maxHeight: '150px',
+          }}>
+          <SpotsList spots={[focusedSpot]} />
+        </Box>
       )}
     </Box>
   )
