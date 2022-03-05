@@ -15,7 +15,7 @@ type Props = {
   onChange?: (value: number) => void
 }
 const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
-  const [selectedId, setSelectedId] = React.useState(0)
+  const [selectedId, setSelectedId] = React.useState<number | null>(null)
   const [label, setLabel] = React.useState('')
   const { data, loading, error } = useGetCategoriesQuery()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -27,8 +27,12 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   }
 
   React.useEffect(() => {
-    changedCallback?.(selectedId)
-  }, [changedCallback, selectedId])
+    if (selectedId) {
+      changedCallback?.(selectedId)
+    }
+    // not update callback when mapBounds is changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId])
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const id = Number.parseInt(event.target.value)

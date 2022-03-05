@@ -42,9 +42,7 @@ const SpotsMap = () => {
         setSpots(results.data?.spots || [])
       }
     },
-    // not update callback when mapBounds is changed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getSpots]
+    [getSpots, mapBounds]
   )
 
   const handleMarkerClicked = (placeId: string) => {
