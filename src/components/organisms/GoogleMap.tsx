@@ -6,6 +6,7 @@ import {
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
+import { useMapProps } from 'hooks/useMapProps'
 
 const containerStyle = {
   width: '100%',
@@ -13,31 +14,15 @@ const containerStyle = {
 }
 const libs: 'places'[] = ['places']
 
-const DEFAULT_CENTER = { lat: 36.5941035450526, lng: 138.70038569359122 }
-
-export type Bounds = {
-  sw?: google.maps.LatLng | null
-  ne?: google.maps.LatLng | null
-}
-type Props = {
-  center?: google.maps.LatLngLiteral | google.maps.LatLng
-  zoom?: number
-  setMapBounds: React.Dispatch<React.SetStateAction<Bounds>>
-}
-const GoogleMap: React.FC<Props> = React.memo(function Map({
-  center: defaultCenter = DEFAULT_CENTER,
-  zoom: defaultZoom = 4,
-  setMapBounds,
-  children,
-}) {
+const GoogleMap: React.FC = React.memo(function Map({ children }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY || '',
     libraries: libs,
     // ...otherOptions
   })
 
-  const [center, setCenter] = React.useState(defaultCenter)
-  const [zoom, setZoom] = React.useState(defaultZoom)
+  const [mapProps, setMapProps] = useMapProps()
+
   const [googleMap, setGoogleMap] = React.useState<google.maps.Map | null>(null)
   const setDirectionService = React.useContext(SetDirectionServiceContext)
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
@@ -45,11 +30,16 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
 
   const handleIdled = () => {
     if (googleMap) {
-      setCenter((prev) => googleMap.getCenter() || prev)
-      setZoom((prev) => googleMap.getZoom() || prev)
-
       const bounds = googleMap.getBounds()
-      setMapBounds({ ne: bounds?.getNorthEast(), sw: bounds?.getSouthWest() })
+
+      setMapProps((prev) => ({
+        center: googleMap.getCenter() || prev.center,
+        zoom: googleMap.getZoom() || prev.zoom,
+        bounds: {
+          ne: bounds?.getNorthEast(),
+          sw: bounds?.getSouthWest(),
+        },
+      }))
     }
   }
 
@@ -63,7 +53,15 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     setPlaces(new window.google.maps.places.PlacesService(mapInstance))
 
     const bounds = mapInstance.getBounds()
-    setMapBounds({ ne: bounds?.getNorthEast(), sw: bounds?.getSouthWest() })
+
+    setMapProps((prev) => ({
+      center: mapInstance.getCenter() || prev.center,
+      zoom: mapInstance.getZoom() || prev.zoom,
+      bounds: {
+        ne: bounds?.getNorthEast(),
+        sw: bounds?.getSouthWest(),
+      },
+    }))
 
     setGoogleMap(mapInstance)
   }
@@ -86,8 +84,8 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
         zoomControl: false,
         keyboardShortcuts: false,
       }}
-      center={center}
-      zoom={zoom}
+      center={mapProps.center}
+      zoom={mapProps.zoom}
       onIdle={handleIdled}
       onLoad={onLoad}>
       {/* Child components, such as markers, info windows, etc. */}

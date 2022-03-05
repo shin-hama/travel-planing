@@ -1,24 +1,23 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import { useClickAway } from 'react-use'
 
 import CategorySelector from './CategorySelector'
-import GoogleMap, { Bounds } from './GoogleMap'
+import GoogleMap from './GoogleMap'
 import PlaceMarker from './PlaceMarker'
 import SearchBox from './SearchBox'
-import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import {
   GetSpotsByCategoryQuery,
   useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
 import SpotsList from './SpotsList'
-import { useClickAway } from 'react-use'
+import { useMapProps } from 'hooks/useMapProps'
 
 const SpotsMap = () => {
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
   const [getSpots] = useGetSpotsByCategoryLazyQuery()
-  const { destination } = React.useContext(SelectedPrefectureContext)
-  const [mapBounds, setMapBounds] = React.useState<Bounds>({})
+  const [mapProps] = useMapProps()
 
   const spotCardRef = React.useRef<HTMLDivElement>(null)
   useClickAway(spotCardRef, (e) => {
@@ -29,8 +28,8 @@ const SpotsMap = () => {
 
   const handleSelectCategory = React.useCallback(
     async (id: number) => {
-      console.log(mapBounds)
-      if (mapBounds.ne && mapBounds.sw) {
+      const mapBounds = mapProps.bounds
+      if (mapBounds?.ne && mapBounds?.sw) {
         const results = await getSpots({
           variables: {
             categoryId: id,
@@ -40,15 +39,13 @@ const SpotsMap = () => {
             east: mapBounds.ne.lng(),
           },
         })
-        console.log(results)
         if (results.error) {
           console.error(`Fail to fetch types by category id ${id}`)
         }
-        console.log(results.data)
         setSpots(results.data?.spots || [])
       }
     },
-    [getSpots, mapBounds]
+    [getSpots, mapProps.bounds]
   )
 
   const handleMarkerClicked = (placeId: string) => {
@@ -57,14 +54,7 @@ const SpotsMap = () => {
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-      <GoogleMap
-        center={
-          destination
-            ? { lat: destination.lat, lng: destination.lng }
-            : undefined
-        }
-        zoom={destination?.zoom}
-        setMapBounds={setMapBounds}>
+      <GoogleMap>
         <>
           {spots.map((item) => (
             <PlaceMarker
