@@ -14,7 +14,7 @@ import { useConfirm } from 'hooks/useConfirm'
 const RouteViewer = () => {
   const directionService = useDirections()
   const selected = React.useContext(SelectedPrefectureContext)
-  const [events, eventsApi] = useSelectSpots()
+  const { events, actions: eventsApi } = useSelectSpots()
   const confirm = useConfirm({ allowClose: false })
 
   const handleOptimize = async () => {

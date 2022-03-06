@@ -25,7 +25,7 @@ type ButtonProps = {
 }
 const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
   const selectedSpots = React.useContext(SelectedPlacesContext)
-  const [, actions] = useSelectSpots()
+  const { actions } = useSelectSpots()
   const [loading, setLoading] = React.useState(false)
 
   const selected = selectedSpots.find(
@@ -36,6 +36,7 @@ const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
 
   const handleClick = async () => {
     setLoading(true)
+    console.log('click')
     if (selected) {
       await actions.remove(selected)
     } else {

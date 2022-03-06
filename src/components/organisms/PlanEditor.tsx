@@ -40,9 +40,11 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
   // Adjust height to duration of slot row
   .fc-timegrid-slot {
-    height: 8em;
     border-bottom: 0;
     vertical-align: top;
+  }
+  .fc-timegrid-slot-minor {
+    border: none;
   }
   .fc-timegrid-col.fc-day-today {
     background: inherit;
@@ -88,7 +90,7 @@ const StyledWrapper = styled('div')<{ width: string }>`
 `
 
 const PlanEditor = () => {
-  const [events, eventsApi] = useSelectSpots()
+  const { events, actions: eventsApi } = useSelectSpots()
   const calendar = React.useRef<FullCalendar>(null)
 
   const distanceMatrix = useDistanceMatrix()
@@ -299,8 +301,9 @@ const PlanEditor = () => {
             }}
             scrollTime="08:00:00" // Default start time when render the timegrid.
             dayCellClassNames="my-day-cell"
-            snapDuration="00:30:00" // Cause unintentional movement if this is small
-            slotDuration="01:00:00"
+            slotDuration="00:10:00"
+            snapDuration="00:15:00"
+            forceEventDuration={true}
             slotLabelInterval="01:00:00"
             slotLabelFormat={{
               hour: 'numeric',
@@ -322,8 +325,8 @@ const PlanEditor = () => {
             dayMaxEvents={true}
             weekends={true}
             longPressDelay={500}
-            eventMinHeight={5}
             nowIndicator={false}
+            eventMinHeight={5}
             events={events}
             eventResizableFromStart
             eventDrop={handleEventDrop}
