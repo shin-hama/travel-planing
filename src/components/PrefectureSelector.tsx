@@ -11,12 +11,14 @@ import {
   SetSelectedPrefectureContext,
 } from 'contexts/SelectedPrefectureProvider'
 import { useMapProps } from 'hooks/useMapProps'
+import { useSelectSpots } from 'hooks/useSelectSpots'
 
 const PrefectureSelector = () => {
   const handleNext = React.useContext(StepperHandlerContext)
   const selected = React.useContext(SelectedPrefectureContext)
   const setSelected = React.useContext(SetSelectedPrefectureContext)
   const [, setMapProps] = useMapProps()
+  const { actions: eventsApi } = useSelectSpots()
 
   const [mode, setMode] = React.useState<
     keyof NonNullable<typeof selected> | null
@@ -37,6 +39,11 @@ const PrefectureSelector = () => {
       }
     }
     setMode(null)
+  }
+
+  const handleCreatePlan = () => {
+    eventsApi.init()
+    handleNext()
   }
 
   return (
@@ -61,7 +68,7 @@ const PrefectureSelector = () => {
           <Button
             disabled={!selected.destination}
             variant="contained"
-            onClick={handleNext}>
+            onClick={handleCreatePlan}>
             Plan Your Trip
           </Button>
         </Stack>

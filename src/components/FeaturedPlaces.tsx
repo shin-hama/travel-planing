@@ -67,7 +67,7 @@ const FeaturedPlaces = () => {
       </Box>
       <SpotsCandidates
         open={open}
-        places={places
+        placeIds={places
           .filter(
             (place): place is SpotEvent => place.extendedProps.type === 'spot'
           )

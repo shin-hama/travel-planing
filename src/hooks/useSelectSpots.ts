@@ -11,6 +11,7 @@ import {
 } from 'contexts/SelectedPlacesProvider'
 import { useDistanceMatrix } from './useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
+import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 
 let eventGuid = 0
 
@@ -33,6 +34,26 @@ const buildMoveEvent = (
     extendedProps: {
       type: 'move',
       mode: 'car',
+      ...props,
+    },
+  }
+}
+
+const buildSpotEvent = (
+  id: string,
+  title: string,
+  start: SpotEvent['start'],
+  end: SpotEvent['end'],
+  props: Omit<SpotEvent['extendedProps'], 'type'>
+): SpotEvent => {
+  return {
+    id: id,
+    title,
+    start: start,
+    end: end,
+    color: 'transparent',
+    extendedProps: {
+      type: 'spot',
       ...props,
     },
   }
@@ -63,6 +84,8 @@ export const useSelectSpots = () => {
   eventsRef.current = events
   const listActions = useSelectedPlacesActions()
   const distanceMatrix = useDistanceMatrix()
+
+  const { home } = React.useContext(SelectedPrefectureContext)
 
   const [loading, setLoading] = React.useState(false)
 
@@ -169,20 +192,19 @@ export const useSelectSpots = () => {
 
         const spotEnd = start.add(1, 'hour')
 
-        const spotEvent: SpotEvent = {
-          id: newSpot.placeId,
-          title: spot.data?.spots_by_pk?.name || '',
-          start: start.toDate(),
-          end: spotEnd.toDate(),
-          color: 'transparent',
-          extendedProps: {
-            type: 'spot',
+        const spotEvent: SpotEvent = buildSpotEvent(
+          newSpot.placeId,
+          spot.data?.spots_by_pk?.name || '',
+          start.toDate(),
+          spotEnd.toDate(),
+          {
             placeId: newSpot.placeId,
             imageUrl: newSpot.imageUrl,
             from: fromId,
             to: null,
-          },
-        }
+          }
+        )
+
         listActions.push(spotEvent)
       } catch (e) {
         console.error(e)
@@ -375,13 +397,42 @@ export const useSelectSpots = () => {
     [listActions, applyChange, distanceMatrix, update]
   )
 
-  const clear = React.useCallback(() => {
-    listActions.clear()
-  }, [listActions])
+  const init = React.useCallback(() => {
+    if (home) {
+      const startEvent = buildSpotEvent(
+        'home',
+        home.name,
+        dayjs('08:00:00', 'HH:mm:ss').toDate(),
+        dayjs('09:00:00', 'HH:mm:ss').toDate(),
+        {
+          placeId: home.place_id,
+          from: home.place_id,
+          to: null,
+          imageUrl: '',
+        }
+      )
+
+      const lastEvent = buildSpotEvent(
+        'goal',
+        home.name,
+        dayjs('19:00:00', 'HH:mm:ss').toDate(),
+        dayjs('20:00:00', 'HH:mm:ss').toDate(),
+        {
+          placeId: home.place_id,
+          from: null,
+          to: home.place_id,
+          imageUrl: '',
+        }
+      )
+      listActions.set([startEvent, lastEvent])
+    } else {
+      listActions.clear()
+    }
+  }, [home, listActions])
 
   const eventsActions = React.useMemo(
-    () => ({ add, clear, get, insert, remove, update, applyChange }),
-    [add, applyChange, clear, get, insert, remove, update]
+    () => ({ add, init, get, insert, remove, update, applyChange }),
+    [add, applyChange, init, get, insert, remove, update]
   )
 
   return {

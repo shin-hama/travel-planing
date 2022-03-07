@@ -53,7 +53,7 @@ const RouteViewer = () => {
       })
 
       // Event をクリアしてから、最適化された順番で再登録する
-      eventsApi.clear()
+      eventsApi.init()
       for (const i of result.routes[0].waypoint_order) {
         await eventsApi.add({
           placeId: waypoints[i].extendedProps.placeId,

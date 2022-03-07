@@ -9,13 +9,13 @@ import SpotsList from './SpotsList'
 
 type Props = {
   open: boolean
-  places: Array<string>
+  placeIds: Array<string>
   onOpen: () => void
   onClose: () => void
 }
 const SpotsCandidates: React.FC<Props> = ({
   open,
-  places,
+  placeIds,
   onOpen,
   onClose,
 }) => {
@@ -56,7 +56,7 @@ const SpotsCandidates: React.FC<Props> = ({
               overflow: 'auto',
             }}>
             <Container maxWidth="xs">
-              <SpotsList spots={places} />
+              <SpotsList spots={placeIds} />
             </Container>
           </Box>
         </Box>
