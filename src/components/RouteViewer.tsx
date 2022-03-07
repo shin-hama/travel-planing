@@ -1,5 +1,7 @@
 import * as React from 'react'
+import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -12,10 +14,14 @@ import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import { useConfirm } from 'hooks/useConfirm'
 
 const RouteViewer = () => {
-  const directionService = useDirections()
+  const { actions: directionService, loading } = useDirections()
   const selected = React.useContext(SelectedPrefectureContext)
-  const [events, eventsApi] = useSelectSpots()
+  const { events, actions: eventsApi } = useSelectSpots()
   const confirm = useConfirm({ allowClose: false })
+
+  React.useEffect(() => {
+    console.log(loading)
+  }, [loading])
 
   const handleOptimize = async () => {
     try {
@@ -59,24 +65,37 @@ const RouteViewer = () => {
     }
   }
 
+  if (loading) {
+    return (
+      <Backdrop open={loading}>
+        <CircularProgress />
+      </Backdrop>
+    )
+  }
+
   return (
-    <Container
-      maxWidth="md"
-      sx={{
-        display: 'flex',
-        flexFlow: 'column',
-        height: '100%',
-      }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography variant="h4" component="h2">
-          Your travel plan
-        </Typography>
-        <Button variant="contained" onClick={handleOptimize}>
-          Optimize
-        </Button>
-      </Stack>
-      <PlanEditor />
-    </Container>
+    <>
+      <Container
+        maxWidth="md"
+        sx={{
+          display: 'flex',
+          flexFlow: 'column',
+          height: '100%',
+        }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between">
+          <Typography variant="h4" component="h2">
+            Your travel plan
+          </Typography>
+          <Button variant="contained" onClick={handleOptimize}>
+            Optimize
+          </Button>
+        </Stack>
+        <PlanEditor />
+      </Container>
+    </>
   )
 }
 

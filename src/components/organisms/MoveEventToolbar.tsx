@@ -26,11 +26,11 @@ type Props = {
   event: EventApi & { extendedProps: MoveEvent['extendedProps'] }
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
-  const directions = useDirections()
-  const [, eventsApi] = useSelectSpots()
+  const { actions: directions } = useDirections()
+  const { actions } = useSelectSpots()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
-    const moveEvent = eventsApi.get<MoveEvent>(event.id, 'move')
+    const moveEvent = actions.get<MoveEvent>(event.id, 'move')
     if (moveEvent === undefined) {
       console.error('event is not managed')
       return
@@ -60,12 +60,12 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       const newEnd = dayjs(event.start).add(durationSec, 'second')
       const durationDiff = dayjs(newEnd).diff(moveEvent.end, 'minute')
       moveEvent.extendedProps.mode = mode
-      eventsApi.update({
+      actions.update({
         ...moveEvent,
         end: newEnd.toDate(),
       })
 
-      eventsApi.applyChange(moveEvent, durationDiff)
+      actions.applyChange(moveEvent, durationDiff)
     }
   }
 
