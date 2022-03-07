@@ -26,7 +26,7 @@ type Props = {
   event: EventApi & { extendedProps: MoveEvent['extendedProps'] }
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
-  const directions = useDirections()
+  const { actions: directions } = useDirections()
   const { actions } = useSelectSpots()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {

@@ -4,6 +4,7 @@ import { DirectionServiceContext } from 'contexts/DirectionServiceProvider'
 
 export const useDirections = () => {
   const direction = React.useContext(DirectionServiceContext)
+  const [loading, setLoading] = React.useState(false)
 
   /**
    * 入力されたスポットの一覧について、最適なルートを見つける
@@ -14,26 +15,38 @@ export const useDirections = () => {
       if (direction === null) {
         throw Error('JS Google Map api is not loaded')
       }
+      try {
+        setLoading(true)
 
-      const result = await direction.route(
-        {
-          ...props,
-          optimizeWaypoints: true,
-          region: 'JP',
-        },
-        (result, status) => {
-          if (status === google.maps.DirectionsStatus.OK) {
-            console.log('finish search direction')
-          } else {
-            console.error(`Fail to search directions: ${status}`)
-            throw new Error(`Fail to search directions: ${status}`)
+        const result = await direction.route(
+          {
+            ...props,
+            optimizeWaypoints: true,
+            region: 'JP',
+          },
+          (result, status) => {
+            if (status === google.maps.DirectionsStatus.OK) {
+              console.log('finish search direction')
+            } else {
+              console.error(`Fail to search directions: ${status}`)
+              throw new Error(`Fail to search directions: ${status}`)
+            }
           }
-        }
-      )
-      return result
+        )
+        return result
+      } finally {
+        setLoading(false)
+      }
     },
     [direction]
   )
 
-  return { search }
+  const actions = React.useMemo(
+    () => ({
+      search,
+    }),
+    [search]
+  )
+
+  return { actions, loading }
 }
