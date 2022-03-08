@@ -63,6 +63,12 @@ const buildSpotEvent = (
   }
 }
 
+const isSpotEvent = (event: ScheduleEvent): event is SpotEvent =>
+  event.extendedProps.type === 'spot'
+
+const isMoveEvent = (event: ScheduleEvent): event is SpotEvent =>
+  event.extendedProps.type === 'move'
+
 const findLastSpot = (spots: ScheduleEvent[]): SpotEvent | null => {
   const spotEvents = spots.filter(
     (spot): spot is SpotEvent => spot.extendedProps.type === 'spot'
@@ -105,12 +111,192 @@ export const useSelectSpots = () => {
     []
   )
 
+  const getPrevSpot = React.useCallback(
+    (current: ScheduleEvent): SpotEvent | null => {
+      const prev = listActions.prev(current)
+
+      if (!prev) {
+        return null
+      }
+
+      if (isSpotEvent(prev)) {
+        return prev
+      } else if (isMoveEvent(prev)) {
+        return getPrevSpot(prev)
+      } else {
+        throw Error(`not implemented type event error: ${prev}`)
+      }
+    },
+    [listActions]
+  )
+
+  const getNextSpot = React.useCallback(
+    (current: ScheduleEvent): SpotEvent | null => {
+      const next = listActions.next(current)
+
+      if (!next) {
+        return null
+      }
+
+      if (isSpotEvent(next)) {
+        return next
+      } else if (isMoveEvent(next)) {
+        return getNextSpot(next)
+      } else {
+        throw Error(`not implemented type event error: ${next}`)
+      }
+    },
+    [listActions]
+  )
+
+  const update = React.useCallback(
+    (newEvent: ScheduleEvent) => {
+      listActions.update(newEvent)
+    },
+    [listActions]
+  )
+
+  const applyChange = React.useCallback(
+    (move: MoveEvent, changedMinutes: number) => {
+      const afterEvent = eventsRef.current.find(
+        (spot): spot is SpotEvent => spot.id === move.extendedProps.to
+      )
+      if (afterEvent) {
+        update({
+          ...afterEvent,
+          start: dayjs(afterEvent.start).add(changedMinutes, 'minute').toDate(),
+          end: dayjs(afterEvent.end).add(changedMinutes, 'minute').toDate(),
+          extendedProps: {
+            ...afterEvent.extendedProps,
+            from: move.id,
+          },
+        })
+        const moveFrom = eventsRef.current.find(
+          (spot): spot is MoveEvent =>
+            spot.extendedProps.type === 'move' &&
+            spot.extendedProps.from === afterEvent?.id
+        )
+        if (moveFrom) {
+          update({
+            ...moveFrom,
+            start: dayjs(moveFrom.start).add(changedMinutes, 'minute').toDate(),
+            end: dayjs(moveFrom.end).add(changedMinutes, 'minute').toDate(),
+          })
+          applyChange(moveFrom, changedMinutes)
+        }
+      }
+    },
+    [update]
+  )
+
+  const swap = React.useCallback(
+    async (front: SpotEvent, rear: SpotEvent) => {
+      const moveFromRear = rear.extendedProps.to
+        ? get<MoveEvent>(rear.extendedProps.to, 'move')
+        : null
+      const moveToRear = rear.extendedProps.from
+        ? get<MoveEvent>(rear.extendedProps.from, 'move')
+        : null
+
+      const prevFrontSpot = getPrevSpot(front)
+
+      // 前のスポットへの移動イベントを取得
+      const moveToFrontSpot = front.extendedProps.from
+        ? get<MoveEvent>(front.extendedProps.from, 'move')
+        : null
+
+      if (prevFrontSpot && moveToFrontSpot) {
+        // 前のスポットへの移動イベントを後のスポットへの移動イベントに更新
+        const org = [{ placeId: prevFrontSpot.extendedProps.placeId }]
+        const dest = [{ placeId: rear.extendedProps.placeId }]
+        const result = await distanceMatrix.search(org, dest)
+
+        moveToFrontSpot.end = dayjs(moveToFrontSpot.start)
+          .add(result.rows[0].elements[0].duration.value, 's')
+          .toDate()
+        moveToFrontSpot.extendedProps.to = rear.extendedProps.placeId
+        update({ ...moveToFrontSpot })
+      }
+
+      // 選択中のスポットイベントを直前のスポットイベントと入れ替える
+      const duration = dayjs(rear.end).diff(rear.start, 'minute')
+      const newStart = moveToFrontSpot ? moveToFrontSpot.end : front.start
+      const newEnd = dayjs(newStart).add(duration, 'minute')
+      update({
+        ...rear,
+        start: newStart,
+        end: newEnd.toDate(),
+        extendedProps: {
+          ...rear.extendedProps,
+          from: front.extendedProps.from,
+          to: front.extendedProps.to,
+        },
+      })
+
+      if (moveToRear) {
+        // 移動イベントを入れ替えたスポットイベントに合わせて更新する
+        const moveDuration = dayjs(moveToRear.end).diff(
+          moveToRear.start,
+          'minute'
+        )
+        moveToRear.start = newEnd.toDate()
+        moveToRear.end = newEnd.add(moveDuration, 'minute').toDate()
+        update({
+          ...moveToRear,
+          extendedProps: {
+            ...moveToRear.extendedProps,
+            from: rear.id,
+            to: front.id,
+          },
+        })
+      }
+
+      // 入れ替える対象になる直前のイベントを更新する
+      const beforeDuration = dayjs(front.end).diff(front.start, 'minute')
+      front.start = moveToRear?.end || rear.start
+      front.end = dayjs(front.start).add(beforeDuration, 'minute').toDate()
+      update({
+        ...front,
+        extendedProps: {
+          ...front.extendedProps,
+          from: moveToRear?.id || rear.id,
+          to: rear.extendedProps.to,
+        },
+      })
+
+      const afterRearSpot = getNextSpot(rear)
+      // 選択したイベントより後のイベントを更新する
+      if (afterRearSpot && moveFromRear) {
+        const org = [{ placeId: front.extendedProps.placeId }]
+        const dest = [{ placeId: afterRearSpot.extendedProps.placeId }]
+        const result = await distanceMatrix.search(org, dest)
+
+        moveFromRear.start = front.end
+        const newMoveEnd = dayjs(moveFromRear.start).add(
+          result.rows[0].elements[0].duration.value,
+          's'
+        )
+        const moveEndChange = newMoveEnd.diff(moveFromRear.end, 'minute')
+        moveFromRear.end = newMoveEnd.toDate()
+        moveFromRear.extendedProps.from = front.id
+        update({ ...moveFromRear })
+
+        // Move イベントをたどって時刻の変更を適用する
+        applyChange(moveFromRear, moveEndChange)
+      }
+    },
+    [applyChange, distanceMatrix, get, getNextSpot, getPrevSpot, update]
+  )
+
   const generateRoute = React.useCallback(
     async (selectedSpots: Array<SpotDTO>) => {
       if (!home) {
         console.error('home is not selected')
         return
       }
+
+      // 既存ルートを初期化する
+      listActions.clear()
 
       const result = await directionService.search({
         origin: {
@@ -201,46 +387,6 @@ export const useSelectSpots = () => {
       listActions.push(endEvent)
     },
     [directionService, getSpot, home, listActions]
-  )
-
-  const update = React.useCallback(
-    (newSpot: ScheduleEvent) => {
-      listActions.update(newSpot)
-    },
-    [listActions]
-  )
-
-  const applyChange = React.useCallback(
-    (move: MoveEvent, changedMinutes: number) => {
-      const afterEvent = eventsRef.current.find(
-        (spot): spot is SpotEvent => spot.id === move.extendedProps.to
-      )
-      if (afterEvent) {
-        update({
-          ...afterEvent,
-          start: dayjs(afterEvent.start).add(changedMinutes, 'minute').toDate(),
-          end: dayjs(afterEvent.end).add(changedMinutes, 'minute').toDate(),
-          extendedProps: {
-            ...afterEvent.extendedProps,
-            from: move.id,
-          },
-        })
-        const moveFrom = eventsRef.current.find(
-          (spot): spot is MoveEvent =>
-            spot.extendedProps.type === 'move' &&
-            spot.extendedProps.from === afterEvent?.id
-        )
-        if (moveFrom) {
-          update({
-            ...moveFrom,
-            start: dayjs(moveFrom.start).add(changedMinutes, 'minute').toDate(),
-            end: dayjs(moveFrom.end).add(changedMinutes, 'minute').toDate(),
-          })
-          applyChange(moveFrom, changedMinutes)
-        }
-      }
-    },
-    [update]
   )
 
   const add = React.useCallback(
@@ -493,11 +639,14 @@ export const useSelectSpots = () => {
       add,
       init,
       get,
+      getPrevSpot,
+      getNextSpot,
       insert,
       remove,
       update,
       generateRoute,
       applyChange,
+      swap,
     },
   }
 }

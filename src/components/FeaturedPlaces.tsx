@@ -4,10 +4,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
-import {
-  SelectedPlacesContext,
-  SpotEvent,
-} from 'contexts/SelectedPlacesProvider'
 import { StepperHandlerContext } from './RoutePlanner'
 import SpotsCandidates from './organisms/SpotsCandidates'
 import SpotsMap from './organisms/SpotsMap'
@@ -16,7 +12,6 @@ import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 const FeaturedPlaces = () => {
   const [open, setOpen] = React.useState(false)
-  const places = React.useContext(SelectedPlacesContext)
   const handleNext = React.useContext(StepperHandlerContext)
   const { events, actions } = useSelectSpots()
   const [spots, spotsActions] = useSelectedSpots()
@@ -27,7 +22,6 @@ const FeaturedPlaces = () => {
   }, [])
 
   const handleClickNext = async () => {
-    console.log(spots)
     await actions.generateRoute(spots)
     handleNext()
   }
@@ -55,11 +49,7 @@ const FeaturedPlaces = () => {
           direction="row"
           justifyContent="space-between"
           alignItems="baseline">
-          <Badge
-            badgeContent={
-              places.filter((item) => item.extendedProps.type === 'spot').length
-            }
-            color="primary">
+          <Badge badgeContent={spots.length} color="primary">
             <Button variant="text" onClick={handleOpen}>
               Spots List
             </Button>
@@ -79,11 +69,7 @@ const FeaturedPlaces = () => {
       </Box>
       <SpotsCandidates
         open={open}
-        placeIds={places
-          .filter(
-            (place): place is SpotEvent => place.extendedProps.type === 'spot'
-          )
-          .map((spot) => spot.extendedProps.placeId)}
+        placeIds={spots.map((spot) => spot.placeId)}
         onOpen={handleOpen}
         onClose={handleClose}
       />

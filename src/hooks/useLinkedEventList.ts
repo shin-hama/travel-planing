@@ -134,14 +134,14 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
   )
 
   const update = React.useCallback(
-    (target: T): void => {
-      console.log(setItems)
+    (newItem: T): void => {
+      setItems.update((item) => item.id === newItem.id, newItem)
     },
     [setItems]
   )
 
   const clear = React.useCallback((): void => {
-    console.log(setItems)
+    setItems.clear()
   }, [setItems])
 
   const actions = React.useMemo<LinkedEventsActions<T>>(
