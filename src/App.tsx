@@ -9,6 +9,7 @@ import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
 import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 import { MapPropsProvider } from 'contexts/MapPropsProvider'
+import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
 
 function App() {
   return (
@@ -19,9 +20,11 @@ function App() {
             <MapPropsProvider>
               <PlacesServiceProvider>
                 <SelectedPrefectureProvider>
-                  <SelectedPlacesProvider>
-                    <RoutePlanner />
-                  </SelectedPlacesProvider>
+                  <SelectedSpotsProvider>
+                    <SelectedPlacesProvider>
+                      <RoutePlanner />
+                    </SelectedPlacesProvider>
+                  </SelectedSpotsProvider>
                 </SelectedPrefectureProvider>
               </PlacesServiceProvider>
             </MapPropsProvider>

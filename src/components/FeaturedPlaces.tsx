@@ -11,11 +11,26 @@ import {
 import { StepperHandlerContext } from './RoutePlanner'
 import SpotsCandidates from './organisms/SpotsCandidates'
 import SpotsMap from './organisms/SpotsMap'
+import { useSelectSpots } from 'hooks/useSelectSpots'
+import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 const FeaturedPlaces = () => {
   const [open, setOpen] = React.useState(false)
   const places = React.useContext(SelectedPlacesContext)
   const handleNext = React.useContext(StepperHandlerContext)
+  const { events, actions } = useSelectSpots()
+  const [spots, spotsActions] = useSelectedSpots()
+
+  React.useEffect(() => {
+    spotsActions.init(events)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleClickNext = async () => {
+    console.log(spots)
+    await actions.generateRoute(spots)
+    handleNext()
+  }
 
   const handleOpen = () => {
     setOpen(true)
@@ -57,10 +72,7 @@ const FeaturedPlaces = () => {
               borderRadius: 3,
             }}
           />
-          <Button
-            variant="contained"
-            disabled={places.length === 0}
-            onClick={handleNext}>
+          <Button variant="contained" onClick={handleClickNext}>
             Get Route
           </Button>
         </Stack>

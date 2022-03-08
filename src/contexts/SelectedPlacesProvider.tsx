@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { useList } from 'react-use'
-import { ListActions } from 'react-use/lib/useList'
 import { EventInput } from '@fullcalendar/react' // must go before plugins
+import { LinkedEventsActions, useLinkedEvents } from 'hooks/useLinkedEventList'
 
+export type SpotDTO = Required<Pick<Spot, 'placeId' | 'imageUrl'>>
 export type Spot = {
   type: 'spot'
   placeId: string
@@ -35,7 +35,7 @@ export const SelectedPlacesContext = React.createContext<Array<ScheduleEvent>>(
   []
 )
 const SelectedPlacesActionsContext =
-  React.createContext<ListActions<ScheduleEvent> | null>(null)
+  React.createContext<LinkedEventsActions<ScheduleEvent> | null>(null)
 
 export const useSelectedPlacesActions = () => {
   const actions = React.useContext(SelectedPlacesActionsContext)
@@ -47,9 +47,9 @@ export const useSelectedPlacesActions = () => {
 }
 
 export const SelectedPlacesProvider: React.FC = ({ children }) => {
-  const [places, actions] = useList<ScheduleEvent>()
+  const [events, actions] = useLinkedEvents<ScheduleEvent>()
   return (
-    <SelectedPlacesContext.Provider value={places}>
+    <SelectedPlacesContext.Provider value={events}>
       <SelectedPlacesActionsContext.Provider value={actions}>
         {children}
       </SelectedPlacesActionsContext.Provider>
