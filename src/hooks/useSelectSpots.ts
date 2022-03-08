@@ -6,7 +6,6 @@ import {
   MoveEvent,
   ScheduleEvent,
   SelectedPlacesContext,
-  Spot,
   SpotDTO,
   SpotEvent,
   useSelectedPlacesActions,
@@ -87,25 +86,6 @@ const isSpotEvent = (event: ScheduleEvent): event is SpotEvent =>
 const isMoveEvent = (event: ScheduleEvent): event is SpotEvent =>
   event.extendedProps.type === 'move'
 
-const findLastSpot = (spots: ScheduleEvent[]): SpotEvent | null => {
-  const spotEvents = spots.filter(
-    (spot): spot is SpotEvent => spot.extendedProps.type === 'spot'
-  )
-
-  let max: SpotEvent | null = null
-  spotEvents.forEach((spot) => {
-    if (!max) {
-      max = spot
-    }
-
-    if (max.extendedProps.type === 'spot' && max.end < spot.end) {
-      max = spot
-    }
-  })
-
-  return max
-}
-
 export const useSelectSpots = () => {
   const scheduledEvents = React.useContext(SelectedPlacesContext)
   const eventsRef = React.useRef<ScheduleEvent[]>([])
@@ -166,6 +146,14 @@ export const useSelectSpots = () => {
     },
     [listActions]
   )
+
+  const getDestinations = React.useCallback(() => {
+    return eventsRef.current.filter(
+      (event): event is SpotEvent =>
+        event.extendedProps.type === 'spot' &&
+        event.extendedProps.placeId !== home?.place_id
+    )
+  }, [home?.place_id])
 
   const update = React.useCallback(
     (newEvent: ScheduleEvent) => {
@@ -419,71 +407,6 @@ export const useSelectSpots = () => {
     [directionService, getSpot, home, listActions]
   )
 
-  const add = React.useCallback(
-    async (newSpot: Required<Pick<Spot, 'placeId' | 'imageUrl'>>) => {
-      try {
-        let start = dayjs('09:00:00', 'HH:mm:ss')
-
-        const lastSpot = findLastSpot(eventsRef.current)
-        if (lastSpot) {
-          // 現在セットされている最後のイベントから新規スポットまでの道のりを計算
-          const org = [{ placeId: lastSpot.extendedProps.placeId }]
-          const dest = [{ placeId: newSpot.placeId }]
-          const result = await distanceMatrix.search(org, dest)
-
-          const moveStart = dayjs(lastSpot.end)
-          const moveEnd = moveStart.add(
-            result.rows[0].elements[0].duration.value,
-            's'
-          )
-          if (moveEnd.isAfter(moveEnd.set('hour', 19).set('minute', 0))) {
-            // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
-            start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
-          } else {
-            const moveEvent: MoveEvent = buildMoveEvent({
-              start: moveStart.toDate(),
-              end: moveEnd.toDate(),
-            })
-            listActions.push(moveEvent)
-
-            update({
-              ...lastSpot,
-              extendedProps: {
-                ...lastSpot.extendedProps,
-                to: moveEvent.id,
-              },
-            })
-            start = moveEnd
-          }
-        }
-
-        const spot = await getSpot({
-          variables: { place_id: newSpot.placeId },
-        })
-
-        const spotEnd = start.add(1, 'hour')
-
-        const spotEvent: SpotEvent = buildSpotEvent({
-          id: newSpot.placeId,
-          title: spot.data?.spots_by_pk?.name || '',
-          start: start.toDate(),
-          end: spotEnd.toDate(),
-          props: {
-            placeId: newSpot.placeId,
-            imageUrl: newSpot.imageUrl,
-          },
-        })
-
-        listActions.push(spotEvent)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [listActions, distanceMatrix, getSpot, update]
-  )
-
   const remove = React.useCallback(
     async (removed: ScheduleEvent) => {
       try {
@@ -668,11 +591,11 @@ export const useSelectSpots = () => {
     events: scheduledEvents,
     loading,
     actions: {
-      add,
       init,
       get,
       getPrevSpot,
       getNextSpot,
+      getDestinations,
       insert,
       remove,
       update,
