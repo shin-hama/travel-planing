@@ -16,7 +16,7 @@ export interface LinkedEventsActions<T extends LinkedEvent> {
   getFirst: () => T | null
   getLast: () => T | null
   insert: (newItem: T, prevId: string) => void
-  remove: (newItem: T) => void
+  remove: (removedId: string) => void
   update: (newItem: T) => void
   clear: () => void
   next: (current: T) => T | null
@@ -127,8 +127,8 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
   )
 
   const remove = React.useCallback(
-    (target: T): void => {
-      setItems.filter((item) => item.id !== target.id)
+    (removedId: string): void => {
+      setItems.filter((item) => item.id !== removedId)
     },
     [setItems]
   )

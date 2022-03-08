@@ -459,39 +459,41 @@ export const useSelectSpots = () => {
       try {
         setLoading(true)
 
-        listActions.remove(removed)
+        listActions.remove(removed.id)
 
         if (removed.extendedProps.type === 'spot') {
-          const afterMove = eventsRef.current.find(
-            (event): event is MoveEvent =>
-              event.extendedProps.type === 'move' &&
-              event.id === removed.extendedProps.to
-          )
+          const afterMove = removed.extendedProps.to
+            ? get<MoveEvent>(removed.extendedProps.to, 'move')
+            : null
           if (afterMove) {
-            remove(afterMove)
+            listActions.remove(afterMove.id)
           }
 
           // update before move
-          const beforeMove = eventsRef.current.find(
-            (event): event is MoveEvent =>
-              event.extendedProps.type === 'move' &&
-              event.id === removed.extendedProps.from
-          )
+          const beforeMove = removed.extendedProps.from
+            ? get<MoveEvent>(removed.extendedProps.from, 'move')
+            : null
 
+          const beforeSpot = getPrevSpot(removed)
+          const afterSpot = getNextSpot(removed)
           if (beforeMove) {
-            if (afterMove) {
+            if (afterSpot && beforeSpot) {
               // Calc distance between prev and next spot
-              beforeMove.extendedProps.to = afterMove.extendedProps.to
+              if (afterSpot) {
+                afterSpot.extendedProps.from = beforeMove.id
+                update({ ...afterSpot })
+              }
+              beforeMove.extendedProps.to = afterSpot.id
 
-              const org = [{ placeId: beforeMove.extendedProps.from }]
-              const dest = [{ placeId: beforeMove.extendedProps.to }]
+              const org = [{ placeId: beforeSpot.extendedProps.placeId }]
+              const dest = [{ placeId: afterSpot.extendedProps.placeId }]
               const result = await distanceMatrix.search(org, dest)
 
               const newMoveEnd = dayjs(beforeMove.start).add(
                 result.rows[0].elements[0].duration.value,
                 's'
               )
-              const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
+              const moveEndChange = newMoveEnd.diff(afterSpot.start, 'minute')
               beforeMove.end = newMoveEnd.toDate()
 
               update({ ...beforeMove })
