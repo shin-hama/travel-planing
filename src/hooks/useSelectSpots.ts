@@ -35,7 +35,7 @@ const buildMoveEvent = ({
   return {
     id: createEventId(),
     title: 'Move',
-    color: 'white',
+    color: '#E5E3C9',
     display: 'background',
     ...eventProps,
     start,
