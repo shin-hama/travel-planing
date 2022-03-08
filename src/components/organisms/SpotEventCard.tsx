@@ -15,6 +15,9 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
   const [selected, setSelected] = React.useState(false)
 
   const handleClick = () => {
+    if (event.id === 'start' || event.id === 'end') {
+      return
+    }
     setSelected(true)
   }
 

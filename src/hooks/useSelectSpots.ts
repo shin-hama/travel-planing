@@ -1,5 +1,6 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
+import { EventInput } from '@fullcalendar/react'
 
 import {
   MoveEvent,
@@ -21,15 +22,22 @@ function createEventId() {
   return String(eventGuid++)
 }
 
-const buildMoveEvent = (
-  start: MoveEvent['start'],
+type BuildMoveProps = {
+  start: MoveEvent['start']
   end: MoveEvent['end']
-): MoveEvent => {
+  eventProps?: Partial<EventInput>
+}
+const buildMoveEvent = ({
+  start,
+  end,
+  eventProps = {},
+}: BuildMoveProps): MoveEvent => {
   return {
     id: createEventId(),
     title: 'Move',
     color: 'white',
     display: 'background',
+    ...eventProps,
     start,
     end,
     extendedProps: {
@@ -41,18 +49,28 @@ const buildMoveEvent = (
   }
 }
 
-const buildSpotEvent = (
-  id: string,
-  title: string,
-  start: SpotEvent['start'],
-  end: SpotEvent['end'],
+type BuildSpotProps = {
+  id: string
+  title: string
+  start: SpotEvent['start']
+  end: SpotEvent['end']
   props: Pick<SpotEvent['extendedProps'], 'placeId' | 'imageUrl'>
-): SpotEvent => {
+  eventProps?: Partial<EventInput>
+}
+const buildSpotEvent = ({
+  id,
+  title,
+  start,
+  end,
+  props,
+  eventProps = {},
+}: BuildSpotProps): SpotEvent => {
   return {
-    id: id,
+    ...eventProps,
+    id,
     title,
-    start: start,
-    end: end,
+    start,
+    end,
     color: 'transparent',
     extendedProps: {
       type: 'spot',
@@ -319,16 +337,19 @@ export const useSelectSpots = () => {
       }
       // Event をクリアしてから、最適化された順番で再登録する
       const route = result.routes[0]
-      const startEvent = buildSpotEvent(
-        'start',
-        home.name,
-        dayjs('08:00:00', 'HH:mm:ss').toDate(),
-        dayjs('09:00:00', 'HH:mm:ss').toDate(),
-        {
+      const startEvent = buildSpotEvent({
+        id: 'start',
+        title: home.name,
+        start: dayjs('08:30:00', 'HH:mm:ss').toDate(),
+        end: dayjs('09:00:00', 'HH:mm:ss').toDate(),
+        props: {
           placeId: home.place_id,
           imageUrl: '',
-        }
-      )
+        },
+        eventProps: {
+          durationEditable: false,
+        },
+      })
       listActions.push(startEvent)
 
       for (const [i, waypointIndex] of route.waypoint_order.entries()) {
@@ -340,7 +361,10 @@ export const useSelectSpots = () => {
           route.legs[i].duration?.value || 0,
           'second'
         )
-        const moveEvent = buildMoveEvent(last.end, moveEnd.toDate())
+        const moveEvent = buildMoveEvent({
+          start: last.end,
+          end: moveEnd.toDate(),
+        })
         listActions.push(moveEvent)
 
         const { data: spot } = await getSpot({
@@ -348,16 +372,16 @@ export const useSelectSpots = () => {
         })
         if (spot?.spots_by_pk) {
           const spotEnd = moveEnd.add(1, 'hour')
-          const spotEvent = buildSpotEvent(
-            spot.spots_by_pk.place_id,
-            spot.spots_by_pk.name,
-            moveEnd.toDate(),
-            spotEnd.toDate(),
-            {
+          const spotEvent = buildSpotEvent({
+            id: spot.spots_by_pk.place_id,
+            title: spot.spots_by_pk.name,
+            start: moveEnd.toDate(),
+            end: spotEnd.toDate(),
+            props: {
               placeId: spot.spots_by_pk.place_id,
               imageUrl: selectedSpots[waypointIndex].imageUrl,
-            }
-          )
+            },
+          })
 
           listActions.push(spotEvent)
         }
@@ -371,19 +395,25 @@ export const useSelectSpots = () => {
         route.legs[route.legs.length - 1].duration?.value || 0,
         'second'
       )
-      const moveToEnd = buildMoveEvent(last.end, moveEnd.toDate())
+      const moveToEnd = buildMoveEvent({
+        start: last.end,
+        end: moveEnd.toDate(),
+      })
       listActions.push(moveToEnd)
 
-      const endEvent = buildSpotEvent(
-        'end',
-        home.name,
-        moveToEnd.end,
-        dayjs(moveToEnd.end).add(1, 'hour').toDate(),
-        {
+      const endEvent = buildSpotEvent({
+        id: 'end',
+        title: home.name,
+        start: moveToEnd.end,
+        end: dayjs(moveToEnd.end).add(30, 'minute').toDate(),
+        props: {
           placeId: home.place_id,
           imageUrl: '',
-        }
-      )
+        },
+        eventProps: {
+          durationEditable: false,
+        },
+      })
       listActions.push(endEvent)
     },
     [directionService, getSpot, home, listActions]
@@ -410,10 +440,10 @@ export const useSelectSpots = () => {
             // 時刻がlimit を超えた場合は Move イベントはスキップして次の日へ移行する
             start = moveStart.add(1, 'day').hour(9).minute(0).second(0)
           } else {
-            const moveEvent: MoveEvent = buildMoveEvent(
-              moveStart.toDate(),
-              moveEnd.toDate()
-            )
+            const moveEvent: MoveEvent = buildMoveEvent({
+              start: moveStart.toDate(),
+              end: moveEnd.toDate(),
+            })
             listActions.push(moveEvent)
 
             update({
@@ -433,16 +463,16 @@ export const useSelectSpots = () => {
 
         const spotEnd = start.add(1, 'hour')
 
-        const spotEvent: SpotEvent = buildSpotEvent(
-          newSpot.placeId,
-          spot.data?.spots_by_pk?.name || '',
-          start.toDate(),
-          spotEnd.toDate(),
-          {
+        const spotEvent: SpotEvent = buildSpotEvent({
+          id: newSpot.placeId,
+          title: spot.data?.spots_by_pk?.name || '',
+          start: start.toDate(),
+          end: spotEnd.toDate(),
+          props: {
             placeId: newSpot.placeId,
             imageUrl: newSpot.imageUrl,
-          }
-        )
+          },
+        })
 
         listActions.push(spotEvent)
       } catch (e) {
@@ -557,10 +587,10 @@ export const useSelectSpots = () => {
 
             beforeMoveId = overlappedMoveEvent.id
           } else {
-            const beforeMoveEvent = buildMoveEvent(
-              prevSpot.end,
-              beforeMoveEnd.toDate()
-            )
+            const beforeMoveEvent = buildMoveEvent({
+              start: prevSpot.end,
+              end: beforeMoveEnd.toDate(),
+            })
             listActions.push(beforeMoveEvent)
 
             beforeMoveId = beforeMoveEvent.id
@@ -602,10 +632,10 @@ export const useSelectSpots = () => {
           )
           const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
 
-          const moveEvent: MoveEvent = buildMoveEvent(
-            moveStart.toDate(),
-            moveEnd.toDate()
-          )
+          const moveEvent: MoveEvent = buildMoveEvent({
+            start: moveStart.toDate(),
+            end: moveEnd.toDate(),
+          })
 
           listActions.push(moveEvent)
           afterMoveId = moveEvent.id
