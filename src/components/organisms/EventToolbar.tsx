@@ -28,8 +28,8 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
     }
 
     const beforeSpot = spotsApi.getPrevSpot(selectedSpot)
-    // 直前に移動イベントがない場合は移動不可
-    if (!beforeSpot) {
+    // 直前のスポットがないもしくはホームの場合は移動不可
+    if (!beforeSpot || beforeSpot.id === 'start') {
       console.log('cannot move up event')
       return
     }
@@ -46,7 +46,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
 
     const afterSpot = spotsApi.getNextSpot(selectedSpot)
     // 直前に移動イベントがない場合は移動不可
-    if (!afterSpot) {
+    if (!afterSpot || afterSpot.id === 'end') {
       console.log('cannot move up event')
       return
     }
