@@ -1,10 +1,22 @@
 import * as React from 'react'
-import { createUserWithEmailAndPassword, UserCredential } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  User,
+} from 'firebase/auth'
 
 import { auth } from 'configs'
 
 export const useAuthentication = () => {
-  const [user, setUser] = React.useState<UserCredential | null>(null)
+  const [user, setUser] = React.useState<User | null>(null)
+
+  React.useEffect(() => {
+    onAuthStateChanged(auth, (userInfo) => {
+      setUser(userInfo)
+    })
+  }, [])
+
   const createUser = React.useCallback(
     async (email: string, password: string) => {
       try {
@@ -15,7 +27,6 @@ export const useAuthentication = () => {
         )
 
         console.log(userCredential)
-        setUser(userCredential)
       } catch (e) {
         console.error(e)
       }
@@ -23,5 +34,18 @@ export const useAuthentication = () => {
     []
   )
 
-  return [user, { create: createUser }] as const
+  const signIn = React.useCallback(async (email: string, password: string) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+      console.log(userCredential)
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
+  return [user, { create: createUser, signIn }] as const
 }
