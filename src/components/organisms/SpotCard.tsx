@@ -13,34 +13,24 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/usePlaces'
-import {
-  SelectedPlacesContext,
-  SpotEvent,
-} from 'contexts/SelectedPlacesProvider'
-import { useSelectSpots } from 'hooks/useSelectSpots'
+import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 type ButtonProps = {
   placeId: string
   photo: string
 }
 const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
-  const selectedSpots = React.useContext(SelectedPlacesContext)
-  const { actions } = useSelectSpots()
+  const [, actions] = useSelectedSpots()
   const [loading, setLoading] = React.useState(false)
 
-  const selected = selectedSpots.find(
-    (spot): spot is SpotEvent =>
-      spot.extendedProps.type === 'spot' &&
-      spot.extendedProps?.placeId === placeId
-  )
+  const selected = actions.get(placeId)
 
-  const handleClick = async () => {
+  const handleClick = () => {
     setLoading(true)
-    console.log('click')
     if (selected) {
-      await actions.remove(selected)
+      actions.remove(placeId)
     } else {
-      await actions.add({ placeId, imageUrl: photo })
+      actions.add({ placeId, imageUrl: photo })
     }
     setLoading(false)
   }

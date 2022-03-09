@@ -49,9 +49,12 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       }
     }
 
+    const prev = actions.getPrevSpot(moveEvent)
+    const next = actions.getNextSpot(moveEvent)
+
     const result = await directions.search({
-      origin: { placeId: event.extendedProps.from },
-      destination: { placeId: event.extendedProps.to },
+      origin: { placeId: prev?.extendedProps.placeId },
+      destination: { placeId: next?.extendedProps.placeId },
       travelMode: travelMode(),
     })
 

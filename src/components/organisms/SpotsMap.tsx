@@ -11,8 +11,8 @@ import {
   GetSpotsByCategoryQuery,
   useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
-import SpotsList from './SpotsList'
 import { useMapProps } from 'hooks/useMapProps'
+import SpotCard from './SpotCard'
 
 const SpotsMap = () => {
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
@@ -88,7 +88,7 @@ const SpotsMap = () => {
             maxWidth: '400px',
             maxHeight: '150px',
           }}>
-          <SpotsList spots={[focusedSpot]} />
+          <SpotCard placeId={focusedSpot} />
         </Box>
       )}
     </Box>

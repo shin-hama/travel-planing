@@ -9,8 +9,8 @@ type Props = {
 const SpotsList: React.FC<Props> = ({ spots }) => {
   return (
     <Stack spacing={2}>
-      {spots.map((spot) => (
-        <SpotCard key={spot} placeId={spot} />
+      {spots.map((spot, i) => (
+        <SpotCard key={`${i}-${spot}`} placeId={spot} />
       ))}
     </Stack>
   )
