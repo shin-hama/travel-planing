@@ -9,16 +9,20 @@ import Typography from '@mui/material/Typography'
 import { useAuthentication } from 'hooks/useAuth'
 
 const LoginForm = () => {
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
+  const [forms, setForms] = React.useState({
+    email: '',
+    password: '',
+  })
   const [user, auth] = useAuthentication()
 
   React.useEffect(() => {
     console.log(user)
   }, [user])
 
-  const handleClick = () => {
-    auth.create(email, password)
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    console.log(e)
+    e.preventDefault()
+    auth.signIn(forms.email, forms.password)
   }
   return (
     <Stack alignItems="center" justifyContent="center">
@@ -28,25 +32,33 @@ const LoginForm = () => {
             <Typography textAlign={'center'} component="h2" variant="h5">
               Login
             </Typography>
-            <TextField
-              label="E-mail"
-              variant="outlined"
-              size="small"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              label="Password"
-              variant="outlined"
-              size="small"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button variant="contained" onClick={handleClick}>
-              Login
-            </Button>
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2}>
+                <TextField
+                  label="E-mail"
+                  name="email"
+                  variant="outlined"
+                  size="small"
+                  type="email"
+                  onChange={(e) =>
+                    setForms((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="Password"
+                  name="password"
+                  variant="outlined"
+                  size="small"
+                  type="password"
+                  onChange={(e) =>
+                    setForms((prev) => ({ ...prev, password: e.target.value }))
+                  }
+                />
+                <Button type="submit" variant="contained">
+                  Login
+                </Button>
+              </Stack>
+            </form>
           </Stack>
         </CardContent>
       </Card>
