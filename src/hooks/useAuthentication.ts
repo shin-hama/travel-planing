@@ -47,5 +47,9 @@ export const useAuthentication = () => {
     }
   }, [])
 
-  return [user, { create: createUser, signIn }] as const
+  const signOut = React.useCallback(() => {
+    auth.signOut()
+  }, [])
+
+  return [user, { create: createUser, signIn, signOut }] as const
 }

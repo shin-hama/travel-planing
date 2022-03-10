@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { useAuthentication } from 'hooks/useAuth'
+import { useAuthentication } from 'hooks/useAuthentication'
 
 const LoginForm = () => {
   const [forms, setForms] = React.useState({
