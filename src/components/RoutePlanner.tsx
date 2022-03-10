@@ -42,7 +42,6 @@ const RoutePlanner = () => {
 
   return (
     <Div100vh style={{ width: '100%' }}>
-      <Header />
       <Box
         sx={{
           height: '100%',
@@ -51,6 +50,7 @@ const RoutePlanner = () => {
           flex: 1,
           position: 'relative',
         }}>
+        <Header />
         <Box
           sx={{
             height: '100%',
