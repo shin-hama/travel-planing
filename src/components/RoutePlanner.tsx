@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import Div100vh from 'react-div-100vh'
 
+import Header from './organisms/Header'
 import RouteViewer from './RouteViewer'
 import PrefectureSelector from './PrefectureSelector'
 import FeaturedPlaces from './FeaturedPlaces'
@@ -49,6 +50,7 @@ const RoutePlanner = () => {
           flex: 1,
           position: 'relative',
         }}>
+        <Header />
         <Box
           sx={{
             height: '100%',
