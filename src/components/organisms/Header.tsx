@@ -7,31 +7,47 @@ import Toolbar from '@mui/material/Toolbar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 
+import LoginForm from './LoginForm'
 import { useAuthentication } from 'hooks/useAuthentication'
 
 const Header = () => {
   const [user, auth] = useAuthentication()
+  const [open, setOpen] = React.useState<'signIn' | 'signUp' | null>(null)
 
   return (
-    <AppBar color="inherit">
-      <Toolbar>
-        <div style={{ flexGrow: 1 }} />
-        {user ? (
-          <IconButton onClick={auth.signOut}>
-            <FontAwesomeIcon icon={faUser} />
-          </IconButton>
-        ) : (
-          <Stack direction="row" spacing={2}>
-            <Button variant="outlined" color="primary">
-              Login
-            </Button>
-            <Button variant="contained" color="primary">
-              Sign Up
-            </Button>
-          </Stack>
-        )}
-      </Toolbar>
-    </AppBar>
+    <>
+      <AppBar color="inherit">
+        <Toolbar variant="dense">
+          <div style={{ flexGrow: 1 }} />
+          {user ? (
+            <IconButton onClick={auth.signOut}>
+              <FontAwesomeIcon icon={faUser} />
+            </IconButton>
+          ) : (
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => setOpen('signIn')}>
+                Login
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setOpen('signUp')}>
+                Sign Up
+              </Button>
+            </Stack>
+          )}
+        </Toolbar>
+      </AppBar>
+      <Toolbar variant="dense" />
+      <LoginForm
+        open={Boolean(open)}
+        isSignUp={open === 'signUp'}
+        onClose={() => setOpen(null)}
+      />
+    </>
   )
 }
 

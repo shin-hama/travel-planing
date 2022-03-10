@@ -10,7 +10,6 @@ import Header from './organisms/Header'
 import RouteViewer from './RouteViewer'
 import PrefectureSelector from './PrefectureSelector'
 import FeaturedPlaces from './FeaturedPlaces'
-import LoginForm from './LoginForm'
 
 export const StepperHandlerContext = React.createContext<() => void>(() => {
   throw Error('StepperHandlerContext is not wrapped')
@@ -44,7 +43,6 @@ const RoutePlanner = () => {
   return (
     <Div100vh style={{ width: '100%' }}>
       <Header />
-      <LoginForm />
       <Box
         sx={{
           height: '100%',

@@ -19,32 +19,24 @@ export const useAuthentication = () => {
 
   const createUser = React.useCallback(
     async (email: string, password: string) => {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        )
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
 
-        console.log(userCredential)
-      } catch (e) {
-        console.error(e)
-      }
+      console.log(userCredential)
     },
     []
   )
 
   const signIn = React.useCallback(async (email: string, password: string) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      )
-      console.log(userCredential)
-    } catch (e) {
-      console.error(e)
-    }
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    )
+    console.log(userCredential)
   }, [])
 
   const signOut = React.useCallback(() => {
