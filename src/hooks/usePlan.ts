@@ -1,7 +1,10 @@
 import * as React from 'react'
 
 import { ScheduleEvent } from 'contexts/SelectedPlacesProvider'
-import { useFirestore } from './firebase/useFirestore'
+import {
+  PLANING_USERS_PLANS_COLLECTIONS,
+  useFirestore,
+} from './firebase/useFirestore'
 import { useAuthentication } from './firebase/useAuthentication'
 import { Prefecture } from 'contexts/SelectedPrefectureProvider'
 
@@ -24,7 +27,7 @@ export const usePlan = () => {
         console.log('Current user is guest')
         return
       }
-      const path = `planing/v1/users/${user.uid}/plans/`
+      const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
       db.add(path, newPlan)
     },
     [db, user]

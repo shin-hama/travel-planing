@@ -11,6 +11,38 @@ import {
 
 import { db } from 'configs'
 
+/**
+ *
+ * @returns {string} path - planing/v1
+ */
+export const PLANING_ROOT_COLLECTIONS = (): string => `planing/v1`
+
+/**
+ *
+ * @returns {string} path - planing/v1/users
+ */
+export const PLANING_USERS_COLLECTIONS = (): string =>
+  `${PLANING_ROOT_COLLECTIONS()}/users`
+
+/**
+ *
+ * @param {string} userId - target user id
+ * @returns {string} path - planing/v1/users/${userId}/plans
+ */
+export const PLANING_USERS_PLANS_COLLECTIONS = (userId: string): string =>
+  `${PLANING_USERS_COLLECTIONS()}/${userId}/plans`
+
+/**
+ *
+ * @param {string} userId - target user id
+ * @param {string} planId - target plan id
+ * @returns {string} path - planing/v1/users/${userId}/plans/${planId}/events
+ */
+export const PLANING_USERS_PLANS_EVENTS_COLLECTIONS = (
+  userId: string,
+  planId: string
+): string => `${PLANING_USERS_PLANS_COLLECTIONS(userId)}/${planId}/events`
+
 export const useFirestore = () => {
   /**
    * Set data to document that is specified id
