@@ -27,7 +27,7 @@ type BuildSpotParams = {
   props: Pick<SpotEvent['extendedProps'], 'placeId' | 'imageUrl'>
   eventProps?: Partial<EventInput>
 }
-type CreateSpotParams =
+type CreateEventParams =
   | {
       type: 'move'
       params: BuildMoveParams
@@ -72,12 +72,12 @@ export const useEvent = (planId?: string) => {
       eventProps = {},
     }: BuildSpotParams): SpotEvent => {
       return {
-        ...eventProps,
         id,
         title,
+        color: 'transparent',
+        ...eventProps,
         start,
         end,
-        color: 'transparent',
         extendedProps: {
           type: 'spot',
           from: null,
@@ -90,14 +90,17 @@ export const useEvent = (planId?: string) => {
   )
 
   const createEvent = React.useCallback(
-    async ({ type, params }: CreateSpotParams) => {
+    async ({ type, params }: CreateEventParams): Promise<ScheduleEvent> => {
       let event: ScheduleEvent
       switch (type) {
+        case 'spot':
+          // es-lint ではエラーが出ないが ts ではエラーが出る、エディタも問題ないので無視
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          event = buildSpotEvent(params)
+          break
         case 'move':
           event = buildMoveEvent(params)
-          break
-        case 'spot':
-          event = buildSpotEvent(params)
           break
 
         default:
@@ -106,7 +109,7 @@ export const useEvent = (planId?: string) => {
 
       if (user && planId) {
         const path = PLANING_USERS_PLANS_EVENTS_COLLECTIONS(user.uid, planId)
-        db.add(path, event)
+        await db.set(path, event.id, event)
       }
 
       return event
@@ -114,5 +117,31 @@ export const useEvent = (planId?: string) => {
     [buildMoveEvent, buildSpotEvent, db, planId, user]
   )
 
-  return { create: createEvent }
+  const update = React.useCallback(
+    async (newEvent: ScheduleEvent) => {
+      if (!user || !planId) {
+        console.log('This is guest, cannot save event')
+        return
+      }
+      const path = PLANING_USERS_PLANS_EVENTS_COLLECTIONS(user.uid, planId)
+
+      await db.update(path, newEvent.id, newEvent)
+    },
+    [db, planId, user]
+  )
+
+  const isSpotEvent = React.useCallback(
+    (event: ScheduleEvent): event is SpotEvent => {
+      return event.extendedProps.type === 'spot'
+    },
+    []
+  )
+  const isMoveEvent = React.useCallback(
+    (event: ScheduleEvent): event is MoveEvent => {
+      return event.extendedProps.type === 'move'
+    },
+    []
+  )
+
+  return { create: createEvent, isSpotEvent, isMoveEvent, update }
 }

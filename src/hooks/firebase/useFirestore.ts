@@ -6,6 +6,7 @@ import {
   DocumentData,
   getDocs,
   setDoc,
+  updateDoc,
   WithFieldValue,
 } from 'firebase/firestore'
 
@@ -48,9 +49,9 @@ export const useFirestore = () => {
    * Set data to document that is specified id
    */
   const set = React.useCallback(
-    async (path: string, data: WithFieldValue<DocumentData>) => {
+    async (path: string, id: string, data: WithFieldValue<DocumentData>) => {
       try {
-        await setDoc(doc(db, path), data)
+        await setDoc(doc(db, path, id), data)
       } catch (e) {
         console.error('Error adding document: ', e)
       }
@@ -80,5 +81,11 @@ export const useFirestore = () => {
     })
   }, [])
 
-  return { add, set, get }
+  const update = React.useCallback(
+    async (path: string, id: string, data: WithFieldValue<DocumentData>) => {
+      await updateDoc(doc(db, path, id), data)
+    },
+    []
+  )
+  return { add, get, set, update }
 }

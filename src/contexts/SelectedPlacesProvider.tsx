@@ -17,16 +17,15 @@ export type Move = {
   mode: 'bicycle' | 'car' | 'walk'
 }
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
-export type SpotEvent = CustomEventInput & {
+export type EventBase = CustomEventInput & {
   id: string
   start: Date | string
   end: Date | string
+}
+export type SpotEvent = EventBase & {
   extendedProps: Spot
 }
-export type MoveEvent = CustomEventInput & {
-  id: string
-  start: Date | string
-  end: Date | string
+export type MoveEvent = EventBase & {
   extendedProps: Move
 }
 
