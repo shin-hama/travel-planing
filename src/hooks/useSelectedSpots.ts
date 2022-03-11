@@ -1,10 +1,10 @@
 import { ScheduleEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
-import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import {
   SelectedSpotsContext,
   SetSelectedSpotsContext,
 } from 'contexts/SelectedSpotsProvider'
 import * as React from 'react'
+import { usePlan } from './usePlan'
 
 export const useSelectedSpots = () => {
   const spots = React.useContext(SelectedSpotsContext)
@@ -12,7 +12,7 @@ export const useSelectedSpots = () => {
   if (spotsActions === null) {
     throw Error('SelectedSpotsProvider is not wrapped')
   }
-  const { home } = React.useContext(SelectedPrefectureContext)
+  const [currentPlan] = usePlan()
 
   const init = React.useCallback(
     (events: Array<ScheduleEvent>) => {
@@ -21,7 +21,7 @@ export const useSelectedSpots = () => {
           .filter(
             (event): event is SpotEvent =>
               event.extendedProps.type === 'spot' &&
-              event.extendedProps.placeId !== home?.place_id
+              event.extendedProps.placeId !== currentPlan?.home?.place_id
           )
           .map((event) => ({
             placeId: event.extendedProps.placeId,
@@ -29,7 +29,7 @@ export const useSelectedSpots = () => {
           }))
       )
     },
-    [home?.place_id, spotsActions]
+    [currentPlan?.home?.place_id, spotsActions]
   )
 
   const add = React.useCallback(

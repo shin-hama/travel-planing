@@ -1,37 +1,40 @@
 import * as React from 'react'
 
-import { ScheduleEvent } from 'contexts/SelectedPlacesProvider'
 import {
   PLANING_USERS_PLANS_COLLECTIONS,
   useFirestore,
 } from './firebase/useFirestore'
 import { useAuthentication } from './firebase/useAuthentication'
-import { Prefecture } from 'contexts/SelectedPrefectureProvider'
-
-type Plan = {
-  title: string
-  home: Prefecture
-  destination: Prefecture
-  start?: Date
-  end?: Date
-  events?: Array<ScheduleEvent>
-}
+import {
+  CurrentPlanContext,
+  Plan,
+  SetCurrentPlanContext,
+} from 'contexts/CurrentPlanProvider'
 
 export const usePlan = () => {
   const [user] = useAuthentication()
   const db = useFirestore()
 
+  const plan = React.useContext(CurrentPlanContext)
+  const setPlan = React.useContext(SetCurrentPlanContext)
+
   const savePlan = React.useCallback(
-    async (newPlan: Plan) => {
-      if (!user) {
-        console.log('Current user is guest')
-        return
+    async (newPlan: Omit<Plan, 'id'>) => {
+      try {
+        if (user) {
+          const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+          const ref = await db.add(path, newPlan)
+          setPlan({ ...newPlan, id: ref.id })
+        } else {
+          console.log('Current user is guest')
+          setPlan({ ...newPlan, id: 'guest' })
+        }
+      } catch {
+        console.error('fail to save plan')
       }
-      const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-      db.add(path, newPlan)
     },
-    [db, user]
+    [db, setPlan, user]
   )
 
-  return { savePlan }
+  return [plan, { savePlan }] as const
 }

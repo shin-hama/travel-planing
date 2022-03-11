@@ -11,9 +11,9 @@ import {
 } from 'contexts/SelectedPlacesProvider'
 import { useDistanceMatrix } from './useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
-import { SelectedPrefectureContext } from 'contexts/SelectedPrefectureProvider'
 import { useDirections } from './useDirections'
 import { useEvent } from './useEvent'
+import { usePlan } from './usePlan'
 
 export const useSelectSpots = () => {
   const scheduledEvents = React.useContext(SelectedPlacesContext)
@@ -22,13 +22,13 @@ export const useSelectSpots = () => {
   const listActions = useSelectedPlacesActions()
   const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()
-  const { home } = React.useContext(SelectedPrefectureContext)
+  const [currentPlan] = usePlan()
   const {
     create: buildEvent,
     isSpotEvent,
     isMoveEvent,
     update: updateEvent,
-  } = useEvent()
+  } = useEvent(currentPlan?.id)
 
   const [loading, setLoading] = React.useState(false)
 
@@ -86,9 +86,9 @@ export const useSelectSpots = () => {
     return eventsRef.current.filter(
       (event): event is SpotEvent =>
         event.extendedProps.type === 'spot' &&
-        event.extendedProps.placeId !== home?.place_id
+        event.extendedProps.placeId !== currentPlan?.home?.place_id
     )
-  }, [home?.place_id])
+  }, [currentPlan?.home?.place_id])
 
   const update = React.useCallback(
     async (newEvent: ScheduleEvent) => {
@@ -232,7 +232,7 @@ export const useSelectSpots = () => {
 
   const generateRoute = React.useCallback(
     async (selectedSpots: Array<SpotDTO>) => {
-      if (!home) {
+      if (!currentPlan?.home) {
         console.error('home is not selected')
         return
       }
@@ -242,10 +242,10 @@ export const useSelectSpots = () => {
 
       const result = await directionService.search({
         origin: {
-          placeId: home.place_id,
+          placeId: currentPlan.home.place_id,
         },
         destination: {
-          placeId: home.place_id,
+          placeId: currentPlan.home.place_id,
         },
         waypoints: selectedSpots.map((spot) => ({
           location: {
@@ -265,11 +265,11 @@ export const useSelectSpots = () => {
         type: 'spot',
         params: {
           id: 'start',
-          title: home.name,
+          title: currentPlan.home.name,
           start: dayjs('08:30:00', 'HH:mm:ss').toDate(),
           end: dayjs('09:00:00', 'HH:mm:ss').toDate(),
           props: {
-            placeId: home.place_id,
+            placeId: currentPlan.home.place_id,
             imageUrl: '',
           },
           eventProps: {
@@ -341,11 +341,11 @@ export const useSelectSpots = () => {
         type: 'spot',
         params: {
           id: 'end',
-          title: home.name,
+          title: currentPlan.home.name,
           start: moveToEnd.end,
           end: dayjs(moveToEnd.end).add(30, 'minute').toDate(),
           props: {
-            placeId: home.place_id,
+            placeId: currentPlan.home.place_id,
             imageUrl: '',
           },
           eventProps: {
@@ -355,7 +355,7 @@ export const useSelectSpots = () => {
       })
       listActions.push(endEvent)
     },
-    [buildEvent, directionService, getSpot, home, listActions]
+    [buildEvent, currentPlan?.home, directionService, getSpot, listActions]
   )
 
   const remove = React.useCallback(

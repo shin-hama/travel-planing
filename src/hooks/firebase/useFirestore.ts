@@ -54,6 +54,7 @@ export const useFirestore = () => {
         await setDoc(doc(db, path, id), data)
       } catch (e) {
         console.error('Error adding document: ', e)
+        throw e
       }
     },
     []
@@ -67,8 +68,10 @@ export const useFirestore = () => {
       try {
         const docRef = await addDoc(collection(db, path), data)
         console.log('Document written with ID: ', docRef.id)
+        return docRef
       } catch (e) {
         console.error('Error adding document: ', e)
+        throw e
       }
     },
     []
@@ -83,7 +86,12 @@ export const useFirestore = () => {
 
   const update = React.useCallback(
     async (path: string, id: string, data: WithFieldValue<DocumentData>) => {
-      await updateDoc(doc(db, path, id), data)
+      try {
+        await updateDoc(doc(db, path, id), data)
+      } catch (e) {
+        console.error(`fail to update: ${e}`)
+        throw e
+      }
     },
     []
   )
