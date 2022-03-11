@@ -1,9 +1,9 @@
 import React from 'react'
 
-import RoutePlanner from 'components/RoutePlanner'
+import RoutePlanner from 'components/pages/RoutePlanner'
 import { CurrentPlanContextProvider } from 'contexts/CurrentPlanProvider'
 import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
-import { SelectedPlacesProvider } from 'contexts/SelectedPlacesProvider'
+import { ScheduleEventsProvider } from 'contexts/ScheduleEventsProvider'
 import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
 import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
@@ -21,9 +21,9 @@ function App() {
               <PlacesServiceProvider>
                 <CurrentPlanContextProvider>
                   <SelectedSpotsProvider>
-                    <SelectedPlacesProvider>
+                    <ScheduleEventsProvider>
                       <RoutePlanner />
-                    </SelectedPlacesProvider>
+                    </ScheduleEventsProvider>
                   </SelectedSpotsProvider>
                 </CurrentPlanContextProvider>
               </PlacesServiceProvider>

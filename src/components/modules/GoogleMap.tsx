@@ -3,10 +3,11 @@ import {
   GoogleMap as GoogleMapLib,
   useLoadScript,
 } from '@react-google-maps/api'
+
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
-import { useMapProps } from 'hooks/useMapProps'
+import { useMapProps } from 'hooks/googlemaps/useMapProps'
 
 const containerStyle = {
   width: '100%',

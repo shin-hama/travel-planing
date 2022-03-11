@@ -6,7 +6,7 @@ import {
   MoveEvent,
   ScheduleEvent,
   SpotEvent,
-} from 'contexts/SelectedPlacesProvider'
+} from 'contexts/ScheduleEventsProvider'
 
 type BuildMoveParams = {
   start: MoveEvent['start']

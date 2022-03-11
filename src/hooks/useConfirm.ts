@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { DialogOptions } from 'components/molecules/ConfirmationDialog'
+import { DialogOptions } from 'components/elements/ConfirmationDialog'
 import { SetConfirmationPropsContext } from 'contexts/ConfirmationProvider'
 
 type ResRej = {

@@ -1,9 +1,10 @@
-import { ScheduleEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import * as React from 'react'
+
+import { ScheduleEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
 import {
   SelectedSpotsContext,
   SetSelectedSpotsContext,
 } from 'contexts/SelectedSpotsProvider'
-import * as React from 'react'
 import { usePlan } from './usePlan'
 
 export const useSelectedSpots = () => {

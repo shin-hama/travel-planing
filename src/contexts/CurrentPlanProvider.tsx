@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { GetPrefecturesQuery } from 'generated/graphql'
-import { ScheduleEvent } from './SelectedPlacesProvider'
+import { ScheduleEvent } from './ScheduleEventsProvider'
 
 export type Prefecture = GetPrefecturesQuery['prefectures'][number]
 

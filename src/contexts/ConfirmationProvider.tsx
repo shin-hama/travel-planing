@@ -2,7 +2,7 @@ import * as React from 'react'
 import ConfirmationDialog, {
   ConfirmationProps,
   DialogOptions,
-} from 'components/molecules/ConfirmationDialog'
+} from 'components/elements/ConfirmationDialog'
 
 const defaultOptions: DialogOptions = {
   title: 'Are you sure?',

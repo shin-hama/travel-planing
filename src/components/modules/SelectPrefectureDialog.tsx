@@ -5,7 +5,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import Stack from '@mui/material/Stack'
 
-import JapanMap from 'components/atoms/JapanMap'
+import JapanMap from 'components/elements/JapanMap'
 import { Prefecture } from 'contexts/CurrentPlanProvider'
 import { useGetPrefecturesQuery } from 'generated/graphql'
 

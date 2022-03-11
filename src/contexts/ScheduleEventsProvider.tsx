@@ -30,28 +30,28 @@ export type MoveEvent = EventBase & {
 }
 
 export type ScheduleEvent = SpotEvent | MoveEvent
-export const SelectedPlacesContext = React.createContext<Array<ScheduleEvent>>(
+export const ScheduleEventsContext = React.createContext<Array<ScheduleEvent>>(
   []
 )
-const SelectedPlacesActionsContext =
+const ScheduleEventsActionsContext =
   React.createContext<LinkedEventsActions<ScheduleEvent> | null>(null)
 
-export const useSelectedPlacesActions = () => {
-  const actions = React.useContext(SelectedPlacesActionsContext)
+export const useScheduleEventsActions = () => {
+  const actions = React.useContext(ScheduleEventsActionsContext)
   if (actions === null) {
-    throw Error('SelectedPlacesProvider is not wrapped')
+    throw Error('ScheduleEventsProvider is not wrapped')
   }
 
   return actions
 }
 
-export const SelectedPlacesProvider: React.FC = ({ children }) => {
+export const ScheduleEventsProvider: React.FC = ({ children }) => {
   const [events, actions] = useLinkedEvents<ScheduleEvent>()
   return (
-    <SelectedPlacesContext.Provider value={events}>
-      <SelectedPlacesActionsContext.Provider value={actions}>
+    <ScheduleEventsContext.Provider value={events}>
+      <ScheduleEventsActionsContext.Provider value={actions}>
         {children}
-      </SelectedPlacesActionsContext.Provider>
-    </SelectedPlacesContext.Provider>
+      </ScheduleEventsActionsContext.Provider>
+    </ScheduleEventsContext.Provider>
   )
 }

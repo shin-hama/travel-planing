@@ -1,5 +1,6 @@
-import { MapPropsContext, SetMapPropsContext } from 'contexts/MapPropsProvider'
 import * as React from 'react'
+
+import { MapPropsContext, SetMapPropsContext } from 'contexts/MapPropsProvider'
 
 export const useMapProps = () => {
   const mapProps = React.useContext(MapPropsContext)

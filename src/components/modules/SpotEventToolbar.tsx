@@ -11,7 +11,7 @@ import {
 import { EventApi } from '@fullcalendar/react'
 
 import { useSelectSpots } from 'hooks/useSelectSpots'
-import { ScheduleEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
+import { ScheduleEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
 
 type Props = {
   event: EventApi & { extendedProps: SpotEvent['extendedProps'] }
