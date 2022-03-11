@@ -19,6 +19,10 @@ type Props = {
 const EventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: spotsApi } = useSelectSpots()
 
+  React.useEffect(() => {
+    console.log(event.title)
+  }, [])
+
   const handleUp = async () => {
     console.log('up')
     const selectedSpot = spotsApi.get<SpotEvent>(event.id, 'spot')

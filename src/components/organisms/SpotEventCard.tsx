@@ -64,14 +64,16 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
             </Typography>
           </Stack>
         </Box>
-        <Box
-          sx={{
-            display: selected ? 'flex' : 'none',
-            gridArea: '1/-1',
-            alignItems: 'end',
-          }}>
-          <EventToolbar event={event} />
-        </Box>
+        {selected && (
+          <Box
+            sx={{
+              display: 'flex',
+              gridArea: '1/-1',
+              alignItems: 'end',
+            }}>
+            <EventToolbar event={event} />
+          </Box>
+        )}
       </Box>
     </ClickAwayListener>
   )

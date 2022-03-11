@@ -46,15 +46,17 @@ const MoveEventCard: React.FC<Props> = ({ event }) => {
             </Stack>
           </Typography>
         </Box>
-        <Box
-          sx={{
-            width: '100%',
-            display: open ? 'flex' : 'none',
-            gridArea: '1/-1',
-            alignItems: 'end',
-          }}>
-          <MoveEventToolbar event={event} />
-        </Box>
+        {open && (
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              gridArea: '1/-1',
+              alignItems: 'end',
+            }}>
+            <MoveEventToolbar event={event} />
+          </Box>
+        )}
       </Box>
     </ClickAwayListener>
   )

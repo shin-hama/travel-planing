@@ -200,6 +200,7 @@ const PlanEditor = () => {
             })
           })
       }
+      eventsApi.commit()
     }
   }
 
