@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 import LoginForm from './LoginForm'
-import { useAuthentication } from 'hooks/useAuthentication'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
 const Header = () => {
   const [user, auth] = useAuthentication()
@@ -56,7 +56,11 @@ const Header = () => {
               </Menu>
             </>
           ) : (
-            <Stack direction="row" spacing={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              // Pre fetching user auth when user is undefined
+              sx={{ display: user === undefined ? 'none' : 'block' }}>
               <Button
                 variant="outlined"
                 color="primary"

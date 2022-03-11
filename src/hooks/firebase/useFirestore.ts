@@ -1,21 +1,45 @@
 import * as React from 'react'
-import { addDoc, collection, getDocs } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  doc,
+  DocumentData,
+  getDocs,
+  setDoc,
+  WithFieldValue,
+} from 'firebase/firestore'
 
 import { db } from 'configs'
 
 export const useFirestore = () => {
-  const add = React.useCallback(async () => {
-    try {
-      const docRef = await addDoc(collection(db, 'users'), {
-        first: 'Ada',
-        last: 'Lovelace',
-        born: 1815,
-      })
-      console.log('Document written with ID: ', docRef.id)
-    } catch (e) {
-      console.error('Error adding document: ', e)
-    }
-  }, [])
+  /**
+   * Set data to document that is specified id
+   */
+  const set = React.useCallback(
+    async (path: string, data: WithFieldValue<DocumentData>) => {
+      try {
+        await setDoc(doc(db, path), data)
+      } catch (e) {
+        console.error('Error adding document: ', e)
+      }
+    },
+    []
+  )
+
+  /**
+   * Add data to firestore and generate id automatically
+   */
+  const add = React.useCallback(
+    async (path: string, data: WithFieldValue<DocumentData>) => {
+      try {
+        const docRef = await addDoc(collection(db, path), data)
+        console.log('Document written with ID: ', docRef.id)
+      } catch (e) {
+        console.error('Error adding document: ', e)
+      }
+    },
+    []
+  )
 
   const get = React.useCallback(async () => {
     const querySnapshot = await getDocs(collection(db, 'users'))
@@ -24,5 +48,5 @@ export const useFirestore = () => {
     })
   }, [])
 
-  return { add, get }
+  return { add, set, get }
 }

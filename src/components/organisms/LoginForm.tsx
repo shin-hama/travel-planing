@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { useAuthentication } from 'hooks/useAuthentication'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
 type Props = {
   open: boolean
