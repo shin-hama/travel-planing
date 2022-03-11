@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import PlanEditor from 'components/modules/PlanEditor'
-import { useDirections } from 'hooks/useDirections'
+import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { useConfirm } from 'hooks/useConfirm'
 

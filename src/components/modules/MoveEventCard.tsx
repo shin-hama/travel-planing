@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
-import { MoveEvent } from 'contexts/SelectedPlacesProvider'
+import { MoveEvent } from 'contexts/ScheduleEventsProvider'
 import { useToggle } from 'react-use'
 import MoveEventToolbar, { MoveTypes } from './MoveEventToolbar'
 

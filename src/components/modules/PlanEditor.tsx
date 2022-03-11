@@ -17,8 +17,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
-import { MoveEvent, SpotEvent } from 'contexts/SelectedPlacesProvider'
-import { useDistanceMatrix } from 'hooks/useDistanceMatrix'
+import { MoveEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { useDistanceMatrix } from 'hooks/googlemaps/useDistanceMatrix'
 
 dayjs.extend(customParseFormat)
 

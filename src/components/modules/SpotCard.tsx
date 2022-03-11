@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
-import { usePlaces } from 'hooks/usePlaces'
+import { usePlaces } from 'hooks/googlemaps/usePlaces'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 type ButtonProps = {

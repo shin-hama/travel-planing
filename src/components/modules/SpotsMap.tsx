@@ -11,7 +11,7 @@ import {
   GetSpotsByCategoryQuery,
   useGetSpotsByCategoryLazyQuery,
 } from 'generated/graphql'
-import { useMapProps } from 'hooks/useMapProps'
+import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import SpotCard from './SpotCard'
 
 const SpotsMap = () => {

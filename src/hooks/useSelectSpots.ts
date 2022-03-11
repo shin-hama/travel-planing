@@ -4,22 +4,22 @@ import dayjs from 'dayjs'
 import {
   MoveEvent,
   ScheduleEvent,
-  SelectedPlacesContext,
+  ScheduleEventsContext,
   SpotDTO,
   SpotEvent,
-  useSelectedPlacesActions,
-} from 'contexts/SelectedPlacesProvider'
-import { useDistanceMatrix } from './useDistanceMatrix'
+  useScheduleEventsActions,
+} from 'contexts/ScheduleEventsProvider'
+import { useDistanceMatrix } from './googlemaps/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
-import { useDirections } from './useDirections'
+import { useDirections } from './googlemaps/useDirections'
 import { useEventFactory } from './useEventFactory'
 import { usePlan } from './usePlan'
 
 export const useSelectSpots = () => {
-  const scheduledEvents = React.useContext(SelectedPlacesContext)
+  const scheduledEvents = React.useContext(ScheduleEventsContext)
   const eventsRef = React.useRef<ScheduleEvent[]>([])
   eventsRef.current = scheduledEvents
-  const listActions = useSelectedPlacesActions()
+  const listActions = useScheduleEventsActions()
   const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()
   const [currentPlan, planActions] = usePlan()

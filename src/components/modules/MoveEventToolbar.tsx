@@ -9,8 +9,8 @@ import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
-import { MoveEvent } from 'contexts/SelectedPlacesProvider'
-import { useDirections } from 'hooks/useDirections'
+import { MoveEvent } from 'contexts/ScheduleEventsProvider'
+import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 
 export const MoveTypes: Record<
