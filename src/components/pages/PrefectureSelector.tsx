@@ -3,7 +3,7 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import SelectPrefectureDialog from 'components/organisms/SelectPrefectureDialog'
+import SelectPrefectureDialog from 'components/modules/SelectPrefectureDialog'
 import { StepperHandlerContext } from './RoutePlanner'
 import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
 import { useMapProps } from 'hooks/useMapProps'

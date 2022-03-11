@@ -6,7 +6,7 @@ import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import PlanEditor from './organisms/PlanEditor'
+import PlanEditor from 'components/modules/PlanEditor'
 import { useDirections } from 'hooks/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { useConfirm } from 'hooks/useConfirm'

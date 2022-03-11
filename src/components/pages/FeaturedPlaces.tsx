@@ -5,8 +5,8 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
 import { StepperHandlerContext } from './RoutePlanner'
-import SpotsCandidates from './organisms/SpotsCandidates'
-import SpotsMap from './organisms/SpotsMap'
+import SpotsCandidates from '../modules/SpotsCandidates'
+import SpotsMap from '../modules/SpotsMap'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
 

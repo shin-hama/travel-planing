@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import { EventApi } from '@fullcalendar/react'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import EventToolbar from 'components/organisms/EventToolbar'
+import EventToolbar from 'components/modules/EventToolbar'
 import { SpotEvent } from 'contexts/SelectedPlacesProvider'
 
 type Props = {
