@@ -1,7 +1,7 @@
 import React from 'react'
 
 import RoutePlanner from 'components/RoutePlanner'
-import { SelectedPrefectureProvider } from 'contexts/SelectedPrefectureProvider'
+import { CurrentPlanContextProvider } from 'contexts/CurrentPlanProvider'
 import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
 import { SelectedPlacesProvider } from 'contexts/SelectedPlacesProvider'
 import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
@@ -19,13 +19,13 @@ function App() {
           <DistanceMatrixProvider>
             <MapPropsProvider>
               <PlacesServiceProvider>
-                <SelectedPrefectureProvider>
+                <CurrentPlanContextProvider>
                   <SelectedSpotsProvider>
                     <SelectedPlacesProvider>
                       <RoutePlanner />
                     </SelectedPlacesProvider>
                   </SelectedSpotsProvider>
-                </SelectedPrefectureProvider>
+                </CurrentPlanContextProvider>
               </PlacesServiceProvider>
             </MapPropsProvider>
           </DistanceMatrixProvider>

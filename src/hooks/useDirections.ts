@@ -33,7 +33,6 @@ export const useDirections = () => {
             }
           }
         )
-        console.log(result)
         return result
       } finally {
         setLoading(false)

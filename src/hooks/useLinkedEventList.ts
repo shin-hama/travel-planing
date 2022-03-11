@@ -29,7 +29,7 @@ type UseLinkedList<T extends LinkedEvent> = readonly [
 ]
 
 export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
-  const [items, setItems] = useList<T>()
+  const [items, setItemsActions] = useList<T>()
   const itemsRef = React.useRef<T[]>([])
   itemsRef.current = items
 
@@ -45,15 +45,22 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
     )
   }, [])
 
+  const update = React.useCallback(
+    (newItem: T): void => {
+      setItemsActions.update((item) => item.id === newItem.id, newItem)
+    },
+    [setItemsActions]
+  )
+
   const push = React.useCallback(
     (newItem: T): void => {
       const last = getLast()
       if (last) {
         // 末尾の要素にリンクを追加する
         last.extendedProps.to = newItem.id
-        setItems.update((a, b) => a.id === last.id, { ...last })
+        update({ ...last })
 
-        setItems.push({
+        setItemsActions.push({
           ...newItem,
           extendedProps: {
             ...newItem.extendedProps,
@@ -62,10 +69,10 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
           },
         })
       } else {
-        setItems.push(newItem)
+        setItemsActions.push(newItem)
       }
     },
-    [getLast, setItems]
+    [getLast, setItemsActions, update]
   )
 
   const get = React.useCallback((index: number): T | null => {
@@ -78,24 +85,6 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
       null
     )
   }, [])
-
-  // const getAt = React.useCallback(
-  //   (index: number) => {
-  //     if (index >= itemsRef.current.length) {
-  //       return null
-  //     }
-
-  //     let item = getFirst()
-  //     for (let i = 0; i <= index; i++) {
-  //       if (item === null) {
-  //         break
-  //       }
-  //       item = next(item)
-  //     }
-  //     return item
-  //   },
-  //   [getFirst, next]
-  // )
 
   const prev = React.useCallback((current: T): T | null => {
     return (
@@ -112,37 +101,30 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
 
       if (currentItem) {
         currentItem.extendedProps.from = newItem.id
-        setItems.update((item) => item.id === currentItem.id, {
+        setItemsActions.update((item) => item.id === currentItem.id, {
           ...currentItem,
         })
 
         cloned.extendedProps.from = currentItem.extendedProps.from
         cloned.extendedProps.to = currentItem.id
-        setItems.push({ ...cloned })
+        setItemsActions.push({ ...cloned })
       } else {
         console.error('fail to insert')
       }
     },
-    [setItems]
+    [setItemsActions]
   )
 
   const remove = React.useCallback(
     (removedId: string): void => {
-      setItems.filter((item) => item.id !== removedId)
+      setItemsActions.filter((item) => item.id !== removedId)
     },
-    [setItems]
-  )
-
-  const update = React.useCallback(
-    (newItem: T): void => {
-      setItems.update((item) => item.id === newItem.id, newItem)
-    },
-    [setItems]
+    [setItemsActions]
   )
 
   const clear = React.useCallback((): void => {
-    setItems.clear()
-  }, [setItems])
+    setItemsActions.clear()
+  }, [setItemsActions])
 
   const actions = React.useMemo<LinkedEventsActions<T>>(
     () => ({

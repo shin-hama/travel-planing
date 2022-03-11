@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { useAuthentication } from 'hooks/useAuthentication'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
 type Props = {
   open: boolean
@@ -32,7 +32,7 @@ const LoginForm: React.FC<Props> = ({ open, isSignUp, onClose }) => {
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogContent>
         <Stack alignItems="center" justifyContent="center" spacing={2}>
           <Typography textAlign={'center'} component="h2" variant="h5">

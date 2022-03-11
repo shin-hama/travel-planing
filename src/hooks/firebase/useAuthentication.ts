@@ -9,7 +9,8 @@ import {
 import { auth } from 'configs'
 
 export const useAuthentication = () => {
-  const [user, setUser] = React.useState<User | null>(null)
+  // アクセス直後は Undefined だが、Firebase への接続が完了した段階で、User か null がセットされる
+  const [user, setUser] = React.useState<User | null>()
 
   React.useEffect(() => {
     onAuthStateChanged(auth, (userInfo) => {
@@ -25,7 +26,7 @@ export const useAuthentication = () => {
         password
       )
 
-      console.log(userCredential)
+      return userCredential
     },
     []
   )
@@ -36,11 +37,11 @@ export const useAuthentication = () => {
       email,
       password
     )
-    console.log(userCredential)
+    return userCredential
   }, [])
 
-  const signOut = React.useCallback(() => {
-    auth.signOut()
+  const signOut = React.useCallback(async () => {
+    await auth.signOut()
   }, [])
 
   return [user, { create: createUser, signIn, signOut }] as const
