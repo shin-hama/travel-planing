@@ -8,7 +8,7 @@ import Div100vh from 'react-div-100vh'
 
 import Header from 'components/modules/Header'
 import RouteViewer from './RouteViewer'
-import PrefectureSelector from './PrefectureSelector'
+import PrefectureSelector from './PlanConfig'
 import FeaturedPlaces from './FeaturedPlaces'
 
 export const StepperHandlerContext = React.createContext<() => void>(() => {
