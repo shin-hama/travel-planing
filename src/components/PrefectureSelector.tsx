@@ -14,7 +14,7 @@ const PrefectureSelector = () => {
   const handleNext = React.useContext(StepperHandlerContext)
   const [, setMapProps] = useMapProps()
   const { actions: eventsApi } = useSelectSpots()
-  const [plan, { savePlan }] = usePlan()
+  const [plan, { create: createPlan }] = usePlan()
   const [planDTO, setPlanDTO] = React.useState<Partial<Plan>>({})
 
   const [mode, setMode] = React.useState<keyof NonNullable<typeof plan> | null>(
@@ -45,14 +45,14 @@ const PrefectureSelector = () => {
       return
     }
     eventsApi.init()
-    const newPlan: Parameters<typeof savePlan>[number] = {
+    const newPlan: Parameters<typeof createPlan>[number] = {
       title: 'Test Trip',
       start: new Date(),
       end: new Date(),
       home: planDTO.home,
       destination: planDTO.destination,
     }
-    savePlan(newPlan)
+    createPlan(newPlan)
 
     handleNext()
   }

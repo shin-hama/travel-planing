@@ -14,15 +14,42 @@ export type Plan = {
   events?: Array<ScheduleEvent>
 }
 
+type PlanAction =
+  | {
+      type: 'create'
+      value: Plan
+    }
+  | {
+      type: 'update'
+      value: Partial<Plan>
+    }
+
+const planReducer = (state: Plan | null, action: PlanAction): Plan | null => {
+  switch (action.type) {
+    case 'create':
+      return action.value
+
+    case 'update':
+      if (state === null) {
+        console.warn('Cannot update plan before selecting')
+        return null
+      }
+      return { ...state, ...action.value }
+
+    default:
+      throw new Error(`Action: "${action}" is not implemented`)
+  }
+}
+
 export const CurrentPlanContext = React.createContext<Plan | null>(null)
 export const SetCurrentPlanContext = React.createContext<
-  React.Dispatch<React.SetStateAction<Plan | null>>
+  React.Dispatch<PlanAction>
 >(() => {
   throw new Error('CurrentPlanContextProvider is not wrapped')
 })
 
 export const CurrentPlanContextProvider: React.FC = ({ children }) => {
-  const [plan, setPlan] = React.useState<Plan | null>(null)
+  const [plan, setPlan] = React.useReducer(planReducer, null)
 
   return (
     <CurrentPlanContext.Provider value={plan}>

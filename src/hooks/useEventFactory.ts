@@ -7,11 +7,6 @@ import {
   ScheduleEvent,
   SpotEvent,
 } from 'contexts/SelectedPlacesProvider'
-import {
-  PLANING_USERS_PLANS_EVENTS_COLLECTIONS,
-  useFirestore,
-} from './firebase/useFirestore'
-import { useAuthentication } from './firebase/useAuthentication'
 
 type BuildMoveParams = {
   start: MoveEvent['start']
@@ -37,10 +32,7 @@ type CreateEventParams =
       params: BuildSpotParams
     }
 
-export const useEvent = (planId?: string) => {
-  const [user] = useAuthentication()
-  const db = useFirestore()
-
+export const useEventFactory = () => {
   const buildMoveEvent = React.useCallback(
     ({ start, end, eventProps = {} }: BuildMoveParams): MoveEvent => {
       return {
@@ -107,27 +99,9 @@ export const useEvent = (planId?: string) => {
           throw new Error(`Type ${type} is not implemented`)
       }
 
-      if (user && planId) {
-        const path = PLANING_USERS_PLANS_EVENTS_COLLECTIONS(user.uid, planId)
-        await db.set(path, event.id, event)
-      }
-
       return event
     },
-    [buildMoveEvent, buildSpotEvent, db, planId, user]
-  )
-
-  const update = React.useCallback(
-    async (newEvent: ScheduleEvent) => {
-      if (!user || !planId) {
-        console.log('This is guest, cannot save event')
-        return
-      }
-      const path = PLANING_USERS_PLANS_EVENTS_COLLECTIONS(user.uid, planId)
-
-      await db.update(path, newEvent.id, newEvent)
-    },
-    [db, planId, user]
+    [buildMoveEvent, buildSpotEvent]
   )
 
   const isSpotEvent = React.useCallback(
@@ -143,5 +117,5 @@ export const useEvent = (planId?: string) => {
     []
   )
 
-  return { create: createEvent, isSpotEvent, isMoveEvent, update }
+  return { create: createEvent, isSpotEvent, isMoveEvent }
 }

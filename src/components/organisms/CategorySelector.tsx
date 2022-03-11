@@ -27,6 +27,8 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   }
 
   React.useEffect(() => {
+    console.log('ttt')
+
     if (selectedId) {
       changedCallback?.(selectedId)
     }

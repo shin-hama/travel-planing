@@ -33,17 +33,6 @@ export const PLANING_USERS_COLLECTIONS = (): string =>
 export const PLANING_USERS_PLANS_COLLECTIONS = (userId: string): string =>
   `${PLANING_USERS_COLLECTIONS()}/${userId}/plans`
 
-/**
- *
- * @param {string} userId - target user id
- * @param {string} planId - target plan id
- * @returns {string} path - planing/v1/users/${userId}/plans/${planId}/events
- */
-export const PLANING_USERS_PLANS_EVENTS_COLLECTIONS = (
-  userId: string,
-  planId: string
-): string => `${PLANING_USERS_PLANS_COLLECTIONS(userId)}/${planId}/events`
-
 export const useFirestore = () => {
   /**
    * Set data to document that is specified id
@@ -51,7 +40,7 @@ export const useFirestore = () => {
   const set = React.useCallback(
     async (path: string, id: string, data: WithFieldValue<DocumentData>) => {
       try {
-        await setDoc(doc(db, path, id), data)
+        await setDoc(doc(db, path, id), data, { merge: true })
       } catch (e) {
         console.error('Error adding document: ', e)
         throw e
@@ -95,5 +84,6 @@ export const useFirestore = () => {
     },
     []
   )
+
   return { add, get, set, update }
 }

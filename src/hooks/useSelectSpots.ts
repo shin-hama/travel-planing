@@ -12,7 +12,7 @@ import {
 import { useDistanceMatrix } from './useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { useDirections } from './useDirections'
-import { useEvent } from './useEvent'
+import { useEventFactory } from './useEventFactory'
 import { usePlan } from './usePlan'
 
 export const useSelectSpots = () => {
@@ -22,17 +22,18 @@ export const useSelectSpots = () => {
   const listActions = useSelectedPlacesActions()
   const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()
-  const [currentPlan] = usePlan()
-  const {
-    create: buildEvent,
-    isSpotEvent,
-    isMoveEvent,
-    update: updateEvent,
-  } = useEvent(currentPlan?.id)
+  const [currentPlan, planActions] = usePlan()
+  const { create: buildEvent, isSpotEvent, isMoveEvent } = useEventFactory()
 
   const [loading, setLoading] = React.useState(false)
 
   const [getSpot] = useGetSpotByPkLazyQuery()
+
+  const commitEventsChange = React.useCallback(async () => {
+    if (currentPlan) {
+      planActions.update({ events: eventsRef.current })
+    }
+  }, [currentPlan, planActions])
 
   const get = React.useCallback(
     <T extends ScheduleEvent>(id: string, type: T['extendedProps']['type']) => {
@@ -92,10 +93,9 @@ export const useSelectSpots = () => {
 
   const update = React.useCallback(
     async (newEvent: ScheduleEvent) => {
-      await updateEvent(newEvent)
       listActions.update(newEvent)
     },
-    [listActions, updateEvent]
+    [listActions]
   )
 
   const applyChange = React.useCallback(
@@ -354,8 +354,17 @@ export const useSelectSpots = () => {
         },
       })
       listActions.push(endEvent)
+
+      commitEventsChange()
     },
-    [buildEvent, currentPlan?.home, directionService, getSpot, listActions]
+    [
+      buildEvent,
+      commitEventsChange,
+      currentPlan?.home,
+      directionService,
+      getSpot,
+      listActions,
+    ]
   )
 
   const remove = React.useCallback(
@@ -411,11 +420,21 @@ export const useSelectSpots = () => {
       } catch (e) {
         console.error(e)
       } finally {
+        await commitEventsChange()
+
         setLoading(false)
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [listActions, distanceMatrix, update]
+    [
+      listActions,
+      get,
+      getPrevSpot,
+      getNextSpot,
+      distanceMatrix,
+      update,
+      applyChange,
+      commitEventsChange,
+    ]
   )
 
   const insert = React.useCallback(
@@ -523,7 +542,7 @@ export const useSelectSpots = () => {
           isMoveEvent(moveEvent) && applyChange(moveEvent, moveEndChange)
         }
 
-        listActions.update({
+        update({
           ...inserted,
           extendedProps: {
             ...inserted.extendedProps,
@@ -534,10 +553,20 @@ export const useSelectSpots = () => {
       } catch (e) {
         console.error(e)
       } finally {
+        await commitEventsChange()
+
         setLoading(false)
       }
     },
-    [listActions, distanceMatrix, update, buildEvent, isMoveEvent, applyChange]
+    [
+      update,
+      commitEventsChange,
+      distanceMatrix,
+      buildEvent,
+      listActions,
+      isMoveEvent,
+      applyChange,
+    ]
   )
 
   const init = React.useCallback(() => {
@@ -559,6 +588,7 @@ export const useSelectSpots = () => {
       generateRoute,
       applyChange,
       swap,
+      commit: commitEventsChange,
     },
   }
 }
