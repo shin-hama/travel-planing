@@ -26,7 +26,6 @@ export const useAuthentication = () => {
         password
       )
 
-      console.log(userCredential)
       return userCredential
     },
     []
@@ -38,7 +37,6 @@ export const useAuthentication = () => {
       email,
       password
     )
-    console.log(userCredential)
     return userCredential
   }, [])
 

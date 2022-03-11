@@ -254,7 +254,6 @@ export const useSelectSpots = () => {
         })),
         travelMode: google.maps.TravelMode.DRIVING,
       })
-      console.log(result)
 
       if (result.routes.length === 0) {
         console.error('Cannot find route')
