@@ -7,17 +7,25 @@ import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import PlansList from 'components/modules/PlansList'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import Header from 'components/modules/Header'
+import { usePlan } from 'hooks/usePlan'
+import { Plan } from 'contexts/CurrentPlanProvider'
 
 const UserHome = () => {
   const [user] = useAuthentication()
+  const [, actions] = usePlan()
+  const [, setPlans] = React.useState<Array<Plan>>([])
 
   React.useEffect(() => {
     if (user) {
       console.log(`Hello ${user.displayName}`)
+      actions.fetch().then((results) => {
+        console.log(results)
+        setPlans([])
+      })
     } else {
       console.log('hello guest')
     }
-  }, [user])
+  }, [actions, user])
 
   return (
     <>
