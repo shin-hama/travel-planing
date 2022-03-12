@@ -79,13 +79,9 @@ export const useFirestore = () => {
       },
       getDocuments: async <T>(
         path: string,
-        converter?: FirestoreDataConverter<T>
+        converter: FirestoreDataConverter<T>
       ) => {
-        if (converter) {
-          return await getDocs(collection(db, path).withConverter<T>(converter))
-        } else {
-          return await getDocs(collection(db, path))
-        }
+        return getDocs(collection(db, path).withConverter<T>(converter))
       },
     }
     return a

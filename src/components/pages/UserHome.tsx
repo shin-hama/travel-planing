@@ -13,14 +13,13 @@ import { Plan } from 'contexts/CurrentPlanProvider'
 const UserHome = () => {
   const [user] = useAuthentication()
   const [, actions] = usePlan()
-  const [, setPlans] = React.useState<Array<Plan>>([])
+  const [plans, setPlans] = React.useState<Array<Plan>>([])
 
   React.useEffect(() => {
     if (user) {
       console.log(`Hello ${user.displayName}`)
       actions.fetch().then((results) => {
-        console.log(results)
-        setPlans([])
+        setPlans(results || [])
       })
     } else {
       console.log('hello guest')
@@ -34,7 +33,7 @@ const UserHome = () => {
         <h2>Next trip</h2>
       </div>
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <PlansList />
+        <PlansList plans={plans} />
       </Container>
       <Fab
         color="primary"

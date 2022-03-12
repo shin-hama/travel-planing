@@ -27,22 +27,25 @@ const planConverter: FirestoreDataConverter<Plan> = {
     options: SnapshotOptions
   ): Plan => {
     const data = snapshot.data(options)
-    console.log(data.start)
+    console.log(data.events)
+    console.log(snapshot.id)
     return {
       id: snapshot.id,
       title: data.title,
-      start: data.start.toDate(), // Convert firestore timestamp to js Date.
-      end: data.end.toDate(),
+      start: data.start?.toDate(), // Convert firestore timestamp to js Date.
+      end: data.end?.toDate(),
       home: data.home,
       destination: data.destination,
-      events: data.events.map((event: DocumentData) => ({
-        ...event,
-        start: event.start.toDate(),
-        end: event.end.toDate(),
-      })),
+      events:
+        data.events?.map((event: DocumentData) => ({
+          ...event,
+          start: event.start?.toDate(),
+          end: event.end?.toDate(),
+        })) || [],
     }
   },
 }
+
 export const usePlan = () => {
   const [user] = useAuthentication()
   const db = useFirestore()
@@ -72,9 +75,7 @@ export const usePlan = () => {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             const results = await db.getDocuments(path, planConverter)
 
-            return results.forEach((result) => {
-              console.log(result.data())
-            })
+            return results.docs.map((result) => result.data())
           }
         } catch (e) {
           console.error(e)
