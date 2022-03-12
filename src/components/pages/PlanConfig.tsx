@@ -11,7 +11,7 @@ import { useSelectSpots } from 'hooks/useSelectSpots'
 import { usePlan } from 'hooks/usePlan'
 
 const PrefectureSelector = () => {
-  const handleNext = React.useContext(StepperHandlerContext)
+  const setStep = React.useContext(StepperHandlerContext)
   const [, setMapProps] = useMapProps()
   const { actions: eventsApi } = useSelectSpots()
   const [plan, { create: createPlan }] = usePlan()
@@ -54,7 +54,7 @@ const PrefectureSelector = () => {
     }
     createPlan(newPlan)
 
-    handleNext()
+    setStep('Map')
   }
 
   return (

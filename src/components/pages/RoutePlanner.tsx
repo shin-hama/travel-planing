@@ -10,35 +10,25 @@ import Header from 'components/modules/Header'
 import RouteViewer from './RouteViewer'
 import PrefectureSelector from './PlanConfig'
 import FeaturedPlaces from './FeaturedPlaces'
+import UserHome from './UserHome'
 
-export const StepperHandlerContext = React.createContext<() => void>(() => {
-  throw Error('StepperHandlerContext is not wrapped')
+type Step = 'Home' | 'Config' | 'Map' | 'Schedule'
+export const ActiveStepContext = React.createContext<Step>('Home')
+export const StepperHandlerContext = React.createContext<
+  React.Dispatch<React.SetStateAction<Step>>
+>(() => {
+  throw new Error('ActiveStepProvider is not wrapped')
 })
 
-type StepContent = {
-  label: string
-  content: React.ReactNode
+const steps: Record<Step, React.ReactNode> = {
+  Home: <UserHome />,
+  Config: <PrefectureSelector />,
+  Map: <FeaturedPlaces />,
+  Schedule: <RouteViewer />,
 }
-const steps: Array<StepContent> = [
-  { label: 'Select a Prefecture', content: <PrefectureSelector /> },
-  { label: 'Select Spots', content: <FeaturedPlaces /> },
-  { label: 'Route Plan', content: <RouteViewer /> },
-]
 
 const RoutePlanner = () => {
-  const [activeStep, setActiveStep] = React.useState(0)
-
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1)
-  }
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1)
-  }
-
-  const handleReset = () => {
-    setActiveStep(0)
-  }
+  const [activeStep, setStep] = React.useState<Step>('Home')
 
   return (
     <Div100vh style={{ width: '100%' }}>
@@ -64,25 +54,22 @@ const RoutePlanner = () => {
               position: 'absolute',
               overflow: 'hidden auto',
             }}>
-            <StepperHandlerContext.Provider value={handleNext}>
-              {steps[activeStep].content}
+            <StepperHandlerContext.Provider value={setStep}>
+              {steps[activeStep]}
             </StepperHandlerContext.Provider>
           </Box>
         </Box>
-        {activeStep === steps.length - 1 && (
+        {activeStep !== 'Home' && (
           <Stack direction="row">
             <Button
               color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
+              onClick={() => setStep('Home')}
               sx={{ mr: 1 }}>
               <Box pr={1}>
                 <FontAwesomeIcon icon={faAngleLeft} />
               </Box>
-              Back
+              Home
             </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Home</Button>
           </Stack>
         )}
       </Box>

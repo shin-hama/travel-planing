@@ -9,11 +9,13 @@ import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import Header from 'components/modules/Header'
 import { usePlan } from 'hooks/usePlan'
 import { Plan } from 'contexts/CurrentPlanProvider'
+import { StepperHandlerContext } from './RoutePlanner'
 
 const UserHome = () => {
   const [user] = useAuthentication()
   const [, actions] = usePlan()
   const [plans, setPlans] = React.useState<Array<Plan>>([])
+  const setStep = React.useContext(StepperHandlerContext)
 
   React.useEffect(() => {
     if (user) {
@@ -26,6 +28,10 @@ const UserHome = () => {
     }
   }, [actions, user])
 
+  const handleClick = () => {
+    setStep('Config')
+  }
+
   return (
     <>
       <Header />
@@ -36,6 +42,7 @@ const UserHome = () => {
         <PlansList plans={plans} />
       </Container>
       <Fab
+        onClick={handleClick}
         color="primary"
         sx={{
           position: 'absolute',

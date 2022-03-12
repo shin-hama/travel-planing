@@ -12,7 +12,7 @@ import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 const FeaturedPlaces = () => {
   const [open, setOpen] = React.useState(false)
-  const handleNext = React.useContext(StepperHandlerContext)
+  const setStep = React.useContext(StepperHandlerContext)
   const { events, actions } = useSelectSpots()
   const [spots, spotsActions] = useSelectedSpots()
 
@@ -23,7 +23,7 @@ const FeaturedPlaces = () => {
 
   const handleClickNext = async () => {
     await actions.generateRoute(spots)
-    handleNext()
+    setStep('Schedule')
   }
 
   const handleOpen = () => {

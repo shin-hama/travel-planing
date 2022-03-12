@@ -27,8 +27,6 @@ const planConverter: FirestoreDataConverter<Plan> = {
     options: SnapshotOptions
   ): Plan => {
     const data = snapshot.data(options)
-    console.log(data.events)
-    console.log(snapshot.id)
     return {
       id: snapshot.id,
       title: data.title,
