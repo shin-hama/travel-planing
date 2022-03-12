@@ -9,8 +9,8 @@ export type Plan = {
   title: string
   home: Prefecture
   destination: Prefecture
-  start?: Date
-  end?: Date
+  start: Date
+  end: Date
   events?: Array<ScheduleEvent>
 }
 

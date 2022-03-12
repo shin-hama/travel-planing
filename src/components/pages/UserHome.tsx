@@ -1,30 +1,32 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Fab from '@mui/material/Fab'
+import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 
 import PlansList from 'components/modules/PlansList'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import Header from 'components/modules/Header'
 import { usePlan } from 'hooks/usePlan'
 import { Plan } from 'contexts/CurrentPlanProvider'
 import { StepperHandlerContext } from './RoutePlanner'
+import dayjs from 'dayjs'
 
 const UserHome = () => {
   const [user] = useAuthentication()
   const [, actions] = usePlan()
   const [plans, setPlans] = React.useState<Array<Plan>>([])
+  const [nextPlan, setNextPlan] = React.useState<Plan | null>(null)
   const setStep = React.useContext(StepperHandlerContext)
 
   React.useEffect(() => {
     if (user) {
-      console.log(`Hello ${user.displayName}`)
       actions.fetch().then((results) => {
         setPlans(results || [])
       })
     } else {
-      console.log('hello guest')
+      setPlans([])
     }
   }, [actions, user])
 
@@ -32,12 +34,24 @@ const UserHome = () => {
     setStep('Config')
   }
 
+  React.useEffect(() => {
+    // 将来の旅行計画の中から、最も近い旅行を表示する
+    // TODO: 旅行当日のプランがあればそれを優先して表示するようにする
+    // start ではなく End をキーにすれば行けるのでは?
+    const today = new Date()
+    const sortedFeaturesDesc = plans
+      .filter((plan) => plan.end > today)
+      .sort((a, b) => dayjs(b.start).diff(a.start))
+    setNextPlan(sortedFeaturesDesc.shift() || null)
+  }, [plans])
+
   return (
     <>
-      <Header />
-      <div style={{ height: '100px', backgroundColor: '#aaaaaa50' }}>
-        <h2>Next trip</h2>
-      </div>
+      {nextPlan && (
+        <Box style={{ height: '20%', backgroundColor: '#aaaaaa50' }}>
+          <Typography>Next trip</Typography>
+        </Box>
+      )}
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <PlansList plans={plans} />
       </Container>
