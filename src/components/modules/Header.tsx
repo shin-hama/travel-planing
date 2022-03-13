@@ -12,8 +12,11 @@ import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 import LoginForm from './LoginForm'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
+import { StepperHandlerContext } from 'components/pages/PlaningMain'
 
 const Header = () => {
+  const setStep = React.useContext(StepperHandlerContext)
+
   const [user, auth] = useAuthentication()
   const [open, setOpen] = React.useState<'signIn' | 'signUp' | null>(null)
 
@@ -35,6 +38,12 @@ const Header = () => {
     <>
       <AppBar color="inherit">
         <Toolbar variant="dense">
+          <Button
+            color="inherit"
+            onClick={() => setStep('Home')}
+            sx={{ mr: 1 }}>
+            Home
+          </Button>
           <div style={{ flexGrow: 1 }} />
           {user ? (
             <>

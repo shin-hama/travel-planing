@@ -8,6 +8,7 @@ import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
+import { usePlan } from 'hooks/usePlan'
 
 const containerStyle = {
   width: '100%',
@@ -22,6 +23,7 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
     libraries: libs,
     // ...otherOptions
   })
+  const [plan] = usePlan()
 
   const [mapProps, setMapProps] = useMapProps()
 
@@ -56,14 +58,17 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
 
     const bounds = mapInstance.getBounds()
 
-    setMapProps((prev) => ({
-      center: mapInstance.getCenter() || prev.center,
-      zoom: mapInstance.getZoom() || prev.zoom,
-      bounds: {
-        ne: bounds?.getNorthEast(),
-        sw: bounds?.getSouthWest(),
-      },
-    }))
+    if (plan) {
+      const { lat, lng, zoom } = plan.destination
+      setMapProps((prev) => ({
+        center: { lat, lng } || prev.center,
+        zoom: zoom || prev.zoom,
+        bounds: {
+          ne: bounds?.getNorthEast(),
+          sw: bounds?.getSouthWest(),
+        },
+      }))
+    }
 
     setGoogleMap(mapInstance)
   }

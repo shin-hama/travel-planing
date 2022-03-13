@@ -11,7 +11,6 @@ import SelectPrefectureDialog, {
 } from 'components/modules/SelectPrefectureDialog'
 import { StepperHandlerContext } from './PlaningMain'
 import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
-import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { usePlan } from 'hooks/usePlan'
 import { useUnsplash } from 'hooks/useUnsplash'
@@ -21,7 +20,6 @@ type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 const PrefectureSelector = () => {
   const { register, control, handleSubmit } = useForm<PlanDTO>()
   const setStep = React.useContext(StepperHandlerContext)
-  const [, setMapProps] = useMapProps()
   const eventsApi = useSelectSpots()
   const [, { create: createPlan }] = usePlan()
   const unsplash = useUnsplash()
@@ -60,15 +58,6 @@ const PrefectureSelector = () => {
       destination: planDTO.destination,
     }
     await createPlan(newPlan)
-
-    setMapProps((prev) => ({
-      ...prev,
-      center: {
-        lat: newPlan.destination.lat,
-        lng: newPlan.destination.lng,
-      },
-      zoom: newPlan.destination.zoom,
-    }))
 
     setStep('Map')
   }

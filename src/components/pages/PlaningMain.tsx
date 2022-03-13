@@ -1,9 +1,5 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import Div100vh from 'react-div-100vh'
 
 import Header from 'components/modules/Header'
@@ -32,47 +28,34 @@ const PlaningMain = () => {
 
   return (
     <Div100vh style={{ width: '100%' }}>
-      <Box
-        sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-          position: 'relative',
-        }}>
-        <Header />
+      <StepperHandlerContext.Provider value={setStep}>
         <Box
           sx={{
             height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
             position: 'relative',
-            flex: '1 1 0%',
           }}>
+          <Header />
           <Box
             sx={{
-              width: '100%',
               height: '100%',
-              position: 'absolute',
-              overflow: 'hidden auto',
+              position: 'relative',
+              flex: '1 1 0%',
             }}>
-            <StepperHandlerContext.Provider value={setStep}>
+            <Box
+              sx={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                overflow: 'hidden auto',
+              }}>
               {steps[activeStep]}
-            </StepperHandlerContext.Provider>
+            </Box>
           </Box>
         </Box>
-        {activeStep !== 'Home' && (
-          <Stack direction="row">
-            <Button
-              color="inherit"
-              onClick={() => setStep('Home')}
-              sx={{ mr: 1 }}>
-              <Box pr={1}>
-                <FontAwesomeIcon icon={faAngleLeft} />
-              </Box>
-              Home
-            </Button>
-          </Stack>
-        )}
-      </Box>
+      </StepperHandlerContext.Provider>
     </Div100vh>
   )
 }
