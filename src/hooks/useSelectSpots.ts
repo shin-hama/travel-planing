@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import {
   MoveEvent,
   ScheduleEvent,
+  ScheduleEventsContext,
   SpotDTO,
   SpotEvent,
   useScheduleEventsActions,
@@ -16,8 +17,9 @@ import { usePlan } from './usePlan'
 
 export const useSelectSpots = () => {
   const [currentPlan, planActions] = usePlan()
+  const events = React.useContext(ScheduleEventsContext)
   const eventsRef = React.useRef<ScheduleEvent[]>([])
-  eventsRef.current = currentPlan?.events || []
+  eventsRef.current = events
   const listActions = useScheduleEventsActions()
   const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()

@@ -3,20 +3,27 @@ import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
+import Fab from '@mui/material/Fab'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAdd } from '@fortawesome/free-solid-svg-icons'
 
 import PlanEditor from 'components/modules/PlanEditor'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { useConfirm } from 'hooks/useConfirm'
 import { usePlan } from 'hooks/usePlan'
+import { StepperHandlerContext } from './PlaningMain'
+import { Box } from '@mui/material'
 
 const PlanViewer = () => {
   const { loading } = useDirections()
   const eventsApi = useSelectSpots()
   const confirm = useConfirm()
   const [plan] = usePlan()
+
+  const setStep = React.useContext(StepperHandlerContext)
 
   const handleOptimize = async () => {
     try {
@@ -72,7 +79,19 @@ const PlanViewer = () => {
             Optimize
           </Button>
         </Stack>
-        <PlanEditor />
+        <Box sx={{ height: '100%', zIndex: 0 }}>
+          <PlanEditor />
+        </Box>
+        <Fab
+          onClick={() => setStep('Map')}
+          color="primary"
+          sx={{
+            position: 'fixed',
+            right: 16,
+            bottom: 16,
+          }}>
+          <FontAwesomeIcon icon={faAdd} size="lg" />
+        </Fab>
       </Container>
     </>
   )
