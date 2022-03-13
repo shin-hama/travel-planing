@@ -17,7 +17,7 @@ const PlansList: React.FC<Props> = ({ plans }) => {
           xs={12}
           sm={6}
           alignItems="center"
-          sx={{ minHeight: '20vh' }}>
+          sx={{ minHeight: '40vh' }}>
           <TravelPlanCard plan={plan} />
         </Grid>
       ))}

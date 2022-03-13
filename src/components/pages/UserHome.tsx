@@ -67,7 +67,7 @@ const UserHome = () => {
       )}
       <Container
         maxWidth="lg"
-        sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
         {plans.length > 0 ? (
           <PlansList plans={plans} />
         ) : (
@@ -80,9 +80,9 @@ const UserHome = () => {
         onClick={handleClick}
         color="primary"
         sx={{
-          position: 'absolute',
-          bottom: 16,
+          position: 'fixed',
           right: 16,
+          bottom: 16,
         }}>
         <FontAwesomeIcon icon={faAdd} size="lg" />
       </Fab>
