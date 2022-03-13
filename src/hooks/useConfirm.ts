@@ -7,7 +7,7 @@ type ResRej = {
   resolve: (value: void | PromiseLike<void>) => void
   reject: (reason?: unknown) => void
 }
-export const useConfirm = (customOptions: Partial<DialogOptions> = {}) => {
+export const useConfirm = () => {
   const setConfirm = React.useContext(SetConfirmationPropsContext)
   const resRej = React.useRef<ResRej | null>(null)
 
@@ -28,14 +28,13 @@ export const useConfirm = (customOptions: Partial<DialogOptions> = {}) => {
   }, [setConfirm])
 
   const confirm = React.useCallback(
-    async (description: string) => {
+    async (options: Partial<DialogOptions>) => {
       await new Promise<void>((resolve, reject) => {
         setConfirm((prev) => ({
           open: true,
           options: {
             ...prev.options,
-            ...customOptions,
-            description,
+            ...options,
           },
           onConfirm: handleConfirm,
           onCancel: handleCancel,
@@ -50,7 +49,7 @@ export const useConfirm = (customOptions: Partial<DialogOptions> = {}) => {
         }))
       })
     },
-    [customOptions, handleCancel, handleClose, handleConfirm, setConfirm]
+    [handleCancel, handleClose, handleConfirm, setConfirm]
   )
 
   return confirm

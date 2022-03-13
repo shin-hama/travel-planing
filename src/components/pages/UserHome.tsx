@@ -1,17 +1,19 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
+import dayjs from 'dayjs'
 
 import PlansList from 'components/modules/PlansList'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlan } from 'hooks/usePlan'
 import { Plan } from 'contexts/CurrentPlanProvider'
 import { StepperHandlerContext } from './PlaningMain'
-import dayjs from 'dayjs'
+import { useConfirm } from 'hooks/useConfirm'
 
 const UserHome = () => {
   const [user] = useAuthentication()
@@ -19,6 +21,7 @@ const UserHome = () => {
   const [plans, setPlans] = React.useState<Array<Plan>>([])
   const [nextPlan, setNextPlan] = React.useState<Plan | null>(null)
   const setStep = React.useContext(StepperHandlerContext)
+  const confirm = useConfirm()
 
   React.useEffect(() => {
     if (user) {
@@ -30,10 +33,6 @@ const UserHome = () => {
     }
   }, [actions, user])
 
-  const handleClick = () => {
-    setStep('Config')
-  }
-
   React.useEffect(() => {
     // 将来の旅行計画の中から、最も近い旅行を表示する
     const today = new Date()
@@ -43,6 +42,22 @@ const UserHome = () => {
     setNextPlan(sortedFeaturesDesc.shift() || null)
   }, [plans])
 
+  const handleClick = async () => {
+    if (!user) {
+      try {
+        await confirm({
+          title: 'Create Plan?',
+          description:
+            'NOTE: You are a guest user, you cannot save plan. Please create account or login if you want to save.',
+          allowClose: true,
+        })
+      } catch {
+        return
+      }
+    }
+    setStep('Config')
+  }
+
   return (
     <>
       {nextPlan && (
@@ -50,8 +65,16 @@ const UserHome = () => {
           <Typography>Next trip</Typography>
         </Box>
       )}
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <PlansList plans={plans} />
+      <Container
+        maxWidth="lg"
+        sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        {plans.length > 0 ? (
+          <PlansList plans={plans} />
+        ) : (
+          <Button variant="contained" onClick={handleClick}>
+            Plan Your Travel
+          </Button>
+        )}
       </Container>
       <Fab
         onClick={handleClick}

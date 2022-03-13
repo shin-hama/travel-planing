@@ -3,12 +3,11 @@ import Button from '@mui/material/Button'
 import Dialog, { DialogProps } from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
 export type DialogOptions = {
   title: string
-  description: string
+  description: React.ReactNode
   dialogProps: Omit<DialogProps, 'open'>
   allowClose: boolean
 }
@@ -35,9 +34,7 @@ const ConfirmationDialog: React.FC<ConfirmationProps> = ({
       open={open}
       onClose={allowClose ? onClose : undefined}>
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{description}</DialogContentText>
-      </DialogContent>
+      <DialogContent>{description}</DialogContent>
       <DialogActions>
         <Button variant="outlined" onClick={onCancel}>
           Cancel

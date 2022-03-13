@@ -15,15 +15,17 @@ import { usePlan } from 'hooks/usePlan'
 const PlanViewer = () => {
   const { loading } = useDirections()
   const eventsApi = useSelectSpots()
-  const confirm = useConfirm({ allowClose: false })
+  const confirm = useConfirm()
   const [plan] = usePlan()
 
   const handleOptimize = async () => {
     try {
       try {
-        await confirm(
-          'Optimize your plan.\nWARNING: Current plan will be overwritten'
-        )
+        await confirm({
+          allowClose: false,
+          description:
+            'Optimize your plan.\nWARNING: Current plan will be overwritten',
+        })
       } catch {
         // when cancel
         return
