@@ -13,6 +13,7 @@ const containerStyle = {
   width: '100%',
   height: '100%',
 }
+
 const libs: 'places'[] = ['places']
 
 const GoogleMap: React.FC = React.memo(function Map({ children }) {

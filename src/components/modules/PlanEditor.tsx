@@ -19,6 +19,7 @@ import MoveEventCard from './MoveEventCard'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { MoveEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
 import { useDistanceMatrix } from 'hooks/googlemaps/useDistanceMatrix'
+import { usePlan } from 'hooks/usePlan'
 
 dayjs.extend(customParseFormat)
 
@@ -90,7 +91,9 @@ const StyledWrapper = styled('div')<{ width: string }>`
 `
 
 const PlanEditor = () => {
-  const { events, actions: eventsApi } = useSelectSpots()
+  const [plan] = usePlan()
+  const events = plan?.events || []
+  const eventsApi = useSelectSpots()
   const calendar = React.useRef<FullCalendar>(null)
 
   const distanceMatrix = useDistanceMatrix()

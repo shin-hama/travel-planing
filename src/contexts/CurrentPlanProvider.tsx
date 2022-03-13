@@ -9,14 +9,15 @@ export type Plan = {
   title: string
   home: Prefecture
   destination: Prefecture
-  start?: Date
-  end?: Date
+  thumbnail: string
+  start: Date
+  end: Date
   events?: Array<ScheduleEvent>
 }
 
 type PlanAction =
   | {
-      type: 'create'
+      type: 'set'
       value: Plan
     }
   | {
@@ -26,7 +27,7 @@ type PlanAction =
 
 const planReducer = (state: Plan | null, action: PlanAction): Plan | null => {
   switch (action.type) {
-    case 'create':
+    case 'set':
       return action.value
 
     case 'update':
