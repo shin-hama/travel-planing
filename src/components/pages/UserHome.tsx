@@ -36,8 +36,6 @@ const UserHome = () => {
 
   React.useEffect(() => {
     // 将来の旅行計画の中から、最も近い旅行を表示する
-    // TODO: 旅行当日のプランがあればそれを優先して表示するようにする
-    // start ではなく End をキーにすれば行けるのでは?
     const today = new Date()
     const sortedFeaturesDesc = plans
       .filter((plan) => plan.end > today)

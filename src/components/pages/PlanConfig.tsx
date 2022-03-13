@@ -9,6 +9,7 @@ import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { usePlan } from 'hooks/usePlan'
+import { useUnsplash } from 'hooks/useUnsplash'
 
 const PrefectureSelector = () => {
   const setStep = React.useContext(StepperHandlerContext)
@@ -16,6 +17,8 @@ const PrefectureSelector = () => {
   const { actions: eventsApi } = useSelectSpots()
   const [plan, { create: createPlan }] = usePlan()
   const [planDTO, setPlanDTO] = React.useState<Partial<Plan>>({})
+  const unsplash = useUnsplash()
+  const [photo, setPhoto] = React.useState('')
 
   const [mode, setMode] = React.useState<keyof NonNullable<typeof plan> | null>(
     null
@@ -24,7 +27,7 @@ const PrefectureSelector = () => {
     setMode(null)
   }
 
-  const handleSelectPrefecture = (prefecture: Prefecture) => {
+  const handleSelectPrefecture = async (prefecture: Prefecture) => {
     if (mode) {
       setPlanDTO((prev) => ({ ...prev, [mode]: prefecture }))
 
@@ -34,25 +37,30 @@ const PrefectureSelector = () => {
           center: { lat: prefecture.lat, lng: prefecture.lng },
           zoom: prefecture.zoom,
         }))
+        const photo = await unsplash.searchPhotos(prefecture.name)
+        console.log(photo)
+        setPhoto(photo.urls.regular)
       }
     }
     setMode(null)
   }
 
-  const handleCreatePlan = () => {
+  const handleCreatePlan = async () => {
     if (!planDTO?.home || !planDTO?.destination) {
       alert('please select home and destination')
       return
     }
+
     eventsApi.init()
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: 'Test Trip',
       start: new Date(),
       end: new Date(),
+      thumbnail: photo,
       home: planDTO.home,
       destination: planDTO.destination,
     }
-    createPlan(newPlan)
+    await createPlan(newPlan)
 
     setStep('Map')
   }
