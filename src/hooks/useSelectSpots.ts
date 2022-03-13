@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import {
   MoveEvent,
   ScheduleEvent,
-  ScheduleEventsContext,
   SpotDTO,
   SpotEvent,
   useScheduleEventsActions,
@@ -16,16 +15,13 @@ import { useEventFactory } from './useEventFactory'
 import { usePlan } from './usePlan'
 
 export const useSelectSpots = () => {
-  const scheduledEvents = React.useContext(ScheduleEventsContext)
+  const [currentPlan, planActions] = usePlan()
   const eventsRef = React.useRef<ScheduleEvent[]>([])
-  eventsRef.current = scheduledEvents
+  eventsRef.current = currentPlan?.events || []
   const listActions = useScheduleEventsActions()
   const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()
-  const [currentPlan, planActions] = usePlan()
   const { create: buildEvent, isSpotEvent, isMoveEvent } = useEventFactory()
-
-  const [loading, setLoading] = React.useState(false)
 
   const [getSpot] = useGetSpotByPkLazyQuery()
 
@@ -369,8 +365,6 @@ export const useSelectSpots = () => {
   const remove = React.useCallback(
     async (removed: ScheduleEvent) => {
       try {
-        setLoading(true)
-
         listActions.remove(removed.id)
 
         if (removed.extendedProps.type === 'spot') {
@@ -420,8 +414,6 @@ export const useSelectSpots = () => {
         console.error(e)
       } finally {
         await commitEventsChange()
-
-        setLoading(false)
       }
     },
     [
@@ -439,8 +431,6 @@ export const useSelectSpots = () => {
   const insert = React.useCallback(
     async (inserted: SpotEvent) => {
       try {
-        setLoading(true)
-
         // Calc new schedule on moved date
         const destSpots = eventsRef.current.filter(
           (event): event is SpotEvent =>
@@ -553,8 +543,6 @@ export const useSelectSpots = () => {
         console.error(e)
       } finally {
         await commitEventsChange()
-
-        setLoading(false)
       }
     },
     [
@@ -572,10 +560,8 @@ export const useSelectSpots = () => {
     listActions.clear()
   }, [listActions])
 
-  return {
-    events: scheduledEvents,
-    loading,
-    actions: {
+  const actions = React.useMemo(
+    () => ({
       init,
       get,
       getPrevSpot,
@@ -588,6 +574,22 @@ export const useSelectSpots = () => {
       applyChange,
       swap,
       commit: commitEventsChange,
-    },
-  }
+    }),
+    [
+      applyChange,
+      commitEventsChange,
+      generateRoute,
+      get,
+      getDestinations,
+      getNextSpot,
+      getPrevSpot,
+      init,
+      insert,
+      remove,
+      swap,
+      update,
+    ]
+  )
+
+  return actions
 }

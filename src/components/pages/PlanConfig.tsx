@@ -14,7 +14,7 @@ import { useUnsplash } from 'hooks/useUnsplash'
 const PrefectureSelector = () => {
   const setStep = React.useContext(StepperHandlerContext)
   const [, setMapProps] = useMapProps()
-  const { actions: eventsApi } = useSelectSpots()
+  const eventsApi = useSelectSpots()
   const [plan, { create: createPlan }] = usePlan()
   const [planDTO, setPlanDTO] = React.useState<Partial<Plan>>({})
   const unsplash = useUnsplash()

@@ -5,13 +5,23 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
+import { StepperHandlerContext } from 'components/pages/RoutePlanner'
+import { usePlan } from 'hooks/usePlan'
 
 type Props = {
   plan: Plan
 }
 const TravelPlanCard: React.FC<Props> = ({ plan }) => {
+  const setStep = React.useContext(StepperHandlerContext)
+  const [, planActions] = usePlan()
+
+  const handleClick = () => {
+    planActions.set(plan)
+    setStep('Schedule')
+  }
+
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card onClick={handleClick} sx={{ height: '100%' }}>
       <Box
         sx={{
           height: '100%',

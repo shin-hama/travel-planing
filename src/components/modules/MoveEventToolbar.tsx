@@ -27,10 +27,10 @@ type Props = {
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
-  const { actions } = useSelectSpots()
+  const eventsActions = useSelectSpots()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
-    const moveEvent = actions.get<MoveEvent>(event.id, 'move')
+    const moveEvent = eventsActions.get<MoveEvent>(event.id, 'move')
     if (moveEvent === undefined) {
       console.error('event is not managed')
       return
@@ -49,8 +49,8 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       }
     }
 
-    const prev = actions.getPrevSpot(moveEvent)
-    const next = actions.getNextSpot(moveEvent)
+    const prev = eventsActions.getPrevSpot(moveEvent)
+    const next = eventsActions.getNextSpot(moveEvent)
 
     const result = await directions.search({
       origin: { placeId: prev?.extendedProps.placeId },
@@ -63,12 +63,12 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       const newEnd = dayjs(event.start).add(durationSec, 'second')
       const durationDiff = dayjs(newEnd).diff(moveEvent.end, 'minute')
       moveEvent.extendedProps.mode = mode
-      actions.update({
+      eventsActions.update({
         ...moveEvent,
         end: newEnd.toDate(),
       })
 
-      actions.applyChange(moveEvent, durationDiff)
+      eventsActions.applyChange(moveEvent, durationDiff)
     }
   }
 

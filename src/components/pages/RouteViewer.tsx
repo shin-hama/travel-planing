@@ -13,7 +13,7 @@ import { useConfirm } from 'hooks/useConfirm'
 
 const RouteViewer = () => {
   const { loading } = useDirections()
-  const { actions: eventsApi } = useSelectSpots()
+  const eventsApi = useSelectSpots()
   const confirm = useConfirm({ allowClose: false })
 
   const handleOptimize = async () => {

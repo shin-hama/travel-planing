@@ -17,7 +17,7 @@ export type Plan = {
 
 type PlanAction =
   | {
-      type: 'create'
+      type: 'set'
       value: Plan
     }
   | {
@@ -27,7 +27,7 @@ type PlanAction =
 
 const planReducer = (state: Plan | null, action: PlanAction): Plan | null => {
   switch (action.type) {
-    case 'create':
+    case 'set':
       return action.value
 
     case 'update':

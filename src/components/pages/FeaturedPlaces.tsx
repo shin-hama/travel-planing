@@ -9,20 +9,22 @@ import SpotsCandidates from '../modules/SpotsCandidates'
 import SpotsMap from '../modules/SpotsMap'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
+import { usePlan } from 'hooks/usePlan'
 
 const FeaturedPlaces = () => {
   const [open, setOpen] = React.useState(false)
   const setStep = React.useContext(StepperHandlerContext)
-  const { events, actions } = useSelectSpots()
+  const [plan] = usePlan()
+  const eventsActions = useSelectSpots()
   const [spots, spotsActions] = useSelectedSpots()
 
   React.useEffect(() => {
-    spotsActions.init(events)
+    spotsActions.init(plan?.events || [])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleClickNext = async () => {
-    await actions.generateRoute(spots)
+    await eventsActions.generateRoute(spots)
     setStep('Schedule')
   }
 

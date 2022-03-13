@@ -59,10 +59,10 @@ export const usePlan = () => {
           if (user) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             const ref = await db.add(path, newPlan)
-            setPlan({ type: 'create', value: { ...newPlan, id: ref.id } })
+            setPlan({ type: 'set', value: { ...newPlan, id: ref.id } })
           } else {
             console.log('Current user is guest')
-            setPlan({ type: 'create', value: { ...newPlan, id: 'guest' } })
+            setPlan({ type: 'set', value: { ...newPlan, id: 'guest' } })
           }
         } catch {
           console.error('fail to save plan')
@@ -90,6 +90,9 @@ export const usePlan = () => {
         } catch (e) {
           console.error(e)
         }
+      },
+      set: (target: Plan) => {
+        setPlan({ type: 'set', value: target })
       },
     }
 

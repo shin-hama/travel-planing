@@ -17,7 +17,7 @@ type Props = {
   event: EventApi & { extendedProps: SpotEvent['extendedProps'] }
 }
 const EventToolbar: React.FC<Props> = ({ event }) => {
-  const { actions: spotsApi } = useSelectSpots()
+  const spotsApi = useSelectSpots()
 
   const handleUp = async () => {
     console.log('up')
