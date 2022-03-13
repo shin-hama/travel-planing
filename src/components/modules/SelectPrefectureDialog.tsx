@@ -9,10 +9,10 @@ import JapanMap from 'components/elements/JapanMap'
 import { Prefecture } from 'contexts/CurrentPlanProvider'
 import { useGetPrefecturesQuery } from 'generated/graphql'
 
-type Props = {
+export type Props = {
   open: boolean
-  onOK: (selected: Prefecture) => void
-  onClose: () => void
+  onOK?: (selected: Prefecture) => void
+  onClose?: () => void
 }
 const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
   const { data, loading, error } = useGetPrefecturesQuery()
@@ -26,7 +26,7 @@ const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
       (item) => item.code === prefectureCode
     )
     if (prefecture) {
-      onOK(prefecture)
+      onOK?.(prefecture)
     }
   }
 
