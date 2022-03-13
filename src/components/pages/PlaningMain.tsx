@@ -7,7 +7,7 @@ import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 import Div100vh from 'react-div-100vh'
 
 import Header from 'components/modules/Header'
-import RouteViewer from './RouteViewer'
+import PlanViewer from './PlanViewer'
 import PrefectureSelector from './PlanConfig'
 import FeaturedPlaces from './FeaturedPlaces'
 import UserHome from './UserHome'
@@ -24,10 +24,10 @@ const steps: Record<Step, React.ReactNode> = {
   Home: <UserHome />,
   Config: <PrefectureSelector />,
   Map: <FeaturedPlaces />,
-  Schedule: <RouteViewer />,
+  Schedule: <PlanViewer />,
 }
 
-const RoutePlanner = () => {
+const PlaningMain = () => {
   const [activeStep, setStep] = React.useState<Step>('Home')
 
   return (
@@ -77,4 +77,4 @@ const RoutePlanner = () => {
   )
 }
 
-export default RoutePlanner
+export default PlaningMain

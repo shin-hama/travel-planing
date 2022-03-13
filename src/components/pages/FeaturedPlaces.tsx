@@ -4,7 +4,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
-import { StepperHandlerContext } from './RoutePlanner'
+import { StepperHandlerContext } from './PlaningMain'
 import SpotsCandidates from '../modules/SpotsCandidates'
 import SpotsMap from '../modules/SpotsMap'
 import { useSelectSpots } from 'hooks/useSelectSpots'

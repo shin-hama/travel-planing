@@ -9,7 +9,7 @@ import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
 import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 import { MapPropsProvider } from 'contexts/MapPropsProvider'
 import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
-import RoutePlanner from 'components/pages/RoutePlanner'
+import PlaningMain from 'components/pages/PlaningMain'
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
                 <CurrentPlanContextProvider>
                   <SelectedSpotsProvider>
                     <ScheduleEventsProvider>
-                      <RoutePlanner />
+                      <PlaningMain />
                     </ScheduleEventsProvider>
                   </SelectedSpotsProvider>
                 </CurrentPlanContextProvider>

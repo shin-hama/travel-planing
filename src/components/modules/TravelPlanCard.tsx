@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
-import { StepperHandlerContext } from 'components/pages/RoutePlanner'
+import { StepperHandlerContext } from 'components/pages/PlaningMain'
 import { usePlan } from 'hooks/usePlan'
 
 type Props = {

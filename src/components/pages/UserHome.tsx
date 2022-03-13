@@ -10,7 +10,7 @@ import PlansList from 'components/modules/PlansList'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlan } from 'hooks/usePlan'
 import { Plan } from 'contexts/CurrentPlanProvider'
-import { StepperHandlerContext } from './RoutePlanner'
+import { StepperHandlerContext } from './PlaningMain'
 import dayjs from 'dayjs'
 
 const UserHome = () => {

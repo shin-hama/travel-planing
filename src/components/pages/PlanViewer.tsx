@@ -10,11 +10,13 @@ import PlanEditor from 'components/modules/PlanEditor'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useSelectSpots } from 'hooks/useSelectSpots'
 import { useConfirm } from 'hooks/useConfirm'
+import { usePlan } from 'hooks/usePlan'
 
-const RouteViewer = () => {
+const PlanViewer = () => {
   const { loading } = useDirections()
   const eventsApi = useSelectSpots()
   const confirm = useConfirm({ allowClose: false })
+  const [plan] = usePlan()
 
   const handleOptimize = async () => {
     try {
@@ -44,6 +46,10 @@ const RouteViewer = () => {
     )
   }
 
+  if (!plan) {
+    throw new Error('Plan is not selected')
+  }
+
   return (
     <>
       <Container
@@ -58,7 +64,7 @@ const RouteViewer = () => {
           alignItems="center"
           justifyContent="space-between">
           <Typography variant="h4" component="h2">
-            Your travel plan
+            {plan.title}
           </Typography>
           <Button variant="contained" onClick={handleOptimize}>
             Optimize
@@ -70,4 +76,4 @@ const RouteViewer = () => {
   )
 }
 
-export default RouteViewer
+export default PlanViewer
