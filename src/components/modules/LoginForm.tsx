@@ -8,9 +8,16 @@ import Icon from '@mui/material/SvgIcon'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useForm } from 'react-hook-form'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { ReactComponent as GoogleIcon } from 'icons/google.svg'
+
+type LoginFormInput = {
+  email: string
+  password: string
+}
+
 type Props = {
   open: boolean
   isSignUp: boolean
@@ -18,19 +25,15 @@ type Props = {
 }
 const LoginForm: React.FC<Props> = ({ open, isSignUp, onClose }) => {
   const [, auth] = useAuthentication()
+  const { register, handleSubmit, reset } = useForm<LoginFormInput>()
 
-  const [forms, setForms] = React.useState({
-    email: '',
-    password: '',
-  })
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleLogin = async (values: LoginFormInput) => {
     if (isSignUp) {
-      await auth.create(forms.email, forms.password)
+      await auth.create(values.email, values.password)
     } else {
-      await auth.signIn(forms.email, forms.password)
+      await auth.signIn(values.email, values.password)
     }
+    reset()
     onClose()
   }
 
@@ -54,32 +57,23 @@ const LoginForm: React.FC<Props> = ({ open, isSignUp, onClose }) => {
             <Divider variant="middle" sx={{ width: '100%' }}>
               or
             </Divider>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(handleLogin)}>
               <Stack spacing={2}>
                 <TextField
                   fullWidth
+                  {...register('email')}
                   label="E-mail"
-                  name="email"
                   variant="outlined"
                   size="small"
                   type="email"
-                  onChange={(e) =>
-                    setForms((prev) => ({ ...prev, email: e.target.value }))
-                  }
                 />
                 <TextField
                   fullWidth
+                  {...register('password')}
                   label="Password"
-                  name="password"
                   variant="outlined"
                   size="small"
                   type="password"
-                  onChange={(e) =>
-                    setForms((prev) => ({
-                      ...prev,
-                      password: e.target.value,
-                    }))
-                  }
                 />
                 <Button type="submit" variant="contained">
                   Login
