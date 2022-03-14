@@ -10,7 +10,7 @@ const unsplash = createApi({
 export const useUnsplash = () => {
   const actions = React.useMemo(() => {
     const a = {
-      searchPhotos: async (query: string) => {
+      searchPhoto: async (query: string) => {
         const result = await unsplash.photos.getRandom({
           query: query,
           orientation: 'landscape',

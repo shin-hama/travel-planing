@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack'
 import JapanMap from 'components/elements/JapanMap'
 import { Prefecture } from 'contexts/CurrentPlanProvider'
 import { useGetPrefecturesQuery } from 'generated/graphql'
+import { useUnsplash } from 'hooks/useUnsplash'
 
 export type Props = {
   open: boolean
@@ -16,8 +17,9 @@ export type Props = {
 }
 const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
   const { data, loading, error } = useGetPrefecturesQuery()
+  const unsplash = useUnsplash()
 
-  const handleClick = (prefectureCode: number) => {
+  const handleClick = async (prefectureCode: number) => {
     if (!data) {
       return
     }
@@ -26,7 +28,12 @@ const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
       (item) => item.code === prefectureCode
     )
     if (prefecture) {
-      onOK?.(prefecture)
+      const photo = await unsplash.searchPhoto(prefecture.name_en)
+      onOK?.({
+        ...prefecture,
+        placeId: prefecture.place_id,
+        imageUrl: photo.urls.regular,
+      })
     }
   }
 

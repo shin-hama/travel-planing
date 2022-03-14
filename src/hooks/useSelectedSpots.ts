@@ -22,7 +22,7 @@ export const useSelectedSpots = () => {
           .filter(
             (event): event is SpotEvent =>
               event.extendedProps.type === 'spot' &&
-              event.extendedProps.placeId !== currentPlan?.home?.place_id
+              event.extendedProps.placeId !== currentPlan?.home?.placeId
           )
           .map((event) => ({
             placeId: event.extendedProps.placeId,
@@ -30,7 +30,7 @@ export const useSelectedSpots = () => {
           }))
       )
     },
-    [currentPlan?.home?.place_id, spotsActions]
+    [currentPlan?.home?.placeId, spotsActions]
   )
 
   const add = React.useCallback(
