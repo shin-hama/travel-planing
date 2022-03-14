@@ -47,7 +47,7 @@ const PrefectureSelector = () => {
     }
     eventsApi.init()
 
-    const photo = await unsplash.searchPhotos(planDTO.destination.name)
+    const photo = await unsplash.searchPhoto(planDTO.destination.name)
 
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: planDTO.title,

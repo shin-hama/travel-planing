@@ -9,6 +9,7 @@ export const GET_PREFECTURES = gql`
       lng
       zoom
       place_id
+      name_en
     }
   }
 `

@@ -85,9 +85,9 @@ export const useSelectSpots = () => {
     return eventsRef.current.filter(
       (event): event is SpotEvent =>
         event.extendedProps.type === 'spot' &&
-        event.extendedProps.placeId !== currentPlan?.home?.place_id
+        event.extendedProps.placeId !== currentPlan?.home?.placeId
     )
-  }, [currentPlan?.home?.place_id])
+  }, [currentPlan?.home?.placeId])
 
   const update = React.useCallback(
     async (newEvent: ScheduleEvent) => {
@@ -240,10 +240,10 @@ export const useSelectSpots = () => {
 
       const result = await directionService.search({
         origin: {
-          placeId: currentPlan.home.place_id,
+          placeId: currentPlan.home.placeId,
         },
         destination: {
-          placeId: currentPlan.home.place_id,
+          placeId: currentPlan.home.placeId,
         },
         waypoints: selectedSpots.map((spot) => ({
           location: {
@@ -266,8 +266,8 @@ export const useSelectSpots = () => {
           start: dayjs('08:30:00', 'HH:mm:ss').toDate(),
           end: dayjs('09:00:00', 'HH:mm:ss').toDate(),
           props: {
-            placeId: currentPlan.home.place_id,
-            imageUrl: '',
+            placeId: currentPlan.home.placeId,
+            imageUrl: currentPlan.home.imageUrl,
           },
           eventProps: {
             durationEditable: false,
@@ -342,8 +342,8 @@ export const useSelectSpots = () => {
           start: moveToEnd.end,
           end: dayjs(moveToEnd.end).add(30, 'minute').toDate(),
           props: {
-            placeId: currentPlan.home.place_id,
-            imageUrl: '',
+            placeId: currentPlan.home.placeId,
+            imageUrl: currentPlan.home.imageUrl,
           },
           eventProps: {
             durationEditable: false,

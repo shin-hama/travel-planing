@@ -731,6 +731,7 @@ export type Prefectures = {
   lat: Scalars['Float'];
   lng: Scalars['Float'];
   name: Scalars['String'];
+  name_en: Scalars['String'];
   place_id: Scalars['String'];
   /** An array relationship */
   spots: Array<Spots>;
@@ -764,6 +765,7 @@ export type Prefectures_Bool_Exp = {
   lat?: InputMaybe<Float_Comparison_Exp>;
   lng?: InputMaybe<Float_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  name_en?: InputMaybe<String_Comparison_Exp>;
   place_id?: InputMaybe<String_Comparison_Exp>;
   spots?: InputMaybe<Spots_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -793,6 +795,7 @@ export type Prefectures_Insert_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
+  name_en?: InputMaybe<Scalars['String']>;
   place_id?: InputMaybe<Scalars['String']>;
   spots?: InputMaybe<Spots_Arr_Rel_Insert_Input>;
   zoom?: InputMaybe<Scalars['Int']>;
@@ -828,6 +831,7 @@ export type Prefectures_Order_By = {
   lat?: InputMaybe<Order_By>;
   lng?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  name_en?: InputMaybe<Order_By>;
   place_id?: InputMaybe<Order_By>;
   spots_aggregate?: InputMaybe<Spots_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -852,6 +856,8 @@ export enum Prefectures_Select_Column {
   /** column name */
   Name = 'name',
   /** column name */
+  NameEn = 'name_en',
+  /** column name */
   PlaceId = 'place_id',
   /** column name */
   UpdatedAt = 'updated_at',
@@ -864,6 +870,7 @@ export type Prefectures_Set_Input = {
   lat?: InputMaybe<Scalars['Float']>;
   lng?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['String']>;
+  name_en?: InputMaybe<Scalars['String']>;
   place_id?: InputMaybe<Scalars['String']>;
   zoom?: InputMaybe<Scalars['Int']>;
 };
@@ -876,6 +883,8 @@ export enum Prefectures_Update_Column {
   Lng = 'lng',
   /** column name */
   Name = 'name',
+  /** column name */
+  NameEn = 'name_en',
   /** column name */
   PlaceId = 'place_id',
   /** column name */
@@ -1701,7 +1710,7 @@ export type GetCategoriesQuery = { __typename?: 'query_root', categories: Array<
 export type GetPrefecturesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, place_id: string }> };
+export type GetPrefecturesQuery = { __typename?: 'query_root', prefectures: Array<{ __typename?: 'prefectures', code: number, name: string, lat: number, lng: number, zoom: number, place_id: string, name_en: string }> };
 
 export type GetSpotsByCategoryQueryVariables = Exact<{
   categoryId: Scalars['Int'];
@@ -1780,6 +1789,7 @@ export const GetPrefecturesDocument = gql`
     lng
     zoom
     place_id
+    name_en
   }
 }
     `;
