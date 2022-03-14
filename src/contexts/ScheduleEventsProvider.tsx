@@ -19,8 +19,8 @@ export type Move = {
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
 export type EventBase = CustomEventInput & {
   id: string
-  start: Date | string
-  end: Date | string
+  start: Date
+  end: Date
 }
 export type SpotEvent = EventBase & {
   extendedProps: Spot

@@ -8,13 +8,12 @@ import {
   faEdit,
   faRemove,
 } from '@fortawesome/free-solid-svg-icons'
-import { EventApi } from '@fullcalendar/react'
 
 import { useSelectSpots } from 'hooks/useSelectSpots'
-import { ScheduleEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { SpotEvent } from 'contexts/ScheduleEventsProvider'
 
 type Props = {
-  event: EventApi & { extendedProps: SpotEvent['extendedProps'] }
+  event: SpotEvent
 }
 const EventToolbar: React.FC<Props> = ({ event }) => {
   const spotsApi = useSelectSpots()
@@ -58,7 +57,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
   }
 
   const handleRemove = () => {
-    spotsApi.remove(event.toJSON() as ScheduleEvent)
+    spotsApi.remove(event)
   }
 
   return (
