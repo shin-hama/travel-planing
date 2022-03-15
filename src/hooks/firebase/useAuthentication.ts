@@ -19,9 +19,13 @@ export const useAuthentication = () => {
   const [user, setUser] = React.useState<User | null>()
 
   React.useEffect(() => {
-    onAuthStateChanged(auth, (userInfo) => {
+    const unsubscribe = onAuthStateChanged(auth, (userInfo) => {
       setUser(userInfo)
     })
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   const actions = React.useMemo(() => {

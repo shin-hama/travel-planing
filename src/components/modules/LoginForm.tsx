@@ -24,8 +24,12 @@ type Props = {
   onClose: () => void
 }
 const LoginForm: React.FC<Props> = ({ open, isSignUp, onClose }) => {
-  const [, auth] = useAuthentication()
+  const [user, auth] = useAuthentication()
   const { register, handleSubmit, reset } = useForm<LoginFormInput>()
+
+  React.useEffect(() => {
+    onClose()
+  }, [user])
 
   const handleLogin = async (values: LoginFormInput) => {
     if (isSignUp) {
