@@ -4,10 +4,9 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
-import { MoveEvent } from 'contexts/ScheduleEventsProvider'
+import { MoveEvent } from 'hooks/usePlanEvents'
 import { useToggle } from 'react-use'
 import MoveEventToolbar, { MoveTypes } from './MoveEventToolbar'
 
@@ -16,7 +15,7 @@ const calcDiff = (start: Date, end: Date) => {
   return `${Math.floor(min / 60)}時間${min % 60}分`
 }
 type Props = {
-  event: EventApi & { extendedProps: MoveEvent['extendedProps'] }
+  event: MoveEvent
 }
 const MoveEventCard: React.FC<Props> = ({ event }) => {
   const [open, toggle] = useToggle(false)

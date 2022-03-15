@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import { StepperHandlerContext } from './PlaningMain'
 import SpotsCandidates from '../modules/SpotsCandidates'
 import SpotsMap from '../modules/SpotsMap'
-import { useSelectSpots } from 'hooks/useSelectSpots'
+import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
 import { usePlan } from 'hooks/usePlan'
 
@@ -15,7 +15,7 @@ const FeaturedPlaces = () => {
   const [open, setOpen] = React.useState(false)
   const setStep = React.useContext(StepperHandlerContext)
   const [plan] = usePlan()
-  const eventsActions = useSelectSpots()
+  const [, eventsActions] = usePlanEvents()
   const [spots, spotsActions] = useSelectedSpots()
 
   React.useEffect(() => {

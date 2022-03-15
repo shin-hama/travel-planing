@@ -16,10 +16,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
-import { useSelectSpots } from 'hooks/useSelectSpots'
-import { MoveEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { usePlanEvents, MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
 import { useDistanceMatrix } from 'hooks/googlemaps/useDistanceMatrix'
-import { usePlan } from 'hooks/usePlan'
 
 dayjs.extend(customParseFormat)
 
@@ -90,10 +88,8 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
-const PlanEditor = () => {
-  const [plan] = usePlan()
-  const events = plan?.events || []
-  const eventsApi = useSelectSpots()
+const EventsScheduler = () => {
+  const [events, eventsApi] = usePlanEvents()
   const calendar = React.useRef<FullCalendar>(null)
 
   const distanceMatrix = useDistanceMatrix()
@@ -133,8 +129,20 @@ const PlanEditor = () => {
   }
 
   const handleEventDrop = async (e: EventDropArg) => {
-    // 画面上で移動させるためにとりあえず Event を更新する
-    eventsApi.update(e.event.toJSON() as SpotEvent)
+    // 画面上で元の位置に戻らないようとりあえず Event を更新する
+    const droppedEvent = eventsApi.get<SpotEvent>(
+      e.event.id,
+      e.event.extendedProps.type
+    )
+    if (!droppedEvent) {
+      throw new Error('Cannot find dropped event')
+    }
+    const cloned: SpotEvent = {
+      ...droppedEvent,
+      start: dayjs(e.event.start).toDate(),
+      end: dayjs(e.event.end).toDate(),
+    }
+    eventsApi.update(cloned)
 
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
@@ -184,7 +192,7 @@ const PlanEditor = () => {
         }
 
         // Move to target day
-        eventsApi.insert(e.event.toJSON() as SpotEvent)
+        eventsApi.insert(cloned)
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
         events
@@ -208,7 +216,18 @@ const PlanEditor = () => {
   }
 
   const handleEventResize = (e: EventResizeDoneArg) => {
-    eventsApi.update(e.event.toJSON() as SpotEvent)
+    const resizedEvent = eventsApi.get<SpotEvent>(
+      e.event.id,
+      e.event.extendedProps.type
+    )
+    if (!resizedEvent) {
+      throw new Error('Cannot find resized event')
+    }
+    eventsApi.update({
+      ...resizedEvent,
+      start: dayjs(e.event.start).toDate(),
+      end: dayjs(e.event.end).toDate(),
+    })
 
     if (e.startDelta.milliseconds !== 0) {
       console.log('edit start')
@@ -249,25 +268,18 @@ const PlanEditor = () => {
 
   const renderEvent = (eventInfo: EventContentArg) => {
     if (eventInfo.event.extendedProps.type === 'spot') {
-      return (
-        <SpotEventCard
-          event={
-            eventInfo.event as EventApi & {
-              extendedProps: SpotEvent['extendedProps']
-            }
-          }
-        />
-      )
+      const event = eventsApi.get<SpotEvent>(eventInfo.event.id, 'spot')
+      if (!event) {
+        throw new Error('Cannot find event')
+      }
+      return <SpotEventCard event={event} />
     } else if (eventInfo.event.extendedProps.type === 'move') {
-      return (
-        <MoveEventCard
-          event={
-            eventInfo.event as EventApi & {
-              extendedProps: MoveEvent['extendedProps']
-            }
-          }
-        />
-      )
+      const event = eventsApi.get<MoveEvent>(eventInfo.event.id, 'move')
+      if (!event) {
+        throw new Error('Cannot find event')
+      }
+
+      return <MoveEventCard event={event} />
     }
   }
 
@@ -344,4 +356,4 @@ const PlanEditor = () => {
   )
 }
 
-export default PlanEditor
+export default EventsScheduler

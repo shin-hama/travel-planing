@@ -9,9 +9,9 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 
-import PlanEditor from 'components/modules/PlanEditor'
+import EventsScheduler from 'components/modules/EventsScheduler'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { useSelectSpots } from 'hooks/useSelectSpots'
+import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useConfirm } from 'hooks/useConfirm'
 import { usePlan } from 'hooks/usePlan'
 import { StepperHandlerContext } from './PlaningMain'
@@ -19,7 +19,7 @@ import { Box } from '@mui/material'
 
 const PlanViewer = () => {
   const { loading } = useDirections()
-  const eventsApi = useSelectSpots()
+  const [, eventsApi] = usePlanEvents()
   const confirm = useConfirm()
   const [plan] = usePlan()
 
@@ -80,7 +80,7 @@ const PlanViewer = () => {
           </Button>
         </Stack>
         <Box sx={{ height: '100%', zIndex: 0 }}>
-          <PlanEditor />
+          <EventsScheduler />
         </Box>
         <Fab
           onClick={() => setStep('Map')}

@@ -1,26 +1,49 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
 
-import {
-  MoveEvent,
-  ScheduleEvent,
-  ScheduleEventsContext,
-  SpotDTO,
-  SpotEvent,
-  useScheduleEventsActions,
-} from 'contexts/ScheduleEventsProvider'
 import { useDistanceMatrix } from './googlemaps/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { useDirections } from './googlemaps/useDirections'
 import { useEventFactory } from './useEventFactory'
 import { usePlan } from './usePlan'
+import { useLinkedEvents } from './useLinkedEventList'
 
-export const useSelectSpots = () => {
+import { EventInput } from '@fullcalendar/react' // must go before plugins
+
+export type SpotDTO = Required<Pick<Spot, 'placeId' | 'imageUrl'>>
+export type Spot = {
+  type: 'spot'
+  placeId: string
+  imageUrl: string
+  from: string | null
+  to: string | null
+}
+export type Move = {
+  type: 'move'
+  from: string
+  to: string
+  mode: 'bicycle' | 'car' | 'walk'
+}
+type CustomEventInput = Omit<EventInput, 'extendedProps'>
+export type EventBase = CustomEventInput & {
+  id: string
+  start: Date
+  end: Date
+}
+export type SpotEvent = EventBase & {
+  extendedProps: Spot
+}
+export type MoveEvent = EventBase & {
+  extendedProps: Move
+}
+
+export type ScheduleEvent = SpotEvent | MoveEvent
+
+export const usePlanEvents = () => {
   const [currentPlan, planActions] = usePlan()
-  const events = React.useContext(ScheduleEventsContext)
+  const [events, eventsApi] = useLinkedEvents(currentPlan?.events)
   const eventsRef = React.useRef<ScheduleEvent[]>([])
   eventsRef.current = events
-  const listActions = useScheduleEventsActions()
   const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()
   const { create: buildEvent, isSpotEvent, isMoveEvent } = useEventFactory()
@@ -45,7 +68,7 @@ export const useSelectSpots = () => {
 
   const getPrevSpot = React.useCallback(
     (current: ScheduleEvent): SpotEvent | null => {
-      const prev = listActions.prev(current)
+      const prev = eventsApi.prev(current)
 
       if (!prev) {
         return null
@@ -59,12 +82,12 @@ export const useSelectSpots = () => {
         throw Error(`not implemented type event error: ${prev}`)
       }
     },
-    [isMoveEvent, isSpotEvent, listActions]
+    [isMoveEvent, isSpotEvent, eventsApi]
   )
 
   const getNextSpot = React.useCallback(
     (current: ScheduleEvent): SpotEvent | null => {
-      const next = listActions.next(current)
+      const next = eventsApi.next(current)
 
       if (!next) {
         return null
@@ -78,7 +101,7 @@ export const useSelectSpots = () => {
         throw Error(`not implemented type event error: ${next}`)
       }
     },
-    [isMoveEvent, isSpotEvent, listActions]
+    [isMoveEvent, isSpotEvent, eventsApi]
   )
 
   const getDestinations = React.useCallback(() => {
@@ -91,9 +114,9 @@ export const useSelectSpots = () => {
 
   const update = React.useCallback(
     async (newEvent: ScheduleEvent) => {
-      listActions.update(newEvent)
+      eventsApi.update(newEvent)
     },
-    [listActions]
+    [eventsApi]
   )
 
   const applyChange = React.useCallback(
@@ -236,7 +259,7 @@ export const useSelectSpots = () => {
       }
 
       // 既存ルートを初期化する
-      listActions.clear()
+      eventsApi.clear()
 
       const result = await directionService.search({
         origin: {
@@ -274,10 +297,10 @@ export const useSelectSpots = () => {
           },
         },
       })
-      listActions.push(startEvent)
+      eventsApi.push(startEvent)
 
       for (const [i, waypointIndex] of route.waypoint_order.entries()) {
-        const last = listActions.getLast()
+        const last = eventsApi.getLast()
         if (last === null) {
           throw Error('event is not added')
         }
@@ -292,7 +315,7 @@ export const useSelectSpots = () => {
             end: moveEnd.toDate(),
           },
         })
-        listActions.push(moveEvent)
+        eventsApi.push(moveEvent)
 
         const { data: spot } = await getSpot({
           variables: { place_id: selectedSpots[waypointIndex].placeId },
@@ -313,10 +336,10 @@ export const useSelectSpots = () => {
             },
           })
 
-          listActions.push(spotEvent)
+          eventsApi.push(spotEvent)
         }
       }
-      const last = listActions.getLast()
+      const last = eventsApi.getLast()
       if (last === null) {
         throw Error('event is not added')
       }
@@ -332,7 +355,7 @@ export const useSelectSpots = () => {
           end: moveEnd.toDate(),
         },
       })
-      listActions.push(moveToEnd)
+      eventsApi.push(moveToEnd)
 
       const endEvent = await buildEvent({
         type: 'spot',
@@ -350,7 +373,7 @@ export const useSelectSpots = () => {
           },
         },
       })
-      listActions.push(endEvent)
+      eventsApi.push(endEvent)
 
       commitEventsChange()
     },
@@ -360,21 +383,21 @@ export const useSelectSpots = () => {
       currentPlan?.home,
       directionService,
       getSpot,
-      listActions,
+      eventsApi,
     ]
   )
 
   const remove = React.useCallback(
     async (removed: ScheduleEvent) => {
       try {
-        listActions.remove(removed.id)
+        eventsApi.remove(removed.id)
 
         if (removed.extendedProps.type === 'spot') {
           const afterMove = removed.extendedProps.to
             ? get<MoveEvent>(removed.extendedProps.to, 'move')
             : null
           if (afterMove) {
-            listActions.remove(afterMove.id)
+            eventsApi.remove(afterMove.id)
           }
 
           // update before move
@@ -408,7 +431,7 @@ export const useSelectSpots = () => {
 
               applyChange(beforeMove, moveEndChange)
             } else {
-              listActions.remove(beforeMove.id)
+              eventsApi.remove(beforeMove.id)
             }
           }
         }
@@ -419,7 +442,7 @@ export const useSelectSpots = () => {
       }
     },
     [
-      listActions,
+      eventsApi,
       get,
       getPrevSpot,
       getNextSpot,
@@ -478,7 +501,7 @@ export const useSelectSpots = () => {
                 end: beforeMoveEnd.toDate(),
               },
             })
-            listActions.push(beforeMoveEvent)
+            eventsApi.push(beforeMoveEvent)
 
             beforeMoveId = beforeMoveEvent.id
           }
@@ -527,7 +550,7 @@ export const useSelectSpots = () => {
             },
           })
 
-          listActions.push(moveEvent)
+          eventsApi.push(moveEvent)
           afterMoveId = moveEvent.id
 
           isMoveEvent(moveEvent) && applyChange(moveEvent, moveEndChange)
@@ -552,15 +575,15 @@ export const useSelectSpots = () => {
       commitEventsChange,
       distanceMatrix,
       buildEvent,
-      listActions,
+      eventsApi,
       isMoveEvent,
       applyChange,
     ]
   )
 
   const init = React.useCallback(() => {
-    listActions.clear()
-  }, [listActions])
+    eventsApi.clear()
+  }, [eventsApi])
 
   const actions = React.useMemo(
     () => ({
@@ -593,5 +616,5 @@ export const useSelectSpots = () => {
     ]
   )
 
-  return actions
+  return [events, actions] as const
 }

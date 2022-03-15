@@ -2,14 +2,13 @@ import * as React from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { EventApi } from '@fullcalendar/react'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import EventToolbar from 'components/modules/SpotEventToolbar'
-import { SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { SpotEvent } from 'hooks/usePlanEvents'
 
 type Props = {
-  event: EventApi & { extendedProps: SpotEvent['extendedProps'] }
+  event: SpotEvent
 }
 const SpotEventCard: React.FC<Props> = ({ event }) => {
   const [selected, setSelected] = React.useState(false)

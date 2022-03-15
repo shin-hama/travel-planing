@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { ScheduleEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { ScheduleEvent, SpotEvent } from 'hooks/usePlanEvents'
 import {
   SelectedSpotsContext,
   SetSelectedSpotsContext,

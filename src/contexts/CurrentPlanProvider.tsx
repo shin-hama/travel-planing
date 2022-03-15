@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ScheduleEvent } from './ScheduleEventsProvider'
+import { ScheduleEvent } from 'hooks/usePlanEvents'
 
 export type Prefecture = {
   name: string

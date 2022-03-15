@@ -6,12 +6,10 @@ import {
   FontAwesomeIconProps,
 } from '@fortawesome/react-fontawesome'
 import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
-import { EventApi } from '@fullcalendar/react'
 import dayjs from 'dayjs'
 
-import { MoveEvent } from 'contexts/ScheduleEventsProvider'
+import { MoveEvent, usePlanEvents } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { useSelectSpots } from 'hooks/useSelectSpots'
 
 export const MoveTypes: Record<
   MoveEvent['extendedProps']['mode'],
@@ -23,11 +21,11 @@ export const MoveTypes: Record<
 }
 
 type Props = {
-  event: EventApi & { extendedProps: MoveEvent['extendedProps'] }
+  event: MoveEvent
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
-  const eventsActions = useSelectSpots()
+  const [, eventsActions] = usePlanEvents()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
     const moveEvent = eventsActions.get<MoveEvent>(event.id, 'move')
