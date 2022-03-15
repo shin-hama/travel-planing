@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { useForm } from 'react-hook-form'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { ReactComponent as GoogleIcon } from 'icons/google.svg'
+import GoogleIcon from 'icons/google.svg'
 
 type LoginFormInput = {
   email: string

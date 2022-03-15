@@ -11,4 +11,12 @@ const withTM = require('next-transpile-modules')([
 module.exports = withTM({
   // any other general next.js settings
   reactStrictMode: true,
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    })
+
+    return config
+  },
 })
