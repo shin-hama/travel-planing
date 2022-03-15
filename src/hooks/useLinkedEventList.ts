@@ -28,8 +28,10 @@ type UseLinkedList<T extends LinkedEvent> = readonly [
   LinkedEventsActions<T>
 ]
 
-export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
-  const [items, setItemsActions] = useList<T>()
+export const useLinkedEvents = <T extends LinkedEvent>(
+  initialList: Array<T> = []
+): UseLinkedList<T> => {
+  const [items, setItemsActions] = useList<T>(initialList)
   const itemsRef = React.useRef<T[]>([])
   itemsRef.current = items
 
@@ -142,5 +144,5 @@ export const useLinkedEvents = <T extends LinkedEvent>(): UseLinkedList<T> => {
     [clear, get, getFirst, getLast, insert, next, prev, push, remove, update]
   )
 
-  return [items, actions]
+  return [items, actions] as const
 }

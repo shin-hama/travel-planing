@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import EventToolbar from 'components/modules/SpotEventToolbar'
-import { SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { SpotEvent } from 'hooks/usePlanEvents'
 
 type Props = {
   event: SpotEvent

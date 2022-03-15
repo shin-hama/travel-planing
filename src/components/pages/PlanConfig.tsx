@@ -11,7 +11,7 @@ import SelectPrefectureDialog, {
 } from 'components/modules/SelectPrefectureDialog'
 import { StepperHandlerContext } from './PlaningMain'
 import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
-import { useSelectSpots } from 'hooks/useSelectSpots'
+import { usePlanEvents } from 'hooks/usePlanEvents'
 import { usePlan } from 'hooks/usePlan'
 import { useUnsplash } from 'hooks/useUnsplash'
 
@@ -20,7 +20,7 @@ type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 const PrefectureSelector = () => {
   const { register, control, handleSubmit } = useForm<PlanDTO>()
   const setStep = React.useContext(StepperHandlerContext)
-  const eventsApi = useSelectSpots()
+  const [, eventsApi] = usePlanEvents()
   const [, { create: createPlan }] = usePlan()
   const unsplash = useUnsplash()
 

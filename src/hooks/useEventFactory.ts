@@ -2,11 +2,7 @@ import * as React from 'react'
 import { EventInput } from '@fullcalendar/react'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  MoveEvent,
-  ScheduleEvent,
-  SpotEvent,
-} from 'contexts/ScheduleEventsProvider'
+import { MoveEvent, ScheduleEvent, SpotEvent } from 'hooks/usePlanEvents'
 
 type BuildMoveParams = {
   start: MoveEvent['start']

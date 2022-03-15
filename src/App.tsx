@@ -2,7 +2,6 @@ import React from 'react'
 
 import { CurrentPlanContextProvider } from 'contexts/CurrentPlanProvider'
 import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
-import { ScheduleEventsProvider } from 'contexts/ScheduleEventsProvider'
 import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
 import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
@@ -21,9 +20,7 @@ function App() {
               <PlacesServiceProvider>
                 <CurrentPlanContextProvider>
                   <SelectedSpotsProvider>
-                    <ScheduleEventsProvider>
-                      <PlaningMain />
-                    </ScheduleEventsProvider>
+                    <PlaningMain />
                   </SelectedSpotsProvider>
                 </CurrentPlanContextProvider>
               </PlacesServiceProvider>

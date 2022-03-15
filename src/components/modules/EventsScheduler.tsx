@@ -16,10 +16,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
-import { useSelectSpots } from 'hooks/useSelectSpots'
-import { MoveEvent, SpotEvent } from 'contexts/ScheduleEventsProvider'
+import { usePlanEvents, MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
 import { useDistanceMatrix } from 'hooks/googlemaps/useDistanceMatrix'
-import { usePlan } from 'hooks/usePlan'
 
 dayjs.extend(customParseFormat)
 
@@ -90,10 +88,8 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
-const PlanEditor = () => {
-  const [plan] = usePlan()
-  const events = plan?.events || []
-  const eventsApi = useSelectSpots()
+const EventsScheduler = () => {
+  const [events, eventsApi] = usePlanEvents()
   const calendar = React.useRef<FullCalendar>(null)
 
   const distanceMatrix = useDistanceMatrix()
@@ -360,4 +356,4 @@ const PlanEditor = () => {
   )
 }
 
-export default PlanEditor
+export default EventsScheduler

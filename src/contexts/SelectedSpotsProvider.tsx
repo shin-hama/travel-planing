@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useList } from 'react-use'
 import { ListActions } from 'react-use/lib/useList'
 
-import { SpotDTO } from './ScheduleEventsProvider'
+import { SpotDTO } from 'hooks/usePlanEvents'
 
 export const SelectedSpotsContext = React.createContext<Array<SpotDTO>>([])
 export const SetSelectedSpotsContext =

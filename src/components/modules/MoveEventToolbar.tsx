@@ -8,9 +8,8 @@ import {
 import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 import dayjs from 'dayjs'
 
-import { MoveEvent } from 'contexts/ScheduleEventsProvider'
+import { MoveEvent, usePlanEvents } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { useSelectSpots } from 'hooks/useSelectSpots'
 
 export const MoveTypes: Record<
   MoveEvent['extendedProps']['mode'],
@@ -26,7 +25,7 @@ type Props = {
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
-  const eventsActions = useSelectSpots()
+  const [, eventsActions] = usePlanEvents()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
     const moveEvent = eventsActions.get<MoveEvent>(event.id, 'move')
