@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { useForm } from 'react-hook-form'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { ReactComponent as GoogleIcon } from 'icons/google.svg'
+import GoogleIcon from 'icons/google.svg'
 
 type LoginFormInput = {
   email: string
@@ -24,8 +24,13 @@ type Props = {
   onClose: () => void
 }
 const LoginForm: React.FC<Props> = ({ open, isSignUp, onClose }) => {
-  const [, auth] = useAuthentication()
+  const [user, auth] = useAuthentication()
   const { register, handleSubmit, reset } = useForm<LoginFormInput>()
+
+  React.useEffect(() => {
+    onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const handleLogin = async (values: LoginFormInput) => {
     if (isSignUp) {

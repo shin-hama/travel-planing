@@ -3,7 +3,7 @@ import * as React from 'react'
 import { createApi } from 'unsplash-js'
 
 const unsplash = createApi({
-  accessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY || '',
+  accessKey: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '',
   // ...other fetch options
 })
 

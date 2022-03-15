@@ -1,7 +1,7 @@
 schema:
   - https://travel-planing-97.hasura.app/v1/graphql:
       headers:
-        'x-hasura-admin-secret': ${REACT_APP_HASURA_API_KEY}
+        'x-hasura-admin-secret': ${NEXT_PUBLIC_HASURA_API_KEY}
         'x-hasura-role': dev
 documents: './src/**/*.{ts,tsx}'
 overwrite: true
