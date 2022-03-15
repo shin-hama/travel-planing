@@ -64,57 +64,59 @@ const PrefectureSelector = () => {
 
   return (
     <>
+      <Box
+        sx={{
+          mt: 2,
+          ml: 2,
+        }}>
+        <Typography variant="h5">旅程を作成する</Typography>
+      </Box>
       <form
+        style={{ width: '100%' }}
         onSubmit={handleSubmit(handleCreatePlan, () => {
           console.log('invalid')
         })}>
-        <Stack alignItems="center" sx={{ height: '100%', pb: 1 }}>
-          <Box sx={{ mt: 2, mb: 4 }}>
+        <Stack alignItems="center" spacing={2} sx={{ pt: 3, px: 2 }}>
+          <Box width="100%">
             <TextField
               fullWidth
-              variant="standard"
+              label="プラン名"
+              variant="outlined"
               defaultValue={'Travel Plan'}
               {...register('title')}
-              InputProps={{
-                sx: {
-                  fontSize: (theme) => theme.typography.h3.fontSize,
-                },
-              }}
             />
           </Box>
-          <Stack spacing={4}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>Home:</Typography>
-              <Controller
-                control={control}
-                name="home"
-                render={({ field }) => (
-                  <Button
-                    variant="outlined"
-                    onClick={async () => field.onChange(await handleClick())}>
-                    {field.value?.name || 'Select'}
-                  </Button>
-                )}
-              />
-            </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>Destination:</Typography>
-              <Controller
-                control={control}
-                name="destination"
-                render={({ field }) => (
-                  <Button
-                    variant="outlined"
-                    onClick={async () => field.onChange(await handleClick())}>
-                    {field.value?.name || 'Select'}
-                  </Button>
-                )}
-              />
-            </Stack>
-            <Button variant="contained" type="submit">
-              Plan Your Trip
-            </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography>出発地:</Typography>
+            <Controller
+              control={control}
+              name="home"
+              render={({ field }) => (
+                <Button
+                  variant="outlined"
+                  onClick={async () => field.onChange(await handleClick())}>
+                  {field.value?.name || 'Select'}
+                </Button>
+              )}
+            />
           </Stack>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography>目的地:</Typography>
+            <Controller
+              control={control}
+              name="destination"
+              render={({ field }) => (
+                <Button
+                  variant="outlined"
+                  onClick={async () => field.onChange(await handleClick())}>
+                  {field.value?.name || 'Select'}
+                </Button>
+              )}
+            />
+          </Stack>
+          <Button variant="contained" type="submit">
+            Let's Start Planning
+          </Button>
         </Stack>
       </form>
       <SelectPrefectureDialog {...openDialog} />
