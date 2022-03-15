@@ -7,9 +7,9 @@ import {
 } from '@apollo/client'
 
 const httpLink = createHttpLink({
-  uri: process.env.REACT_APP_GRAPHQL_SERVER_URL,
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_SERVER_URL,
   headers: {
-    'x-hasura-admin-secret': process.env.REACT_APP_HASURA_API_KEY,
+    'x-hasura-admin-secret': process.env.NEXT_PUBLIC_HASURA_API_KEY,
     'x-hasura-role': 'dev',
   },
 })

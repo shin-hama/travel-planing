@@ -19,7 +19,7 @@ const libs: 'places'[] = ['places']
 
 const GoogleMap: React.FC = React.memo(function Map({ children }) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAP_API_KEY || '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || '',
     libraries: libs,
     // ...otherOptions
   })
