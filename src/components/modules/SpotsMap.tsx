@@ -20,7 +20,7 @@ const SpotsMap = () => {
   const [mapProps] = useMapProps()
 
   const spotCardRef = React.useRef<HTMLDivElement>(null)
-  useClickAway(spotCardRef, (e) => {
+  useClickAway(spotCardRef, () => {
     setFocusedSpot('')
   })
 

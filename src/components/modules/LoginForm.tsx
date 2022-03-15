@@ -29,6 +29,7 @@ const LoginForm: React.FC<Props> = ({ open, isSignUp, onClose }) => {
 
   React.useEffect(() => {
     onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const handleLogin = async (values: LoginFormInput) => {
