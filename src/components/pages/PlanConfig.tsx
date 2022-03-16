@@ -20,9 +20,7 @@ import { usePlanEvents } from 'hooks/usePlanEvents'
 import { usePlan } from 'hooks/usePlan'
 import { useUnsplash } from 'hooks/useUnsplash'
 
-type PlanDTO = Pick<Plan, 'title' | 'home' | 'destination'> & {
-  start: dayjs.Dayjs
-}
+type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 
 const PrefectureSelector = () => {
   const { register, control, handleSubmit } = useForm<PlanDTO>()
@@ -59,8 +57,8 @@ const PrefectureSelector = () => {
 
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: planDTO.title,
-      start: planDTO.start.toDate(),
-      end: planDTO.start.toDate(),
+      start: planDTO.start,
+      end: planDTO.start,
       thumbnail: photo.urls.regular,
       home: planDTO.home,
       destination: planDTO.destination,
@@ -131,7 +129,7 @@ const PrefectureSelector = () => {
                   label="出発日"
                   inputFormat="YYYY/MM/DD"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(e) => field.onChange(dayjs(e).toDate())}
                   renderInput={(params) => <TextField {...params} />}
                 />
               )}></Controller>

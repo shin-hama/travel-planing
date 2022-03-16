@@ -9,6 +9,7 @@ import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { usePlan } from 'hooks/usePlan'
+import { googleMapConfigs } from 'configs'
 
 const containerStyle = {
   width: '100%',
@@ -19,7 +20,7 @@ const libs: 'places'[] = ['places']
 
 const GoogleMap: React.FC = React.memo(function Map({ children }) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || '',
+    googleMapsApiKey: googleMapConfigs.apiKey,
     libraries: libs,
     // ...otherOptions
   })

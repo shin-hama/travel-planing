@@ -1,9 +1,10 @@
 import * as React from 'react'
-
 import { createApi } from 'unsplash-js'
 
+import { unsplashConfig } from 'configs'
+
 const unsplash = createApi({
-  accessKey: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '',
+  accessKey: unsplashConfig.accessKey,
   // ...other fetch options
 })
 

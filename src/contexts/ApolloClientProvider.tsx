@@ -5,11 +5,12 @@ import {
   ApolloProvider,
   createHttpLink,
 } from '@apollo/client'
+import { hasuraConfigs } from 'configs'
 
 const httpLink = createHttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_SERVER_URL,
+  uri: hasuraConfigs.serverUrl,
   headers: {
-    'x-hasura-admin-secret': process.env.NEXT_PUBLIC_HASURA_API_KEY,
+    'x-hasura-admin-secret': hasuraConfigs.apiKey,
     'x-hasura-role': 'dev',
   },
 })
