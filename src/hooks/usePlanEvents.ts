@@ -50,6 +50,10 @@ export const usePlanEvents = () => {
 
   const [getSpot] = useGetSpotByPkLazyQuery()
 
+  React.useEffect(() => {
+    eventsApi.set(currentPlan?.events || [])
+  }, [currentPlan?.events, eventsApi])
+
   const commitEventsChange = React.useCallback(async () => {
     if (currentPlan) {
       planActions.update({ events: eventsRef.current })

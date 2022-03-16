@@ -21,6 +21,7 @@ export interface LinkedEventsActions<T extends LinkedEvent> {
   clear: () => void
   next: (current: T) => T | null
   prev: (current: T) => T | null
+  set: (newItems: Array<T>) => void
 }
 
 type UseLinkedList<T extends LinkedEvent> = readonly [
@@ -34,6 +35,13 @@ export const useLinkedEvents = <T extends LinkedEvent>(
   const [items, setItemsActions] = useList<T>(initialList)
   const itemsRef = React.useRef<T[]>([])
   itemsRef.current = items
+
+  const set = React.useCallback(
+    (newItems: Array<T>) => {
+      setItemsActions.set(newItems)
+    },
+    [setItemsActions]
+  )
 
   const getFirst = React.useCallback(() => {
     return (
@@ -140,8 +148,21 @@ export const useLinkedEvents = <T extends LinkedEvent>(
       clear,
       next,
       prev,
+      set,
     }),
-    [clear, get, getFirst, getLast, insert, next, prev, push, remove, update]
+    [
+      clear,
+      get,
+      getFirst,
+      getLast,
+      insert,
+      next,
+      prev,
+      push,
+      remove,
+      set,
+      update,
+    ]
   )
 
   return [items, actions] as const

@@ -270,13 +270,13 @@ const EventsScheduler = () => {
     if (eventInfo.event.extendedProps.type === 'spot') {
       const event = eventsApi.get<SpotEvent>(eventInfo.event.id, 'spot')
       if (!event) {
-        throw new Error('Cannot find event')
+        return
       }
       return <SpotEventCard event={event} />
     } else if (eventInfo.event.extendedProps.type === 'move') {
       const event = eventsApi.get<MoveEvent>(eventInfo.event.id, 'move')
       if (!event) {
-        throw new Error('Cannot find event')
+        return
       }
 
       return <MoveEventCard event={event} />
