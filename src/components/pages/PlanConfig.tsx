@@ -33,13 +33,15 @@ const PrefectureSelector = () => {
 
   const handleClick = async () => {
     try {
-      return await new Promise<Prefecture>((resolve, reject) => {
-        setOpenDialog({
-          open: true,
-          onOK: resolve,
-          onClose: reject,
-        })
-      })
+      return await new Promise<Omit<Prefecture, 'imageUrl'>>(
+        (resolve, reject) => {
+          setOpenDialog({
+            open: true,
+            onOK: resolve,
+            onClose: reject,
+          })
+        }
+      )
     } finally {
       setOpenDialog({ open: false })
     }
@@ -53,15 +55,28 @@ const PrefectureSelector = () => {
     }
     eventsApi.init()
 
-    const photo = await unsplash.searchPhoto(planDTO.destination.name)
+    let homePhoto
+    let destPhoto
+    try {
+      homePhoto = (await unsplash.searchPhoto(planDTO.home.name_en)).urls
+        .regular
+      destPhoto = (await unsplash.searchPhoto(planDTO.destination.name_en)).urls
+        .regular
+    } catch {
+      // デモバージョンは rate limit が厳しいので、取得できないときは決め打ちで与える
+      homePhoto =
+        'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
+      destPhoto =
+        'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
+    }
 
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: planDTO.title,
       start: planDTO.start,
       end: planDTO.start,
-      thumbnail: photo.urls.regular,
-      home: planDTO.home,
-      destination: planDTO.destination,
+      thumbnail: destPhoto,
+      home: { ...planDTO.home, imageUrl: homePhoto },
+      destination: { ...planDTO.destination, imageUrl: destPhoto },
     }
     await createPlan(newPlan)
 
@@ -76,7 +91,7 @@ const PrefectureSelector = () => {
             mt: 2,
             ml: 2,
           }}>
-          <Typography variant="h5">旅程を作成する</Typography>
+          <Typography variant="h4">旅程の作成</Typography>
         </Box>
         <form
           style={{ width: '100%' }}
@@ -128,6 +143,7 @@ const PrefectureSelector = () => {
                 <MobileDatePicker
                   label="出発日"
                   inputFormat="YYYY/MM/DD"
+                  mask={'____/__/__'}
                   value={field.value}
                   onChange={(e) => field.onChange(dayjs(e).toDate())}
                   renderInput={(params) => <TextField {...params} />}

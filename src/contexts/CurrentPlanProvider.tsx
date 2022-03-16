@@ -3,6 +3,7 @@ import { ScheduleEvent } from 'hooks/usePlanEvents'
 
 export type Prefecture = {
   name: string
+  name_en: string
   lat: number
   lng: number
   zoom: number
