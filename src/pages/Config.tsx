@@ -19,7 +19,7 @@ import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
 import { usePlanEvents } from 'hooks/usePlanEvents'
 import { usePlan } from 'hooks/usePlan'
 import { useUnsplash } from 'hooks/useUnsplash'
-import PlanningLayout from 'components/pages/PlaningLayout'
+import PlanningLayout from 'components/layouts/PlaningLayout'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 

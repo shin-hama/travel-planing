@@ -17,7 +17,7 @@ const TravelPlanCard: React.FC<Props> = ({ plan }) => {
 
   const handleClick = () => {
     planActions.set(plan)
-    router.push('Schedule')
+    router.push('map')
   }
 
   return (

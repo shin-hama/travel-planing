@@ -14,7 +14,7 @@ import { Plan } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlan } from 'hooks/usePlan'
 import { useConfirm } from 'hooks/useConfirm'
-import PlanningLayout from 'components/pages/PlaningLayout'
+import PlanningLayout from 'components/layouts/PlaningLayout'
 
 const UserHome = () => {
   const router = useRouter()

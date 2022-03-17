@@ -3,31 +3,35 @@ import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import {
-  faLocationDot,
   faCalendarWeek,
+  faEllipsis,
+  faLocationDot,
 } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from 'next/router'
 
 import LabeledIconButton from 'components/elements/LabeledIconButton'
-import PlanningLayout from 'components/pages/PlaningLayout'
+import PlanningLayout from 'components/layouts/PlaningLayout'
 import SpotsCandidates from 'components/modules/SpotsCandidates'
 import SpotsMap from 'components/modules/SpotsMap'
 import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
 import { usePlan } from 'hooks/usePlan'
+import ScheduleViewer from 'components/layouts/ScheduleViewer'
+
+type Drawers = 'spots' | 'schedule'
 
 const FeaturedPlaces = () => {
   const router = useRouter()
   const [plan] = usePlan()
   const [, eventsActions] = usePlanEvents()
   const [spots, spotsActions] = useSelectedSpots()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState<Drawers | null>(null)
 
-  const handleOpen = () => {
-    setOpen(true)
+  const handleOpen = (mode: Drawers) => {
+    setOpen(mode)
   }
   const handleClose = () => {
-    setOpen(false)
+    setOpen(null)
   }
 
   React.useEffect(() => {
@@ -35,9 +39,9 @@ const FeaturedPlaces = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleClickNext = async () => {
+  const handleOpenSchedule = async () => {
     await eventsActions.generateRoute(spots)
-    router.push('schedule')
+    handleOpen('schedule')
   }
 
   React.useEffect(() => {
@@ -67,24 +71,30 @@ const FeaturedPlaces = () => {
           alignItems="baseline">
           <Badge badgeContent={spots.length} color="primary">
             <LabeledIconButton
-              onClick={handleOpen}
+              onClick={() => handleOpen('spots')}
               icon={faLocationDot}
               label={'行きたい所'}
             />
           </Badge>
           <LabeledIconButton
-            onClick={handleClickNext}
+            onClick={handleOpenSchedule}
             icon={faCalendarWeek}
             label={'スケジュール'}
+          />
+          <LabeledIconButton
+            onClick={() => console.log('setting')}
+            icon={faEllipsis}
+            label={'設定'}
           />
         </Stack>
       </Box>
       <SpotsCandidates
-        open={open}
+        open={open === 'spots'}
         placeIds={spots.map((spot) => spot.placeId)}
-        onOpen={handleOpen}
+        onOpen={() => handleOpen('spots')}
         onClose={handleClose}
       />
+      <ScheduleViewer open={open === 'schedule'} onClose={handleClose} />
     </PlanningLayout>
   )
 }
