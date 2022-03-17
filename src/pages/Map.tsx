@@ -6,17 +6,18 @@ import {
   faLocationDot,
   faCalendarWeek,
 } from '@fortawesome/free-solid-svg-icons'
+import { useRouter } from 'next/router'
 
-import { StepperHandlerContext } from './PlaningMain'
-import SpotsCandidates from '../modules/SpotsCandidates'
-import SpotsMap from '../modules/SpotsMap'
+import LabeledIconButton from 'components/elements/LabeledIconButton'
+import PlanningLayout from 'components/pages/PlaningLayout'
+import SpotsCandidates from 'components/modules/SpotsCandidates'
+import SpotsMap from 'components/modules/SpotsMap'
 import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
 import { usePlan } from 'hooks/usePlan'
-import LabeledIconButton from 'components/elements/LabeledIconButton'
 
 const FeaturedPlaces = () => {
-  const setStep = React.useContext(StepperHandlerContext)
+  const router = useRouter()
   const [plan] = usePlan()
   const [, eventsActions] = usePlanEvents()
   const [spots, spotsActions] = useSelectedSpots()
@@ -36,11 +37,11 @@ const FeaturedPlaces = () => {
 
   const handleClickNext = async () => {
     await eventsActions.generateRoute(spots)
-    setStep('Schedule')
+    router.push('Schedule')
   }
 
   return (
-    <>
+    <PlanningLayout>
       <Box
         sx={{
           position: 'relative',
@@ -74,7 +75,7 @@ const FeaturedPlaces = () => {
         onOpen={handleOpen}
         onClose={handleClose}
       />
-    </>
+    </PlanningLayout>
   )
 }
 

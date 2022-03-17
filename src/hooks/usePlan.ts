@@ -65,7 +65,7 @@ export const usePlan = () => {
             setPlan({ type: 'set', value: { ...newPlan, id: 'guest' } })
           }
         } catch {
-          console.error('fail to save plan')
+          console.error(`fail to save plan: ${JSON.stringify(newPlan)}`)
         }
       },
       fetch: async () => {

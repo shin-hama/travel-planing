@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Backdrop from '@mui/material/Backdrop'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
@@ -8,22 +9,21 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
+import { useRouter } from 'next/router'
 
 import EventsScheduler from 'components/modules/EventsScheduler'
+import PlanningLayout from 'components/pages/PlaningLayout'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useConfirm } from 'hooks/useConfirm'
 import { usePlan } from 'hooks/usePlan'
-import { StepperHandlerContext } from './PlaningMain'
-import { Box } from '@mui/material'
 
 const PlanViewer = () => {
+  const router = useRouter()
   const { loading } = useDirections()
   const [, eventsApi] = usePlanEvents()
   const confirm = useConfirm()
   const [plan] = usePlan()
-
-  const setStep = React.useContext(StepperHandlerContext)
 
   const handleOptimize = async () => {
     try {
@@ -60,7 +60,7 @@ const PlanViewer = () => {
   }
 
   return (
-    <>
+    <PlanningLayout>
       <Container
         maxWidth="md"
         sx={{
@@ -83,7 +83,7 @@ const PlanViewer = () => {
           <EventsScheduler />
         </Box>
         <Fab
-          onClick={() => setStep('Map')}
+          onClick={() => router.push('Map')}
           color="primary"
           sx={{
             position: 'fixed',
@@ -93,7 +93,7 @@ const PlanViewer = () => {
           <FontAwesomeIcon icon={faAdd} size="lg" />
         </Fab>
       </Container>
-    </>
+    </PlanningLayout>
   )
 }
 
