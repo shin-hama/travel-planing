@@ -1,5 +1,6 @@
 import React from 'react'
 import { Marker } from '@react-google-maps/api'
+import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 type Props = {
   placeId: string
@@ -15,6 +16,9 @@ const PlaceMarker: React.FC<Props> = ({
   lng,
   onClick,
 }) => {
+  const [, actions] = useSelectedSpots()
+  const added = actions.get(placeId)
+
   const handleClick = () => {
     onClick(placeId)
   }
@@ -28,7 +32,7 @@ const PlaceMarker: React.FC<Props> = ({
               // Set (width * scale / 2, height * scale / 2) to move center of icon to position.
               anchor: new google.maps.Point(10, 10),
               path: 'M20 10C20 15.5228 15.5228 20 10 20C4.47715 20 0 15.5228 0 10C0 4.47715 4.47715 0 10 0C15.5228 0 20 4.47715 20 10Z',
-              fillColor: '#D95140',
+              fillColor: added ? 'blue' : '#D95140',
               fillOpacity: 1,
               scale: 1,
               strokeColor: '#FFF',

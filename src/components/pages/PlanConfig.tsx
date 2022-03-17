@@ -1,10 +1,15 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { useForm, Controller } from 'react-hook-form'
+import DateAdapter from '@mui/lab/AdapterDayjs'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import MobileDatePicker from '@mui/lab/MobileDatePicker'
+import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import dayjs from 'dayjs'
 
 import SelectPrefectureDialog, {
   Props,
@@ -28,34 +33,50 @@ const PrefectureSelector = () => {
 
   const handleClick = async () => {
     try {
-      return await new Promise<Prefecture>((resolve, reject) => {
-        setOpenDialog({
-          open: true,
-          onOK: resolve,
-          onClose: reject,
-        })
-      })
+      return await new Promise<Omit<Prefecture, 'imageUrl'>>(
+        (resolve, reject) => {
+          setOpenDialog({
+            open: true,
+            onOK: resolve,
+            onClose: reject,
+          })
+        }
+      )
     } finally {
       setOpenDialog({ open: false })
     }
   }
 
-  const handleCreatePlan = async (planDTO: PlanDTO) => {
+  const handleCreatePlan: SubmitHandler<PlanDTO> = async (planDTO: PlanDTO) => {
+    console.log(planDTO)
     if (!planDTO?.home || !planDTO?.destination) {
       alert('please select home and destination')
       return
     }
     eventsApi.init()
 
-    const photo = await unsplash.searchPhoto(planDTO.destination.name)
+    let homePhoto
+    let destPhoto
+    try {
+      homePhoto = (await unsplash.searchPhoto(planDTO.home.name_en)).urls
+        .regular
+      destPhoto = (await unsplash.searchPhoto(planDTO.destination.name_en)).urls
+        .regular
+    } catch {
+      // デモバージョンは rate limit が厳しいので、取得できないときは決め打ちで与える
+      homePhoto =
+        'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
+      destPhoto =
+        'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
+    }
 
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: planDTO.title,
-      start: new Date(),
-      end: new Date(),
-      thumbnail: photo.urls.regular,
-      home: planDTO.home,
-      destination: planDTO.destination,
+      start: planDTO.start,
+      end: planDTO.start,
+      thumbnail: destPhoto,
+      home: { ...planDTO.home, imageUrl: homePhoto },
+      destination: { ...planDTO.destination, imageUrl: destPhoto },
     }
     await createPlan(newPlan)
 
@@ -63,28 +84,32 @@ const PrefectureSelector = () => {
   }
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit(handleCreatePlan, () => {
-          console.log('invalid')
-        })}>
-        <Stack alignItems="center" sx={{ height: '100%', pb: 1 }}>
-          <Box sx={{ mt: 2, mb: 4 }}>
-            <TextField
-              fullWidth
-              variant="standard"
-              defaultValue={'Travel Plan'}
-              {...register('title')}
-              InputProps={{
-                sx: {
-                  fontSize: (theme) => theme.typography.h3.fontSize,
-                },
-              }}
-            />
-          </Box>
-          <Stack spacing={4}>
+    <LocalizationProvider dateAdapter={DateAdapter}>
+      <Container maxWidth="xs">
+        <Box
+          sx={{
+            mt: 2,
+            ml: 2,
+          }}>
+          <Typography variant="h4">旅程の作成</Typography>
+        </Box>
+        <form
+          style={{ width: '100%' }}
+          onSubmit={handleSubmit(handleCreatePlan, () => {
+            console.log('invalid')
+          })}>
+          <Stack alignItems="center" spacing={2} sx={{ pt: 3, px: 2 }}>
+            <Box width="100%">
+              <TextField
+                fullWidth
+                label="プラン名"
+                variant="outlined"
+                defaultValue={'Travel Plan'}
+                {...register('title')}
+              />
+            </Box>
             <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>Home:</Typography>
+              <Typography>出発地:</Typography>
               <Controller
                 control={control}
                 name="home"
@@ -98,7 +123,7 @@ const PrefectureSelector = () => {
               />
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>Destination:</Typography>
+              <Typography>目的地:</Typography>
               <Controller
                 control={control}
                 name="destination"
@@ -111,14 +136,27 @@ const PrefectureSelector = () => {
                 )}
               />
             </Stack>
+            <Controller
+              control={control}
+              name="start"
+              render={({ field }) => (
+                <MobileDatePicker
+                  label="出発日"
+                  inputFormat="YYYY/MM/DD"
+                  mask={'____/__/__'}
+                  value={field.value}
+                  onChange={(e) => field.onChange(dayjs(e).toDate())}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              )}></Controller>
             <Button variant="contained" type="submit">
-              Plan Your Trip
+              {"Let's Start Planning"}
             </Button>
           </Stack>
-        </Stack>
-      </form>
-      <SelectPrefectureDialog {...openDialog} />
-    </>
+        </form>
+        <SelectPrefectureDialog {...openDialog} />
+      </Container>
+    </LocalizationProvider>
   )
 }
 

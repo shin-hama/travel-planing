@@ -17,7 +17,6 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { usePlanEvents, MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
-import { useDistanceMatrix } from 'hooks/googlemaps/useDistanceMatrix'
 
 dayjs.extend(customParseFormat)
 
@@ -92,8 +91,6 @@ const EventsScheduler = () => {
   const [events, eventsApi] = usePlanEvents()
   const calendar = React.useRef<FullCalendar>(null)
 
-  const distanceMatrix = useDistanceMatrix()
-
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
     end: Date
@@ -110,6 +107,7 @@ const EventsScheduler = () => {
     if (_events.length === 0) {
       return
     }
+    console.log(_events)
     const days = _events.map((e) => dayjs(e.start))
     const sorted = days.sort((a, b) => a.diff(b))
     const first = sorted[0]
@@ -142,74 +140,19 @@ const EventsScheduler = () => {
       start: dayjs(e.event.start).toDate(),
       end: dayjs(e.event.end).toDate(),
     }
-    eventsApi.update(cloned)
+
+    console.log(cloned)
 
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
-
-        // Update from date schedule
-        // remove after move if exists
-        const afterMove = events.find(
-          (event): event is MoveEvent =>
-            event.extendedProps.type === 'move' &&
-            event.id === e.event.extendedProps.to
-        )
-        if (afterMove) {
-          eventsApi.remove(afterMove)
-        }
-        // update before move
-        const beforeMove = events.find(
-          (event): event is MoveEvent =>
-            event.extendedProps.type === 'move' &&
-            event.id === e.event.extendedProps.from
-        )
-
-        if (beforeMove) {
-          if (afterMove) {
-            // Calc distance between prev and next spot
-            beforeMove.extendedProps.to = afterMove.extendedProps.to
-
-            const org = [{ placeId: beforeMove.extendedProps.from }]
-            const dest = [{ placeId: beforeMove.extendedProps.to }]
-            const result = await distanceMatrix.search(org, dest)
-
-            const newMoveEnd = dayjs(beforeMove.start).add(
-              result.rows[0].elements[0].duration.value,
-              's'
-            )
-            const moveEndChange = newMoveEnd.diff(afterMove.end, 'minute')
-            beforeMove.end = newMoveEnd.toDate()
-
-            eventsApi.update({ ...beforeMove })
-
-            // Update all events after moved event
-            eventsApi.applyChange(beforeMove, moveEndChange)
-          } else {
-            // Remove move event if previous spot is not exists
-            eventsApi.remove(beforeMove)
-          }
-        }
+        eventsApi.remove(droppedEvent)
 
         // Move to target day
         eventsApi.insert(cloned)
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
-        events
-          .filter(
-            (event) =>
-              dayjs(event.start).date() === dayjs(e.oldEvent.end).date() &&
-              event.id !== e.event.id
-          )
-          .forEach((event) => {
-            eventsApi.update({
-              ...event,
-              start: dayjs(event.start)
-                .add(e.delta.milliseconds, 'ms')
-                .toDate(),
-              end: dayjs(event.end).add(e.delta.milliseconds, 'ms').toDate(),
-            })
-          })
+        eventsApi.followMoving(cloned, e.delta.milliseconds, 'ms')
       }
       eventsApi.commit()
     }
@@ -270,13 +213,13 @@ const EventsScheduler = () => {
     if (eventInfo.event.extendedProps.type === 'spot') {
       const event = eventsApi.get<SpotEvent>(eventInfo.event.id, 'spot')
       if (!event) {
-        throw new Error('Cannot find event')
+        return
       }
       return <SpotEventCard event={event} />
     } else if (eventInfo.event.extendedProps.type === 'move') {
       const event = eventsApi.get<MoveEvent>(eventInfo.event.id, 'move')
       if (!event) {
-        throw new Error('Cannot find event')
+        return
       }
 
       return <MoveEventCard event={event} />

@@ -50,8 +50,13 @@ export const usePlanEvents = () => {
 
   const [getSpot] = useGetSpotByPkLazyQuery()
 
+  React.useEffect(() => {
+    eventsApi.set(currentPlan?.events || [])
+  }, [currentPlan?.events, eventsApi])
+
   const commitEventsChange = React.useCallback(async () => {
     if (currentPlan) {
+      console.log('commit')
       planActions.update({ events: eventsRef.current })
     }
   }, [currentPlan, planActions])
@@ -117,6 +122,23 @@ export const usePlanEvents = () => {
       eventsApi.update(newEvent)
     },
     [eventsApi]
+  )
+
+  const followMoving = React.useCallback(
+    (target: ScheduleEvent, duration: number, unit: dayjs.ManipulateType) => {
+      eventsRef.current
+        .filter(
+          (event) => dayjs(event.start).date() === dayjs(target.end).date()
+        )
+        .forEach((event) => {
+          update({
+            ...event,
+            start: dayjs(event.start).add(duration, unit).toDate(),
+            end: dayjs(event.end).add(duration, unit).toDate(),
+          })
+        })
+    },
+    [update]
   )
 
   const applyChange = React.useCallback(
@@ -393,46 +415,47 @@ export const usePlanEvents = () => {
         eventsApi.remove(removed.id)
 
         if (removed.extendedProps.type === 'spot') {
-          const afterMove = removed.extendedProps.to
-            ? get<MoveEvent>(removed.extendedProps.to, 'move')
-            : null
-          if (afterMove) {
-            eventsApi.remove(afterMove.id)
-          }
-
-          // update before move
-          const beforeMove = removed.extendedProps.from
-            ? get<MoveEvent>(removed.extendedProps.from, 'move')
-            : null
+          const beforeEvent = eventsApi.prev(removed)
+          const afterEvent = eventsApi.next(removed)
 
           const beforeSpot = getPrevSpot(removed)
           const afterSpot = getNextSpot(removed)
-          if (beforeMove) {
+          console.log(afterSpot)
+          console.log(beforeSpot)
+          if (beforeEvent && isMoveEvent(beforeEvent)) {
             if (afterSpot && beforeSpot) {
-              // Calc distance between prev and next spot
-              if (afterSpot) {
-                afterSpot.extendedProps.from = beforeMove.id
-                update({ ...afterSpot })
+              if (afterSpot.start.getDate() === beforeSpot.start.getDate()) {
+                if (afterSpot) {
+                  // Calc distance between prev and next spot
+                  afterSpot.extendedProps.from = beforeEvent.id
+                  update({ ...afterSpot })
+                }
+                beforeEvent.extendedProps.to = afterSpot.id
+
+                const org = [{ placeId: beforeSpot.extendedProps.placeId }]
+                const dest = [{ placeId: afterSpot.extendedProps.placeId }]
+                const result = await distanceMatrix.search(org, dest)
+
+                const newMoveEnd = dayjs(beforeEvent.start).add(
+                  result.rows[0].elements[0].duration.value,
+                  's'
+                )
+                const moveEndChange = newMoveEnd.diff(afterSpot.start, 'minute')
+                beforeEvent.end = newMoveEnd.toDate()
+
+                update({ ...beforeEvent })
+
+                applyChange(beforeEvent, moveEndChange)
+              } else {
+                eventsApi.remove(beforeEvent.id)
               }
-              beforeMove.extendedProps.to = afterSpot.id
-
-              const org = [{ placeId: beforeSpot.extendedProps.placeId }]
-              const dest = [{ placeId: afterSpot.extendedProps.placeId }]
-              const result = await distanceMatrix.search(org, dest)
-
-              const newMoveEnd = dayjs(beforeMove.start).add(
-                result.rows[0].elements[0].duration.value,
-                's'
-              )
-              const moveEndChange = newMoveEnd.diff(afterSpot.start, 'minute')
-              beforeMove.end = newMoveEnd.toDate()
-
-              update({ ...beforeMove })
-
-              applyChange(beforeMove, moveEndChange)
             } else {
-              eventsApi.remove(beforeMove.id)
+              eventsApi.remove(beforeEvent.id)
             }
+          }
+
+          if (afterEvent && isMoveEvent(afterEvent)) {
+            eventsApi.remove(afterEvent.id)
           }
         }
       } catch (e) {
@@ -443,9 +466,9 @@ export const usePlanEvents = () => {
     },
     [
       eventsApi,
-      get,
       getPrevSpot,
       getNextSpot,
+      isMoveEvent,
       distanceMatrix,
       update,
       applyChange,
@@ -473,10 +496,12 @@ export const usePlanEvents = () => {
         )
 
         let beforeMoveId: string | null = null
+        console.log('####DWDW#####')
+
         if (prevSpot) {
           // 直前のイベントから移動したスポットへの MoveEvent を追加する
-          const beforeOrg = [{ placeId: prevSpot.id }]
-          const beforeDest = [{ placeId: inserted.id }]
+          const beforeOrg = [{ placeId: prevSpot.extendedProps.placeId }]
+          const beforeDest = [{ placeId: inserted.extendedProps.placeId }]
           const beforeResult = await distanceMatrix.search(
             beforeOrg,
             beforeDest
@@ -523,6 +548,7 @@ export const usePlanEvents = () => {
         }
 
         let afterMoveId: string | null = null
+        console.log('~~~~~~~~~~~~~~')
 
         const destNextSpots = destSpots
           .filter((spot) => dayjs(spot.start) > dayjs(inserted.start))
@@ -530,8 +556,8 @@ export const usePlanEvents = () => {
         const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
         if (nextSpot) {
           // 移動したスポットから直後のスポットへの MoveEvent を追加する
-          const org = [{ placeId: inserted.id }]
-          const dest = [{ placeId: nextSpot.id }]
+          const org = [{ placeId: inserted.extendedProps.placeId }]
+          const dest = [{ placeId: nextSpot.extendedProps.placeId }]
 
           const result = await distanceMatrix.search(org, dest)
 
@@ -555,8 +581,9 @@ export const usePlanEvents = () => {
 
           isMoveEvent(moveEvent) && applyChange(moveEvent, moveEndChange)
         }
+        console.log('finish insert')
 
-        update({
+        eventsApi.push({
           ...inserted,
           extendedProps: {
             ...inserted.extendedProps,
@@ -564,6 +591,7 @@ export const usePlanEvents = () => {
             to: afterMoveId,
           },
         })
+        console.log('finish insert')
       } catch (e) {
         console.error(e)
       } finally {
@@ -588,6 +616,7 @@ export const usePlanEvents = () => {
   const actions = React.useMemo(
     () => ({
       init,
+      followMoving,
       get,
       getPrevSpot,
       getNextSpot,
@@ -603,6 +632,7 @@ export const usePlanEvents = () => {
     [
       applyChange,
       commitEventsChange,
+      followMoving,
       generateRoute,
       get,
       getDestinations,

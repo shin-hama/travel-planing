@@ -82,9 +82,6 @@ export const usePlan = () => {
       },
       update: async (updatedPlan: Partial<Plan>) => {
         try {
-          console.log(updatedPlan)
-          console.log(user)
-          console.log(plan)
           if (user && plan) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             await db.set(path, plan.id, updatedPlan)

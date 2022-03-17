@@ -1,7 +1,6 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
-import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
@@ -26,7 +25,7 @@ const SpotsCandidates: React.FC<Props> = ({
         open={open}
         onClose={onClose}
         onOpen={onOpen}
-        swipeAreaWidth={15}
+        disableSwipeToOpen
         ModalProps={{
           keepMounted: true,
         }}>
@@ -41,14 +40,13 @@ const SpotsCandidates: React.FC<Props> = ({
                 height: 6,
                 backgroundColor: (theme) => theme.palette.grey[300],
                 borderRadius: 3,
-                position: 'absolute',
-                top: 8,
-                left: 'calc(50% - 15px)',
+                my: 1,
+                mx: 'auto',
               }}
             />
-            <Stack direction="row" alignItems="center">
-              <Typography sx={{ flexGrow: 1 }}>Selected Spots:</Typography>
-            </Stack>
+            <Box ml={2}>
+              <Typography variant="h4">行きたい所リスト</Typography>
+            </Box>
           </Box>
           <Box
             sx={{
