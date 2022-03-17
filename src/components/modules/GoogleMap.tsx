@@ -59,20 +59,27 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
 
     const bounds = mapInstance.getBounds()
 
-    if (plan) {
-      const { lat, lng, zoom } = plan.destination
-      setMapProps((prev) => ({
-        center: { lat, lng } || prev.center,
-        zoom: zoom || prev.zoom,
-        bounds: {
-          ne: bounds?.getNorthEast(),
-          sw: bounds?.getSouthWest(),
-        },
-      }))
-    }
+    setMapProps((prev) => ({
+      ...prev,
+      bounds: {
+        ne: bounds?.getNorthEast(),
+        sw: bounds?.getSouthWest(),
+      },
+    }))
 
     setGoogleMap(mapInstance)
   }
+
+  React.useEffect(() => {
+    if (plan) {
+      const { lat, lng, zoom } = plan.destination
+      setMapProps((prev) => ({
+        ...prev,
+        center: { lat, lng } || prev.center,
+        zoom: zoom || prev.zoom,
+      }))
+    }
+  }, [plan, setMapProps])
 
   if (loadError) {
     console.log('Error has occurred when loading google map')
