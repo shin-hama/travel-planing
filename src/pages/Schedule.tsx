@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
+
 import { useRouter } from 'next/router'
 
 import EventsScheduler from 'components/modules/EventsScheduler'
@@ -47,6 +48,12 @@ const PlanViewer = () => {
     }
   }
 
+  React.useEffect(() => {
+    if (!plan) {
+      router.replace('/')
+    }
+  }, [plan, router])
+
   if (loading) {
     return (
       <Backdrop open={loading}>
@@ -56,7 +63,7 @@ const PlanViewer = () => {
   }
 
   if (!plan) {
-    throw new Error('Plan is not selected')
+    return <></>
   }
 
   return (
@@ -83,7 +90,7 @@ const PlanViewer = () => {
           <EventsScheduler />
         </Box>
         <Fab
-          onClick={() => router.push('Map')}
+          onClick={() => router.push('map')}
           color="primary"
           sx={{
             position: 'fixed',

@@ -37,7 +37,17 @@ const FeaturedPlaces = () => {
 
   const handleClickNext = async () => {
     await eventsActions.generateRoute(spots)
-    router.push('Schedule')
+    router.push('schedule')
+  }
+
+  React.useEffect(() => {
+    if (!plan) {
+      router.replace('/')
+    }
+  }, [plan, router])
+
+  if (!plan) {
+    return <></>
   }
 
   return (
