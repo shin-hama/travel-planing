@@ -39,6 +39,9 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   const setPlaces = React.useContext(SetPlacesServiceContext)
 
+  /**
+   * マップ操作が終了したタイミングで、center などのプロパティを更新する
+   */
   const handleIdled = () => {
     console.log(googleMap)
     if (googleMap) {
@@ -81,6 +84,7 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   }
 
   React.useEffect(() => {
+    // 選択しているプランの目的地を中心にする
     if (plan) {
       const { lat, lng, zoom } = plan.destination
       setMapProps((prev) => ({

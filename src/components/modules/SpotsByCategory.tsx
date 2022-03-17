@@ -24,6 +24,7 @@ const SpotsByCategory: React.FC<Props> = ({
 
   React.useEffect(() => {
     if (spots.length > 0) {
+      // マップが移動するたびに何度も Fetch することを防ぐ
       return
     }
     const bounds = mapProps.bounds
