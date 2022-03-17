@@ -1,6 +1,12 @@
 import React from 'react'
+import Head from 'next/head'
 import { AppProps } from 'next/app'
 import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider } from '@mui/material/styles'
+import { CacheProvider, EmotionCache } from '@emotion/react'
+
+import theme from 'configs/theme'
+import createEmotionCache from 'configs/createEmotionCache'
 
 import { CurrentPlanContextProvider } from 'contexts/CurrentPlanProvider'
 import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
@@ -11,10 +17,21 @@ import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 import { MapPropsProvider } from 'contexts/MapPropsProvider'
 import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
 
-const App: React.FC<AppProps> = ({ Component, pageProps }) => {
+const clientSideEmotionCache = createEmotionCache()
+interface MyAppProps extends AppProps {
+  emotionCache?: EmotionCache
+}
+
+const App: React.FC<MyAppProps> = ({
+  Component,
+  emotionCache = clientSideEmotionCache,
+  pageProps,
+}) => {
   return (
-    <>
-      <CssBaseline />
+    <CacheProvider value={emotionCache}>
+      <Head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
       <ApolloClientProvider>
         <ConfirmationProvider>
           <DirectionServiceProvider>
@@ -23,7 +40,10 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
                 <PlacesServiceProvider>
                   <CurrentPlanContextProvider>
                     <SelectedSpotsProvider>
-                      <Component {...pageProps} />
+                      <ThemeProvider theme={theme}>
+                        <CssBaseline />
+                        <Component {...pageProps} />
+                      </ThemeProvider>
                     </SelectedSpotsProvider>
                   </CurrentPlanContextProvider>
                 </PlacesServiceProvider>
@@ -32,7 +52,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
           </DirectionServiceProvider>
         </ConfirmationProvider>
       </ApolloClientProvider>
-    </>
+    </CacheProvider>
   )
 }
 
