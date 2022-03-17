@@ -81,7 +81,7 @@ const PrefectureSelector = () => {
     }
     await createPlan(newPlan)
 
-    router.push('map')
+    router.push('plan')
   }
 
   return (

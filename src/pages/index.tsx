@@ -54,7 +54,7 @@ const UserHome = () => {
         })
       } catch {}
     }
-    router.push('config')
+    router.push('new')
   }
 
   return (
