@@ -12,7 +12,7 @@ import FormLabel from '@mui/material/FormLabel'
 import { useGetCategoriesQuery } from 'generated/graphql'
 
 type Props = {
-  onChange?: (value: number) => void
+  onChange?: (value: number | null) => void
 }
 const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   const [selectedId, setSelectedId] = React.useState<number | null>(null)
@@ -27,9 +27,7 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   }
 
   React.useEffect(() => {
-    if (selectedId) {
-      changedCallback?.(selectedId)
-    }
+    changedCallback?.(selectedId)
     // not update callback when mapBounds is changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId])
@@ -45,6 +43,10 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
   React.useEffect(() => {
     if (data?.categories && data.categories.length > 0) {
       setSelectedId(data.categories[0].id || 0)
+    }
+
+    return () => {
+      setSelectedId(null)
     }
   }, [data?.categories])
 
