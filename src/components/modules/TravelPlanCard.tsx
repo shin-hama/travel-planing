@@ -3,21 +3,21 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useRouter } from 'next/router'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
-import { StepperHandlerContext } from 'components/pages/PlaningMain'
 import { usePlan } from 'hooks/usePlan'
 
 type Props = {
   plan: Plan
 }
 const TravelPlanCard: React.FC<Props> = ({ plan }) => {
-  const setStep = React.useContext(StepperHandlerContext)
+  const router = useRouter()
   const [, planActions] = usePlan()
 
   const handleClick = () => {
     planActions.set(plan)
-    setStep('Schedule')
+    router.push('plan')
   }
 
   return (

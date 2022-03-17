@@ -10,21 +10,22 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 
 import SelectPrefectureDialog, {
   Props,
 } from 'components/modules/SelectPrefectureDialog'
-import { StepperHandlerContext } from './PlaningMain'
 import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
 import { usePlanEvents } from 'hooks/usePlanEvents'
 import { usePlan } from 'hooks/usePlan'
 import { useUnsplash } from 'hooks/useUnsplash'
+import PlanningLayout from 'components/layouts/PlaningLayout'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 
 const PrefectureSelector = () => {
+  const router = useRouter()
   const { register, control, handleSubmit } = useForm<PlanDTO>()
-  const setStep = React.useContext(StepperHandlerContext)
   const [, eventsApi] = usePlanEvents()
   const [, { create: createPlan }] = usePlan()
   const unsplash = useUnsplash()
@@ -80,83 +81,86 @@ const PrefectureSelector = () => {
     }
     await createPlan(newPlan)
 
-    setStep('Map')
+    router.push('plan')
   }
 
   return (
-    <LocalizationProvider dateAdapter={DateAdapter}>
-      <Container maxWidth="xs">
-        <Box
-          sx={{
-            mt: 2,
-            ml: 2,
-          }}>
-          <Typography variant="h4">旅程の作成</Typography>
-        </Box>
-        <form
-          style={{ width: '100%' }}
-          onSubmit={handleSubmit(handleCreatePlan, () => {
-            console.log('invalid')
-          })}>
-          <Stack alignItems="center" spacing={2} sx={{ pt: 3, px: 2 }}>
-            <Box width="100%">
-              <TextField
-                fullWidth
-                label="プラン名"
-                variant="outlined"
-                defaultValue={'Travel Plan'}
-                {...register('title')}
-              />
-            </Box>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>出発地:</Typography>
-              <Controller
-                control={control}
-                name="home"
-                render={({ field }) => (
-                  <Button
-                    variant="outlined"
-                    onClick={async () => field.onChange(await handleClick())}>
-                    {field.value?.name || 'Select'}
-                  </Button>
-                )}
-              />
-            </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>目的地:</Typography>
-              <Controller
-                control={control}
-                name="destination"
-                render={({ field }) => (
-                  <Button
-                    variant="outlined"
-                    onClick={async () => field.onChange(await handleClick())}>
-                    {field.value?.name || 'Select'}
-                  </Button>
-                )}
-              />
-            </Stack>
-            <Controller
-              control={control}
-              name="start"
-              render={({ field }) => (
-                <MobileDatePicker
-                  label="出発日"
-                  inputFormat="YYYY/MM/DD"
-                  mask={'____/__/__'}
-                  value={field.value}
-                  onChange={(e) => field.onChange(dayjs(e).toDate())}
-                  renderInput={(params) => <TextField {...params} />}
+    <PlanningLayout>
+      <LocalizationProvider dateAdapter={DateAdapter}>
+        <Container maxWidth="xs">
+          <Box
+            sx={{
+              mt: 2,
+              ml: 2,
+            }}>
+            <Typography variant="h4">旅程の作成</Typography>
+          </Box>
+          <form
+            style={{ width: '100%' }}
+            onSubmit={handleSubmit(handleCreatePlan, () => {
+              console.log('invalid')
+            })}>
+            <Stack alignItems="center" spacing={2} sx={{ pt: 3, px: 2 }}>
+              <Box width="100%">
+                <TextField
+                  fullWidth
+                  label="プラン名"
+                  variant="outlined"
+                  defaultValue={'Travel Plan'}
+                  {...register('title')}
                 />
-              )}></Controller>
-            <Button variant="contained" type="submit">
-              {"Let's Start Planning"}
-            </Button>
-          </Stack>
-        </form>
-        <SelectPrefectureDialog {...openDialog} />
-      </Container>
-    </LocalizationProvider>
+              </Box>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography>出発地:</Typography>
+                <Controller
+                  control={control}
+                  name="home"
+                  render={({ field }) => (
+                    <Button
+                      variant="outlined"
+                      onClick={async () => field.onChange(await handleClick())}>
+                      {field.value?.name || 'Select'}
+                    </Button>
+                  )}
+                />
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography>目的地:</Typography>
+                <Controller
+                  control={control}
+                  name="destination"
+                  render={({ field }) => (
+                    <Button
+                      variant="outlined"
+                      onClick={async () => field.onChange(await handleClick())}>
+                      {field.value?.name || 'Select'}
+                    </Button>
+                  )}
+                />
+              </Stack>
+              <Controller
+                control={control}
+                name="start"
+                defaultValue={new Date()}
+                render={({ field }) => (
+                  <MobileDatePicker
+                    label="出発日"
+                    inputFormat="YYYY/MM/DD"
+                    mask={'____/__/__'}
+                    value={field.value}
+                    onChange={(e) => field.onChange(dayjs(e).toDate())}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                )}></Controller>
+              <Button variant="contained" type="submit">
+                {"Let's Start Planning"}
+              </Button>
+            </Stack>
+          </form>
+          <SelectPrefectureDialog {...openDialog} />
+        </Container>
+      </LocalizationProvider>
+    </PlanningLayout>
   )
 }
 
