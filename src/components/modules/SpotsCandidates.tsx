@@ -26,7 +26,7 @@ const SpotsCandidates: React.FC<Props> = ({
         open={open}
         onClose={onClose}
         onOpen={onOpen}
-        swipeAreaWidth={15}
+        disableSwipeToOpen
         ModalProps={{
           keepMounted: true,
         }}>
