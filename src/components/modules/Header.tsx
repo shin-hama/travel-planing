@@ -11,14 +11,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from 'next/router'
 
-import LoginForm from './LoginForm'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
 const Header = () => {
   const router = useRouter()
 
   const [user, auth] = useAuthentication()
-  const [open, setOpen] = React.useState<'signIn' | 'signUp' | null>(null)
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -73,13 +71,13 @@ const Header = () => {
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={() => setOpen('signIn')}>
+                onClick={() => router.push('login')}>
                 Login
               </Button>
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => setOpen('signUp')}>
+                onClick={() => router.push('/signup')}>
                 Sign Up
               </Button>
             </Stack>
@@ -87,11 +85,6 @@ const Header = () => {
         </Toolbar>
       </AppBar>
       <Toolbar variant="dense" />
-      <LoginForm
-        open={Boolean(open)}
-        isSignUp={open === 'signUp'}
-        onClose={() => setOpen(null)}
-      />
     </>
   )
 }
