@@ -18,7 +18,13 @@ const containerStyle = {
 
 const libs: 'places'[] = ['places']
 
-const GoogleMap: React.FC = React.memo(function Map({ children }) {
+type Props = {
+  onLoad?: (map: google.maps.Map) => void
+}
+const GoogleMap: React.FC<Props> = React.memo(function Map({
+  children,
+  onLoad,
+}) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: googleMapConfigs.apiKey,
     libraries: libs,
@@ -34,8 +40,10 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
   const setPlaces = React.useContext(SetPlacesServiceContext)
 
   const handleIdled = () => {
+    console.log(googleMap)
     if (googleMap) {
       const bounds = googleMap.getBounds()
+      console.log(bounds)
 
       setMapProps((prev) => ({
         center: googleMap.getCenter() || prev.center,
@@ -51,7 +59,8 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
   // wrapping to a function is useful in case you want to access `window.google`
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
-  const onLoad = (mapInstance: google.maps.Map) => {
+  const handleLoad = (mapInstance: google.maps.Map) => {
+    console.log('loaded')
     // do something with map Instance
     setDirectionService(new window.google.maps.DirectionsService())
     setDistanceMatrix(new window.google.maps.DistanceMatrixService())
@@ -68,6 +77,7 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
     }))
 
     setGoogleMap(mapInstance)
+    onLoad?.(mapInstance)
   }
 
   React.useEffect(() => {
@@ -75,8 +85,8 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
       const { lat, lng, zoom } = plan.destination
       setMapProps((prev) => ({
         ...prev,
-        center: { lat, lng } || prev.center,
-        zoom: zoom || prev.zoom,
+        center: { lat, lng },
+        zoom: zoom,
       }))
     }
   }, [plan, setMapProps])
@@ -86,6 +96,7 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
   }
 
   if (isLoaded === false) {
+    console.log('loading')
     return <>Now loading...</>
   }
 
@@ -102,7 +113,7 @@ const GoogleMap: React.FC = React.memo(function Map({ children }) {
       center={mapProps.center}
       zoom={mapProps.zoom}
       onIdle={handleIdled}
-      onLoad={onLoad}>
+      onLoad={handleLoad}>
       {/* Child components, such as markers, info windows, etc. */}
       {children}
     </GoogleMapLib>
