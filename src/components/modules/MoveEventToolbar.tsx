@@ -29,6 +29,7 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
     const moveEvent = eventsActions.get<MoveEvent>(event.id, 'move')
+
     if (moveEvent === undefined) {
       console.error('event is not managed')
       return

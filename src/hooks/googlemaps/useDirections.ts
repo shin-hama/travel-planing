@@ -9,6 +9,7 @@ export const useDirections = () => {
   const directionService = React.useMemo(
     () => ({
       actions: {
+        isLoaded: direction !== null,
         /**
          * 入力されたスポットの一覧について、最適なルートを見つける
          * @param props PlaceID のリスト

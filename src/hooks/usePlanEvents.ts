@@ -1,7 +1,6 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
 
-import { useDistanceMatrix } from './googlemaps/useDistanceMatrix'
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { useDirections } from './googlemaps/useDirections'
 import { useEventFactory } from './useEventFactory'
@@ -44,7 +43,6 @@ export const usePlanEvents = () => {
   const [events, eventsApi] = useLinkedEvents(currentPlan?.events)
   const eventsRef = React.useRef<ScheduleEvent[]>([])
   eventsRef.current = events
-  const distanceMatrix = useDistanceMatrix()
   const { actions: directionService } = useDirections()
   const { create: buildEvent, isSpotEvent, isMoveEvent } = useEventFactory()
 
@@ -192,15 +190,23 @@ export const usePlanEvents = () => {
 
       if (prevFrontSpot && moveToFrontSpot) {
         // 前のスポットへの移動イベントを後のスポットへの移動イベントに更新
-        const org = [{ placeId: prevFrontSpot.extendedProps.placeId }]
-        const dest = [{ placeId: rear.extendedProps.placeId }]
-        const result = await distanceMatrix.search(org, dest)
-
-        moveToFrontSpot.end = dayjs(moveToFrontSpot.start)
-          .add(result.rows[0].elements[0].duration.value, 's')
-          .toDate()
-        moveToFrontSpot.extendedProps.to = rear.extendedProps.placeId
-        update({ ...moveToFrontSpot })
+        const origin = { placeId: prevFrontSpot.extendedProps.placeId }
+        const destination = { placeId: rear.extendedProps.placeId }
+        const result = await directionService.search({
+          origin,
+          destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+        })
+        const route = result.routes.shift()
+        if (route) {
+          moveToFrontSpot.end = dayjs(moveToFrontSpot.start)
+            .add(route.legs[0].duration?.value || 0, 'second')
+            .toDate()
+          moveToFrontSpot.extendedProps.to = rear.extendedProps.placeId
+          update({ ...moveToFrontSpot })
+        } else {
+          console.warn('cannot find route')
+        }
       }
 
       // 選択中のスポットイベントを直前のスポットイベントと入れ替える
@@ -252,29 +258,51 @@ export const usePlanEvents = () => {
       const afterRearSpot = getNextSpot(rear)
       // 選択したイベントより後のイベントを更新する
       if (afterRearSpot && moveFromRear) {
-        const org = [{ placeId: front.extendedProps.placeId }]
-        const dest = [{ placeId: afterRearSpot.extendedProps.placeId }]
-        const result = await distanceMatrix.search(org, dest)
+        const origin = { placeId: front.extendedProps.placeId }
+        const destination = { placeId: afterRearSpot.extendedProps.placeId }
+        const result = await directionService.search({
+          origin,
+          destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+        })
+        const route = result.routes.shift()
+        if (route) {
+          moveFromRear.start = front.end
+          const newMoveEnd = dayjs(moveFromRear.start).add(
+            route.legs[0].duration?.value || 0,
+            's'
+          )
+          const moveEndChange = newMoveEnd.diff(moveFromRear.end, 'minute')
+          moveFromRear.end = newMoveEnd.toDate()
+          moveFromRear.extendedProps.from = front.id
+          update({ ...moveFromRear })
 
-        moveFromRear.start = front.end
-        const newMoveEnd = dayjs(moveFromRear.start).add(
-          result.rows[0].elements[0].duration.value,
-          's'
-        )
-        const moveEndChange = newMoveEnd.diff(moveFromRear.end, 'minute')
-        moveFromRear.end = newMoveEnd.toDate()
-        moveFromRear.extendedProps.from = front.id
-        update({ ...moveFromRear })
-
-        // Move イベントをたどって時刻の変更を適用する
-        applyChange(moveFromRear, moveEndChange)
+          // Move イベントをたどって時刻の変更を適用する
+          applyChange(moveFromRear, moveEndChange)
+        } else {
+          console.warn('cannot find route')
+        }
       }
+
+      commitEventsChange()
     },
-    [applyChange, distanceMatrix, get, getNextSpot, getPrevSpot, update]
+    [
+      applyChange,
+      commitEventsChange,
+      directionService,
+      get,
+      getNextSpot,
+      getPrevSpot,
+      update,
+    ]
   )
 
   const generateRoute = React.useCallback(
     async (selectedSpots: Array<SpotDTO>) => {
+      if (!directionService.isLoaded) {
+        console.error('google maps is not loaded')
+        return
+      }
       if (!currentPlan?.home) {
         console.error('home is not selected')
         return
@@ -420,8 +448,6 @@ export const usePlanEvents = () => {
 
           const beforeSpot = getPrevSpot(removed)
           const afterSpot = getNextSpot(removed)
-          console.log(afterSpot)
-          console.log(beforeSpot)
           if (beforeEvent && isMoveEvent(beforeEvent)) {
             if (afterSpot && beforeSpot) {
               if (afterSpot.start.getDate() === beforeSpot.start.getDate()) {
@@ -432,12 +458,16 @@ export const usePlanEvents = () => {
                 }
                 beforeEvent.extendedProps.to = afterSpot.id
 
-                const org = [{ placeId: beforeSpot.extendedProps.placeId }]
-                const dest = [{ placeId: afterSpot.extendedProps.placeId }]
-                const result = await distanceMatrix.search(org, dest)
-
+                const origin = { placeId: beforeSpot.extendedProps.placeId }
+                const destination = { placeId: afterSpot.extendedProps.placeId }
+                const result = await directionService.search({
+                  origin,
+                  destination,
+                  travelMode: google.maps.TravelMode.DRIVING,
+                })
+                const route = result.routes.shift()
                 const newMoveEnd = dayjs(beforeEvent.start).add(
-                  result.rows[0].elements[0].duration.value,
+                  route?.legs[0].duration?.value || 0,
                   's'
                 )
                 const moveEndChange = newMoveEnd.diff(afterSpot.start, 'minute')
@@ -469,7 +499,7 @@ export const usePlanEvents = () => {
       getPrevSpot,
       getNextSpot,
       isMoveEvent,
-      distanceMatrix,
+      directionService,
       update,
       applyChange,
       commitEventsChange,
@@ -496,19 +526,20 @@ export const usePlanEvents = () => {
         )
 
         let beforeMoveId: string | null = null
-        console.log('####DWDW#####')
 
         if (prevSpot) {
           // 直前のイベントから移動したスポットへの MoveEvent を追加する
-          const beforeOrg = [{ placeId: prevSpot.extendedProps.placeId }]
-          const beforeDest = [{ placeId: inserted.extendedProps.placeId }]
-          const beforeResult = await distanceMatrix.search(
-            beforeOrg,
-            beforeDest
-          )
+          const beforeOrg = { placeId: prevSpot.extendedProps.placeId }
+          const beforeDest = { placeId: inserted.extendedProps.placeId }
+          const beforeResult = await directionService.search({
+            origin: beforeOrg,
+            destination: beforeDest,
+            travelMode: google.maps.TravelMode.DRIVING,
+          })
+          const route = beforeResult.routes.shift()
           const beforeMoveEnd = dayjs(prevSpot.end).add(
-            beforeResult.rows[0].elements[0].duration.value,
-            's'
+            route?.legs[0].duration?.value || 0,
+            'second'
           )
 
           if (overlappedMoveEvent) {
@@ -548,7 +579,6 @@ export const usePlanEvents = () => {
         }
 
         let afterMoveId: string | null = null
-        console.log('~~~~~~~~~~~~~~')
 
         const destNextSpots = destSpots
           .filter((spot) => dayjs(spot.start) > dayjs(inserted.start))
@@ -556,15 +586,20 @@ export const usePlanEvents = () => {
         const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
         if (nextSpot) {
           // 移動したスポットから直後のスポットへの MoveEvent を追加する
-          const org = [{ placeId: inserted.extendedProps.placeId }]
-          const dest = [{ placeId: nextSpot.extendedProps.placeId }]
+          const origin = { placeId: inserted.extendedProps.placeId }
+          const destination = { placeId: nextSpot.extendedProps.placeId }
 
-          const result = await distanceMatrix.search(org, dest)
+          const result = await directionService.search({
+            origin,
+            destination,
+            travelMode: google.maps.TravelMode.DRIVING,
+          })
+          const route = result.routes.shift()
 
           const moveStart = dayjs(inserted.end)
           const moveEnd = moveStart.add(
-            result.rows[0].elements[0].duration.value,
-            's'
+            route?.legs[0].duration?.value || 0,
+            'second'
           )
           const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
 
@@ -601,7 +636,7 @@ export const usePlanEvents = () => {
     [
       update,
       commitEventsChange,
-      distanceMatrix,
+      directionService,
       buildEvent,
       eventsApi,
       isMoveEvent,

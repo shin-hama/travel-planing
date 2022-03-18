@@ -7,6 +7,7 @@ export const useDistanceMatrix = () => {
 
   const actions = React.useMemo(
     () => ({
+      isLoaded: distanceMatrix !== null,
       search: async (
         origins: Array<google.maps.Place>,
         destinations: Array<google.maps.Place>
