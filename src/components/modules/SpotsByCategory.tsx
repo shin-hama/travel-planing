@@ -23,10 +23,6 @@ const SpotsByCategory: React.FC<Props> = ({
   const [mapProps] = useMapProps()
 
   React.useEffect(() => {
-    if (spots.length > 0) {
-      // マップが移動するたびに何度も Fetch することを防ぐ
-      return
-    }
     const bounds = mapProps.bounds
     const northEast = bounds?.ne
     const southWest = bounds?.sw
@@ -50,7 +46,9 @@ const SpotsByCategory: React.FC<Props> = ({
           console.error(error)
         })
     }
-  }, [categoryId, getSpots, mapProps.bounds, spots.length])
+    // マップが移動するたびに何度も Fetch することを防ぐため、bounds は依存に含めない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryId, getSpots])
 
   return (
     <>
