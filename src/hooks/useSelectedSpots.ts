@@ -34,7 +34,6 @@ export const useSelectedSpots = () => {
       },
       remove: (removedId: string) => {
         const removedEvent = eventsApi.get(removedId)
-        console.log(removedEvent)
         removedEvent && eventsApi.remove(removedEvent)
       },
     }),

@@ -162,6 +162,7 @@ export const usePlanEvents = () => {
       const afterEvent = eventsRef.current.find(
         (spot): spot is SpotEvent => spot.id === move.extendedProps.to
       )
+      console.log(afterEvent)
       if (afterEvent) {
         update({
           ...afterEvent,
@@ -553,7 +554,7 @@ export const usePlanEvents = () => {
 
             beforeMoveId = overlappedMoveEvent.id
           } else {
-            const beforeMoveEvent = await buildMoveEvent({
+            const beforeMoveEvent = buildMoveEvent({
               start: prevSpot.end,
               end: beforeMoveEnd.toDate(),
             })
@@ -611,8 +612,6 @@ export const usePlanEvents = () => {
           eventsApi.push(moveEvent)
           afterMoveId = moveEvent.id
 
-          isMoveEvent(moveEvent) && applyChange(moveEvent, moveEndChange)
-
           update({
             ...nextSpot,
             extendedProps: {
@@ -620,6 +619,9 @@ export const usePlanEvents = () => {
               from: afterMoveId,
             },
           })
+          console.log(moveEvent)
+
+          isMoveEvent(moveEvent) && applyChange(moveEvent, moveEndChange)
         }
 
         eventsApi.push({
