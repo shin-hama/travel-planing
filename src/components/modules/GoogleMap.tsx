@@ -43,10 +43,8 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
    * マップ操作が終了したタイミングで、center などのプロパティを更新する
    */
   const handleIdled = () => {
-    console.log(googleMap)
     if (googleMap) {
       const bounds = googleMap.getBounds()
-      console.log(bounds)
 
       setMapProps((prev) => ({
         center: googleMap.getCenter() || prev.center,

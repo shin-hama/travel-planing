@@ -90,7 +90,6 @@ export const useLinkedEvents = <T extends LinkedEvent>(
   }, [])
 
   const next = React.useCallback((current: T): T | null => {
-    console.log(itemsRef.current)
     return (
       itemsRef.current.find((item) => item.id === current.extendedProps.to) ||
       null
@@ -98,7 +97,6 @@ export const useLinkedEvents = <T extends LinkedEvent>(
   }, [])
 
   const prev = React.useCallback((current: T): T | null => {
-    console.log(itemsRef.current)
     return (
       itemsRef.current.find((item) => item.id === current.extendedProps.from) ||
       null

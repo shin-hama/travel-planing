@@ -108,7 +108,7 @@ const EventsScheduler = () => {
     if (_events.length === 0) {
       return
     }
-    console.log(_events)
+
     const days = _events.map((e) => dayjs(e.start))
     const sorted = days.sort((a, b) => a.diff(b))
     const first = sorted[0]

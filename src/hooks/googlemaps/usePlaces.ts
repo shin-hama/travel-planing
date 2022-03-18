@@ -7,6 +7,7 @@ export const usePlaces = () => {
 
   const actions = React.useMemo(
     () => ({
+      isLoaded: places !== null,
       getPhotos: async (placeId: string) => {
         if (places === null) {
           throw Error('JS Google Map api is not loaded')

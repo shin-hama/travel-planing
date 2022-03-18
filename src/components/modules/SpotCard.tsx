@@ -81,6 +81,9 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   }, [getSpot, placeId])
 
   React.useEffect(() => {
+    if (!placesService.isLoaded) {
+      return
+    }
     if (countRef.current !== 0) {
       return
     }
