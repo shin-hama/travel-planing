@@ -68,6 +68,7 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       })
 
       eventsActions.applyChange(moveEvent, durationDiff)
+      eventsActions.commit()
     }
   }
 
