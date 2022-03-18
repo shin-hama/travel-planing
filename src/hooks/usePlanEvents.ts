@@ -1,7 +1,6 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
 
-import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { useDirections } from './googlemaps/useDirections'
 import { useEventFactory } from './useEventFactory'
 import { usePlan } from './usePlan'
@@ -9,7 +8,11 @@ import { useLinkedEvents } from './useLinkedEventList'
 
 import { EventInput } from '@fullcalendar/react' // must go before plugins
 
-export type SpotDTO = Required<Pick<Spot, 'placeId' | 'imageUrl'>>
+export type SpotDTO = {
+  imageUrl: string
+  placeId: string
+  name: string
+}
 export type Spot = {
   type: 'spot'
   placeId: string
@@ -44,26 +47,42 @@ export const usePlanEvents = () => {
   const eventsRef = React.useRef<ScheduleEvent[]>([])
   eventsRef.current = events
   const { actions: directionService } = useDirections()
-  const { create: buildEvent, isSpotEvent, isMoveEvent } = useEventFactory()
-
-  const [getSpot] = useGetSpotByPkLazyQuery()
+  const { buildSpotEvent, buildMoveEvent, isSpotEvent, isMoveEvent } =
+    useEventFactory()
 
   React.useEffect(() => {
     eventsApi.set(currentPlan?.events || [])
-  }, [currentPlan?.events, eventsApi])
+  }, [currentPlan, eventsApi])
+
+  const getWaypoints = React.useCallback(() => {
+    return eventsRef.current.filter(
+      (event) =>
+        event.extendedProps.type === 'spot' &&
+        event.id !== 'start' &&
+        event.id !== 'end'
+    )
+  }, [])
 
   const commitEventsChange = React.useCallback(async () => {
+    if (getWaypoints().length === 0) {
+      eventsApi.clear()
+    }
     if (currentPlan) {
       console.log('commit')
+      console.log(eventsRef.current)
+
       planActions.update({ events: eventsRef.current })
     }
-  }, [currentPlan, planActions])
+  }, [currentPlan, eventsApi, getWaypoints, planActions])
 
   const get = React.useCallback(
-    <T extends ScheduleEvent>(id: string, type: T['extendedProps']['type']) => {
+    <T extends ScheduleEvent>(
+      id: string,
+      type?: T['extendedProps']['type']
+    ) => {
       return eventsRef.current.find(
         (event): event is T =>
-          event.id === id && event.extendedProps.type === type
+          event.id === id && (type ? event.extendedProps.type === type : true)
       )
     },
     []
@@ -298,13 +317,17 @@ export const usePlanEvents = () => {
   )
 
   const generateRoute = React.useCallback(
-    async (selectedSpots: Array<SpotDTO>) => {
+    async (waypoints: Array<SpotDTO>) => {
       if (!directionService.isLoaded) {
         console.error('google maps is not loaded')
         return
       }
       if (!currentPlan?.home) {
         console.error('home is not selected')
+        return
+      }
+      if (waypoints.length === 0) {
+        console.warn('There are no waypoints')
         return
       }
 
@@ -318,7 +341,7 @@ export const usePlanEvents = () => {
         destination: {
           placeId: currentPlan.home.placeId,
         },
-        waypoints: selectedSpots.map((spot) => ({
+        waypoints: waypoints.map((spot) => ({
           location: {
             placeId: spot.placeId,
           },
@@ -331,20 +354,17 @@ export const usePlanEvents = () => {
       }
       // Event をクリアしてから、最適化された順番で再登録する
       const route = result.routes[0]
-      const startEvent = await buildEvent({
-        type: 'spot',
-        params: {
-          id: 'start',
-          title: currentPlan.home.name,
-          start: dayjs('08:30:00', 'HH:mm:ss').toDate(),
-          end: dayjs('09:00:00', 'HH:mm:ss').toDate(),
-          props: {
-            placeId: currentPlan.home.placeId,
-            imageUrl: currentPlan.home.imageUrl,
-          },
-          eventProps: {
-            durationEditable: false,
-          },
+      const startEvent = buildSpotEvent({
+        id: 'start',
+        title: currentPlan.home.name,
+        start: dayjs('08:30:00', 'HH:mm:ss').toDate(),
+        end: dayjs('09:00:00', 'HH:mm:ss').toDate(),
+        props: {
+          placeId: currentPlan.home.placeId,
+          imageUrl: currentPlan.home.imageUrl,
+        },
+        eventProps: {
+          durationEditable: false,
         },
       })
       eventsApi.push(startEvent)
@@ -358,36 +378,25 @@ export const usePlanEvents = () => {
           route.legs[i].duration?.value || 0,
           'second'
         )
-        const moveEvent = await buildEvent({
-          type: 'move',
-          params: {
-            start: last.end,
-            end: moveEnd.toDate(),
-          },
+        const moveEvent = buildMoveEvent({
+          start: last.end,
+          end: moveEnd.toDate(),
         })
         eventsApi.push(moveEvent)
 
-        const { data: spot } = await getSpot({
-          variables: { place_id: selectedSpots[waypointIndex].placeId },
+        const spotEnd = moveEnd.add(1, 'hour')
+        const spotEvent = buildSpotEvent({
+          id: waypoints[waypointIndex].placeId,
+          title: waypoints[waypointIndex].name,
+          start: moveEnd.toDate(),
+          end: spotEnd.toDate(),
+          props: {
+            placeId: waypoints[waypointIndex].placeId,
+            imageUrl: waypoints[waypointIndex].imageUrl,
+          },
         })
-        if (spot?.spots_by_pk) {
-          const spotEnd = moveEnd.add(1, 'hour')
-          const spotEvent = await buildEvent({
-            type: 'spot',
-            params: {
-              id: spot.spots_by_pk.place_id,
-              title: spot.spots_by_pk.name,
-              start: moveEnd.toDate(),
-              end: spotEnd.toDate(),
-              props: {
-                placeId: spot.spots_by_pk.place_id,
-                imageUrl: selectedSpots[waypointIndex].imageUrl,
-              },
-            },
-          })
 
-          eventsApi.push(spotEvent)
-        }
+        eventsApi.push(spotEvent)
       }
       const last = eventsApi.getLast()
       if (last === null) {
@@ -398,29 +407,23 @@ export const usePlanEvents = () => {
         route.legs[route.legs.length - 1].duration?.value || 0,
         'second'
       )
-      const moveToEnd = await buildEvent({
-        type: 'move',
-        params: {
-          start: last.end,
-          end: moveEnd.toDate(),
-        },
+      const moveToEnd = buildMoveEvent({
+        start: last.end,
+        end: moveEnd.toDate(),
       })
       eventsApi.push(moveToEnd)
 
-      const endEvent = await buildEvent({
-        type: 'spot',
-        params: {
-          id: 'end',
-          title: currentPlan.home.name,
-          start: moveToEnd.end,
-          end: dayjs(moveToEnd.end).add(30, 'minute').toDate(),
-          props: {
-            placeId: currentPlan.home.placeId,
-            imageUrl: currentPlan.home.imageUrl,
-          },
-          eventProps: {
-            durationEditable: false,
-          },
+      const endEvent = buildSpotEvent({
+        id: 'end',
+        title: currentPlan.home.name,
+        start: moveToEnd.end,
+        end: dayjs(moveToEnd.end).add(30, 'minute').toDate(),
+        props: {
+          placeId: currentPlan.home.placeId,
+          imageUrl: currentPlan.home.imageUrl,
+        },
+        eventProps: {
+          durationEditable: false,
         },
       })
       eventsApi.push(endEvent)
@@ -428,11 +431,11 @@ export const usePlanEvents = () => {
       commitEventsChange()
     },
     [
-      buildEvent,
+      buildMoveEvent,
+      buildSpotEvent,
       commitEventsChange,
       currentPlan?.home,
       directionService,
-      getSpot,
       eventsApi,
     ]
   )
@@ -550,12 +553,9 @@ export const usePlanEvents = () => {
 
             beforeMoveId = overlappedMoveEvent.id
           } else {
-            const beforeMoveEvent = await buildEvent({
-              type: 'move',
-              params: {
-                start: prevSpot.end,
-                end: beforeMoveEnd.toDate(),
-              },
+            const beforeMoveEvent = await buildMoveEvent({
+              start: prevSpot.end,
+              end: beforeMoveEnd.toDate(),
             })
             eventsApi.push(beforeMoveEvent)
 
@@ -581,7 +581,7 @@ export const usePlanEvents = () => {
         let afterMoveId: string | null = null
 
         const destNextSpots = destSpots
-          .filter((spot) => dayjs(spot.start) > dayjs(inserted.start))
+          .filter((spot) => dayjs(spot.start) >= dayjs(inserted.start))
           .sort((a, b) => dayjs(a.start).diff(b.start))
         const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
         if (nextSpot) {
@@ -603,12 +603,9 @@ export const usePlanEvents = () => {
           )
           const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
 
-          const moveEvent = await buildEvent({
-            type: 'move',
-            params: {
-              start: moveStart.toDate(),
-              end: moveEnd.toDate(),
-            },
+          const moveEvent = await buildMoveEvent({
+            start: moveStart.toDate(),
+            end: moveEnd.toDate(),
           })
 
           eventsApi.push(moveEvent)
@@ -634,14 +631,48 @@ export const usePlanEvents = () => {
       }
     },
     [
-      update,
-      commitEventsChange,
-      directionService,
-      buildEvent,
       eventsApi,
+      directionService,
+      update,
+      buildMoveEvent,
       isMoveEvent,
       applyChange,
+      commitEventsChange,
     ]
+  )
+
+  const push = React.useCallback(
+    async (spot: SpotDTO) => {
+      const endSpot = get<SpotEvent>('end', 'spot')
+      if (!endSpot) {
+        generateRoute([spot])
+        return
+      }
+      const prevSpot = getPrevSpot(endSpot)
+      if (!prevSpot) {
+        console.error('cannot find previous spot')
+        return
+      }
+
+      const duration = dayjs(endSpot.end).diff(prevSpot.start, 'second')
+      const newSpotStart = dayjs(prevSpot.end).add(
+        Math.abs(duration) / 2,
+        'second'
+      )
+      const newSpot = buildSpotEvent({
+        id: spot.placeId,
+        title: spot.name,
+        start: newSpotStart.toDate(),
+        end: newSpotStart.add(1, 'hour').toDate(),
+        props: {
+          placeId: spot.placeId,
+          imageUrl: spot.imageUrl,
+        },
+      })
+
+      await insert(newSpot)
+    },
+    [buildSpotEvent, generateRoute, get, getPrevSpot, insert]
   )
 
   const init = React.useCallback(() => {
@@ -657,6 +688,7 @@ export const usePlanEvents = () => {
       getNextSpot,
       getDestinations,
       insert,
+      push,
       remove,
       update,
       generateRoute,
@@ -673,6 +705,7 @@ export const usePlanEvents = () => {
       getDestinations,
       getNextSpot,
       getPrevSpot,
+      push,
       init,
       insert,
       remove,

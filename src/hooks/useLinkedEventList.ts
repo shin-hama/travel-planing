@@ -127,7 +127,14 @@ export const useLinkedEvents = <T extends LinkedEvent>(
 
   const remove = React.useCallback(
     (removedId: string): void => {
-      setItemsActions.filter((item) => item.id !== removedId)
+      console.log(itemsRef.current)
+      setItemsActions.filter((item) => {
+        const test = item.id !== removedId
+        console.log(item)
+        console.log(test)
+        return test
+      })
+      console.log(itemsRef.current)
     },
     [setItemsActions]
   )

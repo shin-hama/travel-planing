@@ -18,15 +18,6 @@ type BuildSpotParams = {
   props: Pick<SpotEvent['extendedProps'], 'placeId' | 'imageUrl'>
   eventProps?: Partial<EventInput>
 }
-type CreateEventParams =
-  | {
-      type: 'move'
-      params: BuildMoveParams
-    }
-  | {
-      type: 'spot'
-      params: BuildSpotParams
-    }
 
 export const useEventFactory = () => {
   const buildMoveEvent = React.useCallback(
@@ -77,29 +68,6 @@ export const useEventFactory = () => {
     []
   )
 
-  const createEvent = React.useCallback(
-    async ({ type, params }: CreateEventParams): Promise<ScheduleEvent> => {
-      let event: ScheduleEvent
-      switch (type) {
-        case 'spot':
-          // es-lint ではエラーが出ないが ts ではエラーが出る、エディタも問題ないので無視
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          event = buildSpotEvent(params)
-          break
-        case 'move':
-          event = buildMoveEvent(params)
-          break
-
-        default:
-          throw new Error(`Type ${type} is not implemented`)
-      }
-
-      return event
-    },
-    [buildMoveEvent, buildSpotEvent]
-  )
-
   const isSpotEvent = React.useCallback(
     (event: ScheduleEvent): event is SpotEvent => {
       return event.extendedProps.type === 'spot'
@@ -113,5 +81,5 @@ export const useEventFactory = () => {
     []
   )
 
-  return { create: createEvent, isSpotEvent, isMoveEvent }
+  return { buildSpotEvent, buildMoveEvent, isSpotEvent, isMoveEvent }
 }

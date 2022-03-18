@@ -7,6 +7,7 @@ import {
 
 import PlaceMarker from './PlaceMarker'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
+import { useSelectedSpots } from 'hooks/useSelectedSpots'
 
 type Props = {
   categoryId: number | null
@@ -21,6 +22,7 @@ const SpotsByCategory: React.FC<Props> = ({
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
   const [getSpots] = useGetSpotsByCategoryLazyQuery()
   const [mapProps] = useMapProps()
+  const [, actions] = useSelectedSpots()
 
   React.useEffect(() => {
     const bounds = mapProps.bounds
@@ -56,7 +58,8 @@ const SpotsByCategory: React.FC<Props> = ({
         <PlaceMarker
           key={item.place_id}
           placeId={item.place_id}
-          selected={item.place_id === focusedSpot}
+          selected={actions.get(item.place_id) !== undefined}
+          focused={item.place_id === focusedSpot}
           lat={item.lat}
           lng={item.lng}
           onClick={onClick}
