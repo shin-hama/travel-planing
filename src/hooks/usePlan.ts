@@ -85,8 +85,10 @@ export const usePlan = () => {
           if (user && plan) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             await db.set(path, plan.id, updatedPlan)
-            setPlan({ type: 'update', value: updatedPlan })
           }
+
+          // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
+          setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
           console.error(e)
         }
