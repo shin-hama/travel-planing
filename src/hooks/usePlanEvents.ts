@@ -69,7 +69,6 @@ export const usePlanEvents = () => {
     }
     if (currentPlan) {
       console.log('commit')
-      console.log(eventsRef.current)
 
       planActions.update({ events: eventsRef.current })
     }
@@ -451,6 +450,7 @@ export const usePlanEvents = () => {
 
           const beforeSpot = getPrevSpot(removed)
           const afterSpot = getNextSpot(removed)
+
           if (beforeEvent && isMoveEvent(beforeEvent)) {
             if (afterSpot && beforeSpot) {
               if (afterSpot.start.getDate() === beforeSpot.start.getDate()) {
@@ -546,7 +546,7 @@ export const usePlanEvents = () => {
           )
 
           if (overlappedMoveEvent) {
-            // Update overlapped move event
+            // 既存の MoveEvent を PrevSpot から InsertedSpot へのイベントに更新する
             overlappedMoveEvent.end = beforeMoveEnd.toDate()
             overlappedMoveEvent.extendedProps.to = inserted.id
             update(overlappedMoveEvent)
@@ -583,7 +583,7 @@ export const usePlanEvents = () => {
         const destNextSpots = destSpots
           .filter((spot) => dayjs(spot.start) >= dayjs(inserted.start))
           .sort((a, b) => dayjs(a.start).diff(b.start))
-        const nextSpot = destNextSpots.length > 0 ? destNextSpots[0] : null
+        const nextSpot = destNextSpots.shift()
         if (nextSpot) {
           // 移動したスポットから直後のスポットへの MoveEvent を追加する
           const origin = { placeId: inserted.extendedProps.placeId }
@@ -603,7 +603,7 @@ export const usePlanEvents = () => {
           )
           const moveEndChange = moveEnd.diff(nextSpot.start, 'minute')
 
-          const moveEvent = await buildMoveEvent({
+          const moveEvent = buildMoveEvent({
             start: moveStart.toDate(),
             end: moveEnd.toDate(),
           })
@@ -612,8 +612,15 @@ export const usePlanEvents = () => {
           afterMoveId = moveEvent.id
 
           isMoveEvent(moveEvent) && applyChange(moveEvent, moveEndChange)
+
+          update({
+            ...nextSpot,
+            extendedProps: {
+              ...nextSpot.extendedProps,
+              from: afterMoveId,
+            },
+          })
         }
-        console.log('finish insert')
 
         eventsApi.push({
           ...inserted,

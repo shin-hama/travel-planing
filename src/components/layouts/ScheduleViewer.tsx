@@ -46,6 +46,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
       const waypoints = eventsApi.getDestinations().map((event) => ({
         placeId: event.extendedProps.placeId,
         imageUrl: event.extendedProps.imageUrl,
+        name: event.title,
       }))
       eventsApi.generateRoute(waypoints)
     } catch (e) {

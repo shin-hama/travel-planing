@@ -174,7 +174,8 @@ const EventsScheduler = () => {
     })
 
     if (e.startDelta.milliseconds !== 0) {
-      console.log('edit start')
+      console.log('edit start time')
+      // 対象より前のイベントすべての時間を早める
       events
         .filter(
           (event) =>
@@ -191,7 +192,8 @@ const EventsScheduler = () => {
           })
         })
     } else if (e.endDelta.milliseconds !== 0) {
-      console.log('edit end')
+      console.log('edit end time')
+      // 対象より後のイベントすべての時間を遅らせる
       events
         .filter(
           (event) =>
@@ -208,6 +210,8 @@ const EventsScheduler = () => {
           })
         })
     }
+
+    eventsApi.commit()
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {

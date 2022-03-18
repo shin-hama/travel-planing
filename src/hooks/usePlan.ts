@@ -90,7 +90,7 @@ export const usePlan = () => {
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
-          console.error(e)
+          console.error(updatedPlan)
         }
       },
       set: (target: Plan) => {
