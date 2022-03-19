@@ -18,6 +18,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { usePlanEvents, MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
+import { useScheduleEvents } from 'hooks/useScheduleEvents'
+import { TravelPlan } from 'hooks/useTravelPlan'
 
 dayjs.extend(customParseFormat)
 
@@ -88,10 +90,25 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
-const EventsScheduler = () => {
-  const [events, eventsApi] = usePlanEvents()
+type Props = {
+  plan: TravelPlan
+}
+const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
+  plan,
+}) {
   const calendar = React.useRef<FullCalendar>(null)
+  const [, eventsApi] = usePlanEvents()
+  const events = useScheduleEvents(plan)
 
+  console.log('test')
+
+  React.useEffect(() => {
+    console.log('editor plan')
+  }, [plan])
+
+  React.useEffect(() => {
+    console.log('editor events')
+  }, [events])
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
     end: Date
@@ -302,6 +319,6 @@ const EventsScheduler = () => {
       </Box>
     </>
   )
-}
+})
 
 export default EventsScheduler

@@ -15,22 +15,25 @@ import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
 import { useSelectedSpots } from 'hooks/useSelectedSpots'
 import { SpotDTO } from 'hooks/usePlanEvents'
+import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 
 type ButtonProps = {
   spotDTO: SpotDTO
 }
 const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
-  const [, actions] = useSelectedSpots()
+  const [plan] = usePlan()
+  const [{ waypoints }, actions] = useTravelPlan(plan)
   const [loading, setLoading] = React.useState(false)
 
-  const selected = actions.get(spotDTO.placeId)
+  const selected = waypoints.find((item) => item.placeId === spotDTO.placeId)
 
   const handleClick = () => {
     setLoading(true)
     if (selected) {
-      actions.remove(spotDTO.placeId)
+      actions.removeWaypoint(spotDTO)
     } else {
-      actions.add(spotDTO)
+      actions.addWaypoint(spotDTO)
     }
     setLoading(false)
   }

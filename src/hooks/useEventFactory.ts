@@ -8,6 +8,7 @@ type BuildMoveParams = {
   start: MoveEvent['start']
   end: MoveEvent['end']
   eventProps?: Partial<EventInput>
+  extendedProps: Omit<MoveEvent['extendedProps'], 'type'>
 }
 
 type BuildSpotParams = {
@@ -20,66 +21,56 @@ type BuildSpotParams = {
 }
 
 export const useEventFactory = () => {
-  const buildMoveEvent = React.useCallback(
-    ({ start, end, eventProps = {} }: BuildMoveParams): MoveEvent => {
-      return {
-        id: uuidv4(),
-        title: 'Move',
-        color: '#E5E3C9',
-        display: 'background',
-        ...eventProps,
-        start,
-        end,
-        extendedProps: {
-          type: 'move',
-          mode: 'car',
-          from: 'null',
-          to: 'null',
-        },
-      }
-    },
-    []
-  )
+  const actions = React.useMemo(() => {
+    const a = {
+      buildMoveEvent: (props: BuildMoveParams): MoveEvent => {
+        return {
+          id: uuidv4(),
+          title: 'Move',
+          color: '#E5E3C9',
+          display: 'background',
+          ...props.eventProps,
+          start: props.start,
+          end: props.end,
+          extendedProps: {
+            ...props.extendedProps,
+            type: 'move',
+          },
+        }
+      },
 
-  const buildSpotEvent = React.useCallback(
-    ({
-      id,
-      title,
-      start,
-      end,
-      props,
-      eventProps = {},
-    }: BuildSpotParams): SpotEvent => {
-      return {
+      buildSpotEvent: ({
         id,
         title,
-        color: 'transparent',
-        ...eventProps,
         start,
         end,
-        extendedProps: {
-          type: 'spot',
-          from: null,
-          to: null,
-          ...props,
-        },
-      }
-    },
-    []
-  )
+        props,
+        eventProps = {},
+      }: BuildSpotParams): SpotEvent => {
+        return {
+          id,
+          title,
+          color: 'transparent',
+          ...eventProps,
+          start,
+          end,
+          extendedProps: {
+            type: 'spot',
+            from: null,
+            to: null,
+            ...props,
+          },
+        }
+      },
+      isSpotEvent: (event: ScheduleEvent): event is SpotEvent => {
+        return event.extendedProps.type === 'spot'
+      },
+      isMoveEvent: (event: ScheduleEvent): event is MoveEvent => {
+        return event.extendedProps.type === 'move'
+      },
+    }
+    return a
+  }, [])
 
-  const isSpotEvent = React.useCallback(
-    (event: ScheduleEvent): event is SpotEvent => {
-      return event.extendedProps.type === 'spot'
-    },
-    []
-  )
-  const isMoveEvent = React.useCallback(
-    (event: ScheduleEvent): event is MoveEvent => {
-      return event.extendedProps.type === 'move'
-    },
-    []
-  )
-
-  return { buildSpotEvent, buildMoveEvent, isSpotEvent, isMoveEvent }
+  return actions
 }

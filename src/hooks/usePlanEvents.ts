@@ -13,6 +13,16 @@ export type SpotDTO = {
   placeId: string
   name: string
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isSpotDTO = (obj: any): obj is SpotDTO => {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    typeof obj.imageUrl === 'string' &&
+    typeof obj.placeId === 'string' &&
+    typeof obj.name === 'string'
+  )
+}
 export type Spot = {
   type: 'spot'
   placeId: string
@@ -24,7 +34,7 @@ export type Move = {
   type: 'move'
   from: string
   to: string
-  mode: 'bicycle' | 'car' | 'walk'
+  mode: 'bicycle' | 'car' | 'walk' | google.maps.TravelMode
 }
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
 export type EventBase = CustomEventInput & {
