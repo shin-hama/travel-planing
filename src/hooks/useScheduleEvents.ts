@@ -23,7 +23,9 @@ const mergeAlternate = <T, U>(
 
 export const useScheduleEvents = (plan: TravelPlan) => {
   const [events, setEvents] = useList<ScheduleEvent>()
-  const actions = useEventFactory()
+  const eventsRef = React.useRef<typeof events>([])
+  eventsRef.current = events
+  const { buildMoveEvent, buildSpotEvent } = useEventFactory()
 
   React.useEffect(() => {
     console.log('setEvents is update')
@@ -49,12 +51,13 @@ export const useScheduleEvents = (plan: TravelPlan) => {
     setEvents.set(
       merged.map((item) => {
         if (isRoute(item)) {
-          const endTime = startTime.add(item.duration, item.durationUnit)
-          startTime = endTime
+          const start = startTime.toDate()
+          startTime = startTime.add(item.duration, item.durationUnit)
+          const end = startTime.toDate()
 
-          return actions.buildMoveEvent({
-            start: startTime.toDate(),
-            end: endTime.toDate(),
+          return buildMoveEvent({
+            start,
+            end,
             extendedProps: {
               from: item.from,
               to: item.to,
@@ -62,14 +65,14 @@ export const useScheduleEvents = (plan: TravelPlan) => {
             },
           })
         } else if (isSpotDTO(item)) {
-          const endTime = startTime.add(1, 'hour')
-          startTime = endTime
+          const start = startTime.toDate()
+          startTime = startTime.add(1, 'hour')
+          const end = startTime.toDate()
 
-          return actions.buildSpotEvent({
-            id: item.placeId,
+          return buildSpotEvent({
             title: item.name,
-            start: startTime.toDate(),
-            end: endTime.toDate(),
+            start,
+            end,
             props: { placeId: item.placeId, imageUrl: item.imageUrl },
           })
         } else {
@@ -77,7 +80,23 @@ export const useScheduleEvents = (plan: TravelPlan) => {
         }
       })
     )
-  }, [actions, plan, setEvents])
+  }, [buildMoveEvent, buildSpotEvent, plan, setEvents])
 
-  return events
+  const actions = React.useMemo(() => {
+    const a = {
+      get: <T extends ScheduleEvent>(
+        id: string,
+        type?: T['extendedProps']['type']
+      ) => {
+        return eventsRef.current.find(
+          (event): event is T =>
+            event.id === id && (type ? event.extendedProps.type === type : true)
+        )
+      },
+    }
+
+    return a
+  }, [])
+
+  return [events, actions] as const
 }

@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { ScheduleEvent } from 'hooks/usePlanEvents'
+import { ScheduleEvent, SpotDTO } from 'hooks/usePlanEvents'
+import { Route } from 'hooks/useTravelPlan'
 
 export type Prefecture = {
   name: string
@@ -19,6 +20,8 @@ export type Plan = {
   thumbnail: string
   start: Date
   end: Date
+  waypoints: Array<SpotDTO>
+  routes: Array<Route>
   events?: Array<ScheduleEvent>
 }
 

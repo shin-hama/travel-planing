@@ -5,7 +5,11 @@ import {
   useFirestore,
 } from './firebase/useFirestore'
 import { useAuthentication } from './firebase/useAuthentication'
-import { Plan } from 'contexts/CurrentPlanProvider'
+import {
+  CurrentPlanContext,
+  Plan,
+  SetCurrentPlanContext,
+} from 'contexts/CurrentPlanProvider'
 import { useList } from 'react-use'
 import { SpotDTO } from './usePlanEvents'
 import { useDirections } from './googlemaps/useDirections'
@@ -34,20 +38,18 @@ export type TravelPlan = Plan & {
   routes: Array<Route>
 }
 
-export const useTravelPlan = (targetPlan: Plan) => {
-  const [plan, setPlan] = React.useState<Plan>(targetPlan)
+export const useTravelPlan = () => {
+  const plan = React.useContext(CurrentPlanContext)
+  const setPlan = React.useContext(SetCurrentPlanContext)
+
+  if (!plan) {
+    throw Error('Current plan is not set')
+  }
+
   const [user] = useAuthentication()
   const db = useFirestore()
   const [waypoints, setWaypoints] = useList<SpotDTO>()
   const [routes, setRoutes] = useList<Route>()
-
-  const travelPlan = React.useMemo<TravelPlan>(() => {
-    return {
-      ...plan,
-      waypoints,
-      routes,
-    }
-  }, [plan, routes, waypoints])
 
   const { actions: directionService } = useDirections()
   const countRef = React.useRef(0)
@@ -59,19 +61,36 @@ export const useTravelPlan = (targetPlan: Plan) => {
   React.useEffect(() => {
     console.log('plan is updated')
   }, [plan])
+
+  React.useEffect(() => {
+    console.log('setplan is updated')
+  }, [plan])
+
   React.useEffect(() => {
     console.log('waypoints is updated')
+    setPlan({ type: 'update', value: { waypoints } })
     countRef.current = 0
   }, [waypoints])
+
+  React.useEffect(() => {
+    console.log('route is updated')
+
+    setPlan({ type: 'update', value: { routes } })
+  }, [routes])
+
   React.useEffect(() => {
     if (countRef.current !== 0) {
       return
     }
+    countRef.current += 1
+
     const func = async () => {
+      if (!plan) {
+        return
+      }
       if (waypoints.length === 0) {
         return
       }
-      countRef.current += 1
 
       const spots: Array<SpotDTO> = [plan.home, ...waypoints, plan.home]
       const newRoute = await Promise.all(
@@ -125,7 +144,7 @@ export const useTravelPlan = (targetPlan: Plan) => {
           }
 
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
-          setPlan((prev) => ({ ...prev, ...updatedPlan }))
+          setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
           console.error(updatedPlan)
         }
@@ -141,5 +160,5 @@ export const useTravelPlan = (targetPlan: Plan) => {
     return a
   }, [db, plan.id, setWaypoints, user])
 
-  return [travelPlan, actions] as const
+  return [plan, actions] as const
 }

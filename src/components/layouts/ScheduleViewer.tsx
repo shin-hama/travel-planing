@@ -18,7 +18,6 @@ import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useConfirm } from 'hooks/useConfirm'
-import { usePlan } from 'hooks/usePlan'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Props = {
@@ -30,9 +29,9 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   const { loading } = useDirections()
   const [, eventsApi] = usePlanEvents()
   const confirm = useConfirm()
-  const [plan] = usePlan()
-  const [travelPlan] = useTravelPlan(plan)
+  const [plan] = useTravelPlan()
 
+  console.log(plan)
   console.log('viewer')
 
   const handleOptimize = async () => {
@@ -98,7 +97,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
             </Button>
           </Stack>
           <Box sx={{ height: '100%', zIndex: 0 }}>
-            <EventsScheduler plan={travelPlan} />
+            <EventsScheduler plan={plan} />
           </Box>
           <Fab
             onClick={onClose}

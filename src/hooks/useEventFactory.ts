@@ -12,7 +12,6 @@ type BuildMoveParams = {
 }
 
 type BuildSpotParams = {
-  id: string
   title: string
   start: SpotEvent['start']
   end: SpotEvent['end']
@@ -40,7 +39,6 @@ export const useEventFactory = () => {
       },
 
       buildSpotEvent: ({
-        id,
         title,
         start,
         end,
@@ -48,7 +46,7 @@ export const useEventFactory = () => {
         eventProps = {},
       }: BuildSpotParams): SpotEvent => {
         return {
-          id,
+          id: uuidv4(),
           title,
           color: 'transparent',
           ...eventProps,
