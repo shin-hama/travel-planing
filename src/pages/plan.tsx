@@ -14,17 +14,13 @@ import SpotsCandidates from 'components/modules/SpotsCandidates'
 import SpotsMap from 'components/modules/SpotsMap'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import ScheduleViewer from 'components/layouts/ScheduleViewer'
-// import { usePlanEvents } from 'hooks/usePlanEvents'
-import { useSelectedSpots } from 'hooks/useSelectedSpots'
-import { usePlan } from 'hooks/usePlan'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Drawers = 'spots' | 'schedule'
 
 const FeaturedPlaces = () => {
   const router = useRouter()
-  const [plan] = usePlan()
-  // const [, eventsActions] = usePlanEvents()
-  const [spots] = useSelectedSpots()
+  const [plan] = useTravelPlan()
   const [open, setOpen] = React.useState<Drawers | null>(null)
 
   React.useEffect(() => {
@@ -59,7 +55,7 @@ const FeaturedPlaces = () => {
           direction="row"
           justifyContent="space-between"
           alignItems="baseline">
-          <Badge badgeContent={spots.length} color="primary">
+          <Badge badgeContent={plan.waypoints.length} color="primary">
             <LabeledIconButton
               onClick={handleOpen('spots')}
               icon={faLocationDot}
@@ -80,7 +76,7 @@ const FeaturedPlaces = () => {
       </Box>
       <SpotsCandidates
         open={open === 'spots'}
-        placeIds={spots.map((spot) => spot.placeId)}
+        placeIds={plan.waypoints.map((spot) => spot.placeId)}
         onOpen={() => handleOpen('spots')}
         onClose={handleClose}
       />

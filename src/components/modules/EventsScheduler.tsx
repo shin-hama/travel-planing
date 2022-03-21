@@ -17,9 +17,9 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
-import { usePlanEvents, MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
+import { MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
-import { TravelPlan } from 'hooks/useTravelPlan'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 dayjs.extend(customParseFormat)
 
@@ -90,14 +90,9 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
-type Props = {
-  plan: TravelPlan
-}
-const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
-  plan,
-}) {
+const EventsScheduler: React.FC = () => {
   const calendar = React.useRef<FullCalendar>(null)
-  const [, eventsApi_old] = usePlanEvents()
+  const [plan, planApi] = useTravelPlan()
   const [events, eventsApi] = useScheduleEvents(plan)
 
   console.log(events)
@@ -147,7 +142,7 @@ const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
 
   const handleEventDrop = async (e: EventDropArg) => {
     // 画面上で元の位置に戻らないようとりあえず Event を更新する
-    const droppedEvent = eventsApi_old.get<SpotEvent>(
+    const droppedEvent = eventsApi.get<SpotEvent>(
       e.event.id,
       e.event.extendedProps.type
     )
@@ -165,27 +160,30 @@ const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
-        eventsApi_old.remove(droppedEvent)
+        planApi.removeWaypoint(droppedEvent.extendedProps.placeId)
 
         // Move to target day
-        eventsApi_old.insert(cloned)
+        planApi.insertWaypoint(index, {
+          name: cloned.title,
+          ...cloned.extendedProps,
+        })
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
-        eventsApi_old.followMoving(cloned, e.delta.milliseconds, 'ms')
+        eventsApi.followMoving(cloned, e.delta.milliseconds, 'ms')
       }
-      eventsApi_old.commit()
+      planApi.save()
     }
   }
 
   const handleEventResize = (e: EventResizeDoneArg) => {
-    const resizedEvent = eventsApi_old.get<SpotEvent>(
+    const resizedEvent = eventsApi.get<SpotEvent>(
       e.event.id,
       e.event.extendedProps.type
     )
     if (!resizedEvent) {
       throw new Error('Cannot find resized event')
     }
-    eventsApi_old.update({
+    eventsApi.update({
       ...resizedEvent,
       start: dayjs(e.event.start).toDate(),
       end: dayjs(e.event.end).toDate(),
@@ -201,7 +199,7 @@ const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
             dayjs(event.start) < dayjs(e.oldEvent.start)
         )
         .forEach((event) => {
-          eventsApi_old.update({
+          eventsApi.update({
             ...event,
             start: dayjs(event.start)
               .add(e.startDelta.milliseconds, 'ms')
@@ -219,7 +217,7 @@ const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
             dayjs(event.start) >= dayjs(e.oldEvent.end)
         )
         .forEach((event) => {
-          eventsApi_old.update({
+          eventsApi.update({
             ...event,
             start: dayjs(event.start)
               .add(e.endDelta.milliseconds, 'ms')
@@ -229,7 +227,7 @@ const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
         })
     }
 
-    eventsApi_old.commit()
+    planApi.save()
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {
@@ -322,6 +320,6 @@ const EventsScheduler: React.FC<Props> = React.memo(function EventsScheduler({
       </Box>
     </>
   )
-})
+}
 
 export default EventsScheduler

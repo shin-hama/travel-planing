@@ -3,8 +3,9 @@ import { useList } from 'react-use'
 import dayjs from 'dayjs'
 
 import { useEventFactory } from './useEventFactory'
-import { isRoute, TravelPlan } from './useTravelPlan'
+import { isRoute } from './useTravelPlan'
 import { isSpotDTO, ScheduleEvent } from './usePlanEvents'
+import { Plan } from 'contexts/CurrentPlanProvider'
 
 const mergeAlternate = <T, U>(
   array1: Array<T>,
@@ -21,7 +22,7 @@ const mergeAlternate = <T, U>(
   return result
 }
 
-export const useScheduleEvents = (plan: TravelPlan) => {
+export const useScheduleEvents = (plan: Plan) => {
   const [events, setEvents] = useList<ScheduleEvent>()
   const eventsRef = React.useRef<typeof events>([])
   eventsRef.current = events
@@ -93,10 +94,30 @@ export const useScheduleEvents = (plan: TravelPlan) => {
             event.id === id && (type ? event.extendedProps.type === type : true)
         )
       },
+      followMoving: (
+        target: ScheduleEvent,
+        duration: number,
+        unit: dayjs.ManipulateType
+      ) => {
+        eventsRef.current
+          .filter(
+            (event) => dayjs(event.start).date() === dayjs(target.end).date()
+          )
+          .forEach((event) => {
+            actions.update({
+              ...event,
+              start: dayjs(event.start).add(duration, unit).toDate(),
+              end: dayjs(event.end).add(duration, unit).toDate(),
+            })
+          })
+      },
+      update: (updatedSpot: ScheduleEvent) => {
+        setEvents.update((event) => event.id === updatedSpot.id, updatedSpot)
+      },
     }
 
     return a
-  }, [])
+  }, [setEvents])
 
   return [events, actions] as const
 }

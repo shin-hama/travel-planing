@@ -13,17 +13,14 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
-import { useSelectedSpots } from 'hooks/useSelectedSpots'
 import { SpotDTO } from 'hooks/usePlanEvents'
 import { useTravelPlan } from 'hooks/useTravelPlan'
-import { usePlan } from 'hooks/usePlan'
 
 type ButtonProps = {
   spotDTO: SpotDTO
 }
 const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
-  const [plan] = usePlan()
-  const [{ waypoints }, actions] = useTravelPlan(plan)
+  const [{ waypoints }, actions] = useTravelPlan()
   const [loading, setLoading] = React.useState(false)
 
   const selected = waypoints.find((item) => item.placeId === spotDTO.placeId)
@@ -31,7 +28,7 @@ const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
   const handleClick = () => {
     setLoading(true)
     if (selected) {
-      actions.removeWaypoint(spotDTO)
+      actions.removeWaypoint(spotDTO.placeId)
     } else {
       actions.addWaypoint(spotDTO)
     }

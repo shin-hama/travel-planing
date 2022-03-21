@@ -4,12 +4,12 @@ import {
   useLoadScript,
 } from '@react-google-maps/api'
 
+import { googleMapConfigs } from 'configs'
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
-import { usePlan } from 'hooks/usePlan'
-import { googleMapConfigs } from 'configs'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 const containerStyle = {
   width: '100%',
@@ -30,7 +30,7 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     libraries: libs,
     // ...otherOptions
   })
-  const [plan] = usePlan()
+  const [plan] = useTravelPlan()
 
   const [mapProps, setMapProps] = useMapProps()
 

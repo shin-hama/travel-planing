@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 
 import { useDirections } from './googlemaps/useDirections'
 import { useEventFactory } from './useEventFactory'
-import { usePlan } from './usePlan'
+import { usePlans } from './usePlan'
 import { useLinkedEvents } from './useLinkedEventList'
 
 import { EventInput } from '@fullcalendar/react' // must go before plugins
@@ -34,7 +34,7 @@ export type Move = {
   type: 'move'
   from: string
   to: string
-  mode: 'bicycle' | 'car' | 'walk' | google.maps.TravelMode
+  mode: 'bicycle' | 'car' | 'walk'
 }
 type CustomEventInput = Omit<EventInput, 'extendedProps'>
 export type EventBase = CustomEventInput & {
@@ -52,7 +52,7 @@ export type MoveEvent = EventBase & {
 export type ScheduleEvent = SpotEvent | MoveEvent
 
 export const usePlanEvents = () => {
-  const [currentPlan, planActions] = usePlan()
+  const planActions = usePlans()
   const [events, eventsApi] = useLinkedEvents(currentPlan?.events)
   const eventsRef = React.useRef<ScheduleEvent[]>([])
   eventsRef.current = events
@@ -365,7 +365,6 @@ export const usePlanEvents = () => {
       // Event をクリアしてから、最適化された順番で再登録する
       const route = result.routes[0]
       const startEvent = buildSpotEvent({
-        id: 'start',
         title: currentPlan.home.name,
         start: dayjs('08:30:00', 'HH:mm:ss').toDate(),
         end: dayjs('09:00:00', 'HH:mm:ss').toDate(),
@@ -396,7 +395,6 @@ export const usePlanEvents = () => {
 
         const spotEnd = moveEnd.add(1, 'hour')
         const spotEvent = buildSpotEvent({
-          id: waypoints[waypointIndex].placeId,
           title: waypoints[waypointIndex].name,
           start: moveEnd.toDate(),
           end: spotEnd.toDate(),
@@ -424,7 +422,6 @@ export const usePlanEvents = () => {
       eventsApi.push(moveToEnd)
 
       const endEvent = buildSpotEvent({
-        id: 'end',
         title: currentPlan.home.name,
         start: moveToEnd.end,
         end: dayjs(moveToEnd.end).add(30, 'minute').toDate(),

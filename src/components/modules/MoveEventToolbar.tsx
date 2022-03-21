@@ -6,10 +6,10 @@ import {
   FontAwesomeIconProps,
 } from '@fortawesome/react-fontawesome'
 import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
-import dayjs from 'dayjs'
 
-import { MoveEvent, usePlanEvents } from 'hooks/usePlanEvents'
+import { MoveEvent } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 export const MoveTypes: Record<
   MoveEvent['extendedProps']['mode'],
@@ -25,15 +25,9 @@ type Props = {
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
-  const [, eventsActions] = usePlanEvents()
+  const [, planActions] = useTravelPlan()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
-    const moveEvent = eventsActions.get<MoveEvent>(event.id, 'move')
-
-    if (moveEvent === undefined) {
-      console.error('event is not managed')
-      return
-    }
     const travelMode = () => {
       switch (mode) {
         case 'car':
@@ -48,27 +42,21 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       }
     }
 
-    const prev = eventsActions.getPrevSpot(moveEvent)
-    const next = eventsActions.getNextSpot(moveEvent)
-
     const result = await directions.search({
-      origin: { placeId: prev?.extendedProps.placeId },
-      destination: { placeId: next?.extendedProps.placeId },
+      origin: { placeId: event.extendedProps.from },
+      destination: { placeId: event.extendedProps.to },
       travelMode: travelMode(),
     })
 
     if (result.routes[0].legs.length > 0) {
       const durationSec = result.routes[0].legs[0].duration?.value || 0
-      const newEnd = dayjs(event.start).add(durationSec, 'second')
-      const durationDiff = dayjs(newEnd).diff(moveEvent.end, 'minute')
-      moveEvent.extendedProps.mode = mode
-      eventsActions.update({
-        ...moveEvent,
-        end: newEnd.toDate(),
-      })
 
-      eventsActions.applyChange(moveEvent, durationDiff)
-      eventsActions.commit()
+      planActions.updateRoute({
+        ...event.extendedProps,
+        duration: durationSec,
+        durationUnit: 'second',
+        mode: mode,
+      })
     }
   }
 

@@ -20,7 +20,7 @@ export type Route = {
   to: string
   duration: number
   durationUnit: dayjs.ManipulateType
-  mode: google.maps.TravelMode
+  mode: 'bicycle' | 'car' | 'walk'
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isRoute = (obj: any): obj is Route => {
@@ -33,23 +33,16 @@ export const isRoute = (obj: any): obj is Route => {
   )
 }
 
-export type TravelPlan = Plan & {
-  waypoints: Array<SpotDTO>
-  routes: Array<Route>
-}
-
 export const useTravelPlan = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
 
-  if (!plan) {
-    throw Error('Current plan is not set')
-  }
+  const planRef = React.useRef<Plan>(plan)
 
   const [user] = useAuthentication()
   const db = useFirestore()
-  const [waypoints, setWaypoints] = useList<SpotDTO>()
-  const [routes, setRoutes] = useList<Route>()
+  const [waypoints, waypointsAction] = useList<SpotDTO>()
+  const [routes, routesAction] = useList<Route>()
 
   const { actions: directionService } = useDirections()
   const countRef = React.useRef(0)
@@ -64,7 +57,7 @@ export const useTravelPlan = () => {
 
   React.useEffect(() => {
     console.log('setplan is updated')
-  }, [plan])
+  }, [setPlan])
 
   React.useEffect(() => {
     console.log('waypoints is updated')
@@ -85,14 +78,18 @@ export const useTravelPlan = () => {
     countRef.current += 1
 
     const func = async () => {
-      if (!plan) {
+      if (!planRef.current) {
         return
       }
       if (waypoints.length === 0) {
         return
       }
 
-      const spots: Array<SpotDTO> = [plan.home, ...waypoints, plan.home]
+      const spots: Array<SpotDTO> = [
+        planRef.current.home,
+        ...waypoints,
+        planRef.current.home,
+      ]
       const newRoute = await Promise.all(
         spots.map(async (spot, i): Promise<Route | null> => {
           if (i === spots.length - 1) {
@@ -124,23 +121,41 @@ export const useTravelPlan = () => {
             to: destination.placeId,
             duration: result.routes[0].legs[0].duration?.value || 0,
             durationUnit: 'second',
-            mode: travelMode,
+            mode: 'car',
           }
         })
       )
 
-      setRoutes.set(newRoute.filter((item): item is Route => item !== null))
+      routesAction.set(newRoute.filter((item): item is Route => item !== null))
     }
     func()
-  }, [directionService, plan.home, waypoints])
+    // ignore dependencies to routes
+  }, [directionService, waypoints])
 
   const actions = React.useMemo(() => {
     const a = {
-      update: async (updatedPlan: Partial<Plan>) => {
+      create: async (newPlan: Omit<Plan, 'id'>) => {
         try {
           if (user) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            await db.set(path, plan.id, updatedPlan)
+            const ref = await db.add(path, newPlan)
+            setPlan({ type: 'set', value: { ...newPlan, id: ref.id } })
+          } else {
+            console.log('Current user is guest')
+            setPlan({ type: 'set', value: { ...newPlan, id: 'guest' } })
+          }
+        } catch {
+          console.error(`fail to save plan: ${JSON.stringify(newPlan)}`)
+        }
+      },
+      set: (newPlan: Plan) => {
+        setPlan({ type: 'set', value: newPlan })
+      },
+      update: async (updatedPlan: Partial<Plan>) => {
+        try {
+          if (planRef.current && user) {
+            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+            await db.set(path, planRef.current.id, updatedPlan)
           }
 
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
@@ -149,16 +164,107 @@ export const useTravelPlan = () => {
           console.error(updatedPlan)
         }
       },
-      addWaypoint: (newSpot: SpotDTO) => {
-        setWaypoints.push(newSpot)
+      updateRoute: (newRoute: Route) => {
+        routesAction.update(
+          (route) => route.from === newRoute.from && route.to === newRoute.to,
+          newRoute
+        )
       },
-      removeWaypoint: (target: SpotDTO) => {
-        setWaypoints.filter((point) => point.placeId === target.placeId)
+      addWaypoint: (newSpot: SpotDTO) => {
+        waypointsAction.push(newSpot)
+      },
+      removeWaypoint: (placeId: string) => {
+        waypointsAction.filter((point) => point.placeId === placeId)
+      },
+      moveWaypoints: (placeId: string, mode: 'up' | 'down') => {
+        const index = waypoints.findIndex((point) => point.placeId === placeId)
+        if (index !== 0 || index !== waypoints.length - 1) {
+          const newWaypoints = Array.from(waypoints)
+          const target = mode === 'up' ? index - 1 : index + 1
+
+          newWaypoints[index] = [
+            newWaypoints[target],
+            (newWaypoints[target] = newWaypoints[index]),
+          ][0]
+
+          waypointsAction.set(newWaypoints)
+        } else {
+          console.warn(`Cannot move ${mode}`)
+        }
+      },
+      insertWaypoint: (index: number, newSpot: SpotDTO) => {
+        waypointsAction.insertAt(index, newSpot)
+      },
+      save: async () => {
+        if (planRef.current && user) {
+          const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+          await db.set(path, planRef.current.id, planRef.current)
+        }
+      },
+      optimizeRoute: async () => {
+        if (!directionService.isLoaded) {
+          console.error('google maps is not loaded')
+          return
+        }
+        if (!planRef.current) {
+          console.error('plan is not selected')
+          return
+        }
+
+        if (waypoints.length === 0) {
+          console.warn('There are no waypoints')
+          return
+        }
+
+        const result = await directionService.search({
+          origin: {
+            placeId: planRef.current.home.placeId,
+          },
+          destination: {
+            placeId: planRef.current.home.placeId,
+          },
+          waypoints: planRef.current.waypoints.map((spot) => ({
+            location: {
+              placeId: spot.placeId,
+            },
+          })),
+          travelMode: google.maps.TravelMode.DRIVING,
+        })
+
+        const routeResult = result.routes.shift()
+        if (routeResult) {
+          const orderedWaypoints = routeResult.waypoint_order
+            .map((i) => planRef.current?.waypoints[i] || null)
+            .filter((item): item is SpotDTO => item !== null)
+
+          const newSpots = [
+            planRef.current.home,
+            ...orderedWaypoints,
+            planRef.current.home,
+          ]
+          const newRoutes = newSpots
+            .map((spot, index): Route | null => {
+              if (index === newSpots.length) {
+                return null
+              }
+              return {
+                from: spot.placeId,
+                to: spot.placeId,
+                duration: routeResult.legs[index].duration?.value || 0,
+                durationUnit: 'second',
+                mode: 'car',
+              }
+            })
+            .filter((item): item is Route => item !== null)
+
+          routesAction.set(newRoutes)
+          waypointsAction.set(orderedWaypoints)
+        }
       },
     }
 
     return a
-  }, [db, plan.id, setWaypoints, user])
+  }, [db, waypointsAction, user])
 
   return [plan, actions] as const
 }

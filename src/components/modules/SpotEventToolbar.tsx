@@ -9,46 +9,18 @@ import {
   faRemove,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { usePlanEvents, SpotEvent } from 'hooks/usePlanEvents'
+import { SpotEvent } from 'hooks/usePlanEvents'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Props = {
   event: SpotEvent
 }
 const EventToolbar: React.FC<Props> = ({ event }) => {
-  const [, eventsApi] = usePlanEvents()
+  const [, planApi] = useTravelPlan()
 
-  const handleUp = async () => {
-    console.log('up')
-    const selectedSpot = eventsApi.get<SpotEvent>(event.id, 'spot')
-    if (selectedSpot === undefined) {
-      console.error('cannot find selected spot')
-      return
-    }
-
-    const beforeSpot = eventsApi.getPrevSpot(selectedSpot)
-    // 直前のスポットがないもしくはホームの場合は移動不可
-    if (!beforeSpot || beforeSpot.id === 'start') {
-      console.log('cannot move up event')
-      return
-    }
-    eventsApi.swap(beforeSpot, selectedSpot)
-  }
-
-  const handleDown = async () => {
-    console.log('down')
-    const selectedSpot = eventsApi.get<SpotEvent>(event.id, 'spot')
-    if (selectedSpot === undefined) {
-      console.error('cannot find selected spot')
-      return
-    }
-
-    const afterSpot = eventsApi.getNextSpot(selectedSpot)
-    // 直前に移動イベントがない場合は移動不可
-    if (!afterSpot || afterSpot.id === 'end') {
-      console.log('cannot move up event')
-      return
-    }
-    eventsApi.swap(selectedSpot, afterSpot)
+  const handleMove = (mode: 'up' | 'down') => () => {
+    console.log(`move ${mode}`)
+    planApi.moveWaypoints(event.extendedProps.placeId, mode)
   }
 
   const handleEdit = () => {
@@ -56,7 +28,7 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
   }
 
   const handleRemove = () => {
-    eventsApi.remove(event)
+    planApi.removeWaypoint(event.extendedProps.placeId)
   }
 
   return (
@@ -64,10 +36,10 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       direction="row"
       spacing={2}
       sx={{ backgroundColor: 'lightgray', width: '100%', px: 1 }}>
-      <IconButton onClick={handleUp}>
+      <IconButton onClick={handleMove('up')}>
         <FontAwesomeIcon icon={faArrowUp} />
       </IconButton>
-      <IconButton onClick={handleDown}>
+      <IconButton onClick={handleMove('down')}>
         <FontAwesomeIcon icon={faArrowDown} />
       </IconButton>
       <IconButton onClick={handleEdit}>

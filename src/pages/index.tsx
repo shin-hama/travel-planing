@@ -12,17 +12,17 @@ import { useRouter } from 'next/router'
 import PlansList from 'components/modules/PlansList'
 import { Plan } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { usePlan } from 'hooks/usePlan'
+import { usePlans } from 'hooks/usePlan'
 import { useConfirm } from 'hooks/useConfirm'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 
 const UserHome = () => {
   const router = useRouter()
   const [user] = useAuthentication()
-  const [, actions] = usePlan()
+  const actions = usePlans()
+  const confirm = useConfirm()
   const [plans, setPlans] = React.useState<Array<Plan>>([])
   const [nextPlan, setNextPlan] = React.useState<Plan | null>(null)
-  const confirm = useConfirm()
 
   React.useEffect(() => {
     if (user) {
