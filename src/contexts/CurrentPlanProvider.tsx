@@ -1,6 +1,7 @@
 import * as React from 'react'
+import dayjs from 'dayjs'
+
 import { ScheduleEvent, SpotDTO } from 'hooks/usePlanEvents'
-import { Route } from 'hooks/useTravelPlan'
 
 export type Prefecture = {
   name: string
@@ -10,6 +11,24 @@ export type Prefecture = {
   zoom: number
   placeId: string
   imageUrl: string
+}
+
+export type Route = {
+  from: string
+  to: string
+  duration: number
+  durationUnit: dayjs.ManipulateType
+  mode: 'bicycle' | 'car' | 'walk'
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isRoute = (obj: any): obj is Route => {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    typeof obj.duration === 'number' &&
+    typeof obj.from === 'string' &&
+    typeof obj.to === 'string'
+  )
 }
 
 export type Plan = {

@@ -6,12 +6,26 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import EventToolbar from 'components/modules/SpotEventToolbar'
 import { SpotEvent } from 'hooks/usePlanEvents'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   event: SpotEvent
 }
 const SpotEventCard: React.FC<Props> = ({ event }) => {
   const [selected, setSelected] = React.useState(false)
+  const [, waypointsApi] = useWaypoints()
+
+  const handleMove = React.useCallback(
+    (mode: 'up' | 'down') => () => {
+      console.log(`move ${mode}`)
+      waypointsApi.move(event.extendedProps.placeId, mode)
+    },
+    [event.extendedProps.placeId, waypointsApi]
+  )
+
+  const handleRemove = React.useCallback(() => {
+    waypointsApi.remove(event.extendedProps.placeId)
+  }, [event.extendedProps.placeId, waypointsApi])
 
   const handleClick = () => {
     if (event.id === 'start' || event.id === 'end') {
@@ -70,7 +84,11 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
               gridArea: '1/-1',
               alignItems: 'end',
             }}>
-            <EventToolbar event={event} />
+            <EventToolbar
+              moveUp={handleMove('up')}
+              moveDown={handleMove('down')}
+              remove={handleRemove}
+            />
           </Box>
         )}
       </Box>

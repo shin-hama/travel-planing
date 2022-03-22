@@ -10,6 +10,7 @@ import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 import { MoveEvent } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useRoutes } from 'hooks/useRoutes'
 
 export const MoveTypes: Record<
   MoveEvent['extendedProps']['mode'],
@@ -25,7 +26,7 @@ type Props = {
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
-  const [, planActions] = useTravelPlan()
+  const [, routesActions] = useRoutes()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
     const travelMode = () => {
@@ -51,7 +52,7 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
     if (result.routes[0].legs.length > 0) {
       const durationSec = result.routes[0].legs[0].duration?.value || 0
 
-      planActions.updateRoute({
+      routesActions.updateRoute({
         ...event.extendedProps,
         duration: durationSec,
         durationUnit: 'second',

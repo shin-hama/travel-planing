@@ -20,6 +20,7 @@ import MoveEventCard from './MoveEventCard'
 import { MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 dayjs.extend(customParseFormat)
 
@@ -94,6 +95,7 @@ const EventsScheduler: React.FC = () => {
   const calendar = React.useRef<FullCalendar>(null)
   const [plan, planApi] = useTravelPlan()
   const [events, eventsApi] = useScheduleEvents(plan)
+  const [, waypointsApi] = useWaypoints()
 
   console.log(events)
   console.log(plan)
@@ -160,10 +162,10 @@ const EventsScheduler: React.FC = () => {
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
-        planApi.removeWaypoint(droppedEvent.extendedProps.placeId)
+        waypointsApi.remove(droppedEvent.extendedProps.placeId)
 
         // Move to target day
-        planApi.insertWaypoint(index, {
+        waypointsApi.insert(index, {
           name: cloned.title,
           ...cloned.extendedProps,
         })

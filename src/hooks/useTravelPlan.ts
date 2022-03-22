@@ -8,31 +8,14 @@ import { useAuthentication } from './firebase/useAuthentication'
 import {
   CurrentPlanContext,
   Plan,
+  Route,
   SetCurrentPlanContext,
 } from 'contexts/CurrentPlanProvider'
 import { SpotDTO } from './usePlanEvents'
 import { useDirections } from './googlemaps/useDirections'
-import dayjs from 'dayjs'
 
-export type Route = {
-  from: string
-  to: string
-  duration: number
-  durationUnit: dayjs.ManipulateType
-  mode: 'bicycle' | 'car' | 'walk'
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isRoute = (obj: any): obj is Route => {
-  return (
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj.duration === 'number' &&
-    typeof obj.from === 'string' &&
-    typeof obj.to === 'string'
-  )
-}
-
-export const useTravelPlan = () => {
+export const useTravelPlan = (t = '') => {
+  console.log(t)
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
 
@@ -124,7 +107,7 @@ export const useTravelPlan = () => {
       })
     }
     func()
-  }, [directionService, plan?.waypoints, setPlan])
+  }, [plan?.waypoints])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -157,81 +140,6 @@ export const useTravelPlan = () => {
         } catch (e) {
           console.error(updatedPlan)
         }
-      },
-      updateRoute: (newRoute: Route) => {
-        const newRoutes = planRef.current?.routes.map((route) =>
-          route.from === newRoute.from && route.to === newRoute.to
-            ? newRoute
-            : route
-        )
-        setPlan({
-          type: 'update',
-          value: {
-            routes: newRoutes,
-          },
-        })
-      },
-      addWaypoint: (newSpot: SpotDTO) => {
-        if (planRef.current) {
-          setPlan({
-            type: 'update',
-            value: {
-              waypoints: [...planRef.current.waypoints, newSpot],
-            },
-          })
-        } else {
-          console.error('fail to update waypoints')
-        }
-      },
-      removeWaypoint: (placeId: string) => {
-        if (planRef.current) {
-          setPlan({
-            type: 'update',
-            value: {
-              waypoints: planRef.current.waypoints.filter(
-                (item) => item.placeId !== placeId
-              ),
-            },
-          })
-        } else {
-          console.error('fail to update waypoints')
-        }
-      },
-      moveWaypoints: (placeId: string, mode: 'up' | 'down') => {
-        if (!planRef.current) {
-          console.error('plan is not selected')
-          return
-        }
-        const index = planRef.current?.waypoints.findIndex(
-          (point) => point.placeId === placeId
-        )
-        if (index !== 0 || index !== planRef.current.waypoints.length - 1) {
-          const newWaypoints = planRef.current.waypoints.slice()
-          const target = mode === 'up' ? index - 1 : index + 1
-
-          newWaypoints[index] = [
-            newWaypoints[target],
-            (newWaypoints[target] = newWaypoints[index]),
-          ][0]
-
-          setPlan({ type: 'update', value: { waypoints: newWaypoints } })
-        } else {
-          console.warn(`Cannot move ${mode}`)
-        }
-      },
-      insertWaypoint: (index: number, newSpot: SpotDTO) => {
-        if (!planRef.current) {
-          console.error('plan is not selected')
-          return
-        }
-        const newWaypoints = planRef.current.waypoints.slice()
-        index > newWaypoints.length
-          ? (newWaypoints[index] = newSpot)
-          : newWaypoints.splice(index, 0, newSpot)
-        setPlan({
-          type: 'update',
-          value: { waypoints: newWaypoints },
-        })
       },
       save: async () => {
         if (planRef.current && user) {

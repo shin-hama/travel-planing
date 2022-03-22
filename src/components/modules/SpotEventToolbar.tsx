@@ -9,26 +9,14 @@ import {
   faRemove,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { SpotEvent } from 'hooks/usePlanEvents'
-import { useTravelPlan } from 'hooks/useTravelPlan'
-
 type Props = {
-  event: SpotEvent
+  moveUp: () => void
+  moveDown: () => void
+  remove: () => void
 }
-const EventToolbar: React.FC<Props> = ({ event }) => {
-  const [, planApi] = useTravelPlan()
-
-  const handleMove = (mode: 'up' | 'down') => () => {
-    console.log(`move ${mode}`)
-    planApi.moveWaypoints(event.extendedProps.placeId, mode)
-  }
-
+const EventToolbar: React.FC<Props> = ({ moveUp, moveDown, remove }) => {
   const handleEdit = () => {
     console.log('edit')
-  }
-
-  const handleRemove = () => {
-    planApi.removeWaypoint(event.extendedProps.placeId)
   }
 
   return (
@@ -36,17 +24,17 @@ const EventToolbar: React.FC<Props> = ({ event }) => {
       direction="row"
       spacing={2}
       sx={{ backgroundColor: 'lightgray', width: '100%', px: 1 }}>
-      <IconButton onClick={handleMove('up')}>
+      <IconButton onClick={moveUp}>
         <FontAwesomeIcon icon={faArrowUp} />
       </IconButton>
-      <IconButton onClick={handleMove('down')}>
+      <IconButton onClick={moveDown}>
         <FontAwesomeIcon icon={faArrowDown} />
       </IconButton>
       <IconButton onClick={handleEdit}>
         <FontAwesomeIcon icon={faEdit} />
       </IconButton>
       <div style={{ flexGrow: 1 }} />
-      <IconButton onClick={handleRemove}>
+      <IconButton onClick={remove}>
         <FontAwesomeIcon icon={faRemove} />
       </IconButton>
     </Stack>
