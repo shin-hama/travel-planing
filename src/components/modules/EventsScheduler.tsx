@@ -231,7 +231,6 @@ const EventsScheduler: React.FC = () => {
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {
-    console.log(eventInfo.event)
     if (eventInfo.event.extendedProps.type === 'spot') {
       const event = eventsApi.get<SpotEvent>(eventInfo.event.id, 'spot')
       if (!event) {
@@ -240,7 +239,6 @@ const EventsScheduler: React.FC = () => {
       return <SpotEventCard event={event} />
     } else if (eventInfo.event.extendedProps.type === 'move') {
       const event = eventsApi.get<MoveEvent>(eventInfo.event.id, 'move')
-      console.log(event)
       if (!event) {
         return
       }

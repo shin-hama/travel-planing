@@ -29,15 +29,11 @@ export const useScheduleEvents = (plan: Plan) => {
   const { buildMoveEvent, buildSpotEvent } = useEventFactory()
 
   React.useEffect(() => {
-    console.log('setEvents is update')
-  }, [setEvents])
-
-  React.useEffect(() => {
     console.log('plan is update')
   }, [plan])
 
   React.useEffect(() => {
-    console.log('calc route')
+    console.log('build route events')
 
     if (plan.waypoints.length === 0) {
       console.log('no waypoints')
@@ -49,6 +45,7 @@ export const useScheduleEvents = (plan: Plan) => {
     const spots = [plan.home, ...plan.waypoints, plan.home]
     const merged = mergeAlternate(spots, plan.routes)
 
+    console.log(merged)
     setEvents.set(
       merged.map((item) => {
         if (isRoute(item)) {
@@ -81,7 +78,7 @@ export const useScheduleEvents = (plan: Plan) => {
         }
       })
     )
-  }, [buildMoveEvent, buildSpotEvent, plan, setEvents])
+  }, [buildMoveEvent, buildSpotEvent, plan])
 
   const actions = React.useMemo(() => {
     const a = {

@@ -10,7 +10,6 @@ import {
   Plan,
   SetCurrentPlanContext,
 } from 'contexts/CurrentPlanProvider'
-import { useList } from 'react-use'
 import { SpotDTO } from './usePlanEvents'
 import { useDirections } from './googlemaps/useDirections'
 import dayjs from 'dayjs'
@@ -41,7 +40,6 @@ export const useTravelPlan = () => {
 
   const [user] = useAuthentication()
   const db = useFirestore()
-  const [routes, routesAction] = useList<Route>()
 
   const { actions: directionService } = useDirections()
   const countRef = React.useRef(0)
@@ -63,18 +61,13 @@ export const useTravelPlan = () => {
   }, [])
 
   React.useEffect(() => {
-    console.log('route is updated')
-
-    setPlan({ type: 'update', value: { routes } })
-  }, [routes])
-
-  React.useEffect(() => {
     if (countRef.current !== 0) {
       return
     }
     countRef.current += 1
 
     const func = async () => {
+      console.log('Calc route')
       if (!planRef.current) {
         return
       }
@@ -96,7 +89,7 @@ export const useTravelPlan = () => {
           const origin = { placeId: spot.placeId }
           const destination = { placeId: spots[i + 1].placeId }
 
-          const routeCache = routes.find(
+          const routeCache = planRef.current?.routes.find(
             (route) =>
               route.from === origin.placeId && route.to === destination.placeId
           )
@@ -123,11 +116,15 @@ export const useTravelPlan = () => {
         })
       )
 
-      routesAction.set(newRoute.filter((item): item is Route => item !== null))
+      setPlan({
+        type: 'update',
+        value: {
+          routes: newRoute.filter((item): item is Route => item !== null),
+        },
+      })
     }
     func()
-    // ignore dependencies to routes
-  }, [directionService, plan?.waypoints])
+  }, [directionService, plan?.waypoints, setPlan])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -162,10 +159,17 @@ export const useTravelPlan = () => {
         }
       },
       updateRoute: (newRoute: Route) => {
-        routesAction.update(
-          (route) => route.from === newRoute.from && route.to === newRoute.to,
-          newRoute
+        const newRoutes = planRef.current?.routes.map((route) =>
+          route.from === newRoute.from && route.to === newRoute.to
+            ? newRoute
+            : route
         )
+        setPlan({
+          type: 'update',
+          value: {
+            routes: newRoutes,
+          },
+        })
       },
       addWaypoint: (newSpot: SpotDTO) => {
         if (planRef.current) {
@@ -291,14 +295,16 @@ export const useTravelPlan = () => {
             })
             .filter((item): item is Route => item !== null)
 
-          routesAction.set(newRoutes)
-          setPlan({ type: 'update', value: { waypoints: orderedWaypoints } })
+          setPlan({
+            type: 'update',
+            value: { waypoints: orderedWaypoints, routes: newRoutes },
+          })
         }
       },
     }
 
     return a
-  }, [db, user])
+  }, [db, directionService, setPlan, user])
 
   return [plan, actions] as const
 }
