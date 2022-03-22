@@ -20,10 +20,12 @@ type ButtonProps = {
   spotDTO: SpotDTO
 }
 const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
-  const [{ waypoints }, actions] = useTravelPlan()
+  const [plan, actions] = useTravelPlan()
   const [loading, setLoading] = React.useState(false)
 
-  const selected = waypoints.find((item) => item.placeId === spotDTO.placeId)
+  const selected = plan?.waypoints.find(
+    (item) => item.placeId === spotDTO.placeId
+  )
 
   const handleClick = () => {
     setLoading(true)

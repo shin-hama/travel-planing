@@ -41,7 +41,6 @@ export const useTravelPlan = () => {
 
   const [user] = useAuthentication()
   const db = useFirestore()
-  const [waypoints, waypointsAction] = useList<SpotDTO>()
   const [routes, routesAction] = useList<Route>()
 
   const { actions: directionService } = useDirections()
@@ -60,10 +59,8 @@ export const useTravelPlan = () => {
   }, [setPlan])
 
   React.useEffect(() => {
-    console.log('waypoints is updated')
-    setPlan({ type: 'update', value: { waypoints } })
     countRef.current = 0
-  }, [waypoints])
+  }, [])
 
   React.useEffect(() => {
     console.log('route is updated')
@@ -81,13 +78,13 @@ export const useTravelPlan = () => {
       if (!planRef.current) {
         return
       }
-      if (waypoints.length === 0) {
+      if (planRef.current.waypoints.length === 0) {
         return
       }
 
       const spots: Array<SpotDTO> = [
         planRef.current.home,
-        ...waypoints,
+        ...planRef.current.waypoints,
         planRef.current.home,
       ]
       const newRoute = await Promise.all(
@@ -130,7 +127,7 @@ export const useTravelPlan = () => {
     }
     func()
     // ignore dependencies to routes
-  }, [directionService, waypoints])
+  }, [directionService, plan?.waypoints])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -171,15 +168,41 @@ export const useTravelPlan = () => {
         )
       },
       addWaypoint: (newSpot: SpotDTO) => {
-        waypointsAction.push(newSpot)
+        if (planRef.current) {
+          setPlan({
+            type: 'update',
+            value: {
+              waypoints: [...planRef.current.waypoints, newSpot],
+            },
+          })
+        } else {
+          console.error('fail to update waypoints')
+        }
       },
       removeWaypoint: (placeId: string) => {
-        waypointsAction.filter((point) => point.placeId === placeId)
+        if (planRef.current) {
+          setPlan({
+            type: 'update',
+            value: {
+              waypoints: planRef.current.waypoints.filter(
+                (item) => item.placeId !== placeId
+              ),
+            },
+          })
+        } else {
+          console.error('fail to update waypoints')
+        }
       },
       moveWaypoints: (placeId: string, mode: 'up' | 'down') => {
-        const index = waypoints.findIndex((point) => point.placeId === placeId)
-        if (index !== 0 || index !== waypoints.length - 1) {
-          const newWaypoints = Array.from(waypoints)
+        if (!planRef.current) {
+          console.error('plan is not selected')
+          return
+        }
+        const index = planRef.current?.waypoints.findIndex(
+          (point) => point.placeId === placeId
+        )
+        if (index !== 0 || index !== planRef.current.waypoints.length - 1) {
+          const newWaypoints = planRef.current.waypoints.slice()
           const target = mode === 'up' ? index - 1 : index + 1
 
           newWaypoints[index] = [
@@ -187,13 +210,24 @@ export const useTravelPlan = () => {
             (newWaypoints[target] = newWaypoints[index]),
           ][0]
 
-          waypointsAction.set(newWaypoints)
+          setPlan({ type: 'update', value: { waypoints: newWaypoints } })
         } else {
           console.warn(`Cannot move ${mode}`)
         }
       },
       insertWaypoint: (index: number, newSpot: SpotDTO) => {
-        waypointsAction.insertAt(index, newSpot)
+        if (!planRef.current) {
+          console.error('plan is not selected')
+          return
+        }
+        const newWaypoints = planRef.current.waypoints.slice()
+        index > newWaypoints.length
+          ? (newWaypoints[index] = newSpot)
+          : newWaypoints.splice(index, 0, newSpot)
+        setPlan({
+          type: 'update',
+          value: { waypoints: newWaypoints },
+        })
       },
       save: async () => {
         if (planRef.current && user) {
@@ -211,7 +245,7 @@ export const useTravelPlan = () => {
           return
         }
 
-        if (waypoints.length === 0) {
+        if (planRef.current.waypoints.length === 0) {
           console.warn('There are no waypoints')
           return
         }
@@ -258,13 +292,13 @@ export const useTravelPlan = () => {
             .filter((item): item is Route => item !== null)
 
           routesAction.set(newRoutes)
-          waypointsAction.set(orderedWaypoints)
+          setPlan({ type: 'update', value: { waypoints: orderedWaypoints } })
         }
       },
     }
 
     return a
-  }, [db, waypointsAction, user])
+  }, [db, user])
 
   return [plan, actions] as const
 }
