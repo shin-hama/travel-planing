@@ -9,7 +9,6 @@ import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 
 import { MoveEvent } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRoutes } from 'hooks/useRoutes'
 
 export const MoveTypes: Record<

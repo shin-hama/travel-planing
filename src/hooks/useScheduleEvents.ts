@@ -77,6 +77,8 @@ export const useScheduleEvents = (plan: Plan) => {
         }
       })
     )
+    // 余計な処理を行わないために、plan の変更のみに依存させる
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildMoveEvent, buildSpotEvent, plan])
 
   const actions = React.useMemo(() => {

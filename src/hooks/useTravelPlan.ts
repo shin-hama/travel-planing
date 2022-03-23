@@ -28,18 +28,6 @@ export const useTravelPlan = (t = '') => {
   const countRef = React.useRef(0)
 
   React.useEffect(() => {
-    console.log('direction service is updated')
-  }, [directionService])
-
-  React.useEffect(() => {
-    console.log('plan is updated')
-  }, [plan])
-
-  React.useEffect(() => {
-    console.log('setplan is updated')
-  }, [setPlan])
-
-  React.useEffect(() => {
     countRef.current = 0
   }, [])
 
@@ -107,6 +95,8 @@ export const useTravelPlan = (t = '') => {
       })
     }
     func()
+    // 余計な計算を行わないために、waypoints だけに依存させる
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan?.waypoints])
 
   const actions = React.useMemo(() => {

@@ -29,9 +29,6 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   const confirm = useConfirm()
   const [plan, planApi] = useTravelPlan()
 
-  console.log(plan)
-  console.log('viewer')
-
   const handleOptimize = async () => {
     try {
       try {
@@ -91,7 +88,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
             </Button>
           </Stack>
           <Box sx={{ height: '100%', zIndex: 0 }}>
-            <EventsScheduler />
+            <EventsScheduler plan={plan} savePlan={planApi.save} />
           </Box>
           <Fab
             onClick={onClose}

@@ -7,7 +7,7 @@ import {
 
 import PlaceMarker from './PlaceMarker'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   categoryId: number | null
@@ -22,7 +22,7 @@ const SpotsByCategory: React.FC<Props> = ({
   const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
   const [getSpots] = useGetSpotsByCategoryLazyQuery()
   const [mapProps] = useMapProps()
-  const [{ waypoints }] = useTravelPlan()
+  const [waypoints] = useWaypoints()
 
   React.useEffect(() => {
     const bounds = mapProps.bounds
@@ -58,10 +58,7 @@ const SpotsByCategory: React.FC<Props> = ({
         <PlaceMarker
           key={item.place_id}
           placeId={item.place_id}
-          selected={
-            waypoints.find((spot) => spot.placeId === item.place_id) !==
-            undefined
-          }
+          selected={!waypoints?.find((spot) => spot.placeId === item.place_id)}
           focused={item.place_id === focusedSpot}
           lat={item.lat}
           lng={item.lng}

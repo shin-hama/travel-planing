@@ -19,8 +19,8 @@ import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
 import { MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
-import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useWaypoints } from 'hooks/useWaypoints'
+import { Plan } from 'contexts/CurrentPlanProvider'
 
 dayjs.extend(customParseFormat)
 
@@ -91,22 +91,15 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
-const EventsScheduler: React.FC = () => {
+type Props = {
+  plan: Plan
+  savePlan: () => void
+}
+const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
   const calendar = React.useRef<FullCalendar>(null)
-  const [plan, planApi] = useTravelPlan()
   const [events, eventsApi] = useScheduleEvents(plan)
   const [, waypointsApi] = useWaypoints()
 
-  console.log(events)
-  console.log(plan)
-
-  React.useEffect(() => {
-    console.log('editor plan')
-  }, [plan])
-
-  React.useEffect(() => {
-    console.log('editor events')
-  }, [events])
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
     end: Date
@@ -173,7 +166,7 @@ const EventsScheduler: React.FC = () => {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
         eventsApi.followMoving(cloned, e.delta.milliseconds, 'ms')
       }
-      planApi.save()
+      savePlan()
     }
   }
 
@@ -229,7 +222,7 @@ const EventsScheduler: React.FC = () => {
         })
     }
 
-    planApi.save()
+    savePlan()
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {
