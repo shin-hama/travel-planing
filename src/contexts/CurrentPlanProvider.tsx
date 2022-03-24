@@ -38,6 +38,7 @@ export type Plan = {
   destination: Prefecture
   thumbnail: string
   start: Date
+  startTime: Date
   end: Date
   waypoints: Array<SpotDTO>
   routes: Array<Route>

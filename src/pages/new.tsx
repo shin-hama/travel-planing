@@ -71,6 +71,7 @@ const PrefectureSelector = () => {
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: planDTO.title,
       start: planDTO.start,
+      startTime: dayjs('08:30:00', 'HH:mm:ss').toDate(),
       end: planDTO.start,
       thumbnail: destPhoto,
       home: { ...planDTO.home, imageUrl: homePhoto },

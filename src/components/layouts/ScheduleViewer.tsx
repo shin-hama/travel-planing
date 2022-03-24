@@ -88,7 +88,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
             </Button>
           </Stack>
           <Box sx={{ height: '100%', zIndex: 0 }}>
-            <EventsScheduler plan={plan} savePlan={planApi.save} />
+            <EventsScheduler plan={plan} planApi={planApi} />
           </Box>
           <Fab
             onClick={onClose}

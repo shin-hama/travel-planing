@@ -14,6 +14,14 @@ import {
 import { SpotDTO } from './usePlanEvents'
 import { useDirections } from './googlemaps/useDirections'
 
+export interface PlanAPI {
+  create: (newPlan: Omit<Plan, 'id'>) => Promise<void>
+  optimizeRoute: () => Promise<void>
+  save: () => Promise<void>
+  set: (newPlan: Plan) => void
+  update: (updated: Partial<Plan>) => Promise<void>
+}
+
 export const useTravelPlan = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
@@ -32,12 +40,14 @@ export const useTravelPlan = () => {
   }, [])
 
   React.useEffect(() => {
-    console.log('update plan')
+    console.log('updated plan')
+  }, [plan])
+  React.useEffect(() => {
+    console.log('update route')
 
     const func = async () => {
-      console.log('Calc route')
       if (!plan) {
-        console.warn('plan is not selected')
+        console.log('plan is not selected')
         return
       }
       if (plan.waypoints.length === 0) {
@@ -100,7 +110,7 @@ export const useTravelPlan = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan?.waypoints, plan?.home])
 
-  const actions = React.useMemo(() => {
+  const actions: PlanAPI = React.useMemo(() => {
     const a = {
       create: async (newPlan: Omit<Plan, 'id'>) => {
         try {
@@ -128,6 +138,7 @@ export const useTravelPlan = () => {
 
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           setPlan({ type: 'update', value: updatedPlan })
+          actions.save()
         } catch (e) {
           console.error(updatedPlan)
         }
@@ -198,6 +209,7 @@ export const useTravelPlan = () => {
             type: 'update',
             value: { waypoints: orderedWaypoints, routes: newRoutes },
           })
+          actions.save()
         }
       },
     }

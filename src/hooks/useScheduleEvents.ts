@@ -28,10 +28,6 @@ export const useScheduleEvents = (plan: Plan) => {
   const { buildMoveEvent, buildSpotEvent } = useEventFactory()
 
   React.useEffect(() => {
-    console.log('plan is update')
-  }, [plan])
-
-  React.useEffect(() => {
     console.log('build route events')
 
     if (plan.waypoints.length === 0) {
@@ -39,7 +35,7 @@ export const useScheduleEvents = (plan: Plan) => {
       setEvents.clear()
       return
     }
-    let startTime = dayjs('08:30:00', 'HH:mm:ss')
+    let startTime = dayjs(plan.startTime)
 
     const spots: Array<SpotDTO> = [
       { ...plan.home, duration: 30, durationUnit: 'minute' },
@@ -48,7 +44,6 @@ export const useScheduleEvents = (plan: Plan) => {
     ]
     const merged = mergeAlternate(spots, plan.routes)
 
-    console.log(merged)
     setEvents.set(
       merged.map((item) => {
         if (isRoute(item)) {

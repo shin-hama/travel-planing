@@ -21,6 +21,7 @@ import { MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { Plan } from 'contexts/CurrentPlanProvider'
+import { PlanAPI } from 'hooks/useTravelPlan'
 
 dayjs.extend(customParseFormat)
 
@@ -91,11 +92,12 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
+// useTravelPlan() が何度も再読み込みされるのを防ぐために props で受け取る
 type Props = {
   plan: Plan
-  savePlan: () => void
+  planApi: PlanAPI
 }
-const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
+const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
   const calendar = React.useRef<FullCalendar>(null)
   const [events, eventsApi] = useScheduleEvents(plan)
   const [, waypointsApi] = useWaypoints()
@@ -162,15 +164,20 @@ const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
           duration: dayjs(cloned.end).diff(cloned.start, 'minute'),
           durationUnit: 'minute',
         })
+        planApi.save()
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
-        eventsApi.followMoving(cloned, e.delta.milliseconds, 'ms')
+
+        planApi.update({
+          startTime: dayjs(plan.startTime)
+            .add(e.delta.milliseconds, 'millisecond')
+            .toDate(),
+        })
       }
-      savePlan()
     }
   }
 
-  const handleEventResize = (e: EventResizeDoneArg) => {
+  const handleEventResize = async (e: EventResizeDoneArg) => {
     const resizedEvent = eventsApi.get<SpotEvent>(
       e.event.id,
       e.event.extendedProps.type
@@ -179,12 +186,18 @@ const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
       throw new Error('Cannot find resized event')
     }
 
+    await planApi.update({
+      startTime: dayjs(plan.startTime)
+        .add(e.startDelta.milliseconds, 'millisecond')
+        .toDate(),
+    })
+
     waypointsApi.update(resizedEvent.extendedProps.placeId, {
       duration: dayjs(e.event.end).diff(e.event.start, 'minute'),
       durationUnit: 'minute',
     })
 
-    savePlan()
+    await planApi.save()
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {

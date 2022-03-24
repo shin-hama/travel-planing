@@ -27,6 +27,7 @@ const planConverter: FirestoreDataConverter<Plan> = {
       id: snapshot.id,
       title: data.title,
       start: data.start?.toDate(), // Convert firestore timestamp to js Date.
+      startTime: data.startTime?.toDate(), // Convert firestore timestamp to js Date.
       end: data.end?.toDate(),
       home: data.home,
       destination: data.destination,
