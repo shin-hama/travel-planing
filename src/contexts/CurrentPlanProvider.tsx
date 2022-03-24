@@ -3,6 +3,11 @@ import dayjs from 'dayjs'
 
 import { ScheduleEvent, SpotDTO } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
+import {
+  PLANING_USERS_PLANS_COLLECTIONS,
+  useFirestore,
+} from 'hooks/firebase/useFirestore'
 
 export type Prefecture = {
   name: string
@@ -84,9 +89,10 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
   const [plan, setPlan] = React.useReducer(planReducer, null)
   const { actions: directionService } = useDirections()
 
-  React.useEffect(() => {
-    console.log('update route : ')
+  const [user] = useAuthentication()
+  const db = useFirestore()
 
+  React.useEffect(() => {
     const func = async () => {
       if (!plan) {
         console.log('plan is not selected')
@@ -152,6 +158,24 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
     // 余計な計算を行わないために、waypoints と home だけに依存させる
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan?.waypoints, plan?.home])
+
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null)
+  React.useEffect(() => {
+    // 連続して保存が実行されないように、タイムアウト処理で管理
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(() => {
+      if (plan) {
+        console.log('save plan')
+        if (plan && user) {
+          const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+          db.set(path, plan.id, plan)
+        }
+      }
+    }, 500)
+  }, [plan, db, user])
 
   return (
     <CurrentPlanContext.Provider value={plan}>

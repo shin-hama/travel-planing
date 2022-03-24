@@ -209,8 +209,6 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
       duration: dayjs(e.event.end).diff(e.event.start, 'minute'),
       durationUnit: 'minute',
     })
-
-    await planApi.save()
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {

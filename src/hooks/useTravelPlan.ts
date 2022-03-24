@@ -17,7 +17,6 @@ import { useDirections } from './googlemaps/useDirections'
 export interface PlanAPI {
   create: (newPlan: Omit<Plan, 'id'>) => Promise<void>
   optimizeRoute: () => Promise<void>
-  save: () => Promise<void>
   set: (newPlan: Plan) => void
   update: (updated: Partial<Plan>) => Promise<void>
 }
@@ -62,15 +61,8 @@ export const useTravelPlan = () => {
 
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           setPlan({ type: 'update', value: updatedPlan })
-          actions.save()
         } catch (e) {
           console.error(updatedPlan)
-        }
-      },
-      save: async () => {
-        if (planRef.current && user) {
-          const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-          await db.set(path, planRef.current.id, planRef.current)
         }
       },
       optimizeRoute: async () => {
@@ -133,7 +125,6 @@ export const useTravelPlan = () => {
             type: 'update',
             value: { waypoints: orderedWaypoints, routes: newRoutes },
           })
-          actions.save()
         }
       },
     }
