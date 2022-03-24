@@ -5,13 +5,39 @@ import Typography from '@mui/material/Typography'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import EventToolbar from 'components/modules/SpotEventToolbar'
-import { SpotEvent } from 'hooks/usePlanEvents'
+import { SpotEvent } from 'contexts/CurrentPlanProvider'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   event: SpotEvent
 }
 const SpotEventCard: React.FC<Props> = ({ event }) => {
   const [selected, setSelected] = React.useState(false)
+  const [waypoints, waypointsApi] = useWaypoints()
+
+  const handleMove = React.useCallback(
+    (mode: 'up' | 'down') => () => {
+      if (waypoints) {
+        console.log(`move ${mode}`)
+
+        const index = waypoints.findIndex(
+          (spot) => spot.placeId === event.extendedProps.placeId
+        )
+        if (index !== -1) {
+          const target = mode === 'up' ? index - 1 : index + 1
+
+          waypointsApi.swap(index, target)
+        } else {
+          console.error('cannot find target event')
+        }
+      }
+    },
+    [event.extendedProps.placeId, waypoints, waypointsApi]
+  )
+
+  const handleRemove = React.useCallback(() => {
+    waypointsApi.remove(event.extendedProps.placeId)
+  }, [event.extendedProps.placeId, waypointsApi])
 
   const handleClick = () => {
     if (event.id === 'start' || event.id === 'end') {
@@ -70,7 +96,11 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
               gridArea: '1/-1',
               alignItems: 'end',
             }}>
-            <EventToolbar event={event} />
+            <EventToolbar
+              moveUp={handleMove('up')}
+              moveDown={handleMove('down')}
+              remove={handleRemove}
+            />
           </Box>
         )}
       </Box>

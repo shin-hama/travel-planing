@@ -16,9 +16,8 @@ import { useRouter } from 'next/router'
 import EventsScheduler from 'components/modules/EventsScheduler'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { usePlanEvents } from 'hooks/usePlanEvents'
 import { useConfirm } from 'hooks/useConfirm'
-import { usePlan } from 'hooks/usePlan'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Props = {
   open: boolean
@@ -27,9 +26,8 @@ type Props = {
 const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   const router = useRouter()
   const { loading } = useDirections()
-  const [, eventsApi] = usePlanEvents()
   const confirm = useConfirm()
-  const [plan] = usePlan()
+  const [plan, planApi] = useTravelPlan()
 
   const handleOptimize = async () => {
     try {
@@ -43,11 +41,8 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
         // when cancel
         return
       }
-      const waypoints = eventsApi.getDestinations().map((event) => ({
-        placeId: event.extendedProps.placeId,
-        imageUrl: event.extendedProps.imageUrl,
-      }))
-      eventsApi.generateRoute(waypoints)
+
+      planApi.optimizeRoute()
     } catch (e) {
       alert(e)
     }
@@ -93,7 +88,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
             </Button>
           </Stack>
           <Box sx={{ height: '100%', zIndex: 0 }}>
-            <EventsScheduler />
+            <EventsScheduler plan={plan} planApi={planApi} />
           </Box>
           <Fab
             onClick={onClose}

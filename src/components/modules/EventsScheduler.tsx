@@ -17,7 +17,10 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
-import { usePlanEvents, MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
+import { Plan, MoveEvent, SpotEvent } from 'contexts/CurrentPlanProvider'
+import { useScheduleEvents } from 'hooks/useScheduleEvents'
+import { useWaypoints } from 'hooks/useWaypoints'
+import { PlanAPI } from 'hooks/useTravelPlan'
 
 dayjs.extend(customParseFormat)
 
@@ -88,9 +91,15 @@ const StyledWrapper = styled('div')<{ width: string }>`
   }
 `
 
-const EventsScheduler = () => {
-  const [events, eventsApi] = usePlanEvents()
+// useTravelPlan() が何度も再読み込みされるのを防ぐために props で受け取る
+type Props = {
+  plan: Plan
+  planApi: PlanAPI
+}
+const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
   const calendar = React.useRef<FullCalendar>(null)
+  const [events, eventsApi] = useScheduleEvents()
+  const [waypoints, waypointsApi] = useWaypoints()
 
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
@@ -136,30 +145,51 @@ const EventsScheduler = () => {
     if (!droppedEvent) {
       throw new Error('Cannot find dropped event')
     }
-    const cloned: SpotEvent = {
-      ...droppedEvent,
-      start: dayjs(e.event.start).toDate(),
-      end: dayjs(e.event.end).toDate(),
-    }
-
-    console.log(cloned)
 
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
-        console.log('Move day')
-        eventsApi.remove(droppedEvent)
+        if (!waypoints) {
+          return
+        }
 
-        // Move to target day
-        eventsApi.insert(cloned)
+        console.log('Move day')
+        const prevSpots = events
+          ?.filter(
+            (event): event is SpotEvent =>
+              event.extendedProps.type === 'spot' &&
+              // 移動したイベントよりも前のイベントでフィルター
+              dayjs(e.event.start).diff(event.start) > 0
+          )
+          .filter((spotEvent) =>
+            // waypoints に含まれているものだけでフィルター(Home スポットを除外)
+            waypoints
+              .map((spot) => spot.placeId)
+              .includes(spotEvent.extendedProps.placeId)
+          )
+          .sort((a, b) => dayjs(b.start).diff(a.start)) // 開始日の降順に並び替え
+
+        const prevIndex = waypoints?.findIndex(
+          (spot) => spot.placeId === prevSpots[0].extendedProps.placeId
+        )
+
+        waypointsApi.move(
+          droppedEvent.extendedProps.placeId,
+          prevIndex !== -1 ? prevIndex : 0 // 移動した先にイベントがない場合は、最初に挿入する
+        )
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
-        eventsApi.followMoving(cloned, e.delta.milliseconds, 'ms')
+        console.log('move all')
+
+        planApi.update({
+          startTime: dayjs(plan.startTime)
+            .add(e.delta.milliseconds, 'millisecond')
+            .toDate(),
+        })
       }
-      eventsApi.commit()
     }
   }
 
-  const handleEventResize = (e: EventResizeDoneArg) => {
+  const handleEventResize = async (e: EventResizeDoneArg) => {
     const resizedEvent = eventsApi.get<SpotEvent>(
       e.event.id,
       e.event.extendedProps.type
@@ -167,47 +197,17 @@ const EventsScheduler = () => {
     if (!resizedEvent) {
       throw new Error('Cannot find resized event')
     }
-    eventsApi.update({
-      ...resizedEvent,
-      start: dayjs(e.event.start).toDate(),
-      end: dayjs(e.event.end).toDate(),
+
+    await planApi.update({
+      startTime: dayjs(plan.startTime)
+        .add(e.startDelta.milliseconds, 'millisecond')
+        .toDate(),
     })
 
-    if (e.startDelta.milliseconds !== 0) {
-      console.log('edit start')
-      events
-        .filter(
-          (event) =>
-            dayjs(event.start).date() === dayjs(e.event.start).date() &&
-            dayjs(event.start) < dayjs(e.oldEvent.start)
-        )
-        .forEach((event) => {
-          eventsApi.update({
-            ...event,
-            start: dayjs(event.start)
-              .add(e.startDelta.milliseconds, 'ms')
-              .toDate(),
-            end: dayjs(event.end).add(e.startDelta.milliseconds, 'ms').toDate(),
-          })
-        })
-    } else if (e.endDelta.milliseconds !== 0) {
-      console.log('edit end')
-      events
-        .filter(
-          (event) =>
-            dayjs(event.start).date() === dayjs(e.event.start).date() &&
-            dayjs(event.start) >= dayjs(e.oldEvent.end)
-        )
-        .forEach((event) => {
-          eventsApi.update({
-            ...event,
-            start: dayjs(event.start)
-              .add(e.endDelta.milliseconds, 'ms')
-              .toDate(),
-            end: dayjs(event.end).add(e.endDelta.milliseconds, 'ms').toDate(),
-          })
-        })
-    }
+    waypointsApi.update(resizedEvent.extendedProps.placeId, {
+      duration: dayjs(e.event.end).diff(e.event.start, 'minute'),
+      durationUnit: 'minute',
+    })
   }
 
   const renderEvent = (eventInfo: EventContentArg) => {

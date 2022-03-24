@@ -10,45 +10,31 @@ import {
 import { useRouter } from 'next/router'
 
 import LabeledIconButton from 'components/elements/LabeledIconButton'
-import PlanningLayout from 'components/layouts/PlaningLayout'
 import SpotsCandidates from 'components/modules/SpotsCandidates'
 import SpotsMap from 'components/modules/SpotsMap'
-import { usePlanEvents } from 'hooks/usePlanEvents'
-import { useSelectedSpots } from 'hooks/useSelectedSpots'
-import { usePlan } from 'hooks/usePlan'
+import PlanningLayout from 'components/layouts/PlaningLayout'
 import ScheduleViewer from 'components/layouts/ScheduleViewer'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Drawers = 'spots' | 'schedule'
 
 const FeaturedPlaces = () => {
   const router = useRouter()
-  const [plan] = usePlan()
-  const [, eventsActions] = usePlanEvents()
-  const [spots, spotsActions] = useSelectedSpots()
+  const [plan] = useTravelPlan()
   const [open, setOpen] = React.useState<Drawers | null>(null)
-
-  const handleOpen = (mode: Drawers) => {
-    setOpen(mode)
-  }
-  const handleClose = () => {
-    setOpen(null)
-  }
-
-  React.useEffect(() => {
-    spotsActions.init(plan?.events || [])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const handleOpenSchedule = async () => {
-    await eventsActions.generateRoute(spots)
-    handleOpen('schedule')
-  }
 
   React.useEffect(() => {
     if (!plan) {
       router.replace('/')
     }
   }, [plan, router])
+
+  const handleOpen = (mode: Drawers) => () => {
+    setOpen(mode)
+  }
+  const handleClose = () => {
+    setOpen(null)
+  }
 
   if (!plan) {
     return <></>
@@ -69,15 +55,15 @@ const FeaturedPlaces = () => {
           direction="row"
           justifyContent="space-between"
           alignItems="baseline">
-          <Badge badgeContent={spots.length} color="primary">
+          <Badge badgeContent={plan.waypoints.length} color="primary">
             <LabeledIconButton
-              onClick={() => handleOpen('spots')}
+              onClick={handleOpen('spots')}
               icon={faLocationDot}
               label={'行きたい所'}
             />
           </Badge>
           <LabeledIconButton
-            onClick={handleOpenSchedule}
+            onClick={handleOpen('schedule')}
             icon={faCalendarWeek}
             label={'スケジュール'}
           />
@@ -90,7 +76,7 @@ const FeaturedPlaces = () => {
       </Box>
       <SpotsCandidates
         open={open === 'spots'}
-        placeIds={spots.map((spot) => spot.placeId)}
+        placeIds={plan.waypoints.map((spot) => spot.placeId)}
         onOpen={() => handleOpen('spots')}
         onClose={handleClose}
       />

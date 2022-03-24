@@ -16,18 +16,16 @@ import SelectPrefectureDialog, {
   Props,
 } from 'components/modules/SelectPrefectureDialog'
 import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
-import { usePlanEvents } from 'hooks/usePlanEvents'
-import { usePlan } from 'hooks/usePlan'
 import { useUnsplash } from 'hooks/useUnsplash'
 import PlanningLayout from 'components/layouts/PlaningLayout'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 
 const PrefectureSelector = () => {
   const router = useRouter()
   const { register, control, handleSubmit } = useForm<PlanDTO>()
-  const [, eventsApi] = usePlanEvents()
-  const [, { create: createPlan }] = usePlan()
+  const [, { create: createPlan }] = useTravelPlan()
   const unsplash = useUnsplash()
 
   const [openDialog, setOpenDialog] = React.useState<Props>({ open: false })
@@ -54,7 +52,6 @@ const PrefectureSelector = () => {
       alert('please select home and destination')
       return
     }
-    eventsApi.init()
 
     let homePhoto
     let destPhoto
@@ -74,10 +71,13 @@ const PrefectureSelector = () => {
     const newPlan: Parameters<typeof createPlan>[number] = {
       title: planDTO.title,
       start: planDTO.start,
+      startTime: dayjs('08:30:00', 'HH:mm:ss').toDate(),
       end: planDTO.start,
       thumbnail: destPhoto,
       home: { ...planDTO.home, imageUrl: homePhoto },
       destination: { ...planDTO.destination, imageUrl: destPhoto },
+      waypoints: [],
+      routes: [],
     }
     await createPlan(newPlan)
 

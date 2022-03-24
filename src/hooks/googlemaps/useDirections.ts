@@ -31,11 +31,14 @@ export const useDirections = () => {
                 if (status === google.maps.DirectionsStatus.OK) {
                   console.log('finish search direction')
                 } else {
-                  console.error(`Fail to search directions: ${status}`)
+                  console.error(
+                    `Fail to search directions: ${JSON.stringify(props)}`
+                  )
                   throw new Error(`Fail to search directions: ${status}`)
                 }
               }
             )
+            console.log(result)
             return result
           } finally {
             setLoading(false)

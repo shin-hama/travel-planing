@@ -13,24 +13,24 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
-import { useSelectedSpots } from 'hooks/useSelectedSpots'
+import { useWaypoints } from 'hooks/useWaypoints'
+import { SpotDTO } from 'contexts/CurrentPlanProvider'
 
 type ButtonProps = {
-  placeId: string
-  photo: string
+  spotDTO: SpotDTO
 }
-const SelectButton: React.FC<ButtonProps> = ({ placeId, photo }) => {
-  const [, actions] = useSelectedSpots()
+const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
+  const [waypoints, actions] = useWaypoints()
   const [loading, setLoading] = React.useState(false)
 
-  const selected = actions.get(placeId)
+  const selected = waypoints?.find((item) => item.placeId === spotDTO.placeId)
 
   const handleClick = () => {
     setLoading(true)
     if (selected) {
-      actions.remove(placeId)
+      actions.remove(spotDTO.placeId)
     } else {
-      actions.add({ placeId, imageUrl: photo })
+      actions.add(spotDTO)
     }
     setLoading(false)
   }
@@ -126,8 +126,13 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
               </IconButton>
               <div style={{ marginLeft: 'auto' }}>
                 <SelectButton
-                  placeId={data.spots_by_pk.place_id}
-                  photo={photos[0] || ''}
+                  spotDTO={{
+                    name: data.spots_by_pk.name,
+                    placeId: data.spots_by_pk.place_id,
+                    imageUrl: photos[0] || '',
+                    duration: 60,
+                    durationUnit: 'minute',
+                  }}
                 />
               </div>
             </CardActions>

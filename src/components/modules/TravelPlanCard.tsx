@@ -6,14 +6,14 @@ import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/router'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
-import { usePlan } from 'hooks/usePlan'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Props = {
   plan: Plan
 }
 const TravelPlanCard: React.FC<Props> = ({ plan }) => {
   const router = useRouter()
-  const [, planActions] = usePlan()
+  const [, planActions] = useTravelPlan()
 
   const handleClick = () => {
     planActions.set(plan)
