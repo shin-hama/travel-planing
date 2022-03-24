@@ -100,7 +100,7 @@ type Props = {
 const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
   const calendar = React.useRef<FullCalendar>(null)
   const [events, eventsApi] = useScheduleEvents()
-  const [, waypointsApi] = useWaypoints()
+  const [waypoints, waypointsApi] = useWaypoints()
 
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
@@ -146,27 +146,41 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
     if (!droppedEvent) {
       throw new Error('Cannot find dropped event')
     }
-    const cloned: SpotEvent = {
-      ...droppedEvent,
-      start: dayjs(e.event.start).toDate(),
-      end: dayjs(e.event.end).toDate(),
-    }
 
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
-        console.log('Move day')
-        waypointsApi.remove(droppedEvent.extendedProps.placeId)
+        if (!waypoints) {
+          return
+        }
 
-        // Move to target day
-        waypointsApi.insert(index, {
-          ...cloned.extendedProps,
-          name: cloned.title,
-          duration: dayjs(cloned.end).diff(cloned.start, 'minute'),
-          durationUnit: 'minute',
-        })
-        planApi.save()
+        console.log('Move day')
+        const prevSpots = events
+          ?.filter(
+            (event): event is SpotEvent =>
+              event.extendedProps.type === 'spot' &&
+              // 移動したイベントよりも前のイベントでフィルター
+              dayjs(e.event.start).diff(event.start) > 0
+          )
+          .filter((spotEvent) =>
+            // waypoints に含まれているものだけでフィルター(Home スポットを除外)
+            waypoints
+              .map((spot) => spot.placeId)
+              .includes(spotEvent.extendedProps.placeId)
+          )
+          .sort((a, b) => dayjs(b.start).diff(a.start)) // 開始日の降順に並び替え
+
+        const prevIndex = waypoints?.findIndex(
+          (spot) => spot.placeId === prevSpots[0].extendedProps.placeId
+        )
+
+        waypointsApi.move(
+          droppedEvent.extendedProps.placeId,
+          prevIndex !== -1 ? prevIndex : 0 // 移動した先にイベントがない場合は、最初に挿入する
+        )
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
+        console.log('move all')
+
         planApi.update({
           startTime: dayjs(plan.startTime)
             .add(e.delta.milliseconds, 'millisecond')

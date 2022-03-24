@@ -13,14 +13,26 @@ type Props = {
 }
 const SpotEventCard: React.FC<Props> = ({ event }) => {
   const [selected, setSelected] = React.useState(false)
-  const [, waypointsApi] = useWaypoints()
+  const [waypoints, waypointsApi] = useWaypoints()
 
   const handleMove = React.useCallback(
     (mode: 'up' | 'down') => () => {
-      console.log(`move ${mode}`)
-      waypointsApi.move(event.extendedProps.placeId, mode)
+      if (waypoints) {
+        console.log(`move ${mode}`)
+
+        const index = waypoints.findIndex(
+          (spot) => spot.placeId === event.extendedProps.placeId
+        )
+        if (index !== -1) {
+          const target = mode === 'up' ? index - 1 : index + 1
+
+          waypointsApi.swap(index, target)
+        } else {
+          console.error('cannot find target event')
+        }
+      }
     },
-    [event.extendedProps.placeId, waypointsApi]
+    [event.extendedProps.placeId, waypoints, waypointsApi]
   )
 
   const handleRemove = React.useCallback(() => {

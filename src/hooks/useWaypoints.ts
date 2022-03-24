@@ -41,18 +41,19 @@ export const useWaypoints = () => {
           console.error('fail to update waypoints')
         }
       },
-      move: (placeId: string, mode: 'up' | 'down') => {
+      swap: (index: number, target: number) => {
         if (!planRef.current) {
           console.error('plan is not selected')
           return
         }
-        const index = planRef.current?.waypoints.findIndex(
-          (point) => point.placeId === placeId
-        )
-        const newWaypoints = planRef.current.waypoints.slice()
-        const target = mode === 'up' ? index - 1 : index + 1
 
-        if (target >= 0 || target < planRef.current.waypoints.length) {
+        if (
+          target >= 0 &&
+          target < planRef.current.waypoints.length &&
+          index >= 0 &&
+          index < planRef.current.waypoints.length
+        ) {
+          const newWaypoints = planRef.current.waypoints.slice()
           newWaypoints[index] = [
             newWaypoints[target],
             (newWaypoints[target] = newWaypoints[index]),
@@ -60,7 +61,9 @@ export const useWaypoints = () => {
 
           setPlan({ type: 'update', value: { waypoints: newWaypoints } })
         } else {
-          console.warn(`Cannot move ${mode}`)
+          console.warn(
+            `Cannot move from ${index} to ${target}, waypoints.length: ${planRef.current.waypoints.length}`
+          )
         }
       },
       insert: (index: number, newSpot: SpotDTO) => {
@@ -79,6 +82,20 @@ export const useWaypoints = () => {
           type: 'update',
           value: { waypoints: newWaypoints },
         })
+      },
+      move: (placeId: string, index: number) => {
+        if (!planRef.current) {
+          return
+        }
+
+        const waypoints = planRef.current.waypoints.slice()
+        const currentIndex = waypoints.findIndex(
+          (spot) => spot.placeId === placeId
+        )
+
+        waypoints.splice(index, 0, waypoints.splice(currentIndex, 1)[0])
+
+        setPlan({ type: 'update', value: { waypoints } })
       },
       update: (placeId: string, updatedSpot: Partial<SpotDTO>) => {
         if (!planRef.current) {

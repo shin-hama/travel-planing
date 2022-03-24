@@ -83,7 +83,7 @@ export const useScheduleEvents = () => {
     )
     // 余計な処理を行わないために、plan の変更のみに依存させる
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildMoveEvent, buildSpotEvent, plan?.waypoints, plan?.home])
+  }, [plan?.waypoints, plan?.home, plan?.startTime, plan?.routes])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -95,23 +95,6 @@ export const useScheduleEvents = () => {
           (event): event is T =>
             event.id === id && (type ? event.extendedProps.type === type : true)
         )
-      },
-      followMoving: (
-        target: ScheduleEvent,
-        duration: number,
-        unit: dayjs.ManipulateType
-      ) => {
-        eventsRef.current
-          .filter(
-            (event) => dayjs(event.start).date() === dayjs(target.end).date()
-          )
-          .forEach((event) => {
-            actions.update({
-              ...event,
-              start: dayjs(event.start).add(duration, unit).toDate(),
-              end: dayjs(event.end).add(duration, unit).toDate(),
-            })
-          })
       },
       update: (updatedSpot: ScheduleEvent) => {
         setEvents.update((event) => event.id === updatedSpot.id, updatedSpot)
