@@ -50,36 +50,51 @@ export const useScheduleEvents = () => {
     const merged = mergeAlternate(spots, plan.routes)
 
     setEvents.set(
-      merged.map((item) => {
-        if (isRoute(item)) {
-          const start = startTime.toDate()
-          startTime = startTime.add(item.duration, item.durationUnit)
-          const end = startTime.toDate()
+      merged
+        .map((item) => {
+          if (isRoute(item)) {
+            const start = startTime.toDate()
+            startTime = startTime.add(item.duration, item.durationUnit)
+            const end = startTime.toDate()
+            if (
+              start.getHours() < 6 ||
+              start.getHours() >= 21 ||
+              end.getHours() < 6 ||
+              end.getHours() >= 21
+            ) {
+              // 深夜にイベントが作られないように次の日へ移行する(Move イベントはスキップする)
+              startTime = dayjs(start)
+                .add(1, 'day')
+                .set('hour', plan.startTime.getHours())
+                .set('minute', plan.startTime.getMinutes())
+              return null
+            }
 
-          return buildMoveEvent({
-            start,
-            end,
-            extendedProps: {
-              from: item.from,
-              to: item.to,
-              mode: item.mode,
-            },
-          })
-        } else if (isSpotDTO(item)) {
-          const start = startTime.toDate()
-          startTime = startTime.add(item.duration, item.durationUnit)
-          const end = startTime.toDate()
+            return buildMoveEvent({
+              start,
+              end,
+              extendedProps: {
+                from: item.from,
+                to: item.to,
+                mode: item.mode,
+              },
+            })
+          } else if (isSpotDTO(item)) {
+            const start = startTime.toDate()
+            startTime = startTime.add(item.duration, item.durationUnit)
+            const end = startTime.toDate()
 
-          return buildSpotEvent({
-            title: item.name,
-            start,
-            end,
-            props: { placeId: item.placeId, imageUrl: item.imageUrl },
-          })
-        } else {
-          throw Error(`not implemented type: ${JSON.stringify(item)}`)
-        }
-      })
+            return buildSpotEvent({
+              title: item.name,
+              start,
+              end,
+              props: { placeId: item.placeId, imageUrl: item.imageUrl },
+            })
+          } else {
+            throw Error(`not implemented type: ${JSON.stringify(item)}`)
+          }
+        })
+        .filter((item): item is ScheduleEvent => item !== null)
     )
     // 余計な処理を行わないために、plan の変更のみに依存させる
     // eslint-disable-next-line react-hooks/exhaustive-deps
