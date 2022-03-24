@@ -44,15 +44,10 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
    */
   const handleIdled = () => {
     if (googleMap) {
-      const bounds = googleMap.getBounds()
-
       setMapProps((prev) => ({
         center: googleMap.getCenter() || prev.center,
         zoom: googleMap.getZoom() || prev.zoom,
-        bounds: {
-          ne: bounds?.getNorthEast(),
-          sw: bounds?.getSouthWest(),
-        },
+        bounds: googleMap.getBounds() || prev.bounds,
       }))
     }
   }
@@ -67,14 +62,9 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     setDistanceMatrix(new window.google.maps.DistanceMatrixService())
     setPlaces(new window.google.maps.places.PlacesService(mapInstance))
 
-    const bounds = mapInstance.getBounds()
-
     setMapProps((prev) => ({
       ...prev,
-      bounds: {
-        ne: bounds?.getNorthEast(),
-        sw: bounds?.getSouthWest(),
-      },
+      bounds: mapInstance.getBounds() || prev.bounds,
     }))
 
     setGoogleMap(mapInstance)
@@ -83,7 +73,7 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
 
   React.useEffect(() => {
     // 選択しているプランの目的地を中心にする
-    if (plan) {
+    if (plan?.destination) {
       const { lat, lng, zoom } = plan.destination
       setMapProps((prev) => ({
         ...prev,
@@ -91,7 +81,7 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
         zoom: zoom,
       }))
     }
-  }, [plan, setMapProps])
+  }, [plan?.destination, setMapProps])
 
   if (loadError) {
     console.log('Error has occurred when loading google map')

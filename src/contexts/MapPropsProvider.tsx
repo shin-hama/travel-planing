@@ -2,14 +2,10 @@ import * as React from 'react'
 
 const DEFAULT_CENTER = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
-export type Bounds = {
-  sw?: google.maps.LatLng | null
-  ne?: google.maps.LatLng | null
-}
 type MapProps = {
-  center: google.maps.LatLngLiteral | google.maps.LatLng
+  center: google.maps.LatLng | google.maps.LatLngLiteral
   zoom: number
-  bounds: Bounds | null
+  bounds: google.maps.LatLngBounds | null
 }
 export const MapPropsContext = React.createContext<MapProps | null>(null)
 export const SetMapPropsContext = React.createContext<

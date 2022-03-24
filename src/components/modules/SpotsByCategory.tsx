@@ -26,16 +26,11 @@ const SpotsByCategory: React.FC<Props> = ({
 
   React.useEffect(() => {
     const bounds = mapProps.bounds
-    const northEast = bounds?.ne
-    const southWest = bounds?.sw
-    if (northEast && southWest && categoryId) {
+    if (bounds && categoryId) {
       getSpots({
         variables: {
           categoryId,
-          north: northEast.lat(),
-          east: northEast.lng(),
-          south: southWest.lat(),
-          west: southWest.lng(),
+          ...bounds.toJSON(),
         },
       })
         .then((results) => {
