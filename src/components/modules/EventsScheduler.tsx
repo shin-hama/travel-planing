@@ -99,7 +99,7 @@ type Props = {
 }
 const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
   const calendar = React.useRef<FullCalendar>(null)
-  const [events, eventsApi] = useScheduleEvents(plan)
+  const [events, eventsApi] = useScheduleEvents()
   const [, waypointsApi] = useWaypoints()
 
   const [visibleRange, setVisibleRange] = React.useState<{
@@ -167,7 +167,6 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
         planApi.save()
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
-
         planApi.update({
           startTime: dayjs(plan.startTime)
             .add(e.delta.milliseconds, 'millisecond')

@@ -33,15 +33,7 @@ export const useTravelPlan = () => {
   const db = useFirestore()
 
   const { actions: directionService } = useDirections()
-  const countRef = React.useRef(0)
 
-  React.useEffect(() => {
-    countRef.current = 0
-  }, [])
-
-  React.useEffect(() => {
-    console.log('updated plan')
-  }, [plan])
   React.useEffect(() => {
     console.log('update route')
 

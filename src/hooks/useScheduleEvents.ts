@@ -4,7 +4,8 @@ import dayjs from 'dayjs'
 
 import { useEventFactory } from './useEventFactory'
 import { isSpotDTO, ScheduleEvent, SpotDTO } from './usePlanEvents'
-import { isRoute, Plan } from 'contexts/CurrentPlanProvider'
+import { isRoute } from 'contexts/CurrentPlanProvider'
+import { useTravelPlan } from './useTravelPlan'
 
 const mergeAlternate = <T, U>(
   array1: Array<T>,
@@ -21,7 +22,8 @@ const mergeAlternate = <T, U>(
   return result
 }
 
-export const useScheduleEvents = (plan: Plan) => {
+export const useScheduleEvents = () => {
+  const [plan] = useTravelPlan()
   const [events, setEvents] = useList<ScheduleEvent>()
   const eventsRef = React.useRef<typeof events>([])
   eventsRef.current = events
@@ -29,6 +31,9 @@ export const useScheduleEvents = (plan: Plan) => {
 
   React.useEffect(() => {
     console.log('build route events')
+    if (!plan) {
+      return
+    }
 
     if (plan.waypoints.length === 0) {
       console.log('no waypoints')
@@ -78,7 +83,7 @@ export const useScheduleEvents = (plan: Plan) => {
     )
     // 余計な処理を行わないために、plan の変更のみに依存させる
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildMoveEvent, buildSpotEvent, plan])
+  }, [buildMoveEvent, buildSpotEvent, plan?.waypoints, plan?.home])
 
   const actions = React.useMemo(() => {
     const a = {
