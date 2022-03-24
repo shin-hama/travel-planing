@@ -12,6 +12,8 @@ export type SpotDTO = {
   imageUrl: string
   placeId: string
   name: string
+  duration: number
+  durationUnit: dayjs.ManipulateType
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSpotDTO = (obj: any): obj is SpotDTO => {

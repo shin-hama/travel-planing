@@ -48,10 +48,10 @@ export const useWaypoints = () => {
         const index = planRef.current?.waypoints.findIndex(
           (point) => point.placeId === placeId
         )
-        if (index !== 0 || index !== planRef.current.waypoints.length - 1) {
-          const newWaypoints = planRef.current.waypoints.slice()
-          const target = mode === 'up' ? index - 1 : index + 1
+        const newWaypoints = planRef.current.waypoints.slice()
+        const target = mode === 'up' ? index - 1 : index + 1
 
+        if (target >= 0 || target < planRef.current.waypoints.length) {
           newWaypoints[index] = [
             newWaypoints[target],
             (newWaypoints[target] = newWaypoints[index]),
@@ -67,14 +67,30 @@ export const useWaypoints = () => {
           console.error('plan is not selected')
           return
         }
+
         const newWaypoints = planRef.current.waypoints.slice()
+        // 入力された index がリストの長さより長い場合は末尾に追加
         index > newWaypoints.length
-          ? (newWaypoints[index] = newSpot)
+          ? newWaypoints.push(newSpot)
           : newWaypoints.splice(index, 0, newSpot)
+
         setPlan({
           type: 'update',
           value: { waypoints: newWaypoints },
         })
+      },
+      update: (placeId: string, updatedSpot: Partial<SpotDTO>) => {
+        if (!planRef.current) {
+          console.error('plan is not selected')
+          return
+        }
+
+        // 対象の Waypoint を更新した新しいリストを作成する
+        const newWaypoints = planRef.current.waypoints.map((spot) =>
+          spot.placeId === placeId ? { ...spot, ...updatedSpot } : spot
+        )
+
+        setPlan({ type: 'update', value: { waypoints: newWaypoints } })
       },
     }
 

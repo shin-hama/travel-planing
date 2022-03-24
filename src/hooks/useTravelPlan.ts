@@ -14,8 +14,7 @@ import {
 import { SpotDTO } from './usePlanEvents'
 import { useDirections } from './googlemaps/useDirections'
 
-export const useTravelPlan = (t = '') => {
-  console.log(t)
+export const useTravelPlan = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
 
@@ -32,25 +31,30 @@ export const useTravelPlan = (t = '') => {
   }, [])
 
   React.useEffect(() => {
-    if (countRef.current !== 0) {
-      return
-    }
-    countRef.current += 1
+    console.log('update plan')
+
+    // if (countRef.current !== 0) {
+    //   return
+    // }
+    // countRef.current += 1
 
     const func = async () => {
       console.log('Calc route')
-      if (!planRef.current) {
+      if (!plan) {
+        console.warn('plan is not selected')
         return
       }
-      if (planRef.current.waypoints.length === 0) {
+      if (plan.waypoints.length === 0) {
+        console.log('There are no waypoints')
         return
       }
 
       const spots: Array<SpotDTO> = [
-        planRef.current.home,
-        ...planRef.current.waypoints,
-        planRef.current.home,
+        { ...plan.home, duration: 30, durationUnit: 'minute' },
+        ...plan.waypoints,
+        { ...plan.home, duration: 30, durationUnit: 'minute' },
       ]
+
       const newRoute = await Promise.all(
         spots.map(async (spot, i): Promise<Route | null> => {
           if (i === spots.length - 1) {
@@ -60,7 +64,7 @@ export const useTravelPlan = (t = '') => {
           const origin = { placeId: spot.placeId }
           const destination = { placeId: spots[i + 1].placeId }
 
-          const routeCache = planRef.current?.routes.find(
+          const routeCache = plan.routes.find(
             (route) =>
               route.from === origin.placeId && route.to === destination.placeId
           )
@@ -94,10 +98,11 @@ export const useTravelPlan = (t = '') => {
         },
       })
     }
+
     func()
-    // 余計な計算を行わないために、waypoints だけに依存させる
+    // 余計な計算を行わないために、waypoints と home だけに依存させる
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan?.waypoints])
+  }, [plan?.waypoints, plan?.home])
 
   const actions = React.useMemo(() => {
     const a = {

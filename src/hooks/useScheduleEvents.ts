@@ -3,7 +3,7 @@ import { useList } from 'react-use'
 import dayjs from 'dayjs'
 
 import { useEventFactory } from './useEventFactory'
-import { isSpotDTO, ScheduleEvent } from './usePlanEvents'
+import { isSpotDTO, ScheduleEvent, SpotDTO } from './usePlanEvents'
 import { isRoute, Plan } from 'contexts/CurrentPlanProvider'
 
 const mergeAlternate = <T, U>(
@@ -41,7 +41,11 @@ export const useScheduleEvents = (plan: Plan) => {
     }
     let startTime = dayjs('08:30:00', 'HH:mm:ss')
 
-    const spots = [plan.home, ...plan.waypoints, plan.home]
+    const spots: Array<SpotDTO> = [
+      { ...plan.home, duration: 30, durationUnit: 'minute' },
+      ...plan.waypoints,
+      { ...plan.home, duration: 30, durationUnit: 'minute' },
+    ]
     const merged = mergeAlternate(spots, plan.routes)
 
     console.log(merged)
@@ -63,7 +67,7 @@ export const useScheduleEvents = (plan: Plan) => {
           })
         } else if (isSpotDTO(item)) {
           const start = startTime.toDate()
-          startTime = startTime.add(1, 'hour')
+          startTime = startTime.add(item.duration, item.durationUnit)
           const end = startTime.toDate()
 
           return buildSpotEvent({
@@ -78,7 +82,7 @@ export const useScheduleEvents = (plan: Plan) => {
       })
     )
     // 余計な処理を行わないために、plan の変更のみに依存させる
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildMoveEvent, buildSpotEvent, plan])
 
   const actions = React.useMemo(() => {

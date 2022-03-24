@@ -150,8 +150,6 @@ const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
       end: dayjs(e.event.end).toDate(),
     }
 
-    console.log(cloned)
-
     if (e.event.end && e.oldEvent.end) {
       if (Math.abs(e.event.end.getDate() - e.oldEvent.end.getDate()) >= 1) {
         console.log('Move day')
@@ -159,8 +157,10 @@ const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
 
         // Move to target day
         waypointsApi.insert(index, {
-          name: cloned.title,
           ...cloned.extendedProps,
+          name: cloned.title,
+          duration: dayjs(cloned.end).diff(cloned.start, 'minute'),
+          durationUnit: 'minute',
         })
       } else {
         // 同じ日付内で移動した場合は、全てのイベントの開始時刻を同じだけずらす
@@ -178,49 +178,11 @@ const EventsScheduler: React.FC<Props> = ({ plan, savePlan }) => {
     if (!resizedEvent) {
       throw new Error('Cannot find resized event')
     }
-    eventsApi.update({
-      ...resizedEvent,
-      start: dayjs(e.event.start).toDate(),
-      end: dayjs(e.event.end).toDate(),
-    })
 
-    if (e.startDelta.milliseconds !== 0) {
-      console.log('edit start time')
-      // 対象より前のイベントすべての時間を早める
-      events
-        .filter(
-          (event) =>
-            dayjs(event.start).date() === dayjs(e.event.start).date() &&
-            dayjs(event.start) < dayjs(e.oldEvent.start)
-        )
-        .forEach((event) => {
-          eventsApi.update({
-            ...event,
-            start: dayjs(event.start)
-              .add(e.startDelta.milliseconds, 'ms')
-              .toDate(),
-            end: dayjs(event.end).add(e.startDelta.milliseconds, 'ms').toDate(),
-          })
-        })
-    } else if (e.endDelta.milliseconds !== 0) {
-      console.log('edit end time')
-      // 対象より後のイベントすべての時間を遅らせる
-      events
-        .filter(
-          (event) =>
-            dayjs(event.start).date() === dayjs(e.event.start).date() &&
-            dayjs(event.start) >= dayjs(e.oldEvent.end)
-        )
-        .forEach((event) => {
-          eventsApi.update({
-            ...event,
-            start: dayjs(event.start)
-              .add(e.endDelta.milliseconds, 'ms')
-              .toDate(),
-            end: dayjs(event.end).add(e.endDelta.milliseconds, 'ms').toDate(),
-          })
-        })
-    }
+    waypointsApi.update(resizedEvent.extendedProps.placeId, {
+      duration: dayjs(e.event.end).diff(e.event.start, 'minute'),
+      durationUnit: 'minute',
+    })
 
     savePlan()
   }

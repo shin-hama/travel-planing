@@ -130,6 +130,8 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
                     name: data.spots_by_pk.name,
                     placeId: data.spots_by_pk.place_id,
                     imageUrl: photos[0] || '',
+                    duration: 60,
+                    durationUnit: 'minute',
                   }}
                 />
               </div>
