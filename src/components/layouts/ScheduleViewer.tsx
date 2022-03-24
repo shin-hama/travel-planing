@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Alert from '@mui/material/Alert'
 import Backdrop from '@mui/material/Backdrop'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -8,6 +9,7 @@ import Drawer from '@mui/material/Drawer'
 import Fab from '@mui/material/Fab'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import Snackbar from '@mui/material/Snackbar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
 
@@ -102,6 +104,9 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
           </Fab>
         </Container>
       </PlanningLayout>
+      <Snackbar open={plan.waypoints?.length === 0} autoHideDuration={6000}>
+        <Alert severity={'info'}>地図上で行きたい場所を選んでください。</Alert>
+      </Snackbar>
     </Drawer>
   )
 }

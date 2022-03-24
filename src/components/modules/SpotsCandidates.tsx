@@ -54,7 +54,13 @@ const SpotsCandidates: React.FC<Props> = ({
               overflow: 'auto',
             }}>
             <Container maxWidth="xs">
-              <SpotsList spots={placeIds} />
+              {placeIds.length > 0 ? (
+                <SpotsList spots={placeIds} />
+              ) : (
+                <Typography variant="subtitle1">
+                  地図上で行きたい場所を選んでください。
+                </Typography>
+              )}
             </Container>
           </Box>
         </Box>
