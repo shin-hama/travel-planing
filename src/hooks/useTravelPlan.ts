@@ -18,7 +18,8 @@ export const useTravelPlan = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
 
-  const planRef = React.useRef<Plan>(plan)
+  const planRef = React.useRef<Plan | null>(null)
+  planRef.current = plan
 
   const [user] = useAuthentication()
   const db = useFirestore()
@@ -32,11 +33,6 @@ export const useTravelPlan = () => {
 
   React.useEffect(() => {
     console.log('update plan')
-
-    // if (countRef.current !== 0) {
-    //   return
-    // }
-    // countRef.current += 1
 
     const func = async () => {
       console.log('Calc route')

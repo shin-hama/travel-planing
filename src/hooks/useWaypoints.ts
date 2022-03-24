@@ -10,7 +10,8 @@ import { SpotDTO } from './usePlanEvents'
 export const useWaypoints = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
-  const planRef = React.useRef<Plan>(plan)
+  const planRef = React.useRef<Plan | null>(null)
+  planRef.current = plan
 
   const actions = React.useMemo(() => {
     const a = {
