@@ -5,9 +5,9 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dayjs from 'dayjs'
-
-import { MoveEvent } from 'hooks/usePlanEvents'
 import { useToggle } from 'react-use'
+
+import { MoveEvent } from 'contexts/CurrentPlanProvider'
 import MoveEventToolbar, { MoveTypes } from './MoveEventToolbar'
 
 const calcDiff = (start: Date, end: Date) => {

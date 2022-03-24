@@ -7,7 +7,7 @@ import {
 } from '@fortawesome/react-fontawesome'
 import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 
-import { MoveEvent } from 'hooks/usePlanEvents'
+import { MoveEvent } from 'contexts/CurrentPlanProvider'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 

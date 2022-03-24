@@ -17,10 +17,9 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
-import { MoveEvent, SpotEvent } from 'hooks/usePlanEvents'
+import { Plan, MoveEvent, SpotEvent } from 'contexts/CurrentPlanProvider'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
 import { useWaypoints } from 'hooks/useWaypoints'
-import { Plan } from 'contexts/CurrentPlanProvider'
 import { PlanAPI } from 'hooks/useTravelPlan'
 
 dayjs.extend(customParseFormat)

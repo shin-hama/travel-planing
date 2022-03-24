@@ -3,8 +3,12 @@ import { useList } from 'react-use'
 import dayjs from 'dayjs'
 
 import { useEventFactory } from './useEventFactory'
-import { isSpotDTO, ScheduleEvent, SpotDTO } from './usePlanEvents'
-import { isRoute } from 'contexts/CurrentPlanProvider'
+import {
+  isRoute,
+  isSpotDTO,
+  ScheduleEvent,
+  SpotDTO,
+} from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
 
 const mergeAlternate = <T, U>(

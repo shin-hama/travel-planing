@@ -13,8 +13,8 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 import { useGetSpotByPkLazyQuery } from 'generated/graphql'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
-import { SpotDTO } from 'hooks/usePlanEvents'
 import { useWaypoints } from 'hooks/useWaypoints'
+import { SpotDTO } from 'contexts/CurrentPlanProvider'
 
 type ButtonProps = {
   spotDTO: SpotDTO

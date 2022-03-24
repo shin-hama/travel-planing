@@ -4,8 +4,8 @@ import {
   CurrentPlanContext,
   Plan,
   SetCurrentPlanContext,
+  SpotDTO,
 } from 'contexts/CurrentPlanProvider'
-import { SpotDTO } from './usePlanEvents'
 
 export const useWaypoints = () => {
   const plan = React.useContext(CurrentPlanContext)

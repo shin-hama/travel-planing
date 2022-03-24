@@ -10,8 +10,8 @@ import {
   Plan,
   Route,
   SetCurrentPlanContext,
+  SpotDTO,
 } from 'contexts/CurrentPlanProvider'
-import { SpotDTO } from './usePlanEvents'
 import { useDirections } from './googlemaps/useDirections'
 
 export interface PlanAPI {

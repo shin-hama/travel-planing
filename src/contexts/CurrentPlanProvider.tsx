@@ -1,7 +1,7 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
+import { EventInput } from '@fullcalendar/react' // must go before plugins
 
-import { ScheduleEvent, SpotDTO } from 'hooks/usePlanEvents'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import {
@@ -19,6 +19,23 @@ export type Prefecture = {
   imageUrl: string
 }
 
+export type SpotDTO = {
+  imageUrl: string
+  placeId: string
+  name: string
+  duration: number
+  durationUnit: dayjs.ManipulateType
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isSpotDTO = (obj: any): obj is SpotDTO => {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    typeof obj.imageUrl === 'string' &&
+    typeof obj.placeId === 'string' &&
+    typeof obj.name === 'string'
+  )
+}
 export type Route = {
   from: string
   to: string
@@ -36,7 +53,34 @@ export const isRoute = (obj: any): obj is Route => {
     typeof obj.to === 'string'
   )
 }
+export type Spot = {
+  type: 'spot'
+  placeId: string
+  imageUrl: string
+  from: string | null
+  to: string | null
+}
+export type Move = {
+  type: 'move'
+  from: string
+  to: string
+  mode: 'bicycle' | 'car' | 'walk'
+}
 
+type CustomEventInput = Omit<EventInput, 'extendedProps'>
+export type EventBase = CustomEventInput & {
+  id: string
+  start: Date
+  end: Date
+}
+export type SpotEvent = EventBase & {
+  extendedProps: Spot
+}
+export type MoveEvent = EventBase & {
+  extendedProps: Move
+}
+
+export type ScheduleEvent = SpotEvent | MoveEvent
 export type Plan = {
   id: string
   title: string
