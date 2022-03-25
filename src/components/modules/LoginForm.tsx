@@ -10,6 +10,8 @@ import { useForm } from 'react-hook-form'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import GoogleIcon from 'icons/google.svg'
+import { useAsyncFn } from 'react-use'
+import AsyncButton from 'components/elements/AsyncButton'
 
 type LoginFormInput = {
   email: string
@@ -23,16 +25,18 @@ type Props = {
 const LoginForm: React.FC<Props> = ({ isSignUp = false, onClose }) => {
   const [, auth] = useAuthentication()
   const { register, handleSubmit, reset } = useForm<LoginFormInput>()
-
-  const handleLogin = async (values: LoginFormInput) => {
-    if (isSignUp) {
-      await auth.create(values.email, values.password)
-    } else {
-      await auth.signIn(values.email, values.password)
-    }
-    reset()
-    onClose()
-  }
+  const [handlerState, handleLogin] = useAsyncFn(
+    async (values: LoginFormInput) => {
+      if (isSignUp) {
+        await auth.create(values.email, values.password)
+      } else {
+        await auth.signIn(values.email, values.password)
+      }
+      reset()
+      onClose()
+    },
+    [auth, isSignUp, onClose, reset]
+  )
 
   return (
     <Box sx={{ maxWidth: '400px', mx: 'auto' }}>
@@ -70,9 +74,13 @@ const LoginForm: React.FC<Props> = ({ isSignUp = false, onClose }) => {
               size="small"
               type="password"
             />
-            <Button type="submit" variant="contained">
-              Login
-            </Button>
+            <AsyncButton
+              loading={handlerState.loading}
+              fullWidth
+              type="submit"
+              variant="contained">
+              {isSignUp ? 'アカウントを作成' : 'Login'}
+            </AsyncButton>
           </Stack>
         </form>
       </Stack>

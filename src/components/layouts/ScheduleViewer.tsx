@@ -12,12 +12,11 @@ import Typography from '@mui/material/Typography'
 import Snackbar from '@mui/material/Snackbar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
-
+import { useAsyncFn } from 'react-use'
 import { useRouter } from 'next/router'
 
 import EventsScheduler from 'components/modules/EventsScheduler'
 import PlanningLayout from 'components/layouts/PlaningLayout'
-import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useConfirm } from 'hooks/useConfirm'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 
@@ -27,11 +26,10 @@ type Props = {
 }
 const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   const router = useRouter()
-  const { loading } = useDirections()
   const confirm = useConfirm()
   const [plan, planApi] = useTravelPlan()
 
-  const handleOptimize = async () => {
+  const [{ loading }, handleOptimize] = useAsyncFn(async () => {
     try {
       try {
         await confirm({
@@ -44,11 +42,11 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
         return
       }
 
-      planApi.optimizeRoute()
+      await planApi.optimizeRoute()
     } catch (e) {
-      alert(e)
+      console.error(e)
     }
-  }
+  }, [confirm, planApi.optimizeRoute])
 
   React.useEffect(() => {
     if (!plan) {
@@ -56,13 +54,13 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
     }
   }, [plan, router])
 
-  if (loading) {
-    return (
-      <Backdrop open={loading}>
-        <CircularProgress />
-      </Backdrop>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <Backdrop open={loading}>
+  //       <CircularProgress />
+  //     </Backdrop>
+  //   )
+  // }
 
   if (!plan) {
     return <></>
@@ -70,6 +68,11 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
 
   return (
     <Drawer open={open} anchor="bottom" onClose={onClose}>
+      {loading && (
+        <Backdrop open={loading} sx={{ zIndex: 1 }}>
+          <CircularProgress />
+        </Backdrop>
+      )}
       <PlanningLayout>
         <Container
           maxWidth="md"
