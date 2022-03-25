@@ -210,13 +210,18 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
       clearTimeout(timerRef.current)
     }
 
-    timerRef.current = setTimeout(() => {
-      if (plan) {
-        console.log('save plan')
-        if (plan && user) {
-          const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-          db.set(path, plan.id, plan)
-        }
+    if (!plan || !user) {
+      return
+    }
+
+    timerRef.current = setTimeout(async () => {
+      console.log('save plan')
+      const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+      if (plan?.id && user) {
+        db.set(path, plan.id, plan)
+      } else {
+        const ref = await db.add(path, plan)
+        setPlan({ type: 'set', value: { ...plan, id: ref.id } })
       }
     }, 500)
   }, [plan, db, user])

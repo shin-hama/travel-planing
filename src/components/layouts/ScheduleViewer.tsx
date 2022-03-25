@@ -7,13 +7,16 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import Drawer from '@mui/material/Drawer'
 import Fab from '@mui/material/Fab'
+import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
+import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Snackbar from '@mui/material/Snackbar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
+import { faMapLocationDot, faPen } from '@fortawesome/free-solid-svg-icons'
 import { useAsyncFn } from 'react-use'
 import { useRouter } from 'next/router'
+import { useForm } from 'react-hook-form'
 
 import EventsScheduler from 'components/modules/EventsScheduler'
 import PlanningLayout from 'components/layouts/PlaningLayout'
@@ -28,6 +31,8 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   const router = useRouter()
   const confirm = useConfirm()
   const [plan, planApi] = useTravelPlan()
+  const [editTitle, setEditTitle] = React.useState(false)
+  const { register, handleSubmit } = useForm<{ title: string }>()
 
   const [{ loading }, handleOptimize] = useAsyncFn(async () => {
     try {
@@ -48,19 +53,16 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
     }
   }, [confirm, planApi.optimizeRoute])
 
+  const updateTitle = (data: { title: string }) => {
+    planApi.update({ title: data.title })
+    setEditTitle(false)
+  }
+
   React.useEffect(() => {
     if (!plan) {
       router.replace('/')
     }
   }, [plan, router])
-
-  // if (loading) {
-  //   return (
-  //     <Backdrop open={loading}>
-  //       <CircularProgress />
-  //     </Backdrop>
-  //   )
-  // }
 
   if (!plan) {
     return <></>
@@ -81,16 +83,36 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
             flexFlow: 'column',
             height: '100%',
           }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between">
-            <Typography variant="h4" component="h2">
-              {plan.title}
-            </Typography>
-            <Button variant="contained" onClick={handleOptimize}>
-              Optimize
-            </Button>
+          <Stack direction="row" spacing={2} alignItems="center">
+            {editTitle ? (
+              <>
+                <TextField
+                  {...register('title')}
+                  defaultValue={plan.title}
+                  fullWidth
+                  size="small"
+                />
+                <Button variant="outlined" onClick={() => setEditTitle(false)}>
+                  Cancel
+                </Button>
+                <Button variant="contained" onClick={handleSubmit(updateTitle)}>
+                  Save
+                </Button>
+              </>
+            ) : (
+              <>
+                <Typography variant="h4" component="h2">
+                  {plan.title}
+                </Typography>
+                <IconButton onClick={() => setEditTitle(true)}>
+                  <FontAwesomeIcon size="xs" icon={faPen} />
+                </IconButton>
+                <Box flexGrow={1} />
+                <Button variant="contained" onClick={handleOptimize}>
+                  ルートを最適化
+                </Button>
+              </>
+            )}
           </Stack>
           <Box sx={{ height: '100%', zIndex: 0 }}>
             <EventsScheduler plan={plan} planApi={planApi} />

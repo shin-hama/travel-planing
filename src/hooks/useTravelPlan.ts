@@ -1,10 +1,6 @@
 import * as React from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
-import {
-  PLANING_USERS_PLANS_COLLECTIONS,
-  useFirestore,
-} from './firebase/useFirestore'
-import { useAuthentication } from './firebase/useAuthentication'
 import {
   CurrentPlanContext,
   Plan,
@@ -28,37 +24,18 @@ export const useTravelPlan = () => {
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan
 
-  const [user] = useAuthentication()
-  const db = useFirestore()
-
   const { actions: directionService } = useDirections()
 
   const actions: PlanAPI = React.useMemo(() => {
     const a = {
       create: async (newPlan: Omit<Plan, 'id'>) => {
-        try {
-          if (user) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            const ref = await db.add(path, newPlan)
-            setPlan({ type: 'set', value: { ...newPlan, id: ref.id } })
-          } else {
-            console.log('Current user is guest')
-            setPlan({ type: 'set', value: { ...newPlan, id: 'guest' } })
-          }
-        } catch {
-          console.error(`fail to save plan: ${JSON.stringify(newPlan)}`)
-        }
+        setPlan({ type: 'set', value: { ...newPlan, id: uuidv4() } })
       },
       set: (newPlan: Plan) => {
         setPlan({ type: 'set', value: newPlan })
       },
       update: async (updatedPlan: Partial<Plan>) => {
         try {
-          if (planRef.current && user) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            await db.set(path, planRef.current.id, updatedPlan)
-          }
-
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
@@ -130,7 +107,7 @@ export const useTravelPlan = () => {
     }
 
     return a
-  }, [db, directionService, setPlan, user])
+  }, [directionService, setPlan])
 
   return [plan, actions] as const
 }
