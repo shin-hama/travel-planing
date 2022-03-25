@@ -101,7 +101,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
               </>
             ) : (
               <>
-                <Typography variant="h4" component="h2">
+                <Typography variant="h4" component="h2" noWrap>
                   {plan.title}
                 </Typography>
                 <IconButton onClick={() => setEditTitle(true)}>
@@ -109,7 +109,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
                 </IconButton>
                 <Box flexGrow={1} />
                 <Button variant="contained" onClick={handleOptimize}>
-                  ルートを最適化
+                  最適化
                 </Button>
               </>
             )}
@@ -129,7 +129,10 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
           </Fab>
         </Container>
       </PlanningLayout>
-      <Snackbar open={plan.waypoints?.length === 0} autoHideDuration={6000}>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={plan.waypoints?.length === 0}
+        autoHideDuration={6000}>
         <Alert severity={'info'}>地図上で行きたい場所を選んでください。</Alert>
       </Snackbar>
     </Drawer>

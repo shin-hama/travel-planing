@@ -53,7 +53,7 @@ const FeaturedPlaces = () => {
         <SpotsMap />
         <Stack
           direction="row"
-          justifyContent="space-between"
+          justifyContent="space-around"
           alignItems="baseline">
           <Badge badgeContent={plan.waypoints.length} color="primary">
             <LabeledIconButton
@@ -67,11 +67,13 @@ const FeaturedPlaces = () => {
             icon={faCalendarWeek}
             label={'スケジュール'}
           />
-          <LabeledIconButton
-            onClick={() => console.log('setting')}
-            icon={faEllipsis}
-            label={'設定'}
-          />
+          <Box sx={{ display: 'none' }}>
+            <LabeledIconButton
+              onClick={() => console.log('setting')}
+              icon={faEllipsis}
+              label={'設定'}
+            />
+          </Box>
         </Stack>
       </Box>
       <SpotsCandidates
