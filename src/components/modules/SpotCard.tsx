@@ -4,7 +4,6 @@ import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
-import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -21,26 +20,15 @@ type ButtonProps = {
 }
 const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
   const [waypoints, actions] = useWaypoints()
-  const [loading, setLoading] = React.useState(false)
 
   const selected = waypoints?.find((item) => item.placeId === spotDTO.placeId)
 
   const handleClick = () => {
-    setLoading(true)
     if (selected) {
       actions.remove(spotDTO.placeId)
     } else {
       actions.add(spotDTO)
     }
-    setLoading(false)
-  }
-
-  if (loading === true) {
-    return (
-      <div style={{ display: 'flex' }}>
-        <CircularProgress size={28} />
-      </div>
-    )
   }
 
   return (

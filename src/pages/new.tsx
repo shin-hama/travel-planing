@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import DateAdapter from '@mui/lab/AdapterDayjs'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDatePicker from '@mui/lab/MobileDatePicker'
-import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 
@@ -19,6 +19,8 @@ import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
 import { useUnsplash } from 'hooks/useUnsplash'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useAsyncFn } from 'react-use'
+import AsyncButton from 'components/elements/AsyncButton'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 
@@ -46,43 +48,45 @@ const PrefectureSelector = () => {
     }
   }
 
-  const handleCreatePlan: SubmitHandler<PlanDTO> = async (planDTO: PlanDTO) => {
-    console.log(planDTO)
-    if (!planDTO?.home || !planDTO?.destination) {
-      alert('please select home and destination')
-      return
-    }
+  const [handlerState, handleCreatePlan] = useAsyncFn(
+    async (planDTO: PlanDTO) => {
+      if (!planDTO?.home || !planDTO?.destination) {
+        alert('please select home and destination')
+        return
+      }
 
-    let homePhoto
-    let destPhoto
-    try {
-      homePhoto = (await unsplash.searchPhoto(planDTO.home.name_en)).urls
-        .regular
-      destPhoto = (await unsplash.searchPhoto(planDTO.destination.name_en)).urls
-        .regular
-    } catch {
-      // デモバージョンは rate limit が厳しいので、取得できないときは決め打ちで与える
-      homePhoto =
-        'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
-      destPhoto =
-        'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
-    }
+      let homePhoto
+      let destPhoto
+      try {
+        homePhoto = (await unsplash.searchPhoto(planDTO.home.name_en)).urls
+          .regular
+        destPhoto = (await unsplash.searchPhoto(planDTO.destination.name_en))
+          .urls.regular
+      } catch {
+        // デモバージョンは rate limit が厳しいので、取得できないときは決め打ちで与える
+        homePhoto =
+          'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
+        destPhoto =
+          'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
+      }
 
-    const newPlan: Parameters<typeof createPlan>[number] = {
-      title: planDTO.title,
-      start: planDTO.start,
-      startTime: dayjs('08:30:00', 'HH:mm:ss').toDate(),
-      end: planDTO.start,
-      thumbnail: destPhoto,
-      home: { ...planDTO.home, imageUrl: homePhoto },
-      destination: { ...planDTO.destination, imageUrl: destPhoto },
-      waypoints: [],
-      routes: [],
-    }
-    await createPlan(newPlan)
+      const newPlan: Parameters<typeof createPlan>[number] = {
+        title: planDTO.title,
+        start: planDTO.start,
+        startTime: dayjs('08:30:00', 'HH:mm:ss').toDate(),
+        end: planDTO.start,
+        thumbnail: destPhoto,
+        home: { ...planDTO.home, imageUrl: homePhoto },
+        destination: { ...planDTO.destination, imageUrl: destPhoto },
+        waypoints: [],
+        routes: [],
+      }
+      await createPlan(newPlan)
 
-    router.push('plan')
-  }
+      router.push('plan')
+    },
+    [createPlan, router, unsplash]
+  )
 
   return (
     <PlanningLayout>
@@ -152,9 +156,12 @@ const PrefectureSelector = () => {
                     renderInput={(params) => <TextField {...params} />}
                   />
                 )}></Controller>
-              <Button variant="contained" type="submit">
+              <AsyncButton
+                loading={handlerState.loading}
+                variant="contained"
+                type="submit">
                 {"Let's Start Planning"}
-              </Button>
+              </AsyncButton>
             </Stack>
           </form>
           <SelectPrefectureDialog {...openDialog} />

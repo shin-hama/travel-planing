@@ -101,19 +101,19 @@ export const useTravelPlan = () => {
             .map((i) => planRef.current?.waypoints[i] || null)
             .filter((item): item is SpotDTO => item !== null)
 
-          const newSpots = [
-            planRef.current.home,
+          const newSpots: Array<SpotDTO> = [
+            { ...planRef.current.home, duration: 30, durationUnit: 'minute' },
             ...orderedWaypoints,
-            planRef.current.home,
+            { ...planRef.current.home, duration: 30, durationUnit: 'minute' },
           ]
           const newRoutes = newSpots
             .map((spot, index): Route | null => {
-              if (index === newSpots.length) {
+              if (index === newSpots.length - 1) {
                 return null
               }
               return {
                 from: spot.placeId,
-                to: spot.placeId,
+                to: newSpots[index + 1].placeId,
                 duration: routeResult.legs[index].duration?.value || 0,
                 durationUnit: 'second',
                 mode: 'car',
