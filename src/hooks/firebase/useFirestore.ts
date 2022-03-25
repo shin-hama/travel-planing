@@ -7,6 +7,7 @@ import {
   FirestoreDataConverter,
   getDocs,
   setDoc,
+  serverTimestamp,
   updateDoc,
   WithFieldValue,
 } from 'firebase/firestore'
@@ -46,7 +47,14 @@ export const useFirestore = () => {
         data: WithFieldValue<DocumentData>
       ) => {
         try {
-          await setDoc(doc(db, path, id), data, { merge: true })
+          await setDoc(
+            doc(db, path, id),
+            {
+              ...data,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          )
         } catch (e) {
           console.error('Error adding document: ', e)
           throw e
@@ -57,7 +65,11 @@ export const useFirestore = () => {
        */
       add: async (path: string, data: WithFieldValue<DocumentData>) => {
         try {
-          const docRef = await addDoc(collection(db, path), data)
+          const docRef = await addDoc(collection(db, path), {
+            ...data,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          })
           console.log('Document written with ID: ', docRef.id)
           return docRef
         } catch (e) {
@@ -71,7 +83,10 @@ export const useFirestore = () => {
         data: WithFieldValue<DocumentData>
       ) => {
         try {
-          await updateDoc(doc(db, path, id), data)
+          await updateDoc(doc(db, path, id), {
+            ...data,
+            updatedAt: serverTimestamp(),
+          })
         } catch (e) {
           console.error(`fail to update: ${e}`)
           throw e

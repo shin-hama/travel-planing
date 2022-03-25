@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 
 import PlansList from 'components/modules/PlansList'
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { PlanDB } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
 import { useConfirm } from 'hooks/useConfirm'
@@ -21,8 +21,8 @@ const UserHome = () => {
   const [user] = useAuthentication()
   const actions = usePlans()
   const confirm = useConfirm()
-  const [plans, setPlans] = React.useState<Array<Plan>>([])
-  const [nextPlan, setNextPlan] = React.useState<Plan | null>(null)
+  const [plans, setPlans] = React.useState<Array<PlanDB>>([])
+  const [nextPlan, setNextPlan] = React.useState<PlanDB | null>(null)
 
   React.useEffect(() => {
     if (user) {
@@ -38,8 +38,8 @@ const UserHome = () => {
     // 将来の旅行計画の中から、最も近い旅行を表示する
     const today = new Date()
     const sortedFeaturesDesc = plans
-      .filter((plan) => plan.end > today)
-      .sort((a, b) => dayjs(b.start).diff(a.start))
+      .filter(({ data }) => data.end > today)
+      .sort((a, b) => dayjs(b.data.start).diff(a.data.start))
     setNextPlan(sortedFeaturesDesc.shift() || null)
   }, [plans])
 

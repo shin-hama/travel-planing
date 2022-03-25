@@ -11,7 +11,7 @@ import {
   useFirestore,
 } from './firebase/useFirestore'
 import { useAuthentication } from './firebase/useAuthentication'
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { Plan, PlanDB } from 'contexts/CurrentPlanProvider'
 
 // Firestore data converter
 const planConverter: FirestoreDataConverter<Plan> = {
@@ -24,7 +24,6 @@ const planConverter: FirestoreDataConverter<Plan> = {
   ): Plan => {
     const data = snapshot.data(options)
     return {
-      id: snapshot.id,
       title: data.title,
       start: data.start?.toDate(), // Convert firestore timestamp to js Date.
       startTime: data.startTime?.toDate(), // Convert firestore timestamp to js Date.
@@ -50,17 +49,21 @@ export const usePlans = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      fetch: async () => {
+      fetch: async (): Promise<Array<PlanDB>> => {
         try {
           if (user) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             const results = await db.getDocuments(path, planConverter)
 
-            return results.docs.map((result) => result.data())
+            return results.docs.map((result) => ({
+              id: result.id,
+              data: result.data(),
+            }))
           }
         } catch (e) {
           console.error(e)
         }
+        return []
       },
     }
 

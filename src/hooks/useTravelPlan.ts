@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   CurrentPlanContext,
@@ -11,9 +10,9 @@ import {
 import { useDirections } from './googlemaps/useDirections'
 
 export interface PlanAPI {
-  create: (newPlan: Omit<Plan, 'id'>) => Promise<void>
+  create: (newPlan: Plan) => Promise<void>
   optimizeRoute: () => Promise<void>
-  set: (newPlan: Plan) => void
+  set: (id: string, newPlan: Plan) => void
   update: (updated: Partial<Plan>) => Promise<void>
 }
 
@@ -28,11 +27,11 @@ export const useTravelPlan = () => {
 
   const actions: PlanAPI = React.useMemo(() => {
     const a = {
-      create: async (newPlan: Omit<Plan, 'id'>) => {
-        setPlan({ type: 'set', value: { ...newPlan, id: uuidv4() } })
+      create: async (newPlan: Plan) => {
+        setPlan({ type: 'create', value: { ...newPlan } })
       },
-      set: (newPlan: Plan) => {
-        setPlan({ type: 'set', value: newPlan })
+      set: (id: string, newPlan: Plan) => {
+        setPlan({ type: 'set', value: { id, data: newPlan } })
       },
       update: async (updatedPlan: Partial<Plan>) => {
         try {

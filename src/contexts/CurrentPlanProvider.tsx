@@ -82,7 +82,6 @@ export type MoveEvent = EventBase & {
 
 export type ScheduleEvent = SpotEvent | MoveEvent
 export type Plan = {
-  id: string
   title: string
   home: Prefecture
   destination: Prefecture
@@ -95,9 +94,18 @@ export type Plan = {
   events?: Array<ScheduleEvent>
 }
 
+export type PlanDB = {
+  id: string
+  data: Plan
+}
+
 type PlanAction =
   | {
       type: 'set'
+      value: PlanDB
+    }
+  | {
+      type: 'create'
       value: Plan
     }
   | {
@@ -105,8 +113,14 @@ type PlanAction =
       value: Partial<Plan>
     }
 
-const planReducer = (state: Plan | null, action: PlanAction): Plan | null => {
+const planReducer = (
+  state: PlanDB | null,
+  action: PlanAction
+): PlanDB | null => {
   switch (action.type) {
+    case 'create':
+      return { id: '', data: action.value }
+
     case 'set':
       return action.value
 
@@ -115,7 +129,7 @@ const planReducer = (state: Plan | null, action: PlanAction): Plan | null => {
         console.warn('Cannot update plan before selecting')
         return null
       }
-      return { ...state, ...action.value }
+      return { id: state.id, data: { ...state.data, ...action.value } }
 
     default:
       throw new Error(`Action: "${action}" is not implemented`)
@@ -130,7 +144,7 @@ export const SetCurrentPlanContext = React.createContext<
 })
 
 export const CurrentPlanContextProvider: React.FC = ({ children }) => {
-  const [plan, setPlan] = React.useReducer(planReducer, null)
+  const [currentPlan, setPlan] = React.useReducer(planReducer, null)
   const { actions: directionService } = useDirections()
 
   const [user] = useAuthentication()
@@ -138,10 +152,11 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
 
   React.useEffect(() => {
     const func = async () => {
-      if (!plan) {
+      if (!currentPlan) {
         console.log('plan is not selected')
         return
       }
+      const { data: plan } = currentPlan
       if (plan.waypoints.length === 0) {
         console.log('There are no waypoints')
         return
@@ -201,7 +216,7 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
     func()
     // 余計な計算を行わないために、waypoints と home だけに依存させる
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan?.waypoints, plan?.home])
+  }, [currentPlan?.data.waypoints, currentPlan?.data.home])
 
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   React.useEffect(() => {
@@ -210,24 +225,24 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
       clearTimeout(timerRef.current)
     }
 
-    if (!plan || !user) {
+    if (!currentPlan || !user) {
       return
     }
 
     timerRef.current = setTimeout(async () => {
       console.log('save plan')
       const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-      if (plan?.id && user) {
-        db.set(path, plan.id, plan)
+      if (currentPlan.id !== '' && user) {
+        db.set(path, currentPlan.id, currentPlan.data)
       } else {
-        const ref = await db.add(path, plan)
-        setPlan({ type: 'set', value: { ...plan, id: ref.id } })
+        const ref = await db.add(path, currentPlan.data)
+        setPlan({ type: 'set', value: { id: ref.id, data: currentPlan.data } })
       }
     }, 500)
-  }, [plan, db, user])
+  }, [currentPlan, db, user])
 
   return (
-    <CurrentPlanContext.Provider value={plan}>
+    <CurrentPlanContext.Provider value={currentPlan?.data || null}>
       <SetCurrentPlanContext.Provider value={setPlan}>
         {children}
       </SetCurrentPlanContext.Provider>

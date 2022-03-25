@@ -2,8 +2,7 @@
   "root": true,
   "env": {
     "browser": true,
-    "es6": true,
-    "node": true
+    "es6": true
   },
   "extends": [
     "eslint:recommended",
@@ -19,6 +18,7 @@
     "node_modules/*",
     "build/*",
     "public/*",
+    ".next/*",
     "src/generated/*"
   ],
   "parser": "@typescript-eslint/parser",
@@ -34,8 +34,6 @@
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "@typescript-eslint/triple-slash-reference": 0,
     "@typescript-eslint/no-use-before-define": "off",
-    "no-use-before-define": "off",
-    "no-redeclare": "off",
     "no-undef": "off",
     "react/prop-types": "off"
   },
