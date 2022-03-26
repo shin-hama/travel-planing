@@ -105,6 +105,9 @@ type PlanAction =
       value: PlanDB
     }
   | {
+      type: 'clear'
+    }
+  | {
       type: 'create'
       value: Plan
     }
@@ -131,12 +134,15 @@ const planReducer = (
       }
       return { id: state.id, data: { ...state.data, ...action.value } }
 
+    case 'clear':
+      return null
+
     default:
       throw new Error(`Action: "${action}" is not implemented`)
   }
 }
 
-export const CurrentPlanContext = React.createContext<Plan | null>(null)
+export const CurrentPlanContext = React.createContext<PlanDB | null>(null)
 export const SetCurrentPlanContext = React.createContext<
   React.Dispatch<PlanAction>
 >(() => {
@@ -242,7 +248,7 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
   }, [currentPlan, db, user])
 
   return (
-    <CurrentPlanContext.Provider value={currentPlan?.data || null}>
+    <CurrentPlanContext.Provider value={currentPlan}>
       <SetCurrentPlanContext.Provider value={setPlan}>
         {children}
       </SetCurrentPlanContext.Provider>

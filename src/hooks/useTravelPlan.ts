@@ -8,37 +8,57 @@ import {
   SpotDTO,
 } from 'contexts/CurrentPlanProvider'
 import { useDirections } from './googlemaps/useDirections'
+import {
+  PLANING_USERS_PLANS_COLLECTIONS,
+  useFirestore,
+} from './firebase/useFirestore'
+import { useAuthentication } from './firebase/useAuthentication'
 
 export interface PlanAPI {
-  create: (newPlan: Plan) => Promise<void>
+  create: (newPlan: Plan) => void
+  delete: () => Promise<void>
   optimizeRoute: () => Promise<void>
   set: (id: string, newPlan: Plan) => void
-  update: (updated: Partial<Plan>) => Promise<void>
+  update: (updated: Partial<Plan>) => void
 }
 
 export const useTravelPlan = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
 
+  const [user] = useAuthentication()
+  const db = useFirestore()
+
   const planRef = React.useRef<Plan | null>(null)
-  planRef.current = plan
+  planRef.current = plan?.data || null
 
   const { actions: directionService } = useDirections()
 
   const actions: PlanAPI = React.useMemo(() => {
     const a = {
-      create: async (newPlan: Plan) => {
+      create: (newPlan: Plan) => {
         setPlan({ type: 'create', value: { ...newPlan } })
       },
       set: (id: string, newPlan: Plan) => {
         setPlan({ type: 'set', value: { id, data: newPlan } })
       },
-      update: async (updatedPlan: Partial<Plan>) => {
+      update: (updatedPlan: Partial<Plan>) => {
         try {
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
           console.error(updatedPlan)
+        }
+      },
+      delete: async () => {
+        try {
+          if (user && plan) {
+            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+            await db.delete(path, plan.id)
+            setPlan({ type: 'clear' })
+          }
+        } catch (e) {
+          console.error(e)
         }
       },
       optimizeRoute: async () => {
@@ -106,7 +126,7 @@ export const useTravelPlan = () => {
     }
 
     return a
-  }, [directionService, setPlan])
+  }, [db, directionService, plan, setPlan, user])
 
-  return [plan, actions] as const
+  return [plan?.data || null, actions] as const
 }

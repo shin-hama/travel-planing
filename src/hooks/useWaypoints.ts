@@ -11,7 +11,7 @@ export const useWaypoints = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
   const planRef = React.useRef<Plan | null>(null)
-  planRef.current = plan
+  planRef.current = plan?.data || null
 
   const actions = React.useMemo(() => {
     const a = {
@@ -115,5 +115,5 @@ export const useWaypoints = () => {
     return a
   }, [setPlan])
 
-  return [plan?.waypoints, actions] as const
+  return [plan?.data.waypoints, actions] as const
 }

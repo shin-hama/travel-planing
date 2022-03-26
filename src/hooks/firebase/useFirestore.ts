@@ -2,6 +2,7 @@ import * as React from 'react'
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   DocumentData,
   FirestoreDataConverter,
@@ -87,6 +88,14 @@ export const useFirestore = () => {
             ...data,
             updatedAt: serverTimestamp(),
           })
+        } catch (e) {
+          console.error(`fail to update: ${e}`)
+          throw e
+        }
+      },
+      delete: async (path: string, id: string) => {
+        try {
+          await deleteDoc(doc(db, path, id))
         } catch (e) {
           console.error(`fail to update: ${e}`)
           throw e
