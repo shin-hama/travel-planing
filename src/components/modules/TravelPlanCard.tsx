@@ -5,18 +5,18 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/router'
 
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { PlanDB } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Props = {
-  plan: Plan
+  plan: PlanDB
 }
-const TravelPlanCard: React.FC<Props> = ({ plan }) => {
+const TravelPlanCard: React.FC<Props> = ({ plan: { id, data: plan } }) => {
   const router = useRouter()
   const [, planActions] = useTravelPlan()
 
   const handleClick = () => {
-    planActions.set(plan)
+    planActions.set(id, plan)
     router.push('plan')
   }
 

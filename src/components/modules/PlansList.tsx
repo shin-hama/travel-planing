@@ -1,11 +1,11 @@
 import * as React from 'react'
 import Grid from '@mui/material/Grid'
 
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { PlanDB } from 'contexts/CurrentPlanProvider'
 import TravelPlanCard from './TravelPlanCard'
 
 type Props = {
-  plans: Array<Plan>
+  plans: Array<PlanDB>
 }
 const PlansList: React.FC<Props> = ({ plans }) => {
   return (

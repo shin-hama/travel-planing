@@ -12,7 +12,7 @@ export const useRoutes = () => {
   const setPlan = React.useContext(SetCurrentPlanContext)
 
   const planRef = React.useRef<Plan | null>(null)
-  planRef.current = plan
+  planRef.current = plan?.data || null
 
   const actions = React.useMemo(() => {
     const a = {
@@ -34,5 +34,5 @@ export const useRoutes = () => {
     return a
   }, [setPlan])
 
-  return [plan?.routes, actions] as const
+  return [plan?.data.routes || null, actions] as const
 }

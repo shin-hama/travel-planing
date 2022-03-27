@@ -1,11 +1,6 @@
 import * as React from 'react'
 
 import {
-  PLANING_USERS_PLANS_COLLECTIONS,
-  useFirestore,
-} from './firebase/useFirestore'
-import { useAuthentication } from './firebase/useAuthentication'
-import {
   CurrentPlanContext,
   Plan,
   Route,
@@ -13,56 +8,57 @@ import {
   SpotDTO,
 } from 'contexts/CurrentPlanProvider'
 import { useDirections } from './googlemaps/useDirections'
+import {
+  PLANING_USERS_PLANS_COLLECTIONS,
+  useFirestore,
+} from './firebase/useFirestore'
+import { useAuthentication } from './firebase/useAuthentication'
 
 export interface PlanAPI {
-  create: (newPlan: Omit<Plan, 'id'>) => Promise<void>
+  create: (newPlan: Plan) => void
+  delete: () => Promise<void>
   optimizeRoute: () => Promise<void>
-  set: (newPlan: Plan) => void
-  update: (updated: Partial<Plan>) => Promise<void>
+  set: (id: string, newPlan: Plan) => void
+  update: (updated: Partial<Plan>) => void
 }
 
 export const useTravelPlan = () => {
   const plan = React.useContext(CurrentPlanContext)
   const setPlan = React.useContext(SetCurrentPlanContext)
 
-  const planRef = React.useRef<Plan | null>(null)
-  planRef.current = plan
-
   const [user] = useAuthentication()
   const db = useFirestore()
+
+  const planRef = React.useRef<Plan | null>(null)
+  planRef.current = plan?.data || null
 
   const { actions: directionService } = useDirections()
 
   const actions: PlanAPI = React.useMemo(() => {
     const a = {
-      create: async (newPlan: Omit<Plan, 'id'>) => {
-        try {
-          if (user) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            const ref = await db.add(path, newPlan)
-            setPlan({ type: 'set', value: { ...newPlan, id: ref.id } })
-          } else {
-            console.log('Current user is guest')
-            setPlan({ type: 'set', value: { ...newPlan, id: 'guest' } })
-          }
-        } catch {
-          console.error(`fail to save plan: ${JSON.stringify(newPlan)}`)
-        }
+      create: (newPlan: Plan) => {
+        setPlan({ type: 'create', value: { ...newPlan } })
       },
-      set: (newPlan: Plan) => {
-        setPlan({ type: 'set', value: newPlan })
+      set: (id: string, newPlan: Plan) => {
+        setPlan({ type: 'set', value: { id, data: newPlan } })
       },
-      update: async (updatedPlan: Partial<Plan>) => {
+      update: (updatedPlan: Partial<Plan>) => {
         try {
-          if (planRef.current && user) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            await db.set(path, planRef.current.id, updatedPlan)
-          }
-
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
           console.error(updatedPlan)
+        }
+      },
+      delete: async () => {
+        try {
+          if (user && plan) {
+            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+            await db.delete(path, plan.id)
+            setPlan({ type: 'clear' })
+          }
+        } catch (e) {
+          console.error(e)
         }
       },
       optimizeRoute: async () => {
@@ -130,7 +126,7 @@ export const useTravelPlan = () => {
     }
 
     return a
-  }, [db, directionService, setPlan, user])
+  }, [db, directionService, plan, setPlan, user])
 
-  return [plan, actions] as const
+  return [plan?.data || null, actions] as const
 }

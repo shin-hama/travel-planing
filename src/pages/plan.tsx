@@ -1,6 +1,8 @@
 import * as React from 'react'
 import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import {
   faCalendarWeek,
@@ -15,13 +17,16 @@ import SpotsMap from 'components/modules/SpotsMap'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import ScheduleViewer from 'components/layouts/ScheduleViewer'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useConfirm } from 'hooks/useConfirm'
 
 type Drawers = 'spots' | 'schedule'
 
 const FeaturedPlaces = () => {
   const router = useRouter()
-  const [plan] = useTravelPlan()
+  const [plan, planApi] = useTravelPlan()
   const [open, setOpen] = React.useState<Drawers | null>(null)
+  const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
+  const confirm = useConfirm()
 
   React.useEffect(() => {
     if (!plan) {
@@ -34,6 +39,18 @@ const FeaturedPlaces = () => {
   }
   const handleClose = () => {
     setOpen(null)
+  }
+
+  const handleDelete = async () => {
+    try {
+      await confirm({
+        title: 'CAUTION!!',
+        description: '旅行プランが完全に削除されます。よろしいですか?',
+      })
+      await planApi.delete()
+    } finally {
+      setMenuAnchor(null)
+    }
   }
 
   if (!plan) {
@@ -53,7 +70,7 @@ const FeaturedPlaces = () => {
         <SpotsMap />
         <Stack
           direction="row"
-          justifyContent="space-between"
+          justifyContent="space-around"
           alignItems="baseline">
           <Badge badgeContent={plan.waypoints.length} color="primary">
             <LabeledIconButton
@@ -68,7 +85,7 @@ const FeaturedPlaces = () => {
             label={'スケジュール'}
           />
           <LabeledIconButton
-            onClick={() => console.log('setting')}
+            onClick={(e) => setMenuAnchor(e.currentTarget)}
             icon={faEllipsis}
             label={'設定'}
           />
@@ -81,6 +98,16 @@ const FeaturedPlaces = () => {
         onClose={handleClose}
       />
       <ScheduleViewer open={open === 'schedule'} onClose={handleClose} />
+      <Menu
+        id="basic-menu"
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => setMenuAnchor(null)}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}>
+        <MenuItem onClick={handleDelete}>Delete Plan</MenuItem>
+      </Menu>
     </PlanningLayout>
   )
 }
