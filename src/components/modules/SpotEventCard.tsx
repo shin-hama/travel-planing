@@ -43,7 +43,11 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
     if (event.id === 'start' || event.id === 'end') {
       return
     }
-    setSelected(true)
+    if (
+      waypoints?.find((spot) => spot.placeId === event.extendedProps.placeId)
+    ) {
+      setSelected(true)
+    }
   }
 
   const handleClickAway = () => {
