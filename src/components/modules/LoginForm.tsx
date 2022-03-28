@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/router'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import GoogleIcon from 'icons/google.svg'
@@ -20,11 +21,13 @@ type LoginFormInput = {
 
 type Props = {
   isSignUp?: boolean
-  onClose: () => void
 }
-const LoginForm: React.FC<Props> = ({ isSignUp = false, onClose }) => {
+const LoginForm: React.FC<Props> = ({ isSignUp = false }) => {
   const [, auth] = useAuthentication()
   const { register, handleSubmit, reset } = useForm<LoginFormInput>()
+  const [user] = useAuthentication()
+  const router = useRouter()
+
   const [handlerState, handleLogin] = useAsyncFn(
     async (values: LoginFormInput) => {
       if (isSignUp) {
@@ -33,10 +36,15 @@ const LoginForm: React.FC<Props> = ({ isSignUp = false, onClose }) => {
         await auth.signIn(values.email, values.password)
       }
       reset()
-      onClose()
     },
-    [auth, isSignUp, onClose, reset]
+    [auth, isSignUp, reset]
   )
+
+  React.useEffect(() => {
+    if (user) {
+      router.replace('/home')
+    }
+  }, [user, router])
 
   return (
     <Box sx={{ maxWidth: '400px', mx: 'auto' }}>

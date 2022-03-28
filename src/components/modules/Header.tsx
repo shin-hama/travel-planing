@@ -28,6 +28,7 @@ const Header = () => {
   }
 
   const handleLogout = () => {
+    router.push('/')
     auth.signOut()
     handleCloseUserMenu()
   }
@@ -38,7 +39,7 @@ const Header = () => {
         <Toolbar variant="dense">
           <Button
             color="inherit"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/home')}
             sx={{ mr: 1 }}>
             Home
           </Button>
