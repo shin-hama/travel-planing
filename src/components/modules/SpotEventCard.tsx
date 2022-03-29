@@ -84,8 +84,8 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
             textAlign: 'start',
           }}>
           <Stack sx={{ pl: 1, pt: 0.5 }}>
-            <Typography>{event.title}</Typography>
-            <Typography variant="subtitle2">
+            <Typography variant="h5">{event.title}</Typography>
+            <Typography variant="caption">
               {event.start?.toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',

@@ -29,12 +29,16 @@ const Home: React.FC<Props> = ({ image }) => {
     <Grid container direction={['column-reverse', 'column-reverse', 'row']}>
       <Grid item md={4} xs={12}>
         <Stack alignItems="center" spacing={4} sx={{ mx: 4 }}>
-          <Typography variant="h3">キャッチコピー</Typography>
-          <Typography variant="h5">
-            Short description, Short description, Short description, Short
-            description, Short description, Short description, Short
-            description, Short description, Short description, Short
-            description, Short description, Short description,
+          <Typography
+            component="h2"
+            variant="h3"
+            fontFamily={"'M PLUS Rounded 1c'"}
+            fontWeight={800}>
+            旅行を作ろう
+          </Typography>
+          <Typography variant="h6">
+            楽しい旅行は計画作りから。旅づくりはあなたの行きたいところをめぐるための最適なルートを提案します。
+            旅づくりを使って最高の旅行にでかけよう!!
           </Typography>
           <Link href="/new" passHref>
             <Button variant="contained">プランを作成する</Button>
@@ -42,7 +46,13 @@ const Home: React.FC<Props> = ({ image }) => {
         </Stack>
       </Grid>
       <Grid item md={8} xs={12}>
-        <Image src={image} width="100%" height={100} alt="hero image" />
+        <Image
+          src={image}
+          width="1000px"
+          height="1000px"
+          alt="hero image"
+          objectFit="contain"
+        />
       </Grid>
     </Grid>
   )
@@ -50,7 +60,7 @@ const Home: React.FC<Props> = ({ image }) => {
 
 export const getStaticProps = () => {
   return {
-    props: { image: '/' },
+    props: { image: '/images/hero.png' },
   }
 }
 
