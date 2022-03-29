@@ -25,7 +25,7 @@ const PlanningLayout: React.FC = ({ children }) => {
           flex: 1,
           position: 'relative',
         }}>
-        <Header />
+        <Header topLink="/home" />
         <Box
           sx={{
             height: '100%',
