@@ -46,7 +46,12 @@ const Header: React.FC<Props> = ({ topLink }) => {
               component="h2"
               variant="h5"
               fontFamily={"'M PLUS Rounded 1c'"}
-              fontWeight={800}>
+              fontWeight={800}
+              sx={{
+                '&:hover': {
+                  cursor: 'pointer',
+                },
+              }}>
               旅づくり
             </Typography>
           </Link>
