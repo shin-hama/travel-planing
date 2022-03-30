@@ -23,7 +23,8 @@ const Home: React.FC<Props> = ({ image }) => {
     }
   }, [router, user])
 
-  if (user) {
+  if (user === undefined) {
+    // ログイン状態を確認できないうちは何も表示しない
     return <></>
   }
 
