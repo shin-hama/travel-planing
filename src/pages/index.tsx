@@ -66,6 +66,13 @@ const Home: React.FC<Props> = ({ image }) => {
             />
           </Box>
         </Grid>
+        <Grid item xs={12} textAlign="center" sx={{ mt: 4 }}>
+          <Typography variant="h6">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSf3QzB_-Gfv0uwRh0_ixEiAyTtmIcgGM6P2HtTlDJIf7YrmHA/viewform?usp=sf_link">
+              アンケートにご協力ください
+            </a>
+          </Typography>
+        </Grid>
       </Grid>
     </Layout>
   )
