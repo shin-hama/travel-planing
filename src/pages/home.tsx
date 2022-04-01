@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Fab from '@mui/material/Fab'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
@@ -64,15 +65,25 @@ const UserHome = () => {
           <Typography>Next trip</Typography>
         </Box>
       )}
-      <Container
-        maxWidth="lg"
-        sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container maxWidth="lg" sx={{ my: 4 }}>
         {plans.length > 0 ? (
-          <PlansList plans={plans} />
+          <Stack spacing={4} alignItems="center">
+            <PlansList plans={plans} />
+            <Typography variant="h6">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSf3QzB_-Gfv0uwRh0_ixEiAyTtmIcgGM6P2HtTlDJIf7YrmHA/viewform?usp=sf_link">
+                アンケートにご協力ください
+              </a>
+            </Typography>
+          </Stack>
         ) : (
-          <Button variant="contained" onClick={handleClick}>
-            Plan Your Travel
-          </Button>
+          <Box display="flex" justifyContent="center">
+            <Button variant="contained" onClick={handleClick}>
+              Plan Your Travel
+            </Button>
+          </Box>
         )}
       </Container>
       <Fab
