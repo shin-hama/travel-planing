@@ -30,7 +30,7 @@ const FeaturedPlaces = () => {
 
   React.useEffect(() => {
     if (!plan) {
-      router.replace('/')
+      router.replace('/home')
     }
   }, [plan, router])
 

@@ -1,92 +1,87 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import Fab from '@mui/material/Fab'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAdd } from '@fortawesome/free-solid-svg-icons'
-import dayjs from 'dayjs'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-import PlansList from 'components/modules/PlansList'
-import { PlanDB } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { usePlans } from 'hooks/usePlan'
-import { useConfirm } from 'hooks/useConfirm'
-import PlanningLayout from 'components/layouts/PlaningLayout'
+import Layout from 'components/layouts/Layout'
 
-const UserHome = () => {
-  const router = useRouter()
+type Props = {
+  image: string // The path of image
+}
+const Home: React.FC<Props> = ({ image }) => {
   const [user] = useAuthentication()
-  const actions = usePlans()
-  const confirm = useConfirm()
-  const [plans, setPlans] = React.useState<Array<PlanDB>>([])
-  const [nextPlan, setNextPlan] = React.useState<PlanDB | null>(null)
-
+  const router = useRouter()
   React.useEffect(() => {
     if (user) {
-      actions.fetch().then((results) => {
-        setPlans(results || [])
-      })
-    } else {
-      setPlans([])
+      router.replace('/home')
     }
-  }, [actions, user])
+  }, [router, user])
 
-  React.useEffect(() => {
-    // 将来の旅行計画の中から、最も近い旅行を表示する
-    const today = new Date()
-    const sortedFeaturesDesc = plans
-      .filter(({ data }) => data.end > today)
-      .sort((a, b) => dayjs(b.data.start).diff(a.data.start))
-    setNextPlan(sortedFeaturesDesc.shift() || null)
-  }, [plans])
-
-  const handleClick = async () => {
-    if (!user) {
-      try {
-        await confirm({
-          title: 'Create Plan?',
-          description:
-            'NOTE: You are a guest user, you cannot save plan. Please create account or login if you want to save.',
-          allowClose: true,
-        })
-      } catch {}
-    }
-    router.push('new')
+  if (user === undefined) {
+    // ログイン状態を確認できないうちは何も表示しない
+    return <></>
   }
 
   return (
-    <PlanningLayout>
-      {nextPlan && (
-        <Box style={{ height: '20%', backgroundColor: '#aaaaaa50' }}>
-          <Typography>Next trip</Typography>
-        </Box>
-      )}
-      <Container
-        maxWidth="lg"
-        sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
-        {plans.length > 0 ? (
-          <PlansList plans={plans} />
-        ) : (
-          <Button variant="contained" onClick={handleClick}>
-            Plan Your Travel
-          </Button>
-        )}
-      </Container>
-      <Fab
-        onClick={handleClick}
-        color="primary"
-        sx={{
-          position: 'fixed',
-          right: 16,
-          bottom: 16,
-        }}>
-        <FontAwesomeIcon icon={faAdd} size="lg" />
-      </Fab>
-    </PlanningLayout>
+    <Layout>
+      <Grid
+        container
+        spacing={2}
+        direction={['column-reverse', 'column-reverse', 'row']}
+        sx={{ my: 3 }}>
+        <Grid item md={6} xs={12}>
+          <Stack alignItems="center" spacing={4} sx={{ mx: 4 }}>
+            <Typography
+              component="h2"
+              variant="h3"
+              fontFamily={"'M PLUS Rounded 1c'"}
+              fontWeight={800}>
+              旅行を作ろう
+            </Typography>
+            <Typography variant="h6">
+              楽しい旅行は計画作りから。「旅づくり」はあなたの行きたいところをめぐる最適なルートを提案します。
+              「旅づくり」を使って最高の旅行にでかけよう!!
+            </Typography>
+            <Link href="/new" passHref>
+              <Button variant="contained" size="large">
+                <Typography fontWeight="bold">プランを作成する</Typography>
+              </Button>
+            </Link>
+          </Stack>
+        </Grid>
+        <Grid item md={6} xs={12}>
+          <Box display="flex" justifyContent="center" mx={6}>
+            <Image
+              src={image}
+              width="330px"
+              height="300px"
+              alt="hero image"
+              objectFit="contain"
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={12} textAlign="center" sx={{ mt: 4 }}>
+          <Typography variant="h6">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSf3QzB_-Gfv0uwRh0_ixEiAyTtmIcgGM6P2HtTlDJIf7YrmHA/viewform?usp=sf_link">
+              アンケートにご協力ください
+            </a>
+          </Typography>
+        </Grid>
+      </Grid>
+    </Layout>
   )
 }
 
-export default UserHome
+export const getStaticProps = () => {
+  return {
+    props: { image: '/images/hero.png' },
+  }
+}
+
+export default Home

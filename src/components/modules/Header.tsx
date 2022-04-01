@@ -9,11 +9,15 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
-const Header = () => {
+type Props = {
+  topLink: string
+}
+const Header: React.FC<Props> = ({ topLink }) => {
   const router = useRouter()
 
   const [user, auth] = useAuthentication()
@@ -28,6 +32,7 @@ const Header = () => {
   }
 
   const handleLogout = () => {
+    router.push('/')
     auth.signOut()
     handleCloseUserMenu()
   }
@@ -36,12 +41,20 @@ const Header = () => {
     <>
       <AppBar color="inherit">
         <Toolbar variant="dense">
-          <Button
-            color="inherit"
-            onClick={() => router.push('/')}
-            sx={{ mr: 1 }}>
-            Home
-          </Button>
+          <Link href={topLink} passHref>
+            <Typography
+              component="h2"
+              variant="h5"
+              fontFamily={"'M PLUS Rounded 1c'"}
+              fontWeight={800}
+              sx={{
+                '&:hover': {
+                  cursor: 'pointer',
+                },
+              }}>
+              旅づくり
+            </Typography>
+          </Link>
           <div style={{ flexGrow: 1 }} />
           {user ? (
             <>
@@ -71,7 +84,8 @@ const Header = () => {
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={() => router.push('login')}>
+                onClick={() => router.push('login')}
+                sx={{ display: ['none', 'inline-flex'] }}>
                 Login
               </Button>
               <Button
