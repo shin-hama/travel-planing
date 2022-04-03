@@ -63,12 +63,7 @@ const UserHome = () => {
     <PlanningLayout>
       {nextPlan && (
         <Box style={{ height: '40%', backgroundColor: '#aaaaaa50' }}>
-          <TravelPlanCard
-            plan={{
-              id: nextPlan.id,
-              data: { ...nextPlan.data, title: `Next: ${nextPlan.data.title}` },
-            }}
-          />
+          <TravelPlanCard plan={nextPlan} />
         </Box>
       )}
       <Container maxWidth="lg" sx={{ my: 4 }}>
