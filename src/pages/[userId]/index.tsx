@@ -67,6 +67,16 @@ const UserHome = () => {
     router.push('new')
   }
 
+  if (user?.uid !== userId) {
+    return (
+      <PlanningLayout>
+        <Box display="flex" justifyContent="center" py={5}>
+          <Typography>非公開リストです</Typography>
+        </Box>
+      </PlanningLayout>
+    )
+  }
+
   return (
     <PlanningLayout>
       {nextPlan && (
