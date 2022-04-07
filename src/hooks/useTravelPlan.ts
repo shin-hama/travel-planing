@@ -45,6 +45,8 @@ export const useTravelPlan = () => {
 
             actions.set(ref.id, newPlan)
             return ref.id
+          } else {
+            setPlan({ type: 'create', value: newPlan })
           }
         } catch (e) {
           console.error(e)

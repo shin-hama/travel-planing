@@ -12,18 +12,18 @@ export const useRouter = () => {
       userHome: (replace = false) => {
         if (user) {
           if (replace) {
-            nextRouter.replace(`${user.uid}`)
+            nextRouter.replace(`/${user.uid}`)
           } else {
-            nextRouter.push(`${user.uid}`)
+            nextRouter.push(`/${user.uid}`)
           }
         }
       },
       userPlan: (planId: string) => {
         if (user) {
-          nextRouter.push(`${user.uid}/${planId}`)
+          nextRouter.push(`/${user.uid}/${planId}`)
         }
       },
-      home: `/${user?.uid}`,
+      home: `/${user?.uid || ''}`,
     }
     return myRouter
   }, [nextRouter, user])

@@ -85,6 +85,8 @@ const PrefectureSelector = () => {
 
       if (id) {
         router.userPlan(id)
+      } else {
+        router.push('plan')
       }
     },
     [createPlan, router, unsplash]
