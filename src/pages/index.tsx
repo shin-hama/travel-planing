@@ -6,10 +6,10 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 
-import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import Layout from 'components/layouts/Layout'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
+import { useRouter } from 'hooks/useRouter'
 
 type Props = {
   image: string // The path of image
@@ -18,8 +18,9 @@ const Home: React.FC<Props> = ({ image }) => {
   const [user] = useAuthentication()
   const router = useRouter()
   React.useEffect(() => {
+    console.log(user)
     if (user) {
-      router.replace('/home')
+      router.userHome(true)
     }
   }, [router, user])
 

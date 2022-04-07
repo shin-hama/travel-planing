@@ -15,13 +15,13 @@ import Snackbar from '@mui/material/Snackbar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMapLocationDot, faPen } from '@fortawesome/free-solid-svg-icons'
 import { useAsyncFn } from 'react-use'
-import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 
 import EventsScheduler from 'components/modules/EventsScheduler'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useConfirm } from 'hooks/useConfirm'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useRouter } from 'hooks/useRouter'
 
 type Props = {
   open: boolean
@@ -60,7 +60,7 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
 
   React.useEffect(() => {
     if (!plan) {
-      router.replace('/')
+      router.userHome(true)
     }
   }, [plan, router])
 

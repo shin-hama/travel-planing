@@ -9,7 +9,6 @@ import {
   faEllipsis,
   faLocationDot,
 } from '@fortawesome/free-solid-svg-icons'
-import { useRouter } from 'next/router'
 
 import LabeledIconButton from 'components/elements/LabeledIconButton'
 import SpotsCandidates from 'components/modules/SpotsCandidates'
@@ -18,6 +17,7 @@ import PlanningLayout from 'components/layouts/PlaningLayout'
 import ScheduleViewer from 'components/layouts/ScheduleViewer'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useConfirm } from 'hooks/useConfirm'
+import { useRouter } from 'hooks/useRouter'
 
 type Drawers = 'spots' | 'schedule'
 
@@ -30,7 +30,7 @@ const FeaturedPlaces = () => {
 
   React.useEffect(() => {
     if (!plan) {
-      router.replace('/home')
+      router.userHome(true)
     }
   }, [plan, router])
 

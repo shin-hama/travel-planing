@@ -9,7 +9,6 @@ import {
   faEllipsis,
   faLocationDot,
 } from '@fortawesome/free-solid-svg-icons'
-import { useRouter } from 'next/router'
 
 import LabeledIconButton from 'components/elements/LabeledIconButton'
 import SpotsCandidates from 'components/modules/SpotsCandidates'
@@ -19,17 +18,16 @@ import ScheduleViewer from 'components/layouts/ScheduleViewer'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useConfirm } from 'hooks/useConfirm'
 import { usePlans } from 'hooks/usePlan'
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { useRouter } from 'hooks/useRouter'
 
 type Drawers = 'spots' | 'schedule'
 
 const PlanPage = () => {
   const router = useRouter()
-  const { planId } = router.query
+  const { userId, planId } = router.query
   const { get: getPlan } = usePlans()
 
-  const [, planApi] = useTravelPlan()
-  const [plan, setPlan] = React.useState<Plan | null>(null)
+  const [plan, planApi] = useTravelPlan()
   const [open, setOpen] = React.useState<Drawers | null>(null)
   const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
   const confirm = useConfirm()
@@ -38,25 +36,29 @@ const PlanPage = () => {
     const func = async () => {
       console.log(planId)
 
-      if (typeof planId === 'string') {
-        getPlan(planId)
+      if (typeof planId === 'string' && typeof userId === 'string') {
+        getPlan(userId, planId)
           .then((target) => {
             console.log(target)
             if (!target) {
               console.error(`Plan is not exist. ID: ${planId}`)
-              router.replace('/home')
+              router.userHome(true)
               return
             }
-            setPlan(target)
+            planApi.set(planId, target)
           })
           .catch(() => {
-            router.replace('/home')
+            router.userHome(true)
           })
       }
     }
 
     func()
-  }, [planId])
+
+    return () => {
+      planApi.clear()
+    }
+  }, [planId, userId])
 
   const handleOpen = (mode: Drawers) => () => {
     setOpen(mode)

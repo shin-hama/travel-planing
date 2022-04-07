@@ -10,7 +10,6 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import dayjs from 'dayjs'
-import { useRouter } from 'next/router'
 
 import SelectPrefectureDialog, {
   Props,
@@ -21,6 +20,7 @@ import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
+import { useRouter } from 'hooks/useRouter'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
 
@@ -83,7 +83,9 @@ const PrefectureSelector = () => {
       }
       const id = await createPlan(newPlan)
 
-      router.push(`plan/${id}`)
+      if (id) {
+        router.userPlan(id)
+      }
     },
     [createPlan, router, unsplash]
   )

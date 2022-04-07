@@ -16,6 +16,7 @@ import { useAuthentication } from './firebase/useAuthentication'
 
 export interface PlanAPI {
   create: (newPlan: Plan) => Promise<string | undefined>
+  clear: () => void
   delete: () => Promise<void>
   optimizeRoute: () => Promise<void>
   set: (id: string, newPlan: Plan) => void
@@ -42,12 +43,15 @@ export const useTravelPlan = () => {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             const ref = await db.add(path, newPlan)
 
+            actions.set(ref.id, newPlan)
             return ref.id
           }
         } catch (e) {
           console.error(e)
         }
-        setPlan({ type: 'create', value: { ...newPlan } })
+      },
+      clear: () => {
+        setPlan({ type: 'clear' })
       },
       set: (id: string, newPlan: Plan) => {
         setPlan({ type: 'set', value: { id, data: newPlan } })
