@@ -16,6 +16,7 @@ import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
 import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 import { MapPropsProvider } from 'contexts/MapPropsProvider'
 import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
+import UserAuthorizationProvider from 'contexts/UserAuthorizationProvider'
 
 const clientSideEmotionCache = createEmotionCache()
 interface MyAppProps extends AppProps {
@@ -33,24 +34,26 @@ const App: React.FC<MyAppProps> = ({
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <ApolloClientProvider>
-        <ConfirmationProvider>
-          <DirectionServiceProvider>
-            <DistanceMatrixProvider>
-              <MapPropsProvider>
-                <PlacesServiceProvider>
-                  <CurrentPlanContextProvider>
-                    <SelectedSpotsProvider>
-                      <ThemeProvider theme={theme}>
-                        <CssBaseline />
-                        <Component {...pageProps} />
-                      </ThemeProvider>
-                    </SelectedSpotsProvider>
-                  </CurrentPlanContextProvider>
-                </PlacesServiceProvider>
-              </MapPropsProvider>
-            </DistanceMatrixProvider>
-          </DirectionServiceProvider>
-        </ConfirmationProvider>
+        <UserAuthorizationProvider>
+          <ConfirmationProvider>
+            <DirectionServiceProvider>
+              <DistanceMatrixProvider>
+                <MapPropsProvider>
+                  <PlacesServiceProvider>
+                    <CurrentPlanContextProvider>
+                      <SelectedSpotsProvider>
+                        <ThemeProvider theme={theme}>
+                          <CssBaseline />
+                          <Component {...pageProps} />
+                        </ThemeProvider>
+                      </SelectedSpotsProvider>
+                    </CurrentPlanContextProvider>
+                  </PlacesServiceProvider>
+                </MapPropsProvider>
+              </DistanceMatrixProvider>
+            </DirectionServiceProvider>
+          </ConfirmationProvider>
+        </UserAuthorizationProvider>
       </ApolloClientProvider>
     </CacheProvider>
   )

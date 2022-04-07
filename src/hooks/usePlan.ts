@@ -65,6 +65,24 @@ export const usePlans = () => {
         }
         return []
       },
+      get: async (id: string) => {
+        try {
+          console.log(user)
+          if (user) {
+            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+            console.log(path)
+            console.log(id)
+            const result = await db.get(path, id, planConverter)
+
+            console.log(result.data())
+            return result.data()
+          } else {
+            console.log('User is not authorized')
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      },
     }
 
     return a

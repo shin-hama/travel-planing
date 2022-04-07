@@ -5,10 +5,13 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
-  User,
 } from 'firebase/auth'
 
 import { auth } from 'configs'
+import {
+  UserAuthorizationContext,
+  SetUserAuthorizationContext,
+} from 'contexts/UserAuthorizationProvider'
 
 auth.useDeviceLanguage()
 
@@ -16,7 +19,8 @@ const google = new GoogleAuthProvider()
 
 export const useAuthentication = () => {
   // アクセス直後は Undefined だが、Firebase への接続が完了した段階で、User か null がセットされる
-  const [user, setUser] = React.useState<User | null>()
+  const user = React.useContext(UserAuthorizationContext)
+  const setUser = React.useContext(SetUserAuthorizationContext)
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (userInfo) => {
@@ -26,7 +30,7 @@ export const useAuthentication = () => {
     return () => {
       unsubscribe()
     }
-  }, [])
+  }, [setUser])
 
   const actions = React.useMemo(() => {
     const a = {
