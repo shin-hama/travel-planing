@@ -15,7 +15,7 @@ import {
 import { useAuthentication } from './firebase/useAuthentication'
 
 export interface PlanAPI {
-  create: (newPlan: Plan) => void
+  create: (newPlan: Plan) => Promise<string | undefined>
   delete: () => Promise<void>
   optimizeRoute: () => Promise<void>
   set: (id: string, newPlan: Plan) => void
@@ -34,9 +34,19 @@ export const useTravelPlan = () => {
 
   const { actions: directionService } = useDirections()
 
-  const actions: PlanAPI = React.useMemo(() => {
-    const a = {
-      create: (newPlan: Plan) => {
+  const actions = React.useMemo<PlanAPI>(() => {
+    const a: PlanAPI = {
+      create: async (newPlan: Plan): Promise<string | undefined> => {
+        try {
+          if (user) {
+            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+            const ref = await db.add(path, newPlan)
+
+            return ref.id
+          }
+        } catch (e) {
+          console.error(e)
+        }
         setPlan({ type: 'create', value: { ...newPlan } })
       },
       set: (id: string, newPlan: Plan) => {

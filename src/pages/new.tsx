@@ -81,9 +81,9 @@ const PrefectureSelector = () => {
         waypoints: [],
         routes: [],
       }
-      createPlan(newPlan)
+      const id = await createPlan(newPlan)
 
-      router.push('plan')
+      router.push(`plan/${id}`)
     },
     [createPlan, router, unsplash]
   )
