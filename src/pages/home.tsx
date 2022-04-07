@@ -10,12 +10,13 @@ import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 
+import PlanningLayout from 'components/layouts/PlaningLayout'
 import PlansList from 'components/modules/PlansList'
+import TravelPlanCard from 'components/modules/TravelPlanCard'
 import { PlanDB } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
 import { useConfirm } from 'hooks/useConfirm'
-import PlanningLayout from 'components/layouts/PlaningLayout'
 
 const UserHome = () => {
   const router = useRouter()
@@ -61,8 +62,8 @@ const UserHome = () => {
   return (
     <PlanningLayout>
       {nextPlan && (
-        <Box style={{ height: '20%', backgroundColor: '#aaaaaa50' }}>
-          <Typography>Next trip</Typography>
+        <Box style={{ height: '40%', backgroundColor: '#aaaaaa50' }}>
+          <TravelPlanCard plan={nextPlan} />
         </Box>
       )}
       <Container maxWidth="lg" sx={{ my: 4 }}>

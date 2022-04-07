@@ -28,6 +28,9 @@ const TravelPlanCard: React.FC<Props> = ({ plan: { id, data: plan } }) => {
           display: 'grid',
           overflow: 'hidden',
           borderRadius: 1,
+          '&:hover': {
+            cursor: 'pointer',
+          },
         }}>
         <Box
           sx={{
