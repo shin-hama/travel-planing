@@ -81,7 +81,7 @@ const PrefectureSelector = () => {
         waypoints: [],
         routes: [],
       }
-      await createPlan(newPlan)
+      createPlan(newPlan)
 
       router.push('plan')
     },
