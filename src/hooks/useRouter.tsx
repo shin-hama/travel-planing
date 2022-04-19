@@ -16,6 +16,8 @@ export const useRouter = () => {
           } else {
             nextRouter.push(`/${user.uid}`)
           }
+        } else {
+          nextRouter.push('/')
         }
       },
       userPlan: (planId: string) => {
