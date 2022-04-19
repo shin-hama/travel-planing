@@ -10,14 +10,11 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
+import { useRouter } from 'hooks/useRouter'
 
-type Props = {
-  topLink: string
-}
-const Header: React.FC<Props> = ({ topLink }) => {
+const Header: React.FC = () => {
   const router = useRouter()
 
   const [user, auth] = useAuthentication()
@@ -32,7 +29,7 @@ const Header: React.FC<Props> = ({ topLink }) => {
   }
 
   const handleLogout = () => {
-    router.push('/')
+    router.userHome()
     auth.signOut()
     handleCloseUserMenu()
   }
@@ -41,7 +38,7 @@ const Header: React.FC<Props> = ({ topLink }) => {
     <>
       <AppBar color="inherit">
         <Toolbar variant="dense">
-          <Link href={topLink} passHref>
+          <Link href={router.home} passHref>
             <Typography
               component="h2"
               variant="h5"

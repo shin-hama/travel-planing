@@ -17,22 +17,48 @@ import PlanningLayout from 'components/layouts/PlaningLayout'
 import ScheduleViewer from 'components/layouts/ScheduleViewer'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useConfirm } from 'hooks/useConfirm'
+import { usePlans } from 'hooks/usePlan'
 import { useRouter } from 'hooks/useRouter'
 
 type Drawers = 'spots' | 'schedule'
 
-const FeaturedPlaces = () => {
+const PlanPage = () => {
   const router = useRouter()
+  const { userId, planId } = router.query
+  const { get: getPlan } = usePlans()
+
   const [plan, planApi] = useTravelPlan()
   const [open, setOpen] = React.useState<Drawers | null>(null)
   const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
   const confirm = useConfirm()
 
   React.useEffect(() => {
-    if (!plan) {
-      router.userHome(true)
+    const func = async () => {
+      console.log(planId)
+
+      if (typeof planId === 'string' && typeof userId === 'string') {
+        getPlan(userId, planId)
+          .then((target) => {
+            console.log(target)
+            if (!target) {
+              console.error(`Plan is not exist. ID: ${planId}`)
+              router.userHome(true)
+              return
+            }
+            planApi.set(planId, target)
+          })
+          .catch(() => {
+            router.userHome(true)
+          })
+      }
     }
-  }, [plan, router])
+
+    func()
+
+    return () => {
+      planApi.clear()
+    }
+  }, [planId, userId])
 
   const handleOpen = (mode: Drawers) => () => {
     setOpen(mode)
@@ -112,4 +138,4 @@ const FeaturedPlaces = () => {
   )
 }
 
-export default FeaturedPlaces
+export default PlanPage

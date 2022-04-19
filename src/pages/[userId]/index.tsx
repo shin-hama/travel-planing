@@ -8,7 +8,6 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import dayjs from 'dayjs'
-import { useRouter } from 'next/router'
 
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import PlansList from 'components/modules/PlansList'
@@ -17,9 +16,13 @@ import { PlanDB } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
 import { useConfirm } from 'hooks/useConfirm'
+import { useRouter } from 'hooks/useRouter'
+import { visuallyHidden } from '@mui/utils'
 
 const UserHome = () => {
   const router = useRouter()
+  const { userId } = router.query
+
   const [user] = useAuthentication()
   const actions = usePlans()
   const confirm = useConfirm()
@@ -27,14 +30,19 @@ const UserHome = () => {
   const [nextPlan, setNextPlan] = React.useState<PlanDB | null>(null)
 
   React.useEffect(() => {
-    if (user) {
-      actions.fetch().then((results) => {
+    if (typeof userId !== 'string') {
+      return
+    }
+
+    actions
+      .fetch(userId)
+      .then((results) => {
         setPlans(results || [])
       })
-    } else {
-      setPlans([])
-    }
-  }, [actions, user])
+      .catch(() => {
+        setPlans([])
+      })
+  }, [actions, userId])
 
   React.useEffect(() => {
     // 将来の旅行計画の中から、最も近い旅行を表示する
@@ -57,6 +65,16 @@ const UserHome = () => {
       } catch {}
     }
     router.push('new')
+  }
+
+  if (user?.uid !== userId) {
+    return (
+      <PlanningLayout>
+        <Box display="flex" justifyContent="center" py={5}>
+          <Typography>非公開リストです</Typography>
+        </Box>
+      </PlanningLayout>
+    )
   }
 
   return (
@@ -87,16 +105,18 @@ const UserHome = () => {
           </Box>
         )}
       </Container>
-      <Fab
-        onClick={handleClick}
-        color="primary"
-        sx={{
-          position: 'fixed',
-          right: 16,
-          bottom: 16,
-        }}>
-        <FontAwesomeIcon icon={faAdd} size="lg" />
-      </Fab>
+      <Box sx={user?.uid !== userId ? visuallyHidden : undefined}>
+        <Fab
+          onClick={handleClick}
+          color="primary"
+          sx={{
+            position: 'fixed',
+            right: 16,
+            bottom: 16,
+          }}>
+          <FontAwesomeIcon icon={faAdd} size="lg" />
+        </Fab>
+      </Box>
     </PlanningLayout>
   )
 }

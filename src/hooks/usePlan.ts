@@ -10,7 +10,6 @@ import {
   PLANING_USERS_PLANS_COLLECTIONS,
   useFirestore,
 } from './firebase/useFirestore'
-import { useAuthentication } from './firebase/useAuthentication'
 import { Plan, PlanDB } from 'contexts/CurrentPlanProvider'
 
 // Firestore data converter
@@ -44,31 +43,39 @@ const planConverter: FirestoreDataConverter<Plan> = {
 }
 
 export const usePlans = () => {
-  const [user] = useAuthentication()
   const db = useFirestore()
 
   const actions = React.useMemo(() => {
     const a = {
-      fetch: async (): Promise<Array<PlanDB>> => {
+      fetch: async (userId: string): Promise<Array<PlanDB>> => {
         try {
-          if (user) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            const results = await db.getDocuments(path, planConverter)
+          const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
+          const results = await db.getDocuments(path, planConverter)
 
-            return results.docs.map((result) => ({
-              id: result.id,
-              data: result.data(),
-            }))
-          }
+          return results.docs.map((result) => ({
+            id: result.id,
+            data: result.data(),
+          }))
         } catch (e) {
           console.error(e)
         }
         return []
       },
+      get: async (userId: string, planId: string) => {
+        try {
+          const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
+          const result = await db.get(path, planId, planConverter)
+
+          console.log(result.data())
+          return result.data()
+        } catch (e) {
+          console.error(e)
+        }
+      },
     }
 
     return a
-  }, [db, user])
+  }, [db])
 
   return actions
 }

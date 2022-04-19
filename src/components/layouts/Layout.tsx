@@ -6,7 +6,7 @@ import Header from 'components/modules/Header'
 const Layout: React.FC = ({ children }) => {
   return (
     <Box>
-      <Header topLink="/" />
+      <Header />
       {children}
     </Box>
   )

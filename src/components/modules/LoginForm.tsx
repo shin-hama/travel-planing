@@ -7,12 +7,12 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/router'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import GoogleIcon from 'icons/google.svg'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
+import { useRouter } from 'hooks/useRouter'
 
 type LoginFormInput = {
   email: string
@@ -42,7 +42,7 @@ const LoginForm: React.FC<Props> = ({ isSignUp = false }) => {
 
   React.useEffect(() => {
     if (user) {
-      router.replace('/home')
+      router.userHome()
     }
   }, [user, router])
 

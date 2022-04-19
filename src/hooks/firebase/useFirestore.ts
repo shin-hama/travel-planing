@@ -6,6 +6,7 @@ import {
   doc,
   DocumentData,
   FirestoreDataConverter,
+  getDoc,
   getDocs,
   setDoc,
   serverTimestamp,
@@ -101,11 +102,18 @@ export const useFirestore = () => {
           throw e
         }
       },
+      get: async <T>(
+        path: string,
+        id: string,
+        converter: FirestoreDataConverter<T>
+      ) => {
+        return getDoc(doc(db, path, id).withConverter(converter))
+      },
       getDocuments: async <T>(
         path: string,
         converter: FirestoreDataConverter<T>
       ) => {
-        return getDocs(collection(db, path).withConverter<T>(converter))
+        return getDocs(collection(db, path).withConverter(converter))
       },
     }
     return a
