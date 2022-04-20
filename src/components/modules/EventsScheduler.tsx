@@ -228,15 +228,7 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
   }
 
   const renderDayHeader = (props: DayHeaderContentArg) => {
-    const yesterday = dayjs()
-      .add(-1, 'day')
-      .hour(0)
-      .minute(0)
-      .second(0)
-      .millisecond(0)
-    const diff = dayjs(props.date).diff(yesterday, 'day')
-
-    return `Day ${diff}`
+    return dayjs(props.date).format('MM/DD (ddd)')
   }
 
   return (
