@@ -28,10 +28,10 @@ const Header: React.FC = () => {
     setAnchorEl(null)
   }
 
-  const handleLogout = () => {
-    router.userHome()
-    auth.signOut()
+  const handleLogout = async () => {
+    await auth.signOut()
     handleCloseUserMenu()
+    router.push('/')
   }
 
   return (
@@ -79,10 +79,9 @@ const Header: React.FC = () => {
               // Pre fetching user auth when user is undefined
               sx={{ display: user === undefined ? 'none' : 'block' }}>
               <Button
-                variant="outlined"
+                variant="text"
                 color="primary"
-                onClick={() => router.push('login')}
-                sx={{ display: ['none', 'inline-flex'] }}>
+                onClick={() => router.push('login')}>
                 Login
               </Button>
               <Button

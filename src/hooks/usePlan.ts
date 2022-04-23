@@ -66,7 +66,6 @@ export const usePlans = () => {
           const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
           const result = await db.get(path, planId, planConverter)
 
-          console.log(result.data())
           return result.data()
         } catch (e) {
           console.error(e)

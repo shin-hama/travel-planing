@@ -12,7 +12,10 @@ type Props = {
 }
 const LabeledIconButton: React.FC<Props> = ({ icon, label, onClick }) => {
   return (
-    <Button onClick={onClick}>
+    <Button
+      onClick={onClick}
+      // sx={{ color: (theme) => theme.palette.grey[500] }}
+      color="primary">
       <Stack alignItems="center">
         <FontAwesomeIcon icon={icon} size="2x" />
         <Typography variant="caption">{label}</Typography>

@@ -9,10 +9,18 @@ import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useConfirm } from 'hooks/useConfirm'
 import { useRouter } from 'hooks/useRouter'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
 const UserHome = () => {
+  const [user] = useAuthentication()
   const router = useRouter()
   const confirm = useConfirm()
+
+  React.useEffect(() => {
+    if (user) {
+      router.userHome(true)
+    }
+  }, [user, router])
 
   const handleClick = async () => {
     try {

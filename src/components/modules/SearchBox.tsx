@@ -60,14 +60,14 @@ const SearchBox = () => {
     <>
       <Box
         sx={{
-          backgroundColor: (theme) => theme.palette.primary.main,
+          backgroundColor: 'white',
           borderRadius: 2,
         }}>
         <IconButton
           disableTouchRipple
           onClick={handleOpen}
           sx={{ borderRadius: 2 }}>
-          <FontAwesomeIcon color="white" size="xs" icon={faSearch} />
+          <FontAwesomeIcon size="xs" icon={faSearch} />
         </IconButton>
       </Box>
       <Dialog
