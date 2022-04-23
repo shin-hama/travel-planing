@@ -60,7 +60,7 @@ const SearchBox = () => {
     <>
       <Box
         sx={{
-          backgroundColor: (theme) => theme.palette.primary.main,
+          backgroundColor: 'white',
           borderRadius: 2,
         }}>
         <IconButton

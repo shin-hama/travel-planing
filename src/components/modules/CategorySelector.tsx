@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
+import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Popper from '@mui/material/Popper'
 import Radio from '@mui/material/Radio'
@@ -66,15 +66,15 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
 
   return (
     <>
-      <Chip
-        label={`Category: ${label}`}
+      <Button
+        size="small"
+        variant="contained"
         onClick={handleClick}
-        color="primary"
+        color="inherit"
         sx={{
-          fontSize: 'large',
-          borderRadius: 2,
-        }}
-      />
+          color: 'black',
+          background: 'white',
+        }}>{`Category: ${label}`}</Button>
       <Popper
         id={id}
         open={open}

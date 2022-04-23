@@ -47,9 +47,8 @@ const MapToolbar = () => {
       <Stack
         direction="row"
         justifyContent="space-around"
-        alignItems="baseline"
-        sx={{ backgroundColor: (theme) => theme.palette.primary.main }}>
-        <Badge badgeContent={plan?.waypoints.length} color="secondary">
+        alignItems="baseline">
+        <Badge badgeContent={plan?.waypoints.length} color="primary">
           <LabeledIconButton
             onClick={handleOpen('spots')}
             icon={faLocationDot}

@@ -57,7 +57,10 @@ const SpotsByCategory: React.FC<Props> = ({
         <PlaceMarker
           key={item.place_id}
           placeId={item.place_id}
-          selected={!waypoints?.find((spot) => spot.placeId === item.place_id)}
+          selected={
+            waypoints?.find((spot) => spot.placeId === item.place_id) !==
+            undefined
+          }
           focused={item.place_id === focusedSpot}
           lat={item.lat}
           lng={item.lng}

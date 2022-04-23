@@ -4,14 +4,10 @@ const theme = createTheme({
   // TODO:テーマ設定を行う
   palette: {
     primary: {
-      main: '#ffd954',
-      light: '#ffea00',
-      dark: '#ffc300',
+      main: '#1792b1',
     },
     secondary: {
-      main: '#001d3d',
-      dark: '#000814',
-      light: '#003b7a',
+      main: '#02bceb',
     },
   },
   typography: {

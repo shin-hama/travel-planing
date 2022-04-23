@@ -80,9 +80,8 @@ const Header: React.FC = () => {
               sx={{ display: user === undefined ? 'none' : 'block' }}>
               <Button
                 variant="text"
-                color="secondary"
-                onClick={() => router.push('login')}
-                sx={{ display: ['none', 'inline-flex'] }}>
+                color="primary"
+                onClick={() => router.push('login')}>
                 Login
               </Button>
               <Button
