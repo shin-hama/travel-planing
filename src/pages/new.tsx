@@ -125,6 +125,7 @@ const PrefectureSelector = () => {
                   name="home"
                   render={({ field }) => (
                     <Button
+                      color="secondary"
                       variant="outlined"
                       onClick={async () => field.onChange(await handleClick())}>
                       {field.value?.name || 'Select'}
@@ -139,6 +140,7 @@ const PrefectureSelector = () => {
                   name="destination"
                   render={({ field }) => (
                     <Button
+                      color="secondary"
                       variant="outlined"
                       onClick={async () => field.onChange(await handleClick())}>
                       {field.value?.name || 'Select'}
@@ -156,6 +158,12 @@ const PrefectureSelector = () => {
                     inputFormat="YYYY/MM/DD"
                     mask={'____/__/__'}
                     value={field.value}
+                    okText={<Button variant="contained">OK</Button>}
+                    cancelText={
+                      <Typography variant="button" color="secondary">
+                        Cancel
+                      </Typography>
+                    }
                     onChange={(e) => field.onChange(dayjs(e).toDate())}
                     renderInput={(params) => <TextField {...params} />}
                   />

@@ -67,7 +67,7 @@ const SearchBox = () => {
           disableTouchRipple
           onClick={handleOpen}
           sx={{ borderRadius: 2 }}>
-          <FontAwesomeIcon color="white" size="xs" icon={faSearch} />
+          <FontAwesomeIcon size="xs" icon={faSearch} />
         </IconButton>
       </Box>
       <Dialog

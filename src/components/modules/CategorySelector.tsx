@@ -69,7 +69,7 @@ const CategorySelector: React.FC<Props> = ({ onChange: changedCallback }) => {
       <Chip
         label={`Category: ${label}`}
         onClick={handleClick}
-        color="info"
+        color="primary"
         sx={{
           fontSize: 'large',
           borderRadius: 2,

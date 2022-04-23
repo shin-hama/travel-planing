@@ -79,8 +79,8 @@ const Header: React.FC = () => {
               // Pre fetching user auth when user is undefined
               sx={{ display: user === undefined ? 'none' : 'block' }}>
               <Button
-                variant="outlined"
-                color="primary"
+                variant="text"
+                color="secondary"
                 onClick={() => router.push('login')}
                 sx={{ display: ['none', 'inline-flex'] }}>
                 Login

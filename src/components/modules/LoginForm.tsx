@@ -55,6 +55,7 @@ const LoginForm: React.FC<Props> = ({ isSignUp = false }) => {
         <Button
           id="sign-in-with-google"
           variant="outlined"
+          color="secondary"
           onClick={auth.signInWithGoogle}>
           <Icon fontSize="small" sx={{ mr: 2 }}>
             <GoogleIcon />
