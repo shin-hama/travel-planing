@@ -39,6 +39,15 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   const setPlaces = React.useContext(SetPlacesServiceContext)
 
+  React.useEffect(() => {
+    return () => {
+      setMapProps((prev) => ({
+        ...prev,
+        mounted: false,
+      }))
+    }
+  }, [setMapProps])
+
   /**
    * マップ操作が終了したタイミングで、center などのプロパティを更新する
    */
@@ -48,6 +57,7 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
         center: googleMap.getCenter() || prev.center,
         zoom: googleMap.getZoom() || prev.zoom,
         bounds: googleMap.getBounds() || prev.bounds,
+        mounted: true,
       }))
     }
   }
@@ -56,16 +66,10 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   // to eg. setup options or create latLng object, it won't be available otherwise
   // feel free to render directly if you don't need that
   const handleLoad = (mapInstance: google.maps.Map) => {
-    console.log('loaded')
     // do something with map Instance
     setDirectionService(new window.google.maps.DirectionsService())
     setDistanceMatrix(new window.google.maps.DistanceMatrixService())
     setPlaces(new window.google.maps.places.PlacesService(mapInstance))
-
-    setMapProps((prev) => ({
-      ...prev,
-      bounds: mapInstance.getBounds() || prev.bounds,
-    }))
 
     setGoogleMap(mapInstance)
     onLoad?.(mapInstance)
@@ -88,7 +92,6 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   }
 
   if (isLoaded === false) {
-    console.log('loading')
     return <>Now loading...</>
   }
 

@@ -25,6 +25,10 @@ const SpotsByCategory: React.FC<Props> = ({
   const [waypoints] = useWaypoints()
 
   React.useEffect(() => {
+    if (!mapProps.mounted) {
+      return
+    }
+
     const bounds = mapProps.bounds
     if (bounds && categoryId) {
       getSpots({
@@ -45,7 +49,7 @@ const SpotsByCategory: React.FC<Props> = ({
     }
     // マップが移動するたびに何度も Fetch することを防ぐため、bounds は依存に含めない
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId, getSpots])
+  }, [categoryId, getSpots, mapProps.mounted])
 
   return (
     <>

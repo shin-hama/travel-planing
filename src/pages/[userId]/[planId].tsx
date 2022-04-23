@@ -17,12 +17,9 @@ const PlanPage = () => {
 
   React.useEffect(() => {
     const func = async () => {
-      console.log(planId)
-
       if (typeof planId === 'string' && typeof userId === 'string') {
         getPlan(userId, planId)
           .then((target) => {
-            console.log(target)
             if (!target) {
               console.error(`Plan is not exist. ID: ${planId}`)
               router.userHome(true)

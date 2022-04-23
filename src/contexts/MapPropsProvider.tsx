@@ -6,6 +6,7 @@ type MapProps = {
   center: google.maps.LatLng | google.maps.LatLngLiteral
   zoom: number
   bounds: google.maps.LatLngBounds | null
+  mounted: boolean
 }
 export const MapPropsContext = React.createContext<MapProps | null>(null)
 export const SetMapPropsContext = React.createContext<
@@ -19,6 +20,7 @@ export const MapPropsProvider: React.FC = ({ children }) => {
     center: DEFAULT_CENTER,
     zoom: 4,
     bounds: null,
+    mounted: false,
   })
 
   return (
