@@ -28,10 +28,10 @@ const Header: React.FC = () => {
     setAnchorEl(null)
   }
 
-  const handleLogout = () => {
-    router.userHome()
-    auth.signOut()
+  const handleLogout = async () => {
+    await auth.signOut()
     handleCloseUserMenu()
+    router.push('/')
   }
 
   return (
