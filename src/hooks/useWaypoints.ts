@@ -4,7 +4,7 @@ import {
   CurrentPlanContext,
   Plan,
   SetCurrentPlanContext,
-  SpotDTO,
+  Spot,
 } from 'contexts/CurrentPlanProvider'
 
 export const useWaypoints = () => {
@@ -15,7 +15,7 @@ export const useWaypoints = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      add: (newSpot: SpotDTO) => {
+      add: (newSpot: Spot) => {
         if (planRef.current) {
           setPlan({
             type: 'update',
@@ -27,13 +27,13 @@ export const useWaypoints = () => {
           console.error('fail to update waypoints')
         }
       },
-      remove: (placeId: string) => {
+      remove: (id: string) => {
         if (planRef.current) {
           setPlan({
             type: 'update',
             value: {
               waypoints: planRef.current.waypoints.filter(
-                (item) => item.placeId !== placeId
+                (item) => item.id !== id
               ),
             },
           })
@@ -66,7 +66,7 @@ export const useWaypoints = () => {
           )
         }
       },
-      insert: (index: number, newSpot: SpotDTO) => {
+      insert: (index: number, newSpot: Spot) => {
         if (!planRef.current) {
           console.error('plan is not selected')
           return
@@ -83,21 +83,19 @@ export const useWaypoints = () => {
           value: { waypoints: newWaypoints },
         })
       },
-      move: (placeId: string, index: number) => {
+      move: (id: string, index: number) => {
         if (!planRef.current) {
           return
         }
 
         const waypoints = planRef.current.waypoints.slice()
-        const currentIndex = waypoints.findIndex(
-          (spot) => spot.placeId === placeId
-        )
+        const currentIndex = waypoints.findIndex((spot) => spot.id === id)
 
         waypoints.splice(index, 0, waypoints.splice(currentIndex, 1)[0])
 
         setPlan({ type: 'update', value: { waypoints } })
       },
-      update: (placeId: string, updatedSpot: Partial<SpotDTO>) => {
+      update: (id: string, updatedSpot: Partial<Spot>) => {
         if (!planRef.current) {
           console.error('plan is not selected')
           return
@@ -105,7 +103,7 @@ export const useWaypoints = () => {
 
         // 対象の Waypoint を更新した新しいリストを作成する
         const newWaypoints = planRef.current.waypoints.map((spot) =>
-          spot.placeId === placeId ? { ...spot, ...updatedSpot } : spot
+          spot.id === id ? { ...spot, ...updatedSpot } : spot
         )
 
         setPlan({ type: 'update', value: { waypoints: newWaypoints } })

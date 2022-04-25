@@ -20,9 +20,7 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
       if (waypoints) {
         console.log(`move ${mode}`)
 
-        const index = waypoints.findIndex(
-          (spot) => spot.placeId === event.extendedProps.placeId
-        )
+        const index = waypoints.findIndex((spot) => spot.id === event.id)
         if (index !== -1) {
           const target = mode === 'up' ? index - 1 : index + 1
 
@@ -32,20 +30,18 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
         }
       }
     },
-    [event.extendedProps.placeId, waypoints, waypointsApi]
+    [event.id, waypoints, waypointsApi]
   )
 
   const handleRemove = React.useCallback(() => {
-    waypointsApi.remove(event.extendedProps.placeId)
-  }, [event.extendedProps.placeId, waypointsApi])
+    waypointsApi.remove(event.id)
+  }, [event.id, waypointsApi])
 
   const handleClick = () => {
     if (event.id === 'start' || event.id === 'end') {
       return
     }
-    if (
-      waypoints?.find((spot) => spot.placeId === event.extendedProps.placeId)
-    ) {
+    if (waypoints?.find((spot) => spot.id === event.id)) {
       setSelected(true)
     }
   }

@@ -19,15 +19,18 @@ export type Prefecture = {
   imageUrl: string
 }
 
-export type SpotDTO = {
+export type Spot = {
+  id: string
   imageUrl: string
-  placeId: string
+  placeId?: string | null
   name: string
   duration: number
   durationUnit: dayjs.ManipulateType
+  lat: number
+  lng: number
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isSpotDTO = (obj: any): obj is SpotDTO => {
+export const isSpotDTO = (obj: any): obj is Spot => {
   return (
     obj &&
     typeof obj === 'object' &&
@@ -53,14 +56,12 @@ export const isRoute = (obj: any): obj is Route => {
     typeof obj.to === 'string'
   )
 }
-export type Spot = {
+export type SpotProps = Pick<Spot, 'placeId' | 'imageUrl'> & {
   type: 'spot'
-  placeId: string
-  imageUrl: string
   from: string | null
   to: string | null
 }
-export type Move = {
+export type MoveProps = {
   type: 'move'
   from: string
   to: string
@@ -74,10 +75,10 @@ export type EventBase = CustomEventInput & {
   end: Date
 }
 export type SpotEvent = EventBase & {
-  extendedProps: Spot
+  extendedProps: SpotProps
 }
 export type MoveEvent = EventBase & {
-  extendedProps: Move
+  extendedProps: MoveProps
 }
 
 export type ScheduleEvent = SpotEvent | MoveEvent
@@ -89,7 +90,7 @@ export type Plan = {
   start: Date
   startTime: Date
   end: Date
-  waypoints: Array<SpotDTO>
+  waypoints: Array<Spot>
   routes: Array<Route>
   events?: Array<ScheduleEvent>
 }
@@ -168,7 +169,7 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
         return
       }
 
-      const spots: Array<SpotDTO> = [
+      const spots: Array<Spot> = [
         { ...plan.home, duration: 30, durationUnit: 'minute' },
         ...plan.waypoints,
         { ...plan.home, duration: 30, durationUnit: 'minute' },
@@ -180,12 +181,15 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
             return null
           }
 
-          const origin = { placeId: spot.placeId }
-          const destination = { placeId: spots[i + 1].placeId }
+          const origin = { lat: spot.lat, lng: spot.lng, id: spot.id }
+          const destination = {
+            lat: spots[i + 1].lat,
+            lng: spots[i + 1].lng,
+            id: spots[i + 1].id,
+          }
 
           const routeCache = plan.routes.find(
-            (route) =>
-              route.from === origin.placeId && route.to === destination.placeId
+            (route) => route.from === origin.id && route.to === destination.id
           )
           if (routeCache) {
             // 計算済みの値があればそれを再利用する
@@ -202,8 +206,8 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
           })
 
           return {
-            from: origin.placeId,
-            to: destination.placeId,
+            from: origin.id,
+            to: destination.id,
             duration: result.routes[0].legs[0].duration?.value || 0,
             durationUnit: 'second',
             mode: 'car',

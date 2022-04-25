@@ -5,7 +5,7 @@ import {
   Plan,
   Route,
   SetCurrentPlanContext,
-  SpotDTO,
+  Spot,
 } from 'contexts/CurrentPlanProvider'
 import { useDirections } from './googlemaps/useDirections'
 import {
@@ -101,7 +101,10 @@ export const useTravelPlan = () => {
           },
           waypoints: planRef.current.waypoints.map((spot) => ({
             location: {
-              placeId: spot.placeId,
+              location: {
+                lat: spot.lat,
+                lng: spot.lng,
+              },
             },
           })),
           travelMode: google.maps.TravelMode.DRIVING,
@@ -111,9 +114,9 @@ export const useTravelPlan = () => {
         if (routeResult) {
           const orderedWaypoints = routeResult.waypoint_order
             .map((i) => planRef.current?.waypoints[i] || null)
-            .filter((item): item is SpotDTO => item !== null)
+            .filter((item): item is Spot => item !== null)
 
-          const newSpots: Array<SpotDTO> = [
+          const newSpots: Array<Spot> = [
             { ...planRef.current.home, duration: 30, durationUnit: 'minute' },
             ...orderedWaypoints,
             { ...planRef.current.home, duration: 30, durationUnit: 'minute' },
@@ -124,8 +127,8 @@ export const useTravelPlan = () => {
                 return null
               }
               return {
-                from: spot.placeId,
-                to: newSpots[index + 1].placeId,
+                from: spot.id,
+                to: newSpots[index + 1].id,
                 duration: routeResult.legs[index].duration?.value || 0,
                 durationUnit: 'second',
                 mode: 'car',

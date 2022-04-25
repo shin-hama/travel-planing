@@ -7,7 +7,7 @@ import {
   isRoute,
   isSpotDTO,
   ScheduleEvent,
-  SpotDTO,
+  Spot,
 } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
 
@@ -46,7 +46,7 @@ export const useScheduleEvents = () => {
     }
     let startTime = dayjs(plan.startTime)
 
-    const spots: Array<SpotDTO> = [
+    const spots: Array<Spot> = [
       { ...plan.home, duration: 30, durationUnit: 'minute' },
       ...plan.waypoints,
       { ...plan.home, duration: 30, durationUnit: 'minute' },
@@ -89,6 +89,7 @@ export const useScheduleEvents = () => {
             const end = startTime.toDate()
 
             return buildSpotEvent({
+              id: item.id,
               title: item.name,
               start,
               end,
