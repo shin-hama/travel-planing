@@ -3,6 +3,7 @@ import {
   GoogleMap as GoogleMapLib,
   useLoadScript,
 } from '@react-google-maps/api'
+import { useLongPress } from 'react-use'
 
 import { googleMapConfigs } from 'configs'
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
@@ -75,6 +76,19 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     onLoad?.(mapInstance)
   }
 
+  const onLongPress = (e: google.maps.MapMouseEvent) => {
+    console.log(e)
+  }
+
+  const defaultOptions = {
+    isPreventDefault: true,
+    delay: 600,
+  }
+  // Google Map API 用のイベントに対応できていない、とりあえず握りつぶす
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const longPressEvent = useLongPress(onLongPress, defaultOptions)
+
   React.useEffect(() => {
     // 選択しているプランの目的地を中心にする
     if (plan?.destination) {
@@ -107,6 +121,7 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
       }}
       center={mapProps.center}
       zoom={mapProps.zoom}
+      {...longPressEvent}
       onIdle={handleIdled}
       onLoad={handleLoad}>
       {/* Child components, such as markers, info windows, etc. */}
