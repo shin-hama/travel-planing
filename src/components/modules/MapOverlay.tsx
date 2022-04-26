@@ -69,7 +69,7 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnyPlace }) => {
               maxHeight: '150px',
             }}>
             {focusedSpot.placeId ? (
-              <SpotCard spot={focusedSpot} />
+              <SpotCard spot={{ ...focusedSpot, id: focusedSpot.placeId }} />
             ) : (
               <AnySpotCard lat={focusedSpot.lat} lng={focusedSpot.lng} />
             )}

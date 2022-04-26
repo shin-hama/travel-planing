@@ -13,7 +13,9 @@ import AddSpotButton from './AddSpotButton'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
 
-export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'>
+export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
+  id?: string | null
+}
 
 type Props = {
   spot: SpotDTO

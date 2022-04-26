@@ -14,6 +14,7 @@ type Props = {
   onClose: () => void
 }
 const SpotsCandidates: React.FC<Props> = ({ open, spots, onOpen, onClose }) => {
+  console.log(spots)
   return (
     <>
       <SwipeableDrawer

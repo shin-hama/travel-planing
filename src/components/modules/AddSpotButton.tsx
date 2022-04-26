@@ -6,7 +6,7 @@ import { useWaypoints } from 'hooks/useWaypoints'
 import { Spot } from 'contexts/CurrentPlanProvider'
 
 type Props = {
-  newSpot: Omit<Spot, 'id'> & { id?: string }
+  newSpot: Omit<Spot, 'id'> & { id?: string | null }
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
@@ -18,7 +18,7 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
     if (selected) {
       actions.remove(selected.id)
     } else {
-      actions.add({ ...newSpot, id: uuidv4() })
+      actions.add({ ...newSpot, id: newSpot.id || uuidv4() })
     }
   }
 
