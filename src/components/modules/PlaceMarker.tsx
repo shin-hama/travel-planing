@@ -2,15 +2,19 @@ import React from 'react'
 import { useTheme } from '@mui/material/styles'
 import { Marker } from '@react-google-maps/api'
 
+import { SpotDTO } from './SpotCard'
+
 type Props = {
+  name: string
   placeId: string
   focused: boolean
   selected: boolean
   lat: number
   lng: number
-  onClick: (placeId: string) => void
+  onClick: (spot: SpotDTO) => void
 }
 const PlaceMarker: React.FC<Props> = ({
+  name,
   placeId,
   focused,
   selected,
@@ -20,7 +24,12 @@ const PlaceMarker: React.FC<Props> = ({
 }) => {
   const theme = useTheme()
   const handleClick = () => {
-    onClick(placeId)
+    onClick({
+      name,
+      placeId,
+      lat,
+      lng,
+    })
   }
   return (
     <Marker

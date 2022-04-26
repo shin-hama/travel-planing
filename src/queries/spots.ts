@@ -55,6 +55,8 @@ export const GET_SPOTS_WITH_MATCHING_NAME = gql`
     spots(limit: 10, where: { name: { _regex: $name } }) {
       name
       place_id
+      lng
+      lat
     }
   }
 `

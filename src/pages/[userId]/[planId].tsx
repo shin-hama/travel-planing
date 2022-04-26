@@ -38,6 +38,7 @@ const PlanPage = () => {
     return () => {
       planApi.clear()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planId, userId])
 
   if (!plan) {

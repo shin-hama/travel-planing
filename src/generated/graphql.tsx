@@ -75,13 +75,7 @@ export type String_Comparison_Exp = {
   _similar?: InputMaybe<Scalars['String']>;
 };
 
-/**
- * Spot Type を分類するためのカテゴリー
- *
- *
- * columns and relationships of "categories"
- *
- */
+/** Spot Type を分類するためのカテゴリー */
 export type Categories = {
   __typename?: 'categories';
   /** An array relationship */
@@ -93,13 +87,7 @@ export type Categories = {
 };
 
 
-/**
- * Spot Type を分類するためのカテゴリー
- *
- *
- * columns and relationships of "categories"
- *
- */
+/** Spot Type を分類するためのカテゴリー */
 export type CategoriesCategory_TypesArgs = {
   distinct_on?: InputMaybe<Array<Category_Type_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -192,13 +180,7 @@ export enum Categories_Update_Column {
   Name = 'name'
 }
 
-/**
- * Category - Type 間の中間テーブル
- *
- *
- * columns and relationships of "category_type"
- *
- */
+/** Category - Type 間の中間テーブル */
 export type Category_Type = {
   __typename?: 'category_type';
   /** An object relationship */
@@ -717,13 +699,7 @@ export enum Order_By {
   DescNullsLast = 'desc_nulls_last'
 }
 
-/**
- * 都道府県の一覧
- *
- *
- * columns and relationships of "prefectures"
- *
- */
+/** 都道府県の一覧 */
 export type Prefectures = {
   __typename?: 'prefectures';
   code: Scalars['Int'];
@@ -740,13 +716,7 @@ export type Prefectures = {
 };
 
 
-/**
- * 都道府県の一覧
- *
- *
- * columns and relationships of "prefectures"
- *
- */
+/** 都道府県の一覧 */
 export type PrefecturesSpotsArgs = {
   distinct_on?: InputMaybe<Array<Spots_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -1005,13 +975,7 @@ export type Query_RootTypes_By_PkArgs = {
   id: Scalars['Int'];
 };
 
-/**
- * spots テーブルと types テーブルの中間テーブル
- *
- *
- * columns and relationships of "spot_type"
- *
- */
+/** spots テーブルと types テーブルの中間テーブル */
 export type Spot_Type = {
   __typename?: 'spot_type';
   /** An object relationship */
@@ -1178,13 +1142,7 @@ export type Spot_Type_Variance_Order_By = {
   type_id?: InputMaybe<Order_By>;
 };
 
-/**
- * マーカーとして表示する観光スポット
- *
- *
- * columns and relationships of "spots"
- *
- */
+/** マーカーとして表示する観光スポット */
 export type Spots = {
   __typename?: 'spots';
   created_at: Scalars['timestamptz'];
@@ -1201,13 +1159,7 @@ export type Spots = {
 };
 
 
-/**
- * マーカーとして表示する観光スポット
- *
- *
- * columns and relationships of "spots"
- *
- */
+/** マーカーとして表示する観光スポット */
 export type SpotsSpots_TypesArgs = {
   distinct_on?: InputMaybe<Array<Spot_Type_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -1562,13 +1514,7 @@ export type Timestamptz_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars['timestamptz']>>;
 };
 
-/**
- * Spot のタイプを定義
- *
- *
- * columns and relationships of "types"
- *
- */
+/** Spot のタイプを定義 */
 export type Types = {
   __typename?: 'types';
   /** An array relationship */
@@ -1582,13 +1528,7 @@ export type Types = {
 };
 
 
-/**
- * Spot のタイプを定義
- *
- *
- * columns and relationships of "types"
- *
- */
+/** Spot のタイプを定義 */
 export type TypesCategory_TypesArgs = {
   distinct_on?: InputMaybe<Array<Category_Type_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -1598,13 +1538,7 @@ export type TypesCategory_TypesArgs = {
 };
 
 
-/**
- * Spot のタイプを定義
- *
- *
- * columns and relationships of "types"
- *
- */
+/** Spot のタイプを定義 */
 export type TypesSpots_TypesArgs = {
   distinct_on?: InputMaybe<Array<Spot_Type_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -1735,7 +1669,7 @@ export type GetSpotsWithMatchingNameQueryVariables = Exact<{
 }>;
 
 
-export type GetSpotsWithMatchingNameQuery = { __typename?: 'query_root', spots: Array<{ __typename?: 'spots', name: string, place_id: string }> };
+export type GetSpotsWithMatchingNameQuery = { __typename?: 'query_root', spots: Array<{ __typename?: 'spots', name: string, place_id: string, lng: number, lat: number }> };
 
 export type GetTypesByCategoryQueryVariables = Exact<{
   category_id: Scalars['Int'];
@@ -1919,6 +1853,8 @@ export const GetSpotsWithMatchingNameDocument = gql`
   spots(limit: 10, where: {name: {_regex: $name}}) {
     name
     place_id
+    lng
+    lat
   }
 }
     `;

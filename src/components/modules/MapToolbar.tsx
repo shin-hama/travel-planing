@@ -68,7 +68,7 @@ const MapToolbar = () => {
       </Stack>
       <SpotsCandidates
         open={open === 'spots'}
-        placeIds={plan?.waypoints.map((spot) => spot.placeId) || []}
+        spots={plan?.waypoints || []}
         onOpen={() => handleOpen('spots')}
         onClose={handleClose}
       />

@@ -8,11 +8,12 @@ import {
 import PlaceMarker from './PlaceMarker'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useWaypoints } from 'hooks/useWaypoints'
+import type { SpotDTO } from './SpotCard'
 
 type Props = {
   categoryId: number | null
-  focusedSpot: string
-  onClick: (placeId: string) => void
+  focusedSpot: SpotDTO | null
+  onClick: (placeId: SpotDTO) => void
 }
 const SpotsByCategory: React.FC<Props> = ({
   categoryId,
@@ -56,12 +57,13 @@ const SpotsByCategory: React.FC<Props> = ({
       {spots.map((item) => (
         <PlaceMarker
           key={item.place_id}
+          name={item.name}
           placeId={item.place_id}
           selected={
             waypoints?.find((spot) => spot.placeId === item.place_id) !==
             undefined
           }
-          focused={item.place_id === focusedSpot}
+          focused={item.place_id === focusedSpot?.placeId}
           lat={item.lat}
           lng={item.lng}
           onClick={onClick}

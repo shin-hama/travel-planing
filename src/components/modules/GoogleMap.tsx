@@ -20,10 +20,12 @@ const libs: 'places'[] = ['places']
 
 type Props = {
   onLoad?: (map: google.maps.Map) => void
+  onClick: (e?: google.maps.MapMouseEvent) => void
 }
 const GoogleMap: React.FC<Props> = React.memo(function Map({
   children,
   onLoad,
+  onClick,
 }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: googleMapConfigs.apiKey,
@@ -107,9 +109,10 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
       }}
       center={mapProps.center}
       zoom={mapProps.zoom}
+      onDragStart={() => onClick()}
+      onClick={onClick}
       onIdle={handleIdled}
       onLoad={handleLoad}>
-      {/* Child components, such as markers, info windows, etc. */}
       {children}
     </GoogleMapLib>
   )

@@ -160,20 +160,14 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
               // 移動したイベントよりも前のイベントでフィルター
               dayjs(e.event.start).diff(event.start) > 0
           )
-          .filter((spotEvent) =>
-            // waypoints に含まれているものだけでフィルター(Home スポットを除外)
-            waypoints
-              .map((spot) => spot.placeId)
-              .includes(spotEvent.extendedProps.placeId)
-          )
           .sort((a, b) => dayjs(b.start).diff(a.start)) // 開始日の降順に並び替え
 
         const prevIndex = waypoints?.findIndex(
-          (spot) => spot.placeId === prevSpots[0].extendedProps.placeId
+          (spot) => spot.id === prevSpots[0].id
         )
 
         waypointsApi.move(
-          droppedEvent.extendedProps.placeId,
+          droppedEvent.id,
           prevIndex !== -1 ? prevIndex : 0 // 移動した先にイベントがない場合は、最初に挿入する
         )
       } else {
@@ -198,13 +192,13 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
       throw new Error('Cannot find resized event')
     }
 
-    await planApi.update({
+    planApi.update({
       startTime: dayjs(plan.startTime)
         .add(e.startDelta.milliseconds, 'millisecond')
         .toDate(),
     })
 
-    waypointsApi.update(resizedEvent.extendedProps.placeId, {
+    waypointsApi.update(resizedEvent.id, {
       duration: dayjs(e.event.end).diff(e.event.start, 'minute'),
       durationUnit: 'minute',
     })
@@ -216,6 +210,7 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
       if (!event) {
         return
       }
+
       return <SpotEventCard event={event} />
     } else if (eventInfo.event.extendedProps.type === 'move') {
       const event = eventsApi.get<MoveEvent>(eventInfo.event.id, 'move')

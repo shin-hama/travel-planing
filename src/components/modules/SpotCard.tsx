@@ -1,5 +1,4 @@
 import * as React from 'react'
-import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
@@ -10,40 +9,18 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 
-import { useGetSpotByPkLazyQuery } from 'generated/graphql'
+import AddSpotButton from './AddSpotButton'
+import { Spot } from 'contexts/CurrentPlanProvider'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
-import { useWaypoints } from 'hooks/useWaypoints'
-import { SpotDTO } from 'contexts/CurrentPlanProvider'
 
-type ButtonProps = {
-  spotDTO: SpotDTO
-}
-const SelectButton: React.FC<ButtonProps> = ({ spotDTO }) => {
-  const [waypoints, actions] = useWaypoints()
-
-  const selected = waypoints?.find((item) => item.placeId === spotDTO.placeId)
-
-  const handleClick = () => {
-    if (selected) {
-      actions.remove(spotDTO.placeId)
-    } else {
-      actions.add(spotDTO)
-    }
-  }
-
-  return (
-    <Button variant="contained" size="small" onClick={handleClick}>
-      {selected ? 'Remove' : 'Add'}
-    </Button>
-  )
+export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
+  id?: string | null
 }
 
 type Props = {
-  placeId: string
+  spot: SpotDTO
 }
-const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
-  const [getSpot, { data, loading, error }] = useGetSpotByPkLazyQuery()
-  const [subtitle, setSubtitle] = React.useState('')
+const SpotCard: React.FC<Props> = React.memo(function SpotCard({ spot }) {
   const placesService = usePlaces()
   const [photos, setPhotos] = React.useState<Array<string>>([])
 
@@ -51,22 +28,6 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
   React.useEffect(() => {
     countRef.current = 0
   }, [])
-
-  React.useEffect(() => {
-    const func = async () => {
-      const result = await getSpot({ variables: { place_id: placeId } })
-
-      const categories = result.data?.spots_by_pk?.spots_types
-        .map((types) => {
-          return types.type.category_types.map((cate) => cate.category.name)
-        })
-        .flat()
-
-      // 重複を削除して表示
-      setSubtitle([...new Set(categories)].join(', '))
-    }
-    func()
-  }, [getSpot, placeId])
 
   React.useEffect(() => {
     if (!placesService.isLoaded) {
@@ -77,70 +38,58 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ placeId }) {
     }
     countRef.current += 1
 
-    placesService.getPhotos(placeId).then((results) => {
-      setPhotos(results)
-    })
+    if (spot.placeId) {
+      placesService.getPhotos(spot.placeId).then((results) => {
+        setPhotos(results)
+      })
+    }
 
     return () => {
       setPhotos([])
     }
-  }, [placeId, placesService])
-
-  if (error) {
-    return <Card>Error</Card>
-  }
+  }, [spot.placeId, placesService])
 
   return (
     <Card>
-      {loading ? (
-        <>Now loading...</>
-      ) : data?.spots_by_pk ? (
-        <Grid container>
-          <Grid item xs={8}>
-            <CardContent sx={{ pb: 1 }}>
-              <Typography variant="h6" noWrap>
-                {data.spots_by_pk.name}
-              </Typography>
-              <Typography variant="subtitle2" noWrap>
-                {subtitle}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <IconButton
-                href={`https://www.instagram.com/explore/tags/${data.spots_by_pk.name}`}
-                target="_blank"
-                rel="noopener noreferrer">
-                <FontAwesomeIcon icon={faInstagram} />
-              </IconButton>
-              <div style={{ marginLeft: 'auto' }}>
-                <SelectButton
-                  spotDTO={{
-                    name: data.spots_by_pk.name,
-                    placeId: data.spots_by_pk.place_id,
-                    imageUrl: photos[0] || '',
-                    duration: 60,
-                    durationUnit: 'minute',
-                  }}
-                />
-              </div>
-            </CardActions>
-          </Grid>
-          <Grid item xs={4}>
-            {photos.length > 0 && (
-              <CardMedia
-                component="img"
-                image={photos[0]}
-                sx={{
-                  aspectRatio: '1/1',
-                  objectFit: 'cover',
+      <Grid container>
+        <Grid item xs={8}>
+          <CardContent sx={{ pb: 1 }}>
+            <Typography variant="h6" noWrap>
+              {spot.name}
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <IconButton
+              href={`https://www.instagram.com/explore/tags/${spot.name}`}
+              target="_blank"
+              rel="noopener noreferrer">
+              <FontAwesomeIcon icon={faInstagram} />
+            </IconButton>
+            <div style={{ marginLeft: 'auto' }}>
+              <AddSpotButton
+                newSpot={{
+                  ...spot,
+                  imageUrl: photos[0] || '',
+                  duration: 60,
+                  durationUnit: 'minute',
                 }}
               />
-            )}
-          </Grid>
+            </div>
+          </CardActions>
         </Grid>
-      ) : (
-        <>No data</>
-      )}
+        <Grid item xs={4}>
+          {photos.length > 0 && (
+            <CardMedia
+              component="img"
+              image={photos[0]}
+              sx={{
+                aspectRatio: '1/1',
+                objectFit: 'cover',
+              }}
+            />
+          )}
+        </Grid>
+      </Grid>
     </Card>
   )
 })

@@ -13,6 +13,7 @@ import { faClose, faSearch } from '@fortawesome/free-solid-svg-icons'
 
 import { useGetSpotsWithMatchingNameLazyQuery } from 'generated/graphql'
 import SpotsList from './SpotsList'
+import type { SpotDTO } from './SpotCard'
 
 const SearchBox = () => {
   const [open, setOpen] = React.useState(false)
@@ -22,7 +23,7 @@ const SearchBox = () => {
   const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
 
   const [getSpots, { loading, error }] = useGetSpotsWithMatchingNameLazyQuery()
-  const [searchedSpots, setSearchedSpots] = React.useState<Array<string>>([])
+  const [searchedSpots, setSearchedSpots] = React.useState<Array<SpotDTO>>([])
 
   const handleOpen = () => {
     setOpen(true)
@@ -50,9 +51,7 @@ const SearchBox = () => {
     // 連続入力中に検索用の API が連続で呼ばれないようにする
     timerRef.current = setTimeout(async () => {
       const { data } = await getSpots({ variables: { name: `.*${text}.*` } })
-      if (data) {
-        setSearchedSpots(data.spots.map((spot) => spot.place_id))
-      }
+      setSearchedSpots(data?.spots || [])
     }, 500)
   }, [getSpots, text])
 
