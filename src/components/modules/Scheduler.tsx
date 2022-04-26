@@ -96,7 +96,7 @@ type Props = {
   plan: Plan
   planApi: PlanAPI
 }
-const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
+const Scheduler: React.FC<Props> = ({ plan, planApi }) => {
   const calendar = React.useRef<FullCalendar>(null)
   const [events, eventsApi] = useScheduleEvents()
   const [waypoints, waypointsApi] = useWaypoints()
@@ -287,4 +287,4 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
   )
 }
 
-export default EventsScheduler
+export default Scheduler
