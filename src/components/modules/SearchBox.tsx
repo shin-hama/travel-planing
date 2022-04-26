@@ -51,7 +51,7 @@ const SearchBox = () => {
     // 連続入力中に検索用の API が連続で呼ばれないようにする
     timerRef.current = setTimeout(async () => {
       const { data } = await getSpots({ variables: { name: `.*${text}.*` } })
-      setSearchedSpots(data || [])
+      setSearchedSpots(data?.spots || [])
     }, 500)
   }, [getSpots, text])
 
