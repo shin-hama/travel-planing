@@ -4,6 +4,7 @@ import {
   useLoadScript,
   Marker,
 } from '@react-google-maps/api'
+import Box from '@mui/material/Box'
 
 import { googleMapConfigs } from 'configs'
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
@@ -128,7 +129,19 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
       {anySpot && (
         <>
           <Marker position={anySpot} />
-          <AnySpotCard lat={anySpot.lat()} lng={anySpot.lng()} />
+          <Box
+            sx={{
+              zIndex: 10,
+              position: 'absolute',
+              bottom: 25,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '90%',
+              maxWidth: '400px',
+              maxHeight: '150px',
+            }}>
+            <AnySpotCard lat={anySpot.lat()} lng={anySpot.lng()} />
+          </Box>
         </>
       )}
     </GoogleMapLib>

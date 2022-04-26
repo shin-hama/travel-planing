@@ -12,13 +12,15 @@ type Props = {
 }
 const AnySpotCard: React.FC<Props> = ({ lat, lng }) => {
   const [name, setName] = React.useState('')
+
   return (
-    <Card>
+    <Card sx={{ zIndex: 100 }}>
       <CardContent sx={{ pb: 1 }}>
         <Typography variant="h6" noWrap>
           New Spot
         </Typography>
         <TextField
+          fullWidth
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={'Enter New Spot Name'}
@@ -27,7 +29,7 @@ const AnySpotCard: React.FC<Props> = ({ lat, lng }) => {
       <CardActions>
         <div style={{ marginLeft: 'auto' }}>
           <AddSpotButton
-            disabled={!name}
+            disabled={!name.trim()}
             newSpot={{
               name: name,
               placeId: null,

@@ -210,6 +210,7 @@ const EventsScheduler: React.FC<Props> = ({ plan, planApi }) => {
       if (!event) {
         return
       }
+
       return <SpotEventCard event={event} />
     } else if (eventInfo.event.extendedProps.type === 'move') {
       const event = eventsApi.get<MoveEvent>(eventInfo.event.id, 'move')

@@ -36,8 +36,9 @@ export const isSpotDTO = (obj: any): obj is Spot => {
     obj &&
     typeof obj === 'object' &&
     typeof obj.imageUrl === 'string' &&
-    typeof obj.placeId === 'string' &&
-    typeof obj.name === 'string'
+    typeof obj.name === 'string' &&
+    typeof obj.lat === 'number' &&
+    typeof obj.lng === 'number'
   )
 }
 export type Route = {

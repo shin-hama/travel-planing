@@ -64,7 +64,10 @@ const SpotEventCard: React.FC<Props> = ({ event }) => {
           sx={{
             height: '100%',
             gridArea: '1/-1',
-            backgroundImage: `url(${event.extendedProps.imageUrl})`,
+            background: (theme) =>
+              event.extendedProps.imageUrl
+                ? `url(${event.extendedProps.imageUrl})`
+                : theme.palette.primary.light,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
