@@ -27,6 +27,7 @@ const AnySpotCard: React.FC<Props> = ({ lat, lng }) => {
       <CardActions>
         <div style={{ marginLeft: 'auto' }}>
           <AddSpotButton
+            disabled={!name}
             newSpot={{
               name: name,
               placeId: null,

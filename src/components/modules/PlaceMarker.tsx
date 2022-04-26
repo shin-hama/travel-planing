@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTheme } from '@mui/material/styles'
 import { Marker } from '@react-google-maps/api'
+
 import { SpotDTO } from './SpotCard'
 
 type Props = {

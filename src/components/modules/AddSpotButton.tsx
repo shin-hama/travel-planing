@@ -7,8 +7,9 @@ import { Spot } from 'contexts/CurrentPlanProvider'
 
 type Props = {
   newSpot: Omit<Spot, 'id'>
+  disabled?: boolean
 }
-const AddSpotButton: React.FC<Props> = ({ newSpot }) => {
+const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   const [waypoints, actions] = useWaypoints()
 
   const selected = waypoints?.find(
@@ -24,7 +25,11 @@ const AddSpotButton: React.FC<Props> = ({ newSpot }) => {
   }
 
   return (
-    <Button variant="contained" size="small" onClick={handleClick}>
+    <Button
+      disabled={disabled}
+      variant="contained"
+      size="small"
+      onClick={handleClick}>
       {selected ? 'Remove' : 'Add'}
     </Button>
   )

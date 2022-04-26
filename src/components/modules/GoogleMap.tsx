@@ -2,8 +2,8 @@ import React from 'react'
 import {
   GoogleMap as GoogleMapLib,
   useLoadScript,
+  Marker,
 } from '@react-google-maps/api'
-import { useLongPress } from 'react-use'
 
 import { googleMapConfigs } from 'configs'
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
@@ -11,6 +11,7 @@ import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import AnySpotCard from './AnySpotCard'
 
 const containerStyle = {
   width: '100%',
@@ -39,6 +40,17 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   const setDirectionService = React.useContext(SetDirectionServiceContext)
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   const setPlaces = React.useContext(SetPlacesServiceContext)
+
+  const [anySpot, setAnyPlace] = React.useState<google.maps.LatLng | null>(null)
+
+  const handleClick = (e: google.maps.MapMouseEvent) => {
+    e.domEvent.preventDefault()
+    if (anySpot) {
+      setAnyPlace(null)
+    } else {
+      setAnyPlace(e.latLng)
+    }
+  }
 
   React.useEffect(() => {
     return () => {
@@ -76,19 +88,6 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     onLoad?.(mapInstance)
   }
 
-  const onLongPress = (e: google.maps.MapMouseEvent) => {
-    console.log(e)
-  }
-
-  const defaultOptions = {
-    isPreventDefault: true,
-    delay: 600,
-  }
-  // Google Map API 用のイベントに対応できていない、とりあえず握りつぶす
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const longPressEvent = useLongPress(onLongPress, defaultOptions)
-
   React.useEffect(() => {
     // 選択しているプランの目的地を中心にする
     if (plan?.destination) {
@@ -121,11 +120,17 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
       }}
       center={mapProps.center}
       zoom={mapProps.zoom}
-      {...longPressEvent}
+      onClick={handleClick}
       onIdle={handleIdled}
       onLoad={handleLoad}>
       {/* Child components, such as markers, info windows, etc. */}
       {children}
+      {anySpot && (
+        <>
+          <Marker position={anySpot} />
+          <AnySpotCard lat={anySpot.lat()} lng={anySpot.lng()} />
+        </>
+      )}
     </GoogleMapLib>
   )
 })
