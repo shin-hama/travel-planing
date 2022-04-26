@@ -2,9 +2,7 @@ import React from 'react'
 import {
   GoogleMap as GoogleMapLib,
   useLoadScript,
-  Marker,
 } from '@react-google-maps/api'
-import Box from '@mui/material/Box'
 
 import { googleMapConfigs } from 'configs'
 import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
@@ -12,7 +10,6 @@ import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useTravelPlan } from 'hooks/useTravelPlan'
-import AnySpotCard from './AnySpotCard'
 
 const containerStyle = {
   width: '100%',
@@ -23,10 +20,12 @@ const libs: 'places'[] = ['places']
 
 type Props = {
   onLoad?: (map: google.maps.Map) => void
+  onClick: (e?: google.maps.MapMouseEvent) => void
 }
 const GoogleMap: React.FC<Props> = React.memo(function Map({
   children,
   onLoad,
+  onClick,
 }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: googleMapConfigs.apiKey,
@@ -41,17 +40,6 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
   const setDirectionService = React.useContext(SetDirectionServiceContext)
   const setDistanceMatrix = React.useContext(SetDistanceMatrixContext)
   const setPlaces = React.useContext(SetPlacesServiceContext)
-
-  const [anySpot, setAnyPlace] = React.useState<google.maps.LatLng | null>(null)
-
-  const handleClick = (e: google.maps.MapMouseEvent) => {
-    e.domEvent.preventDefault()
-    if (anySpot) {
-      setAnyPlace(null)
-    } else {
-      setAnyPlace(e.latLng)
-    }
-  }
 
   React.useEffect(() => {
     return () => {
@@ -121,29 +109,11 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
       }}
       center={mapProps.center}
       zoom={mapProps.zoom}
-      onClick={handleClick}
+      onDragStart={() => onClick()}
+      onClick={onClick}
       onIdle={handleIdled}
       onLoad={handleLoad}>
-      {/* Child components, such as markers, info windows, etc. */}
       {children}
-      {anySpot && (
-        <>
-          <Marker position={anySpot} />
-          <Box
-            sx={{
-              zIndex: 10,
-              position: 'absolute',
-              bottom: 25,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '90%',
-              maxWidth: '400px',
-              maxHeight: '150px',
-            }}>
-            <AnySpotCard lat={anySpot.lat()} lng={anySpot.lng()} />
-          </Box>
-        </>
-      )}
     </GoogleMapLib>
   )
 })

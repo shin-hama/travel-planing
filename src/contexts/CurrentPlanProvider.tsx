@@ -161,6 +161,10 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
 
   React.useEffect(() => {
     const func = async () => {
+      if (directionService.isLoaded === false) {
+        return
+      }
+
       if (!currentPlan) {
         console.log('plan is not selected')
         return
