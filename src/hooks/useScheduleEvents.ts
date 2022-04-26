@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useList } from 'react-use'
 import dayjs from 'dayjs'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useEventFactory } from './useEventFactory'
 import {
@@ -47,9 +48,9 @@ export const useScheduleEvents = () => {
     let startTime = dayjs(plan.startTime)
 
     const spots: Array<Spot> = [
-      { ...plan.home, duration: 30, durationUnit: 'minute' },
+      { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
       ...plan.waypoints,
-      { ...plan.home, duration: 30, durationUnit: 'minute' },
+      { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
     ]
     const merged = mergeAlternate(spots, plan.routes)
 

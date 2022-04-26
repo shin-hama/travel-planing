@@ -27,7 +27,7 @@ const AnySpotCard: React.FC<Props> = ({ lat, lng }) => {
       <CardActions>
         <div style={{ marginLeft: 'auto' }}>
           <AddSpotButton
-            spotDTO={{
+            newSpot={{
               name: name,
               placeId: null,
               imageUrl: '',

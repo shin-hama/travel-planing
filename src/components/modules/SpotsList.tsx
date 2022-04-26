@@ -1,16 +1,16 @@
 import * as React from 'react'
 import Stack from '@mui/material/Stack'
 
-import SpotCard from './SpotCard'
+import SpotCard, { SpotDTO } from './SpotCard'
 
 type Props = {
-  spots: Array<string>
+  spots: Array<SpotDTO>
 }
 const SpotsList: React.FC<Props> = ({ spots }) => {
   return (
     <Stack spacing={2}>
       {spots.map((spot, i) => (
-        <SpotCard key={`${i}-${spot}`} placeId={spot} />
+        <SpotCard key={`${i}-${spot}`} spot={spot} />
       ))}
     </Stack>
   )

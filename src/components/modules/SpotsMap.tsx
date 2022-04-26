@@ -6,7 +6,7 @@ import { useClickAway } from 'react-use'
 import CategorySelector from './CategorySelector'
 import GoogleMap from './GoogleMap'
 import SearchBox from './SearchBox'
-import SpotCard from './SpotCard'
+import SpotCard, { SpotDTO } from './SpotCard'
 import SpotsByCategory from './SpotsByCategory'
 
 const SpotsMap = () => {
@@ -15,13 +15,13 @@ const SpotsMap = () => {
     null
   )
   useClickAway(spotCardRef, () => {
-    setFocusedSpot('')
+    setFocusedSpot(null)
   })
 
-  const [focusedSpot, setFocusedSpot] = React.useState('')
+  const [focusedSpot, setFocusedSpot] = React.useState<SpotDTO | null>(null)
 
-  const handleMarkerClicked = (placeId: string) => {
-    setFocusedSpot(placeId)
+  const handleMarkerClicked = (spot: SpotDTO) => {
+    setFocusedSpot(spot)
   }
 
   return (
@@ -53,7 +53,7 @@ const SpotsMap = () => {
             maxWidth: '400px',
             maxHeight: '150px',
           }}>
-          <SpotCard placeId={focusedSpot} />
+          <SpotCard spot={focusedSpot} />
         </Box>
       )}
     </Box>

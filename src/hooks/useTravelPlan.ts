@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   CurrentPlanContext,
@@ -117,9 +118,19 @@ export const useTravelPlan = () => {
             .filter((item): item is Spot => item !== null)
 
           const newSpots: Array<Spot> = [
-            { ...planRef.current.home, duration: 30, durationUnit: 'minute' },
+            {
+              ...planRef.current.home,
+              id: uuidv4(),
+              duration: 30,
+              durationUnit: 'minute',
+            },
             ...orderedWaypoints,
-            { ...planRef.current.home, duration: 30, durationUnit: 'minute' },
+            {
+              ...planRef.current.home,
+              id: uuidv4(),
+              duration: 30,
+              durationUnit: 'minute',
+            },
           ]
           const newRoutes = newSpots
             .map((spot, index): Route | null => {

@@ -5,19 +5,15 @@ import Typography from '@mui/material/Typography'
 
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import SpotsList from './SpotsList'
+import type { SpotDTO } from './SpotCard'
 
 type Props = {
   open: boolean
-  placeIds: Array<string>
+  spots: Array<SpotDTO>
   onOpen: () => void
   onClose: () => void
 }
-const SpotsCandidates: React.FC<Props> = ({
-  open,
-  placeIds,
-  onOpen,
-  onClose,
-}) => {
+const SpotsCandidates: React.FC<Props> = ({ open, spots, onOpen, onClose }) => {
   return (
     <>
       <SwipeableDrawer
@@ -54,8 +50,8 @@ const SpotsCandidates: React.FC<Props> = ({
               overflow: 'auto',
             }}>
             <Container maxWidth="xs">
-              {placeIds.length > 0 ? (
-                <SpotsList spots={placeIds} />
+              {spots.length > 0 ? (
+                <SpotsList spots={spots} />
               ) : (
                 <Typography variant="subtitle1">
                   地図上で行きたい場所を選んでください。
