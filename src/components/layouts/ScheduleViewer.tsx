@@ -13,6 +13,7 @@ import Scheduler from 'components/modules/Scheduler'
 import SchedulerHeader from 'components/modules/SchedulerHeader'
 import { useRouter } from 'hooks/useRouter'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import { useMapLayer } from 'contexts/MapLayerModeProvider'
 
 type Props = {
   open: boolean
@@ -21,6 +22,7 @@ type Props = {
 const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   const router = useRouter()
   const [plan, planApi] = useTravelPlan()
+  const [, setMode] = useMapLayer()
 
   React.useEffect(() => {
     if (!plan) {
@@ -36,8 +38,9 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
   )
 
   const handleAddHotel = React.useCallback(() => {
+    setMode('selector')
     onClose()
-  }, [])
+  }, [onClose, setMode])
 
   if (!plan) {
     return <></>

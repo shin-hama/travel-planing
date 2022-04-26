@@ -1,12 +1,9 @@
 import * as React from 'react'
-import Stack from '@mui/material/Stack'
 
-import SpotsMap from 'components/modules/SpotsMap'
-import PlanningLayout from 'components/layouts/PlaningLayout'
+import PlanView from 'components/layouts/PlanView'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { usePlans } from 'hooks/usePlan'
 import { useRouter } from 'hooks/useRouter'
-import MapToolbar from 'components/modules/MapToolbar'
 
 const PlanPage = () => {
   const router = useRouter()
@@ -45,18 +42,7 @@ const PlanPage = () => {
     return <></>
   }
 
-  return (
-    <PlanningLayout>
-      <Stack
-        sx={{
-          width: '100%',
-          height: '100%',
-        }}>
-        <SpotsMap />
-        <MapToolbar />
-      </Stack>
-    </PlanningLayout>
-  )
+  return <PlanView />
 }
 
 export default PlanPage
