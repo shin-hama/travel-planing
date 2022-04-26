@@ -6,15 +6,13 @@ import { useWaypoints } from 'hooks/useWaypoints'
 import { Spot } from 'contexts/CurrentPlanProvider'
 
 type Props = {
-  newSpot: Omit<Spot, 'id'>
+  newSpot: Omit<Spot, 'id'> & { id?: string }
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   const [waypoints, actions] = useWaypoints()
 
-  const selected = waypoints?.find(
-    (item) => item.placeId && item.placeId === newSpot.placeId
-  )
+  const selected = waypoints?.find((item) => item.id && item.id === newSpot.id)
 
   const handleClick = () => {
     if (selected) {
