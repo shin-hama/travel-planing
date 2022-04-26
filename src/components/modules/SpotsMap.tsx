@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 
 import GoogleMap from './GoogleMap'
 import MapOverlay from './MapOverlay'
+import MapSelectorLayer from './MapSelectorLayer'
 
 const SpotsMap = () => {
   const [anySpot, setAnyPlace] =
@@ -20,7 +21,8 @@ const SpotsMap = () => {
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       <GoogleMap onClick={handleClick}>
-        <MapOverlay anySpot={anySpot} setAnyPlace={setAnyPlace} />
+        {/* <MapOverlay anySpot={anySpot} setAnyPlace={setAnyPlace} /> */}
+        <MapSelectorLayer />
       </GoogleMap>
     </Box>
   )

@@ -28,6 +28,17 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
     }
   }, [plan, router])
 
+  const handleUpdate = React.useCallback(
+    (title: string) => {
+      planApi.update({ title })
+    },
+    [planApi]
+  )
+
+  const handleAddHotel = React.useCallback(() => {
+    onClose()
+  }, [])
+
   if (!plan) {
     return <></>
   }
@@ -42,7 +53,12 @@ const ScheduleViewer: React.FC<Props> = ({ open, onClose }) => {
             flexFlow: 'column',
             height: '100%',
           }}>
-          <SchedulerHeader />
+          <SchedulerHeader
+            plan={plan}
+            addHotel={handleAddHotel}
+            optimizeRoute={planApi.optimizeRoute}
+            updateTitle={handleUpdate}
+          />
           <Box sx={{ height: '100%', zIndex: 0 }}>
             <Scheduler plan={plan} planApi={planApi} />
           </Box>
