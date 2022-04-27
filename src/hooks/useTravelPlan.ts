@@ -95,10 +95,12 @@ export const useTravelPlan = () => {
 
         const result = await directionService.search({
           origin: {
-            placeId: planRef.current.home.placeId,
+            lat: planRef.current.home.lat,
+            lng: planRef.current.home.lng,
           },
           destination: {
-            placeId: planRef.current.home.placeId,
+            lat: planRef.current.home.lat,
+            lng: planRef.current.home.lng,
           },
           waypoints: planRef.current.waypoints.map((spot) => ({
             location: {

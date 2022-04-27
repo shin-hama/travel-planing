@@ -14,6 +14,7 @@ import interactionPlugin, {
 } from '@fullcalendar/interaction'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { v4 as uuidv4 } from 'uuid'
 
 import SpotEventCard from './SpotEventCard'
 import MoveEventCard from './MoveEventCard'
@@ -21,6 +22,7 @@ import { Plan, MoveEvent, SpotEvent } from 'contexts/CurrentPlanProvider'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { PlanAPI } from 'hooks/useTravelPlan'
+import { useDirections } from 'hooks/googlemaps/useDirections'
 
 dayjs.extend(customParseFormat)
 
@@ -100,6 +102,7 @@ const Scheduler: React.FC<Props> = ({ plan, planApi }) => {
   const calendar = React.useRef<FullCalendar>(null)
   const [events, eventsApi] = useScheduleEvents()
   const [waypoints, waypointsApi] = useWaypoints()
+  const { actions: directions } = useDirections()
 
   const [visibleRange, setVisibleRange] = React.useState<{
     start: Date
@@ -225,6 +228,67 @@ const Scheduler: React.FC<Props> = ({ plan, planApi }) => {
   const renderDayHeader = (props: DayHeaderContentArg) => {
     return dayjs(props.date).format('MM/DD (ddd)')
   }
+
+  React.useEffect(() => {
+    if (!plan.lodging) {
+      return
+    }
+    const diffDate = dayjs(visibleRange.end).diff(visibleRange.start, 'day')
+    console.log(diffDate)
+    if (diffDate !== 0) {
+      for (let i = 0; i < diffDate; i++) {
+        const lastEvent = events
+          .filter(
+            (event) =>
+              event.extendedProps.type === 'spot' &&
+              event.start.getDate() === visibleRange.start.getDate() + i
+          )
+          .sort((a, b) => dayjs(b.start).diff(a.start))[0]
+        const lastSpot = waypoints?.find((spot) => spot.id === lastEvent.id)
+        console.log(lastEvent)
+        if (lastSpot) {
+          directions
+            .search({
+              origin: { lat: lastSpot.lat, lng: lastSpot.lng },
+              destination: { lat: plan.lodging.lat, lng: plan.lodging.lng },
+              travelMode: google.maps.TravelMode.DRIVING,
+            })
+            .then((result) => {
+              console.log(result)
+              const lodgingId = uuidv4()
+              const moveEnd = dayjs(lastEvent.end).add(
+                result.routes[0].legs[0].duration?.value || 0,
+                'second'
+              )
+
+              eventsApi.addMove({
+                start: lastEvent.end,
+                end: moveEnd.toDate(),
+                extendedProps: {
+                  from: lastSpot.id,
+                  to: lodgingId,
+                  mode: 'car',
+                },
+              })
+              eventsApi.addSpot({
+                id: lodgingId,
+                title: plan.lodging?.name || '',
+                start: moveEnd.toDate(),
+                end: moveEnd
+                  .add(
+                    plan.lodging?.duration || 30,
+                    plan.lodging?.durationUnit || 'minute'
+                  )
+                  .toDate(),
+                props: {
+                  imageUrl: '',
+                },
+              })
+            })
+        }
+      }
+    }
+  }, [plan.lodging, visibleRange])
 
   return (
     <>

@@ -41,7 +41,7 @@ const MapSelectorLayer = () => {
           lng: center.lng(),
           placeId: null,
           imageUrl: '',
-          duration: 60,
+          duration: 30,
           durationUnit: 'minute',
         },
       })

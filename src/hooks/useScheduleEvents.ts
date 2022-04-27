@@ -120,10 +120,18 @@ export const useScheduleEvents = () => {
       update: (updatedSpot: ScheduleEvent) => {
         setEvents.update((event) => event.id === updatedSpot.id, updatedSpot)
       },
+      addSpot: (spot: Parameters<typeof buildSpotEvent>[0]) => {
+        const newEvent = buildSpotEvent(spot)
+        setEvents.push(newEvent)
+      },
+      addMove: (move: Parameters<typeof buildMoveEvent>[0]) => {
+        const newEvent = buildMoveEvent(move)
+        setEvents.push(newEvent)
+      },
     }
 
     return a
-  }, [setEvents])
+  }, [buildMoveEvent, buildSpotEvent, setEvents])
 
   return [events, actions] as const
 }
