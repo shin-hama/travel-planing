@@ -1,7 +1,6 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
 import { EventInput } from '@fullcalendar/react' // must go before plugins
-import { v4 as uuidv4 } from 'uuid'
 
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
@@ -31,7 +30,7 @@ export type Spot = {
   lng: number
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isSpotDTO = (obj: any): obj is Spot => {
+export const isSpot = (obj: any): obj is Spot => {
   return (
     obj &&
     typeof obj === 'object' &&
@@ -95,6 +94,7 @@ export type Plan = {
   waypoints: Array<Spot>
   routes: Array<Route>
   events?: Array<ScheduleEvent>
+  lodging?: Omit<Spot, 'id'>
 }
 
 export type PlanDB = {
@@ -176,9 +176,19 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
       }
 
       const spots: Array<Spot> = [
-        { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
+        {
+          ...plan.home,
+          id: `${plan.home.placeId}-start`,
+          duration: 30,
+          durationUnit: 'minute',
+        },
         ...plan.waypoints,
-        { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
+        {
+          ...plan.home,
+          id: `${plan.home.placeId}-end`,
+          duration: 30,
+          durationUnit: 'minute',
+        },
       ]
 
       const newRoute = await Promise.all(

@@ -1,6 +1,6 @@
 import { initializeApp, FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
 
 if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
   throw new Error('Firebase API Key is not defined on environment')
@@ -17,7 +17,7 @@ const firebaseConfig: FirebaseOptions = {
 
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
-export const db = getFirestore(app)
+export const db = initializeFirestore(app, { ignoreUndefinedProperties: true })
 
 if (!process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY) {
   throw new Error('Google Maps API key is not defined on environment')

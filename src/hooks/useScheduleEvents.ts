@@ -6,11 +6,15 @@ import { v4 as uuidv4 } from 'uuid'
 import { useEventFactory } from './useEventFactory'
 import {
   isRoute,
-  isSpotDTO,
+  isSpot,
+  Route,
   ScheduleEvent,
   Spot,
 } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
+import { useDirections } from 'hooks/googlemaps/useDirections'
+
+const nightLimitHour = 19
 
 const mergeAlternate = <T, U>(
   array1: Array<T>,
@@ -27,6 +31,11 @@ const mergeAlternate = <T, U>(
   return result
 }
 
+type Events = {
+  day: number
+  eventList: Array<Spot | Route>
+}
+
 export const useScheduleEvents = () => {
   const [plan] = useTravelPlan()
   const [events, setEvents] = useList<ScheduleEvent>()
@@ -34,77 +43,187 @@ export const useScheduleEvents = () => {
   eventsRef.current = events
   const { buildMoveEvent, buildSpotEvent } = useEventFactory()
 
+  const [data, setData] = React.useState<Array<Events>>([])
+  const { actions: directions } = useDirections()
+
   React.useEffect(() => {
-    console.log('build route events')
     if (!plan) {
       return
     }
-
     if (plan.waypoints.length === 0) {
       console.log('no waypoints')
+      setData([])
       setEvents.clear()
       return
     }
-    let startTime = dayjs(plan.startTime)
 
     const spots: Array<Spot> = [
-      { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
+      {
+        ...plan.home,
+        id: `${plan.home.placeId}-start`,
+        duration: 30,
+        durationUnit: 'minute',
+      },
       ...plan.waypoints,
-      { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
+      {
+        ...plan.home,
+        id: `${plan.home.placeId}-end`,
+        duration: 30,
+        durationUnit: 'minute',
+      },
     ]
     const merged = mergeAlternate(spots, plan.routes)
+    const limit = dayjs(plan.startTime).hour(nightLimitHour)
 
-    setEvents.set(
-      merged
-        .map((item) => {
-          if (isRoute(item)) {
-            const start = startTime.toDate()
-            startTime = startTime.add(item.duration, item.durationUnit)
-            const end = startTime.toDate()
-            if (
-              start.getHours() < 6 ||
-              start.getHours() >= 21 ||
-              end.getHours() < 6 ||
-              end.getHours() >= 21
-            ) {
-              // 深夜にイベントが作られないように次の日へ移行する(Move イベントはスキップする)
-              startTime = dayjs(start)
-                .add(1, 'day')
-                .set('hour', plan.startTime.getHours())
-                .set('minute', plan.startTime.getMinutes())
-              return null
+    let key = 0
+    const _data: typeof data = [
+      {
+        day: key,
+        eventList: [],
+      },
+    ]
+    merged.forEach((event) => {
+      const lastTimestamp = _data[key].eventList.reduce(
+        (sum, item) => sum.add(item.duration, item.durationUnit),
+        dayjs(plan.startTime)
+      )
+
+      if (
+        isRoute(event) &&
+        !event.to.startsWith(plan.home.placeId) &&
+        lastTimestamp.add(event.duration, event.durationUnit).isAfter(limit)
+      ) {
+        key += 1
+        _data.push({ day: key, eventList: [] })
+      } else {
+        _data[key].eventList.push(event)
+      }
+    })
+
+    setData(_data)
+  }, [plan])
+
+  React.useEffect(() => {
+    const func = async () => {
+      if (!plan) {
+        return
+      }
+
+      const _events = await Promise.all(
+        data.map(async ({ day, eventList }) => {
+          let dayEvents: typeof eventList = eventList
+
+          if (data.length > 1 && plan.lodging) {
+            const firstSpot = eventList[0]
+            if (isSpot(firstSpot) && firstSpot.placeId !== plan.home.placeId) {
+              const result = await directions.search({
+                origin: {
+                  lat: plan.lodging.lat,
+                  lng: plan.lodging.lng,
+                },
+                destination: { lat: firstSpot.lat, lng: firstSpot.lng },
+                travelMode: google.maps.TravelMode.DRIVING,
+              })
+
+              const lodgingId = uuidv4()
+
+              dayEvents = [
+                {
+                  id: lodgingId,
+                  imageUrl: '',
+                  name: 'hotel',
+                  duration: 30,
+                  durationUnit: 'minute',
+                  lat: plan.lodging?.lat || 0,
+                  lng: plan.lodging?.lng || 0,
+                },
+                {
+                  from: lodgingId,
+                  to: firstSpot.id,
+                  duration: result.routes[0].legs[0].duration?.value || 0,
+                  durationUnit: 'second',
+                  mode: 'car',
+                },
+                ...dayEvents,
+              ]
             }
+            const lastSpot = eventList[eventList.length - 1]
+            if (isSpot(lastSpot) && lastSpot.placeId !== plan.home.placeId) {
+              const result = await directions.search({
+                origin: { lat: lastSpot.lat, lng: lastSpot.lng },
+                destination: {
+                  lat: plan.lodging.lat,
+                  lng: plan.lodging.lng,
+                },
+                travelMode: google.maps.TravelMode.DRIVING,
+              })
+              const lodgingId = uuidv4()
 
-            return buildMoveEvent({
-              start,
-              end,
-              extendedProps: {
-                from: item.from,
-                to: item.to,
-                mode: item.mode,
-              },
-            })
-          } else if (isSpotDTO(item)) {
-            const start = startTime.toDate()
-            startTime = startTime.add(item.duration, item.durationUnit)
-            const end = startTime.toDate()
-
-            return buildSpotEvent({
-              id: item.id,
-              title: item.name,
-              start,
-              end,
-              props: { placeId: item.placeId, imageUrl: item.imageUrl },
-            })
-          } else {
-            throw Error(`not implemented type: ${JSON.stringify(item)}`)
+              dayEvents = [
+                ...dayEvents,
+                {
+                  from: lastSpot.id,
+                  to: lodgingId,
+                  duration: result.routes[0].legs[0].duration?.value || 0,
+                  durationUnit: 'second',
+                  mode: 'car',
+                },
+                {
+                  id: lodgingId,
+                  imageUrl: '',
+                  name: 'hotel',
+                  duration: 30,
+                  durationUnit: 'minute',
+                  lat: plan.lodging?.lat || 0,
+                  lng: plan.lodging?.lng || 0,
+                },
+              ]
+            }
           }
+
+          let startTime = dayjs(plan.startTime).add(day, 'day')
+
+          return dayEvents
+            .map((item) => {
+              if (isRoute(item)) {
+                const start = startTime.toDate()
+                startTime = startTime.add(item.duration, item.durationUnit)
+                const end = startTime.toDate()
+
+                return buildMoveEvent({
+                  start,
+                  end,
+                  extendedProps: {
+                    from: item.from,
+                    to: item.to,
+                    mode: item.mode,
+                  },
+                })
+              } else if (isSpot(item)) {
+                const start = startTime.toDate()
+                startTime = startTime.add(item.duration, item.durationUnit)
+                const end = startTime.toDate()
+
+                return buildSpotEvent({
+                  id: item.id,
+                  title: item.name,
+                  start,
+                  end,
+                  props: { placeId: item.placeId, imageUrl: item.imageUrl },
+                })
+              } else {
+                throw Error(`not implemented type: ${JSON.stringify(item)}`)
+              }
+            })
+            .filter((item): item is ScheduleEvent => item !== null)
         })
-        .filter((item): item is ScheduleEvent => item !== null)
-    )
-    // 余計な処理を行わないために、plan の変更のみに依存させる
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan?.waypoints, plan?.home, plan?.startTime, plan?.routes])
+      )
+
+      setEvents.set(_events.flat())
+    }
+
+    func()
+  }, [data, plan?.lodging])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -120,10 +239,18 @@ export const useScheduleEvents = () => {
       update: (updatedSpot: ScheduleEvent) => {
         setEvents.update((event) => event.id === updatedSpot.id, updatedSpot)
       },
+      addSpot: (spot: Parameters<typeof buildSpotEvent>[0]) => {
+        const newEvent = buildSpotEvent(spot)
+        setEvents.push(newEvent)
+      },
+      addMove: (move: Parameters<typeof buildMoveEvent>[0]) => {
+        const newEvent = buildMoveEvent(move)
+        setEvents.push(newEvent)
+      },
     }
 
     return a
-  }, [setEvents])
+  }, [buildMoveEvent, buildSpotEvent, setEvents])
 
   return [events, actions] as const
 }

@@ -10,6 +10,7 @@ import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 import { MoveEvent } from 'contexts/CurrentPlanProvider'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 export const MoveTypes: Record<
   MoveEvent['extendedProps']['mode'],
@@ -26,6 +27,7 @@ type Props = {
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
   const [, routesActions] = useRoutes()
+  const [waypoints] = useWaypoints()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
     const travelMode = () => {
@@ -42,9 +44,15 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       }
     }
 
+    const org = waypoints?.find((spot) => spot.id === event.extendedProps.from)
+    const dest = waypoints?.find((spot) => spot.id === event.extendedProps.to)
+
+    if (!(org && dest)) {
+      throw Error(`org or dest is not exists: org: ${org}, dest: ${dest}`)
+    }
     const result = await directions.search({
-      origin: { placeId: event.extendedProps.from },
-      destination: { placeId: event.extendedProps.to },
+      origin: { lat: org.lat, lng: org.lng },
+      destination: { lat: dest.lat, lng: dest.lng },
       travelMode: travelMode(),
     })
 

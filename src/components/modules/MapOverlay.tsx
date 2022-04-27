@@ -12,11 +12,11 @@ import AnySpotCard from './AnySpotCard'
 
 type Props = {
   anySpot?: google.maps.LatLngLiteral | null
-  setAnyPlace: React.Dispatch<
+  setAnySpot: React.Dispatch<
     React.SetStateAction<google.maps.LatLngLiteral | null>
   >
 }
-const MapOverlay: React.FC<Props> = ({ anySpot, setAnyPlace }) => {
+const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
   const spotCardRef = React.useRef<HTMLDivElement>(null)
   const [selectedCategory, setSelectedCategory] = React.useState<number | null>(
     null
@@ -37,7 +37,7 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnyPlace }) => {
 
   const handleMarkerClicked = (spot: SpotDTO) => {
     setFocusedSpot(spot)
-    setAnyPlace({ lat: spot.lat, lng: spot.lng })
+    setAnySpot({ lat: spot.lat, lng: spot.lng })
   }
 
   return (

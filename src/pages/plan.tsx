@@ -1,11 +1,8 @@
 import * as React from 'react'
-import Stack from '@mui/material/Stack'
 
-import SpotsMap from 'components/modules/SpotsMap'
-import PlanningLayout from 'components/layouts/PlaningLayout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRouter } from 'hooks/useRouter'
-import MapToolbar from 'components/modules/MapToolbar'
+import PlanView from 'components/layouts/PlanView'
 
 const FeaturedPlaces = () => {
   const router = useRouter()
@@ -17,18 +14,7 @@ const FeaturedPlaces = () => {
     }
   }, [plan, router])
 
-  return (
-    <PlanningLayout>
-      <Stack
-        sx={{
-          width: '100%',
-          height: '100%',
-        }}>
-        <SpotsMap />
-        <MapToolbar />
-      </Stack>
-    </PlanningLayout>
-  )
+  return <PlanView />
 }
 
 export default FeaturedPlaces
