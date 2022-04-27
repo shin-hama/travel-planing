@@ -9,6 +9,10 @@ const SpotsMap = () => {
     React.useState<google.maps.LatLngLiteral | null>(null)
   const [layer] = useMapLayer()
 
+  React.useEffect(() => {
+    setAnySpot(null)
+  }, [layer])
+
   const handleClick = (e?: google.maps.MapMouseEvent) => {
     e?.domEvent.preventDefault()
     if (anySpot) {
