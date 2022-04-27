@@ -38,6 +38,7 @@ const planConverter: FirestoreDataConverter<Plan> = {
           start: event.start?.toDate(),
           end: event.end?.toDate(),
         })) || [],
+      lodging: data.lodging || undefined,
     }
   },
 }

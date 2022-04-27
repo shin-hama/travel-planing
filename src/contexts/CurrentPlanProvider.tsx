@@ -31,7 +31,7 @@ export type Spot = {
   lng: number
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isSpotDTO = (obj: any): obj is Spot => {
+export const isSpot = (obj: any): obj is Spot => {
   return (
     obj &&
     typeof obj === 'object' &&
