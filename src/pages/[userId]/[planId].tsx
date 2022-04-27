@@ -10,7 +10,7 @@ const PlanPage = () => {
   const { userId, planId } = router.query
   const { get: getPlan } = usePlans()
 
-  const [plan, planApi] = useTravelPlan()
+  const [, planApi] = useTravelPlan()
 
   React.useEffect(() => {
     const func = async () => {
@@ -19,7 +19,6 @@ const PlanPage = () => {
           .then((target) => {
             if (!target) {
               console.error(`Plan is not exist. ID: ${planId}`)
-              router.userHome(true)
               return
             }
             planApi.set(planId, target)
@@ -37,10 +36,6 @@ const PlanPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planId, userId])
-
-  if (!plan) {
-    return <></>
-  }
 
   return <PlanView />
 }

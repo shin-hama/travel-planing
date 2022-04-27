@@ -9,6 +9,7 @@ import { useConfirm } from 'hooks/useConfirm'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
 import { useMapLayer } from 'contexts/MapLayerModeProvider'
+import { useRouter } from 'hooks/useRouter'
 
 type Props = MenuProps & {
   addHotelCallback?: () => void
@@ -17,6 +18,7 @@ const PlanMenu: React.FC<Props> = ({ addHotelCallback, ...props }) => {
   const [, planApi] = useTravelPlan()
   const confirm = useConfirm()
   const [, setMode] = useMapLayer()
+  const router = useRouter()
 
   const [{ loading }, handleOptimize] = useAsyncFn(async () => {
     try {
@@ -52,6 +54,7 @@ const PlanMenu: React.FC<Props> = ({ addHotelCallback, ...props }) => {
         description: '旅行プランが完全に削除されます。よろしいですか?',
       })
       await planApi.delete()
+      router.userHome()
     } finally {
       props.onClose?.({}, 'backdropClick')
     }
