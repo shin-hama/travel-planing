@@ -50,11 +50,27 @@ export const useScheduleEvents = () => {
     if (!plan) {
       return
     }
+    if (plan.waypoints.length === 0) {
+      console.log('no waypoints')
+      setData([])
+      setEvents.clear()
+      return
+    }
 
     const spots: Array<Spot> = [
-      { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
+      {
+        ...plan.home,
+        id: `${plan.home.placeId}-start`,
+        duration: 30,
+        durationUnit: 'minute',
+      },
       ...plan.waypoints,
-      { ...plan.home, id: uuidv4(), duration: 30, durationUnit: 'minute' },
+      {
+        ...plan.home,
+        id: `${plan.home.placeId}-end`,
+        duration: 30,
+        durationUnit: 'minute',
+      },
     ]
     const merged = mergeAlternate(spots, plan.routes)
     const limit = dayjs(plan.startTime).hour(nightLimitHour)
@@ -74,6 +90,7 @@ export const useScheduleEvents = () => {
 
       if (
         isRoute(event) &&
+        !event.to.startsWith(plan.home.placeId) &&
         lastTimestamp.add(event.duration, event.durationUnit).isAfter(limit)
       ) {
         key += 1

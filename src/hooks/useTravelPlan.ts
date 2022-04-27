@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   CurrentPlanContext,
@@ -122,14 +121,14 @@ export const useTravelPlan = () => {
           const newSpots: Array<Spot> = [
             {
               ...planRef.current.home,
-              id: uuidv4(),
+              id: `${planRef.current.home.placeId}-start`,
               duration: 30,
               durationUnit: 'minute',
             },
             ...orderedWaypoints,
             {
               ...planRef.current.home,
-              id: uuidv4(),
+              id: `${planRef.current.home.placeId}-end`,
               duration: 30,
               durationUnit: 'minute',
             },
