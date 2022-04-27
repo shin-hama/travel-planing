@@ -95,6 +95,7 @@ export type Plan = {
   waypoints: Array<Spot>
   routes: Array<Route>
   events?: Array<ScheduleEvent>
+  lodging?: Omit<Spot, 'id'>
 }
 
 export type PlanDB = {

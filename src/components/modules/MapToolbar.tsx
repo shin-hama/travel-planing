@@ -1,8 +1,6 @@
 import * as React from 'react'
 import Badge from '@mui/material/Badge'
 import Stack from '@mui/material/Stack'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
 import {
   faCalendarWeek,
   faEllipsis,
@@ -12,34 +10,21 @@ import {
 import LabeledIconButton from 'components/elements/LabeledIconButton'
 import SpotsCandidates from 'components/modules/SpotsCandidates'
 import ScheduleViewer from 'components/layouts/ScheduleViewer'
-import { useConfirm } from 'hooks/useConfirm'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import PlanMenu from './PlanMenu'
 
 type Drawers = 'spots' | 'schedule'
 
 const MapToolbar = () => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan] = useTravelPlan()
   const [open, setOpen] = React.useState<Drawers | null>(null)
   const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
-  const confirm = useConfirm()
 
   const handleOpen = (mode: Drawers) => () => {
     setOpen(mode)
   }
   const handleClose = () => {
     setOpen(null)
-  }
-
-  const handleDelete = async () => {
-    try {
-      await confirm({
-        title: 'CAUTION!!',
-        description: '旅行プランが完全に削除されます。よろしいですか?',
-      })
-      await planApi.delete()
-    } finally {
-      setMenuAnchor(null)
-    }
   }
 
   return (
@@ -73,18 +58,13 @@ const MapToolbar = () => {
         onClose={handleClose}
       />
       <ScheduleViewer open={open === 'schedule'} onClose={handleClose} />
-      <Menu
-        id="basic-menu"
+      <PlanMenu
         anchorEl={menuAnchor}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={Boolean(menuAnchor)}
         onClose={() => setMenuAnchor(null)}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}>
-        <MenuItem onClick={handleDelete}>Delete Plan</MenuItem>
-      </Menu>
+      />
     </>
   )
 }
