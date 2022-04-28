@@ -1,10 +1,10 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 
-import GoogleMap from './GoogleMap'
+import GoogleMap from 'components/modules/GoogleMap'
 import { useMapLayer } from 'contexts/MapLayerModeProvider'
 
-const SpotsMap = () => {
+const MapView = () => {
   const [anySpot, setAnySpot] =
     React.useState<google.maps.LatLngLiteral | null>(null)
   const [layer] = useMapLayer()
@@ -31,4 +31,4 @@ const SpotsMap = () => {
   )
 }
 
-export default SpotsMap
+export default MapView
