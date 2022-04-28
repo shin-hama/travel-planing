@@ -29,8 +29,16 @@ const MIN_COLUMN_WIDTH = 260
 const StyledWrapper = styled('div')<{ width: string }>`
   height: 100%;
   .fc {
+    max-width: 800px;
+    margin-right: auto;
+    margin-left: auto;
     height: 100%;
   }
+
+  .fc th {
+    border: none;
+  }
+
   .fc-bg-event {
     opacity: 0.6;
     border-radius: ${(props) => props.theme.spacing(1)};
@@ -66,6 +74,11 @@ const StyledWrapper = styled('div')<{ width: string }>`
     pointer-events: none;
   }
 
+  .fc-scroller {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
   .fc-scroller.fc-time-grid-container {
     overflow: initial !important;
   }
@@ -132,7 +145,7 @@ const Scheduler: React.FC<Props> = ({ plan, planApi }) => {
         end: last.toDate(),
       })
 
-      setGridWidth(MIN_COLUMN_WIDTH * (last.date() - first.date() + 1))
+      setGridWidth(MIN_COLUMN_WIDTH * (dayjs(last).diff(first, 'day') + 1))
     }
   }
 

@@ -1,11 +1,7 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import Fab from '@mui/material/Fab'
 import Snackbar from '@mui/material/Snackbar'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
 
 import Scheduler from 'components/modules/Scheduler'
 import SchedulerHeader from 'components/modules/SchedulerHeader'
@@ -42,12 +38,11 @@ const ScheduleView: React.FC<Props> = ({ onClose }) => {
 
   return (
     <>
-      <Container
-        maxWidth="md"
+      <Box
+        height="100%"
+        display="flex"
         sx={{
-          display: 'flex',
           flexFlow: 'column',
-          height: '100%',
         }}>
         <SchedulerHeader
           plan={plan}
@@ -57,17 +52,7 @@ const ScheduleView: React.FC<Props> = ({ onClose }) => {
         <Box sx={{ height: '100%', zIndex: 0 }}>
           <Scheduler plan={plan} planApi={planApi} />
         </Box>
-        <Fab
-          onClick={onClose}
-          color="primary"
-          sx={{
-            position: 'fixed',
-            right: 16,
-            bottom: 16,
-          }}>
-          <FontAwesomeIcon icon={faMapLocationDot} size="lg" />
-        </Fab>
-      </Container>
+      </Box>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={plan.waypoints?.length === 0}
