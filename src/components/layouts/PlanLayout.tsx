@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCalendarWeek,
   faMapLocationDot,
-  // faSuitcase,
+  faSuitcase,
 } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 
@@ -20,13 +20,14 @@ import { useRouter } from 'hooks/useRouter'
 import MapView from './MapView'
 import ScheduleView from './ScheduleView'
 import TabPanel from 'components/modules/TabPanel'
+import PlanView from './PlanView'
 
 const MyTab = styled(Tab)`
   padding: 0;
   min-height: 60px;
 `
 
-const PlanView = () => {
+const PlanLayout = () => {
   const router = useRouter()
   const [plan] = useTravelPlan()
   const [value, setValue] = React.useState(0)
@@ -51,9 +52,12 @@ const PlanView = () => {
       <Stack height="100%" width="100%">
         <MapLayerProvider>
           <TabPanel value={value} index={0}>
-            <MapView />
+            <PlanView />
           </TabPanel>
           <TabPanel value={value} index={1}>
+            <MapView />
+          </TabPanel>
+          <TabPanel value={value} index={2}>
             <ScheduleView onClose={() => setValue(0)} />
           </TabPanel>
           <Tabs
@@ -61,14 +65,14 @@ const PlanView = () => {
             variant="fullWidth"
             onChange={handleChange}
             sx={{ flexGrow: 1 }}>
-            {/* <MyTab
-          icon={
-            <SvgIcon>
-            <FontAwesomeIcon icon={faSuitcase} />
-            </SvgIcon>
-          }
-          label={<Typography variant="caption">プラン情報</Typography>}
-        /> */}
+            <MyTab
+              icon={
+                <SvgIcon>
+                  <FontAwesomeIcon icon={faSuitcase} />
+                </SvgIcon>
+              }
+              label={<Typography variant="caption">プラン情報</Typography>}
+            />
             <MyTab
               icon={
                 <SvgIcon>
@@ -92,4 +96,4 @@ const PlanView = () => {
   )
 }
 
-export default PlanView
+export default PlanLayout

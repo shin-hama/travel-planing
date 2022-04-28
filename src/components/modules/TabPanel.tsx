@@ -6,8 +6,6 @@ type Props = {
   value: number
 }
 const TabPanel: React.FC<Props> = ({ children, value, index }) => {
-  console.log(value !== index)
-  console.log(value)
   return (
     <Box
       width="100%"
