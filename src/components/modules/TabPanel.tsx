@@ -11,6 +11,8 @@ const TabPanel: React.FC<Props> = ({ children, value, index }) => {
       width="100%"
       height="100%"
       role="tabpanel"
+      position="absolute"
+      overflow="hidden auto"
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}>

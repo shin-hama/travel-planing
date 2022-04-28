@@ -5,7 +5,7 @@ const theme = responsiveFontSizes(
     // TODO:テーマ設定を行う
     palette: {
       primary: {
-        main: '#1792b1',
+        main: '#9D331F',
       },
       secondary: {
         main: '#02bceb',

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
-import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
+import Stack from '@mui/material/Stack'
 
 import Scheduler from 'components/modules/Scheduler'
 import SchedulerHeader from 'components/modules/SchedulerHeader'
@@ -38,21 +38,14 @@ const ScheduleView: React.FC<Props> = ({ onClose }) => {
 
   return (
     <>
-      <Box
-        height="100%"
-        display="flex"
-        sx={{
-          flexFlow: 'column',
-        }}>
+      <Stack height="100%" sx={{ overflow: 'hidden' }}>
         <SchedulerHeader
           plan={plan}
           addHotel={handleAddHotel}
           updateTitle={handleUpdate}
         />
-        <Box sx={{ height: '100%', zIndex: 0 }}>
-          <Scheduler plan={plan} planApi={planApi} />
-        </Box>
-      </Box>
+        <Scheduler plan={plan} planApi={planApi} />
+      </Stack>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={plan.waypoints?.length === 0}

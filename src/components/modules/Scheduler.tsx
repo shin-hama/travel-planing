@@ -28,6 +28,7 @@ const MIN_COLUMN_WIDTH = 260
 
 const StyledWrapper = styled('div')<{ width: string }>`
   height: 100%;
+
   .fc {
     max-width: 800px;
     margin-right: auto;
