@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import dayjs from 'dayjs'
 
-import PlanningLayout from 'components/layouts/PlaningLayout'
+import Layout from 'components/layouts/Layout'
 import PlansList from 'components/modules/PlansList'
 import TravelPlanCard from 'components/modules/TravelPlanCard'
 import { PlanDB } from 'contexts/CurrentPlanProvider'
@@ -69,16 +69,16 @@ const UserHome = () => {
 
   if (user?.uid !== userId) {
     return (
-      <PlanningLayout>
+      <Layout>
         <Box display="flex" justifyContent="center" py={5}>
           <Typography>非公開リストです</Typography>
         </Box>
-      </PlanningLayout>
+      </Layout>
     )
   }
 
   return (
-    <PlanningLayout>
+    <Layout>
       {nextPlan && (
         <Box style={{ height: '40%', backgroundColor: '#aaaaaa50' }}>
           <TravelPlanCard plan={nextPlan} />
@@ -117,7 +117,7 @@ const UserHome = () => {
           <FontAwesomeIcon icon={faAdd} size="lg" />
         </Fab>
       </Box>
-    </PlanningLayout>
+    </Layout>
   )
 }
 

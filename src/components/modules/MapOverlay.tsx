@@ -30,8 +30,7 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [anySpot])
 
-  useClickAway(spotCardRef, (e) => {
-    console.log(e)
+  useClickAway(spotCardRef, () => {
     setFocusedSpot(null)
   })
 
