@@ -6,7 +6,7 @@ import Fab from '@mui/material/Fab'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 
-import PlanningLayout from 'components/layouts/PlaningLayout'
+import Layout from 'components/layouts/Layout'
 import { useConfirm } from 'hooks/useConfirm'
 import { useRouter } from 'hooks/useRouter'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
@@ -35,7 +35,7 @@ const UserHome = () => {
   }
 
   return (
-    <PlanningLayout>
+    <Layout>
       <Container maxWidth="lg" sx={{ my: 4 }}>
         <Box display="flex" justifyContent="center">
           <Button variant="contained" onClick={handleClick}>
@@ -53,7 +53,7 @@ const UserHome = () => {
         }}>
         <FontAwesomeIcon icon={faAdd} size="lg" />
       </Fab>
-    </PlanningLayout>
+    </Layout>
   )
 }
 

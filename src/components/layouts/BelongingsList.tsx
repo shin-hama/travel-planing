@@ -11,21 +11,36 @@ import { useTravelPlan } from 'hooks/useTravelPlan'
 
 const BelongingsList: React.FC = () => {
   const [plan, planApi] = useTravelPlan()
+  const [added, setAdded] = React.useState(false)
+  const ref = React.useRef<HTMLDivElement>(null)
 
-  const handleComplete = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleAddBelonging = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const value = (e.target as HTMLTextAreaElement).value.trim()
     console.log(e)
-    if (e.code === 'Enter') {
-      console.log(e.target.value)
+    if (e.keyCode === 13 && Boolean(value)) {
       planApi.update({
         belongings: [
           ...(plan?.belongings || []),
-          { name: e.target.value, checked: false },
+          { name: value, checked: false },
         ],
       })
+
+      e.target.value = ''
+      setAdded(true)
     }
   }
 
-  console.log(plan)
+  React.useEffect(() => {
+    if (added) {
+      // 持ち物追加後に、自動でテキストエリアにスクロールする
+      ref.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+      setAdded(false)
+    }
+  }, [added])
+
   return (
     <Stack>
       <Typography variant="h1">持ち物リスト</Typography>
@@ -39,13 +54,14 @@ const BelongingsList: React.FC = () => {
               onChange={() => console.log('change')}
             />
           ))}
-          <TextField
-            variant="standard"
-            placeholder="+ Add new item"
-            onKeyDown={handleComplete}
-          />
         </Stack>
       </FormGroup>
+      <TextField
+        ref={ref}
+        variant="standard"
+        placeholder="+ Add new item"
+        onKeyDown={handleAddBelonging}
+      />
     </Stack>
   )
 }
