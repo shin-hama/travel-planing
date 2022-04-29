@@ -16,7 +16,7 @@ import SelectPrefectureDialog, {
 } from 'components/modules/SelectPrefectureDialog'
 import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
 import { useUnsplash } from 'hooks/useUnsplash'
-import PlanningLayout from 'components/layouts/PlaningLayout'
+import Layout from 'components/layouts/Layout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
@@ -94,7 +94,7 @@ const PrefectureSelector = () => {
   )
 
   return (
-    <PlanningLayout>
+    <Layout>
       <LocalizationProvider dateAdapter={DateAdapter}>
         <Container maxWidth="xs">
           <Box
@@ -180,7 +180,7 @@ const PrefectureSelector = () => {
           <SelectPrefectureDialog {...openDialog} />
         </Container>
       </LocalizationProvider>
-    </PlanningLayout>
+    </Layout>
   )
 }
 
