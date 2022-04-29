@@ -20,4 +20,7 @@ module.exports = withTM({
 
     return config
   },
+  images: {
+    domains: ['images.unsplash.com', 'maps.googleapis.com'],
+  },
 })

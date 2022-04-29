@@ -2,12 +2,12 @@ import * as React from 'react'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
-import CardMedia from '@mui/material/CardMedia'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInstagram } from '@fortawesome/free-brands-svg-icons'
+import Image from 'next/image'
 
 import AddSpotButton from './AddSpotButton'
 import { Spot } from 'contexts/CurrentPlanProvider'
@@ -79,13 +79,12 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ spot }) {
         </Grid>
         <Grid item xs={4}>
           {photos.length > 0 && (
-            <CardMedia
-              component="img"
-              image={photos[0]}
-              sx={{
-                aspectRatio: '1/1',
-                objectFit: 'cover',
-              }}
+            <Image
+              src={photos[0]}
+              width={200}
+              height={200}
+              layout="responsive"
+              objectFit="cover"
             />
           )}
         </Grid>

@@ -80,6 +80,7 @@ const PrefectureSelector = () => {
         destination: { ...planDTO.destination, imageUrl: destPhoto },
         waypoints: [],
         routes: [],
+        belongings: [],
       }
       const id = await createPlan(newPlan)
 
