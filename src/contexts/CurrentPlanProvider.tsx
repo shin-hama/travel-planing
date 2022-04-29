@@ -83,6 +83,12 @@ export type MoveEvent = EventBase & {
 }
 
 export type ScheduleEvent = SpotEvent | MoveEvent
+
+export type Belonging = {
+  name: string
+  checked: boolean
+}
+
 export type Plan = {
   title: string
   home: Prefecture
@@ -95,6 +101,7 @@ export type Plan = {
   routes: Array<Route>
   events?: Array<ScheduleEvent>
   lodging?: Omit<Spot, 'id'>
+  belongings: Array<Belonging>
 }
 
 export type PlanDB = {
