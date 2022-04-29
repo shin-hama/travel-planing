@@ -8,7 +8,7 @@ import SvgIcon from '@mui/material/SvgIcon'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClose } from '@fortawesome/free-solid-svg-icons'
+import { faAdd, faClose } from '@fortawesome/free-solid-svg-icons'
 
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { Belonging } from 'contexts/CurrentPlanProvider'
@@ -19,17 +19,16 @@ const BelongingsList: React.FC = () => {
   const ref = React.useRef<HTMLDivElement>(null)
 
   const handleAddBelonging = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const value = (e.target as HTMLTextAreaElement).value.trim()
-    console.log(e)
-    if (e.keyCode === 13 && Boolean(value)) {
+    const target = e.target as HTMLTextAreaElement
+    if (e.keyCode === 13 && Boolean(target.value.trim())) {
       planApi.update({
         belongings: [
           ...(plan?.belongings || []),
-          { name: value, checked: false },
+          { name: target.value, checked: false },
         ],
       })
 
-      e.target.value = ''
+      target.value = ''
       setAdded(true)
     }
   }
@@ -86,12 +85,21 @@ const BelongingsList: React.FC = () => {
           ))}
         </Stack>
       </FormGroup>
-      <TextField
-        ref={ref}
-        variant="standard"
-        placeholder="+ Add new item"
-        onKeyDown={handleAddBelonging}
-      />
+      <Stack alignItems="center" direction="row">
+        {/* チェックボックスと整列させるために幅を42pxにしている。余裕があれば、チェックボックスとテキストフィールドを同じコンポーネントで作成する */}
+        <IconButton sx={{ width: '42px' }}>
+          <SvgIcon>
+            <FontAwesomeIcon icon={faAdd} />
+          </SvgIcon>
+        </IconButton>
+        <TextField
+          ref={ref}
+          fullWidth
+          variant="standard"
+          placeholder="Add new item"
+          onKeyDown={handleAddBelonging}
+        />
+      </Stack>
     </Stack>
   )
 }
