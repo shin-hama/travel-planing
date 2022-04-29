@@ -58,13 +58,25 @@ const PlanningLayout: React.FC = () => {
             flex: '1 1 0%',
           }}>
           <MapLayerProvider>
-            <TabPanel value={value} index={0}>
+            <TabPanel
+              value={value}
+              index={0}
+              position="absolute"
+              overflow="hidden auto">
               <PlanView />
             </TabPanel>
-            <TabPanel value={value} index={1}>
+            <TabPanel
+              value={value}
+              index={1}
+              position="absolute"
+              overflow="hidden auto">
               <MapView />
             </TabPanel>
-            <TabPanel value={value} index={2}>
+            <TabPanel
+              value={value}
+              index={2}
+              position="absolute"
+              overflow="hidden auto">
               <ScheduleView onClose={() => setValue(0)} />
             </TabPanel>
           </MapLayerProvider>
