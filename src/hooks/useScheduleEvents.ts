@@ -122,7 +122,7 @@ export const useScheduleEvents = () => {
                   lng: plan.lodging.lng,
                 },
                 destination: { lat: firstSpot.lat, lng: firstSpot.lng },
-                travelMode: google.maps.TravelMode.DRIVING,
+                mode: 'driving',
               })
 
               const lodgingId = uuidv4()
@@ -140,7 +140,7 @@ export const useScheduleEvents = () => {
                 {
                   from: lodgingId,
                   to: firstSpot.id,
-                  duration: result.routes[0].legs[0].duration?.value || 0,
+                  duration: result.legs[0].duration?.value || 0,
                   durationUnit: 'second',
                   mode: 'car',
                 },
@@ -155,7 +155,7 @@ export const useScheduleEvents = () => {
                   lat: plan.lodging.lat,
                   lng: plan.lodging.lng,
                 },
-                travelMode: google.maps.TravelMode.DRIVING,
+                mode: 'driving',
               })
               const lodgingId = uuidv4()
 
@@ -164,7 +164,7 @@ export const useScheduleEvents = () => {
                 {
                   from: lastSpot.id,
                   to: lodgingId,
-                  duration: result.routes[0].legs[0].duration?.value || 0,
+                  duration: result.legs[0].duration?.value || 0,
                   durationUnit: 'second',
                   mode: 'car',
                 },

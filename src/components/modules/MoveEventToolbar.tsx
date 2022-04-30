@@ -33,11 +33,11 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
     const travelMode = () => {
       switch (mode) {
         case 'car':
-          return google.maps.TravelMode.DRIVING
+          return 'driving'
         case 'walk':
-          return google.maps.TravelMode.WALKING
+          return 'walking'
         case 'bicycle':
-          return google.maps.TravelMode.BICYCLING
+          return 'bicycling'
 
         default:
           throw new Error(`${mode} is not implemented`)
@@ -53,11 +53,11 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
     const result = await directions.search({
       origin: { lat: org.lat, lng: org.lng },
       destination: { lat: dest.lat, lng: dest.lng },
-      travelMode: travelMode(),
+      mode: travelMode(),
     })
 
-    if (result.routes[0].legs.length > 0) {
-      const durationSec = result.routes[0].legs[0].duration?.value || 0
+    if (result.legs.length > 0) {
+      const durationSec = result.legs[0].duration?.value || 0
 
       routesActions.updateRoute({
         ...event.extendedProps,
