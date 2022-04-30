@@ -21,10 +21,16 @@ type Leg = {
   }
 }
 
-type DirectionsResult<T extends google.maps.LatLngLiteral> = {
+type Route<T extends google.maps.LatLngLiteral> = {
   legs: Array<Leg>
   ordered_waypoints: Array<T>
   waypoint_order: Array<number>
+}
+
+type DirectionsResult<T extends google.maps.LatLngLiteral> = {
+  route?: Route<T> | null
+  status: 'success' | 'failed'
+  message: string
 }
 
 export const useDirections = () => {
@@ -53,8 +59,12 @@ export const useDirections = () => {
               props
             )
 
-            console.log(result)
-            return result
+            if (result.route) {
+              return result.route
+            } else {
+              console.error(result.message)
+              return null
+            }
           } finally {
             setLoading(false)
           }

@@ -229,7 +229,7 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
           return {
             from: origin.id,
             to: destination.id,
-            duration: result.legs[0].duration?.value || 0,
+            duration: result?.legs[0].duration?.value || 0,
             durationUnit: 'second',
             mode: 'car',
           }

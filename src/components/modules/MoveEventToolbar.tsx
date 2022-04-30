@@ -56,7 +56,7 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
       mode: travelMode(),
     })
 
-    if (result.legs.length > 0) {
+    if (result && result.legs.length > 0) {
       const durationSec = result.legs[0].duration?.value || 0
 
       routesActions.updateRoute({

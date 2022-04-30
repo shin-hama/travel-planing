@@ -140,7 +140,7 @@ export const useScheduleEvents = () => {
                 {
                   from: lodgingId,
                   to: firstSpot.id,
-                  duration: result.legs[0].duration?.value || 0,
+                  duration: result?.legs[0].duration?.value || 0,
                   durationUnit: 'second',
                   mode: 'car',
                 },
@@ -164,7 +164,7 @@ export const useScheduleEvents = () => {
                 {
                   from: lastSpot.id,
                   to: lodgingId,
-                  duration: result.legs[0].duration?.value || 0,
+                  duration: result?.legs[0].duration?.value || 0,
                   durationUnit: 'second',
                   mode: 'car',
                 },
