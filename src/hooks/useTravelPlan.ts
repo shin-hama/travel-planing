@@ -93,30 +93,18 @@ export const useTravelPlan = () => {
         }
 
         const result = await directionService.search({
-          origin: {
-            lat: planRef.current.home.lat,
-            lng: planRef.current.home.lng,
-          },
-          destination: {
-            lat: planRef.current.home.lat,
-            lng: planRef.current.home.lng,
-          },
-          waypoints: planRef.current.waypoints.map((spot) => ({
-            location: {
-              location: {
-                lat: spot.lat,
-                lng: spot.lng,
-              },
-            },
-          })),
-          travelMode: google.maps.TravelMode.DRIVING,
+          origin: planRef.current.home,
+          destination: planRef.current.home,
+          waypoints: planRef.current.waypoints,
+          mode: 'driving',
         })
 
-        const routeResult = result.routes.shift()
-        if (routeResult) {
-          const orderedWaypoints = routeResult.waypoint_order
+        if (result) {
+          const orderedWaypoints = result.waypoint_order
             .map((i) => planRef.current?.waypoints[i] || null)
             .filter((item): item is Spot => item !== null)
+          console.log(orderedWaypoints)
+          console.log(result.ordered_waypoints)
 
           const newSpots: Array<Spot> = [
             {
@@ -141,7 +129,7 @@ export const useTravelPlan = () => {
               return {
                 from: spot.id,
                 to: newSpots[index + 1].id,
-                duration: routeResult.legs[index].duration?.value || 0,
+                duration: result.legs[index].duration?.value || 0,
                 durationUnit: 'second',
                 mode: 'car',
               }

@@ -26,6 +26,13 @@ export const googleMapConfigs = {
   apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
 }
 
+if (!process.env.NEXT_PUBLIC_BFF_URL) {
+  throw new Error('NEXT_PUBLIC_BFF_URL is not defined on environment')
+}
+export const bffConfigs = {
+  url: process.env.NEXT_PUBLIC_BFF_URL,
+}
+
 if (
   !process.env.NEXT_PUBLIC_HASURA_API_KEY ||
   !process.env.NEXT_PUBLIC_GRAPHQL_SERVER_URL

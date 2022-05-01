@@ -220,18 +220,16 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
             return routeCache
           }
 
-          const travelMode = google.maps.TravelMode.DRIVING
-
           const result = await directionService.search({
             origin,
             destination,
-            travelMode,
+            mode: 'driving',
           })
 
           return {
             from: origin.id,
             to: destination.id,
-            duration: result.routes[0].legs[0].duration?.value || 0,
+            duration: result?.legs[0].duration?.value || 0,
             durationUnit: 'second',
             mode: 'car',
           }
