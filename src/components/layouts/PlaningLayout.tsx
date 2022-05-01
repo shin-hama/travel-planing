@@ -15,10 +15,10 @@ import Div100vh from 'react-div-100vh'
 
 import MapView from './MapView'
 import PlanView from './PlanView'
-import ScheduleView from './ScheduleView'
 import Header from 'components/modules/Header'
 import TabPanel from 'components/modules/TabPanel'
 import { MapLayerProvider } from 'contexts/MapLayerModeProvider'
+import ScheduleListView from './ScheduleListView'
 
 const MyTab = styled(Tab)`
   padding: 0;
@@ -77,7 +77,7 @@ const PlanningLayout: React.FC = () => {
               index={2}
               position="absolute"
               overflow="hidden auto">
-              <ScheduleView onClose={() => setValue(0)} />
+              <ScheduleListView onClose={() => setValue(0)} />
             </TabPanel>
           </MapLayerProvider>
         </Box>

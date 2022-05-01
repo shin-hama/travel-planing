@@ -2,6 +2,11 @@ import { initializeApp, FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { initializeFirestore } from 'firebase/firestore'
 
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+
+dayjs.extend(customParseFormat)
+
 if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
   throw new Error('Firebase API Key is not defined on environment')
 }
