@@ -1,6 +1,7 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 import dayjs from 'dayjs'
 
 import { Plan, SpotEvent } from 'contexts/CurrentPlanProvider'
@@ -96,10 +97,16 @@ const ListScheduler: React.FC<Props> = ({ plan, planApi }) => {
 
   return (
     <>
-      <Stack spacing={2} maxWidth="400px">
-        {events.map((event) => (
-          <SpotCard key={event.id} spot={event} />
-        ))}
+      <Stack direction="row" spacing={4}>
+        <Stack spacing={2} width="400px">
+          <Stack direction="row" justifyContent="space-between">
+            <Typography>1st Day</Typography>
+            <Box>+</Box>
+          </Stack>
+          {events.map((event) => (
+            <SpotCard key={event.id} spot={event} />
+          ))}
+        </Stack>
       </Stack>
     </>
   )
