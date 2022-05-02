@@ -1,11 +1,13 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
 import dayjs from 'dayjs'
 
 import { Plan, SpotEvent } from 'contexts/CurrentPlanProvider'
 import { useScheduleEvents } from 'hooks/useScheduleEvents'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { PlanAPI } from 'hooks/useTravelPlan'
+import SpotCard from './SpotCard'
 
 // useTravelPlan() が何度も再読み込みされるのを防ぐために props で受け取る
 type Props = {
@@ -94,9 +96,11 @@ const ListScheduler: React.FC<Props> = ({ plan, planApi }) => {
 
   return (
     <>
-      {events.map((event) => (
-        <div key={event.id}>{event.name}</div>
-      ))}
+      <Stack spacing={2} maxWidth="400px">
+        {events.map((event) => (
+          <SpotCard key={event.id} spot={event} />
+        ))}
+      </Stack>
     </>
   )
 }
