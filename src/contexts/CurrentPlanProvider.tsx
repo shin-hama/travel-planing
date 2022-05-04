@@ -89,6 +89,11 @@ export type Belonging = {
   checked: boolean
 }
 
+export type Schedule = {
+  date: Date
+  spots: Array<Spot>
+}
+
 export type Plan = {
   title: string
   home: Prefecture
@@ -99,7 +104,7 @@ export type Plan = {
   end: Date
   waypoints: Array<Spot>
   routes: Array<Route>
-  events?: Array<ScheduleEvent>
+  events: Array<Schedule>
   lodging?: Omit<Spot, 'id'>
   belongings: Array<Belonging>
 }

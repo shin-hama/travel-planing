@@ -81,6 +81,12 @@ const PrefectureSelector = () => {
         waypoints: [],
         routes: [],
         belongings: [],
+        events: [
+          {
+            date: planDTO.start,
+            spots: [],
+          },
+        ],
       }
       const id = await createPlan(newPlan)
 

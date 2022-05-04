@@ -35,8 +35,7 @@ const planConverter: FirestoreDataConverter<Plan> = {
       events:
         data.events?.map((event: DocumentData) => ({
           ...event,
-          start: event.start?.toDate(),
-          end: event.end?.toDate(),
+          date: event.date?.toDate(),
         })) || [],
       lodging: data.lodging || undefined,
       belongings: data.belongings || [],

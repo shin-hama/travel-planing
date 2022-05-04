@@ -2,23 +2,26 @@ import * as React from 'react'
 import Button from '@mui/material/Button'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useWaypoints } from 'hooks/useWaypoints'
 import { Spot } from 'contexts/CurrentPlanProvider'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 type Props = {
   newSpot: Omit<Spot, 'id'> & { id?: string | null }
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
-  const [waypoints, actions] = useWaypoints()
+  const [plan, planApi] = useTravelPlan()
 
-  const selected = waypoints?.find((item) => item.id && item.id === newSpot.id)
+  const selected = plan?.events
+    .map((event) => event.spots)
+    .flat()
+    .find((spot) => spot.id === newSpot.id)
 
   const handleClick = () => {
     if (selected) {
-      actions.remove(selected.id)
+      planApi.removeSpot(selected.id)
     } else {
-      actions.add({ ...newSpot, id: newSpot.id || uuidv4() })
+      planApi.addSpot({ ...newSpot, id: newSpot.id || uuidv4() })
     }
   }
 
