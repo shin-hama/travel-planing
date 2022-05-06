@@ -20,7 +20,7 @@ export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
 type Props = {
   spot: SpotDTO
 }
-const SpotCard: React.FC<Props> = React.memo(function SpotCard({ spot }) {
+const SpotCard: React.FC<Props> = ({ spot }) => {
   const placesService = usePlaces()
   const [photos, setPhotos] = React.useState<Array<string>>([])
 
@@ -91,6 +91,6 @@ const SpotCard: React.FC<Props> = React.memo(function SpotCard({ spot }) {
       </Grid>
     </Card>
   )
-})
+}
 
 export default SpotCard

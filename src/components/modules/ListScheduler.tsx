@@ -80,6 +80,40 @@ const ListScheduler: React.FC = () => {
       const newEvents = reorder(plan.events, source.index, destination.index)
 
       planApi.update({ events: newEvents })
+    } else if (result.type === 'ITEM') {
+      if (source.droppableId === destination.droppableId) {
+        console.log(plan.events[Number.parseInt(source.droppableId)].spots)
+        // moving to same list
+        const reordered = reorder(
+          plan.events[Number.parseInt(source.droppableId)].spots,
+          source.index,
+          destination.index
+        )
+        console.log(reordered)
+
+        planApi.update({
+          events: plan.events.map((event, i) =>
+            i.toString() === source.droppableId
+              ? {
+                  ...event,
+                  spots: reordered,
+                }
+              : event
+          ),
+        })
+      } else {
+        // moving to different list
+        const [removedSpot] = plan.events[
+          Number.parseInt(source.droppableId)
+        ].spots.splice(source.index, 1)
+
+        plan.events[Number.parseInt(destination.droppableId)].spots.splice(
+          destination.index,
+          0,
+          removedSpot
+        )
+        planApi.update({ events: plan.events })
+      }
     } else {
       throw Error('not supported: ' + result.type)
     }
@@ -105,35 +139,63 @@ const ListScheduler: React.FC = () => {
               {plan?.events.map((event, i) => (
                 <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
                   {(provided: DraggableProvided) => (
-                    <Stack
-                      spacing={2}
-                      minWidth="320px"
+                    <Box
                       ref={provided.innerRef}
                       {...provided.dragHandleProps}
                       {...provided.draggableProps}>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between">
-                        <Typography>Day {i}</Typography>
-                        <Box>
-                          <IconButton onClick={handleRemoveDay}>
-                            <SvgIcon>
-                              <FontAwesomeIcon icon={faPlus} />
-                            </SvgIcon>
-                          </IconButton>
-                          <IconButton
-                            onClick={(e) => handleOpenMenu(e.currentTarget)}>
-                            <SvgIcon>
-                              <FontAwesomeIcon icon={faEllipsisVertical} />
-                            </SvgIcon>
-                          </IconButton>
-                        </Box>
-                      </Stack>
-                      {event.spots.map((spot) => (
-                        <SpotCard key={spot.id} spot={spot} />
-                      ))}
-                    </Stack>
+                      <Droppable
+                        droppableId={i.toString()}
+                        type="ITEM"
+                        direction="vertical">
+                        {(provided) => (
+                          <Stack
+                            spacing={2}
+                            minWidth="320px"
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}>
+                            <Stack
+                              direction="row"
+                              alignItems="center"
+                              justifyContent="space-between">
+                              <Typography>Day {i}</Typography>
+                              <Box>
+                                <IconButton onClick={handleRemoveDay}>
+                                  <SvgIcon>
+                                    <FontAwesomeIcon icon={faPlus} />
+                                  </SvgIcon>
+                                </IconButton>
+                                <IconButton
+                                  onClick={(e) =>
+                                    handleOpenMenu(e.currentTarget)
+                                  }>
+                                  <SvgIcon>
+                                    <FontAwesomeIcon
+                                      icon={faEllipsisVertical}
+                                    />
+                                  </SvgIcon>
+                                </IconButton>
+                              </Box>
+                            </Stack>
+                            {event.spots.map((spot, index) => (
+                              <Draggable
+                                key={spot.id}
+                                draggableId={spot.id}
+                                index={index}>
+                                {(provided) => (
+                                  <Box
+                                    ref={provided.innerRef}
+                                    {...provided.dragHandleProps}
+                                    {...provided.draggableProps}>
+                                    <SpotCard spot={spot} />
+                                  </Box>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </Stack>
+                        )}
+                      </Droppable>
+                    </Box>
                   )}
                 </Draggable>
               ))}
