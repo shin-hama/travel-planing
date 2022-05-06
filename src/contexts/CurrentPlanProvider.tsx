@@ -2,7 +2,6 @@ import * as React from 'react'
 import dayjs from 'dayjs'
 import { EventInput } from '@fullcalendar/react' // must go before plugins
 
-import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import {
   PLANING_USERS_PLANS_COLLECTIONS,
@@ -102,8 +101,6 @@ export type Plan = {
   start: Date
   startTime: Date
   end: Date
-  waypoints: Array<Spot>
-  routes: Array<Route>
   events: Array<Schedule>
   lodging?: Omit<Spot, 'id'>
   belongings: Array<Belonging>
@@ -166,93 +163,9 @@ export const SetCurrentPlanContext = React.createContext<
 
 export const CurrentPlanContextProvider: React.FC = ({ children }) => {
   const [currentPlan, setPlan] = React.useReducer(planReducer, null)
-  const { actions: directionService } = useDirections()
 
   const [user] = useAuthentication()
   const db = useFirestore()
-
-  React.useEffect(() => {
-    const func = async () => {
-      if (directionService.isLoaded === false) {
-        return
-      }
-
-      if (!currentPlan) {
-        console.log('plan is not selected')
-        return
-      }
-      const { data: plan } = currentPlan
-      if (plan.waypoints.length === 0) {
-        console.log('There are no waypoints')
-        return
-      }
-
-      const spots: Array<Spot> = [
-        {
-          ...plan.home,
-          id: `${plan.home.placeId}-start`,
-          duration: 30,
-          durationUnit: 'minute',
-        },
-        ...plan.waypoints,
-        {
-          ...plan.home,
-          id: `${plan.home.placeId}-end`,
-          duration: 30,
-          durationUnit: 'minute',
-        },
-      ]
-
-      const newRoute = await Promise.all(
-        spots.map(async (spot, i): Promise<Route | null> => {
-          if (i === spots.length - 1) {
-            return null
-          }
-
-          const origin = { lat: spot.lat, lng: spot.lng, id: spot.id }
-          const destination = {
-            lat: spots[i + 1].lat,
-            lng: spots[i + 1].lng,
-            id: spots[i + 1].id,
-          }
-
-          const routeCache = plan.routes.find(
-            (route) => route.from === origin.id && route.to === destination.id
-          )
-          if (routeCache) {
-            // 計算済みの値があればそれを再利用する
-            console.log('use route cache')
-            return routeCache
-          }
-
-          const result = await directionService.search({
-            origin,
-            destination,
-            mode: 'driving',
-          })
-
-          return {
-            from: origin.id,
-            to: destination.id,
-            duration: result?.legs[0].duration?.value || 0,
-            durationUnit: 'second',
-            mode: 'car',
-          }
-        })
-      )
-
-      setPlan({
-        type: 'update',
-        value: {
-          routes: newRoute.filter((item): item is Route => item !== null),
-        },
-      })
-    }
-
-    func()
-    // 余計な計算を行わないために、waypoints と home だけに依存させる
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPlan?.data.waypoints, currentPlan?.data.home])
 
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   React.useEffect(() => {

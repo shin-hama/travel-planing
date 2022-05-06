@@ -34,8 +34,6 @@ const PlanMenu: React.FC<Props> = ({ addHotelCallback, ...props }) => {
         // when cancel
         return
       }
-
-      await planApi.optimizeRoute()
     } catch (e) {
       console.error(e)
     }

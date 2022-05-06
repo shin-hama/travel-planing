@@ -25,7 +25,7 @@ const PlanView = () => {
   return (
     <Stack>
       <Image
-        src={plan?.home.imageUrl}
+        src={plan?.thumbnail}
         width={16}
         height={9}
         layout="responsive"

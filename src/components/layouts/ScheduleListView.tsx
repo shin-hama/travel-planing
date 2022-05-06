@@ -7,6 +7,7 @@ import SchedulerHeader from 'components/modules/SchedulerHeader'
 import { useRouter } from 'hooks/useRouter'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import ListScheduler from 'components/modules/ListScheduler'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   onClose: () => void
@@ -14,6 +15,7 @@ type Props = {
 const ScheduleListView: React.FC<Props> = ({ onClose }) => {
   const router = useRouter()
   const [plan, planApi] = useTravelPlan()
+  const [waypoints] = useWaypoints()
 
   React.useEffect(() => {
     if (!plan) {
@@ -48,7 +50,7 @@ const ScheduleListView: React.FC<Props> = ({ onClose }) => {
       </Stack>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={plan.waypoints?.length === 0}
+        open={waypoints?.length === 0}
         autoHideDuration={6000}>
         <Alert severity={'info'}>地図上で行きたい場所を選んでください。</Alert>
       </Snackbar>

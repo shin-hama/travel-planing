@@ -9,7 +9,6 @@ import { faBicycle, faCar, faWalking } from '@fortawesome/free-solid-svg-icons'
 
 import { MoveEvent } from 'contexts/CurrentPlanProvider'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { useRoutes } from 'hooks/useRoutes'
 import { useWaypoints } from 'hooks/useWaypoints'
 
 export const MoveTypes: Record<
@@ -26,7 +25,6 @@ type Props = {
 }
 const MoveEventToolbar: React.FC<Props> = ({ event }) => {
   const { actions: directions } = useDirections()
-  const [, routesActions] = useRoutes()
   const [waypoints] = useWaypoints()
 
   const handleClickMode = (mode: keyof typeof MoveTypes) => async () => {
@@ -58,13 +56,6 @@ const MoveEventToolbar: React.FC<Props> = ({ event }) => {
 
     if (result && result.legs.length > 0) {
       const durationSec = result.legs[0].duration?.value || 0
-
-      routesActions.updateRoute({
-        ...event.extendedProps,
-        duration: durationSec,
-        durationUnit: 'second',
-        mode: mode,
-      })
     }
   }
 
