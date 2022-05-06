@@ -6,13 +6,27 @@ import SvgIcon from '@mui/material/SvgIcon'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsisVertical, faPlus } from '@fortawesome/free-solid-svg-icons'
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+  DropResult,
+} from 'react-beautiful-dnd'
 
 import SpotCard from './SpotCard'
 import DayMenu from './DayMenu'
 import { useList } from 'react-use'
 import { useTravelPlan } from 'hooks/useTravelPlan'
-import dayjs from 'dayjs'
 
+const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
+  const result = Array.from(list)
+  const [removed] = result.splice(startIndex, 1)
+  result.splice(endIndex, 0, removed)
+
+  return result
+}
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = useTravelPlan()
   const [days, setDays] = useList([1])
@@ -28,9 +42,6 @@ const ListScheduler: React.FC = () => {
       events: [
         ...plan.events,
         {
-          date: dayjs(plan.events[plan.events.length - 1].date)
-            .add(1, 'day')
-            .toDate(),
           spots: [],
         },
       ],
@@ -47,35 +58,90 @@ const ListScheduler: React.FC = () => {
     setAnchor(anchor)
   }
 
+  const handleDragEnd = (result: DropResult) => {
+    console.log(result)
+    if (!result.destination || !plan) {
+      return
+    }
+
+    const source = result.source
+    const destination = result.destination
+
+    // did not move anywhere - can bail early
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return
+    }
+
+    // reordering column
+    if (result.type === 'COLUMN') {
+      const newEvents = reorder(plan.events, source.index, destination.index)
+
+      planApi.update({ events: newEvents })
+    } else {
+      throw Error('not supported: ' + result.type)
+    }
+  }
+
   return (
     <>
-      <Stack direction="row" spacing={4}>
-        {plan?.events.map((event, i) => (
-          <Stack key={`day-${i}`} spacing={2} width="400px">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="board" type="COLUMN" direction="horizontal">
+          {(provided: DroppableProvided) => (
             <Stack
+              ref={provided.innerRef}
+              {...provided.droppableProps}
               direction="row"
-              alignItems="center"
-              justifyContent="space-between">
-              <Typography>Day {i}</Typography>
-              <Box>
-                <IconButton onClick={handleAddDay}>
-                  <SvgIcon>
-                    <FontAwesomeIcon icon={faPlus} />
-                  </SvgIcon>
-                </IconButton>
-                <IconButton onClick={(e) => handleOpenMenu(e.currentTarget)}>
-                  <SvgIcon>
-                    <FontAwesomeIcon icon={faEllipsisVertical} />
-                  </SvgIcon>
-                </IconButton>
-              </Box>
+              spacing={4}
+              sx={{
+                height: '100%',
+                overflow: 'auto',
+                '&::-webkit-scrollbar': {
+                  display: 'none',
+                },
+              }}>
+              {plan?.events.map((event, i) => (
+                <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
+                  {(provided: DraggableProvided) => (
+                    <Stack
+                      spacing={2}
+                      minWidth="320px"
+                      ref={provided.innerRef}
+                      {...provided.dragHandleProps}
+                      {...provided.draggableProps}>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between">
+                        <Typography>Day {i}</Typography>
+                        <Box>
+                          <IconButton onClick={handleRemoveDay}>
+                            <SvgIcon>
+                              <FontAwesomeIcon icon={faPlus} />
+                            </SvgIcon>
+                          </IconButton>
+                          <IconButton
+                            onClick={(e) => handleOpenMenu(e.currentTarget)}>
+                            <SvgIcon>
+                              <FontAwesomeIcon icon={faEllipsisVertical} />
+                            </SvgIcon>
+                          </IconButton>
+                        </Box>
+                      </Stack>
+                      {event.spots.map((spot) => (
+                        <SpotCard key={spot.id} spot={spot} />
+                      ))}
+                    </Stack>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </Stack>
-            {event.spots.map((spot) => (
-              <SpotCard key={spot.id} spot={spot} />
-            ))}
-          </Stack>
-        ))}
-      </Stack>
+          )}
+        </Droppable>
+      </DragDropContext>
       <DayMenu
         anchorEl={anchor}
         open={Boolean(anchor)}

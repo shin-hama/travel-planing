@@ -81,7 +81,6 @@ const PrefectureSelector = () => {
         belongings: [],
         events: [
           {
-            date: planDTO.start,
             spots: [],
           },
         ],
