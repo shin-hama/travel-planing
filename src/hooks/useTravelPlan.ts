@@ -15,12 +15,10 @@ import {
 import { useAuthentication } from './firebase/useAuthentication'
 
 export interface PlanAPI {
-  addSpot: (spot: Spot) => void
   create: (newPlan: Plan) => Promise<string | undefined>
   clear: () => void
   delete: () => Promise<void>
   optimizeRoute: () => Promise<void>
-  removeSpot: (spotId: Spot['id']) => void
   set: (id: string, newPlan: Plan) => void
   update: (updated: Partial<Plan>) => void
 }
@@ -78,25 +76,6 @@ export const useTravelPlan = () => {
         } catch (e) {
           console.error(e)
         }
-      },
-      addSpot: (spot: Spot) => {
-        actions.update({
-          events: planRef.current?.events.map((event, i) => {
-            if (planRef.current && i === planRef.current?.events.length - 1) {
-              return { ...event, spots: [...event.spots, spot] }
-            } else {
-              return event
-            }
-          }),
-        })
-      },
-      removeSpot: (spotId: Spot['id']) => {
-        actions.update({
-          events: planRef.current?.events.map((event) => ({
-            ...event,
-            spots: event.spots.filter((spot) => spot.id !== spotId),
-          })),
-        })
       },
       optimizeRoute: async () => {
         if (!directionService.isLoaded) {

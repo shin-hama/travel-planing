@@ -8,11 +8,13 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 import SpotsList from 'components/modules/SpotsList'
 import { Plan } from 'contexts/CurrentPlanProvider'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   plan: Plan
 }
 const PlanInfo: React.FC<Props> = ({ plan }) => {
+  const [waypoints] = useWaypoints()
   return (
     <Stack spacing={4}>
       <Stack direction="row" justifyContent="space-between" alignItems="start">
@@ -35,8 +37,8 @@ const PlanInfo: React.FC<Props> = ({ plan }) => {
       </Stack>
       <Stack spacing={2}>
         <Typography variant="h2">行きたいところリスト</Typography>
-        {plan.waypoints.length > 0 ? (
-          <SpotsList spots={plan.waypoints} />
+        {waypoints ? (
+          <SpotsList spots={waypoints} />
         ) : (
           <Typography variant="subtitle1">
             地図上で行きたい場所を選んでください。

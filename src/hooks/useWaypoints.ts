@@ -1,99 +1,42 @@
 import * as React from 'react'
 
-import {
-  CurrentPlanContext,
-  Plan,
-  SetCurrentPlanContext,
-  Spot,
-} from 'contexts/CurrentPlanProvider'
+import { Plan, Spot } from 'contexts/CurrentPlanProvider'
+import { useTravelPlan } from './useTravelPlan'
 
 export const useWaypoints = () => {
-  const plan = React.useContext(CurrentPlanContext)
-  const setPlan = React.useContext(SetCurrentPlanContext)
+  const [plan, planApi] = useTravelPlan()
   const planRef = React.useRef<Plan | null>(null)
-  planRef.current = plan?.data || null
+  planRef.current = plan
+  const waypoints = plan?.events.map((event) => event.spots).flat()
 
   const actions = React.useMemo(() => {
     const a = {
       add: (newSpot: Spot) => {
         if (planRef.current) {
-          setPlan({
-            type: 'update',
-            value: {
-              waypoints: [...planRef.current.waypoints, newSpot],
-            },
+          planApi.update({
+            events: planRef.current?.events.map((event, i) => {
+              if (planRef.current && i === planRef.current?.events.length - 1) {
+                return { ...event, spots: [...event.spots, newSpot] }
+              } else {
+                return event
+              }
+            }),
           })
         } else {
           console.error('fail to update waypoints')
         }
       },
-      remove: (id: string) => {
+      remove: (spotId: Spot['id']) => {
         if (planRef.current) {
-          setPlan({
-            type: 'update',
-            value: {
-              waypoints: planRef.current.waypoints.filter(
-                (item) => item.id !== id
-              ),
-            },
+          planApi.update({
+            events: planRef.current?.events.map((event) => ({
+              ...event,
+              spots: event.spots.filter((spot) => spot.id !== spotId),
+            })),
           })
         } else {
           console.error('fail to update waypoints')
         }
-      },
-      swap: (index: number, target: number) => {
-        if (!planRef.current) {
-          console.error('plan is not selected')
-          return
-        }
-
-        if (
-          target >= 0 &&
-          target < planRef.current.waypoints.length &&
-          index >= 0 &&
-          index < planRef.current.waypoints.length
-        ) {
-          const newWaypoints = planRef.current.waypoints.slice()
-          newWaypoints[index] = [
-            newWaypoints[target],
-            (newWaypoints[target] = newWaypoints[index]),
-          ][0]
-
-          setPlan({ type: 'update', value: { waypoints: newWaypoints } })
-        } else {
-          console.warn(
-            `Cannot move from ${index} to ${target}, waypoints.length: ${planRef.current.waypoints.length}`
-          )
-        }
-      },
-      insert: (index: number, newSpot: Spot) => {
-        if (!planRef.current) {
-          console.error('plan is not selected')
-          return
-        }
-
-        const newWaypoints = planRef.current.waypoints.slice()
-        // 入力された index がリストの長さより長い場合は末尾に追加
-        index > newWaypoints.length
-          ? newWaypoints.push(newSpot)
-          : newWaypoints.splice(index, 0, newSpot)
-
-        setPlan({
-          type: 'update',
-          value: { waypoints: newWaypoints },
-        })
-      },
-      move: (id: string, index: number) => {
-        if (!planRef.current) {
-          return
-        }
-
-        const waypoints = planRef.current.waypoints.slice()
-        const currentIndex = waypoints.findIndex((spot) => spot.id === id)
-
-        waypoints.splice(index, 0, waypoints.splice(currentIndex, 1)[0])
-
-        setPlan({ type: 'update', value: { waypoints } })
       },
       update: (id: string, updatedSpot: Partial<Spot>) => {
         if (!planRef.current) {
@@ -101,17 +44,20 @@ export const useWaypoints = () => {
           return
         }
 
-        // 対象の Waypoint を更新した新しいリストを作成する
-        const newWaypoints = planRef.current.waypoints.map((spot) =>
-          spot.id === id ? { ...spot, ...updatedSpot } : spot
-        )
-
-        setPlan({ type: 'update', value: { waypoints: newWaypoints } })
+        // 対象の Waypoint を更新した新しいイベントオブジェクトを作成する
+        planApi.update({
+          events: planRef.current?.events.map((event) => ({
+            ...event,
+            spots: event.spots.map((spot) =>
+              spot.id !== id ? spot : { ...spot, ...updatedSpot }
+            ),
+          })),
+        })
       },
     }
 
     return a
-  }, [setPlan])
+  }, [planApi])
 
-  return [plan?.data.waypoints, actions] as const
+  return [waypoints, actions] as const
 }
