@@ -15,10 +15,10 @@ import {
   DropResult,
 } from 'react-beautiful-dnd'
 
-import SpotCard from './SpotCard'
 import DayMenu from './DayMenu'
 import { useList } from 'react-use'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import SpotEventCard from './SpotEventCard'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -186,7 +186,7 @@ const ListScheduler: React.FC = () => {
                                     ref={provided.innerRef}
                                     {...provided.dragHandleProps}
                                     {...provided.draggableProps}>
-                                    <SpotCard spot={spot} />
+                                    <SpotEventCard spot={spot} />
                                   </Box>
                                 )}
                               </Draggable>
