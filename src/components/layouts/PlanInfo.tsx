@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import SvgIcon from '@mui/material/SvgIcon'
@@ -35,10 +36,14 @@ const PlanInfo: React.FC<Props> = ({ plan }) => {
           </SvgIcon>
         </IconButton>
       </Stack>
-      <Stack spacing={2}>
-        <Typography variant="h2">行きたいところリスト</Typography>
+      <Stack spacing={2} alignItems="center" maxHeight="500px">
+        <Typography variant="h2" textAlign="left" sx={{ width: '100%' }}>
+          行きたいところリスト
+        </Typography>
         {waypoints ? (
-          <SpotsList spots={waypoints} />
+          <Box minWidth="360px" overflow="auto">
+            <SpotsList spots={waypoints} />
+          </Box>
         ) : (
           <Typography variant="subtitle1">
             地図上で行きたい場所を選んでください。

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { styled } from '@mui/system'
 import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
 import SvgIcon from '@mui/material/SvgIcon'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
@@ -63,7 +64,9 @@ const PlanningLayout: React.FC = () => {
               index={0}
               position="absolute"
               overflow="hidden auto">
-              <PlanView />
+              <Box maxWidth="sm" mx="auto">
+                <PlanView />
+              </Box>
             </TabPanel>
             <TabPanel
               value={value}
@@ -77,7 +80,9 @@ const PlanningLayout: React.FC = () => {
               index={2}
               position="absolute"
               overflow="hidden auto">
-              <ScheduleListView onClose={() => setValue(0)} />
+              <Container sx={{ height: '100%', overflow: 'hidden' }}>
+                <ScheduleListView onClose={() => setValue(0)} />
+              </Container>
             </TabPanel>
           </MapLayerProvider>
         </Box>

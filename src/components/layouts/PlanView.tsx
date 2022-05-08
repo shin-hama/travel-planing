@@ -23,7 +23,7 @@ const PlanView = () => {
   }
 
   return (
-    <Stack>
+    <Stack width="100%">
       <Box width="100%">
         <Image
           src={plan?.thumbnail}
