@@ -16,7 +16,6 @@ import {
 } from 'react-beautiful-dnd'
 
 import DayMenu from './DayMenu'
-import { useList } from 'react-use'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import SpotEventCard from './SpotEventCard'
 import SpotEventEditor from './SpotEventEditor'
@@ -31,25 +30,8 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
 }
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = useTravelPlan()
-  const [days, setDays] = useList([1])
   const [editSpot, setEditSpot] = React.useState<Spot | null>(null)
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
-
-  const handleAddDay = () => {
-    if (!plan) {
-      alert('plan is not selected')
-      return
-    }
-    setDays.push(days.length + 1)
-    planApi.update({
-      events: [
-        ...plan.events,
-        {
-          spots: [],
-        },
-      ],
-    })
-  }
 
   const handleRemoveDay = () => {
     planApi.update({
@@ -62,7 +44,6 @@ const ListScheduler: React.FC = () => {
   }
 
   const handleDragEnd = (result: DropResult) => {
-    console.log(result)
     if (!result.destination || !plan) {
       return
     }
@@ -85,14 +66,12 @@ const ListScheduler: React.FC = () => {
       planApi.update({ events: newEvents })
     } else if (result.type === 'ITEM') {
       if (source.droppableId === destination.droppableId) {
-        console.log(plan.events[Number.parseInt(source.droppableId)].spots)
         // moving to same list
         const reordered = reorder(
           plan.events[Number.parseInt(source.droppableId)].spots,
           source.index,
           destination.index
         )
-        console.log(reordered)
 
         planApi.update({
           events: plan.events.map((event, i) =>
@@ -103,6 +82,18 @@ const ListScheduler: React.FC = () => {
                 }
               : event
           ),
+        })
+      } else if (destination.droppableId === 'newDay') {
+        const [removedSpot] = plan.events[
+          Number.parseInt(source.droppableId)
+        ].spots.splice(source.index, 1)
+        planApi.update({
+          events: [
+            ...plan.events,
+            {
+              spots: [removedSpot],
+            },
+          ],
         })
       } else {
         // moving to different list
@@ -115,7 +106,9 @@ const ListScheduler: React.FC = () => {
           0,
           removedSpot
         )
-        planApi.update({ events: plan.events })
+        planApi.update({
+          events: plan.events,
+        })
       }
     } else {
       throw Error('not supported: ' + result.type)
@@ -143,6 +136,7 @@ const ListScheduler: React.FC = () => {
                 <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
                   {(provided: DraggableProvided) => (
                     <Box
+                      height="100%"
                       ref={provided.innerRef}
                       {...provided.dragHandleProps}
                       {...provided.draggableProps}>
@@ -154,13 +148,14 @@ const ListScheduler: React.FC = () => {
                           <Stack
                             spacing={2}
                             minWidth="320px"
+                            height="100%"
                             ref={provided.innerRef}
                             {...provided.droppableProps}>
                             <Stack
                               direction="row"
                               alignItems="center"
                               justifyContent="space-between">
-                              <Typography>Day {i}</Typography>
+                              <Typography>Day {i + 1}</Typography>
                               <Box>
                                 <IconButton onClick={handleRemoveDay}>
                                   <SvgIcon>
@@ -203,6 +198,20 @@ const ListScheduler: React.FC = () => {
                   )}
                 </Draggable>
               ))}
+              <Droppable droppableId="newDay" type="ITEM">
+                {(provided) => (
+                  <Stack
+                    spacing={2}
+                    minWidth="320px"
+                    minHeight="160px"
+                    justifyContent="center"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    sx={{ border: 'dashed 1px #aaa' }}>
+                    <Typography textAlign="center">+ Add New Day</Typography>
+                  </Stack>
+                )}
+              </Droppable>
               {provided.placeholder}
             </Stack>
           )}

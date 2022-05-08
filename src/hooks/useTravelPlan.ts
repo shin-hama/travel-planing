@@ -29,6 +29,10 @@ export const useTravelPlan = () => {
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan?.data || null
 
+  React.useEffect(() => {
+    console.log('plan')
+  }, [plan])
+
   const actions = React.useMemo<PlanAPI>(() => {
     const a: PlanAPI = {
       create: async (newPlan: Plan): Promise<string | undefined> => {
@@ -55,6 +59,12 @@ export const useTravelPlan = () => {
       update: (updatedPlan: Partial<Plan>) => {
         try {
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
+          if (updatedPlan.events) {
+            // Event 更新時にリストが空になった場合削除する
+            updatedPlan.events = updatedPlan.events.filter(
+              (event) => event.spots.length !== 0
+            )
+          }
           setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
           console.error(updatedPlan)

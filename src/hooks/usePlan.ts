@@ -3,6 +3,7 @@ import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
+  serverTimestamp,
   SnapshotOptions,
 } from 'firebase/firestore'
 
@@ -15,7 +16,10 @@ import { Plan, PlanDB } from 'contexts/CurrentPlanProvider'
 // Firestore data converter
 const planConverter: FirestoreDataConverter<Plan> = {
   toFirestore: (plan: Plan) => {
-    return { ...plan }
+    return {
+      ...plan,
+      updatedAt: serverTimestamp(),
+    }
   },
   fromFirestore: (
     snapshot: QueryDocumentSnapshot<DocumentData>,
@@ -46,6 +50,17 @@ export const usePlans = () => {
 
   const actions = React.useMemo(() => {
     const a = {
+      save: async (userId: string, plan: PlanDB): Promise<PlanDB> => {
+        console.log('save plan')
+        const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
+        if (plan.id !== '' && userId) {
+          await db.set(path, plan.id, plan.data, planConverter)
+          return plan
+        } else {
+          const ref = await db.add(path, plan.data)
+          return { id: ref.id, data: plan.data }
+        }
+      },
       fetch: async (userId: string): Promise<Array<PlanDB>> => {
         try {
           const path = PLANING_USERS_PLANS_COLLECTIONS(userId)

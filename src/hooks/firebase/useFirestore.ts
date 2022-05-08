@@ -10,7 +10,6 @@ import {
   getDocs,
   setDoc,
   serverTimestamp,
-  updateDoc,
   WithFieldValue,
 } from 'firebase/firestore'
 
@@ -43,17 +42,17 @@ export const useFirestore = () => {
       /**
        * Set data to document that is specified id
        */
-      set: async (
+      set: async <T>(
         path: string,
         id: string,
-        data: WithFieldValue<DocumentData>
+        data: WithFieldValue<DocumentData>,
+        converter: FirestoreDataConverter<T>
       ) => {
         try {
           await setDoc(
-            doc(db, path, id),
+            doc(db, path, id).withConverter(converter),
             {
               ...data,
-              updatedAt: serverTimestamp(),
             },
             { merge: true }
           )
@@ -76,21 +75,6 @@ export const useFirestore = () => {
           return docRef
         } catch (e) {
           console.error('Error adding document: ', e)
-          throw e
-        }
-      },
-      update: async (
-        path: string,
-        id: string,
-        data: WithFieldValue<DocumentData>
-      ) => {
-        try {
-          await updateDoc(doc(db, path, id), {
-            ...data,
-            updatedAt: serverTimestamp(),
-          })
-        } catch (e) {
-          console.error(`fail to update: ${e}`)
           throw e
         }
       },

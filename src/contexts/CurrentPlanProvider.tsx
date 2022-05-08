@@ -3,10 +3,7 @@ import dayjs from 'dayjs'
 import { EventInput } from '@fullcalendar/react' // must go before plugins
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import {
-  PLANING_USERS_PLANS_COLLECTIONS,
-  useFirestore,
-} from 'hooks/firebase/useFirestore'
+import { usePlans } from 'hooks/usePlan'
 
 export type Prefecture = {
   name: string
@@ -147,7 +144,13 @@ const planReducer = (
         console.warn('Cannot update plan before selecting')
         return null
       }
-      return { id: state.id, data: { ...state.data, ...action.value } }
+      return {
+        id: state.id,
+        data: {
+          ...state.data,
+          ...action.value,
+        },
+      }
 
     case 'clear':
       return null
@@ -166,9 +169,9 @@ export const SetCurrentPlanContext = React.createContext<
 
 export const CurrentPlanContextProvider: React.FC = ({ children }) => {
   const [currentPlan, setPlan] = React.useReducer(planReducer, null)
+  const planDBApi = usePlans()
 
   const [user] = useAuthentication()
-  const db = useFirestore()
 
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   React.useEffect(() => {
@@ -182,16 +185,10 @@ export const CurrentPlanContextProvider: React.FC = ({ children }) => {
     }
 
     timerRef.current = setTimeout(async () => {
-      console.log('save plan')
-      const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-      if (currentPlan.id !== '' && user) {
-        db.set(path, currentPlan.id, currentPlan.data)
-      } else {
-        const ref = await db.add(path, currentPlan.data)
-        setPlan({ type: 'set', value: { id: ref.id, data: currentPlan.data } })
-      }
+      const saved = await planDBApi.save(user.uid, currentPlan)
+      setPlan({ type: 'set', value: saved })
     }, 500)
-  }, [currentPlan, db, user])
+  }, [currentPlan, planDBApi, user])
 
   return (
     <CurrentPlanContext.Provider value={currentPlan}>
