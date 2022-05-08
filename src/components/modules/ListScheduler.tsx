@@ -136,7 +136,6 @@ const ListScheduler: React.FC = () => {
                 <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
                   {(provided: DraggableProvided) => (
                     <Box
-                      height="100%"
                       ref={provided.innerRef}
                       {...provided.dragHandleProps}
                       {...provided.draggableProps}>
@@ -203,11 +202,14 @@ const ListScheduler: React.FC = () => {
                   <Stack
                     spacing={2}
                     minWidth="320px"
-                    minHeight="160px"
                     justifyContent="center"
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ border: 'dashed 1px #aaa' }}>
+                    sx={{
+                      border: (theme) =>
+                        `dashed 1px ${theme.palette.grey[400]}`,
+                      color: (theme) => theme.palette.grey[400],
+                    }}>
                     <Typography textAlign="center">+ Add New Day</Typography>
                   </Stack>
                 )}

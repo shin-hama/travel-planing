@@ -29,10 +29,6 @@ export const useTravelPlan = () => {
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan?.data || null
 
-  React.useEffect(() => {
-    console.log('plan')
-  }, [plan])
-
   const actions = React.useMemo<PlanAPI>(() => {
     const a: PlanAPI = {
       create: async (newPlan: Plan): Promise<string | undefined> => {

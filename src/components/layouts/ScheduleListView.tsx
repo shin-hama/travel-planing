@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
+import Container from '@mui/material/Container'
 import Snackbar from '@mui/material/Snackbar'
 import Stack from '@mui/material/Stack'
 
@@ -40,14 +41,16 @@ const ScheduleListView: React.FC<Props> = ({ onClose }) => {
 
   return (
     <>
-      <Stack height="100%" sx={{ overflow: 'hidden' }}>
-        <SchedulerHeader
-          plan={plan}
-          addHotel={handleAddHotel}
-          updateTitle={handleUpdate}
-        />
-        <ListScheduler />
-      </Stack>
+      <Container sx={{ height: '100%', overflow: 'hidden' }}>
+        <Stack height="100%">
+          <SchedulerHeader
+            plan={plan}
+            addHotel={handleAddHotel}
+            updateTitle={handleUpdate}
+          />
+          <ListScheduler />
+        </Stack>
+      </Container>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={waypoints?.length === 0}
