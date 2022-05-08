@@ -214,11 +214,13 @@ const ListScheduler: React.FC = () => {
         onClose={() => setAnchor(null)}
         onDelete={handleRemoveDay}
       />
-      <SpotEventEditor
-        spot={editSpot}
-        open={Boolean(editSpot)}
-        onClose={() => setEditSpot(null)}
-      />
+      {editSpot && (
+        <SpotEventEditor
+          spot={editSpot}
+          open={Boolean(editSpot)}
+          onClose={() => setEditSpot(null)}
+        />
+      )}
     </>
   )
 }

@@ -18,6 +18,8 @@ export type Prefecture = {
   imageUrl: string
 }
 
+export type SpotLabel = string
+
 export type Spot = {
   id: string
   imageUrl: string
@@ -27,6 +29,8 @@ export type Spot = {
   durationUnit: dayjs.ManipulateType
   lat: number
   lng: number
+  labels: Array<SpotLabel>
+  memo: string
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSpot = (obj: any): obj is Spot => {
