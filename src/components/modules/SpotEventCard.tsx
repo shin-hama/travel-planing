@@ -51,9 +51,14 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
               <Typography variant="h3" noWrap>
                 {spot.name}
               </Typography>
-              <Box>
-                <Chip label="category" />
-              </Box>
+              {spot.labels && (
+                <Stack direction="row" spacing={1}>
+                  {spot.labels[0] && <Chip label={spot.labels[0]} />}
+                  {spot.labels.length > 1 && (
+                    <Chip label={`+${spot.labels.length - 1}`} />
+                  )}
+                </Stack>
+              )}
             </Stack>
           </Grid>
         </Grid>
