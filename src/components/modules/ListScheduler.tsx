@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack'
 import SvgIcon from '@mui/material/SvgIcon'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEllipsisVertical, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 import {
   DragDropContext,
   Draggable,
@@ -156,11 +156,6 @@ const ListScheduler: React.FC = () => {
                               justifyContent="space-between">
                               <Typography>Day {i + 1}</Typography>
                               <Box>
-                                <IconButton onClick={handleRemoveDay}>
-                                  <SvgIcon>
-                                    <FontAwesomeIcon icon={faPlus} />
-                                  </SvgIcon>
-                                </IconButton>
                                 <IconButton
                                   onClick={(e) =>
                                     handleOpenMenu(e.currentTarget)

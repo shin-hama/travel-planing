@@ -14,7 +14,7 @@ const DayMenu: React.FC<Props> = ({ onDelete, ...props }) => {
     try {
       await confirm({
         title: 'CAUTION!!',
-        description: '日付内のデータが削除されます。よろしいですか?',
+        description: '日付内のデータも削除されます。よろしいですか?',
       })
       onDelete?.()
     } finally {
@@ -30,6 +30,7 @@ const DayMenu: React.FC<Props> = ({ onDelete, ...props }) => {
         'aria-labelledby': 'basic-button',
       }}>
       <MenuItem>この日のルートを最適化</MenuItem>
+      <MenuItem onClick={handleDelete}>削除</MenuItem>
     </Menu>
   )
 }
