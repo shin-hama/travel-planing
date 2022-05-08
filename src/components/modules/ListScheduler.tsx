@@ -216,7 +216,7 @@ const ListScheduler: React.FC = () => {
       />
       {editSpot && (
         <SpotEventEditor
-          spot={editSpot}
+          spotId={editSpot.id}
           open={Boolean(editSpot)}
           onClose={() => setEditSpot(null)}
         />

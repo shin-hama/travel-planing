@@ -4,45 +4,47 @@ import DialogContent from '@mui/material/DialogContent'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
-import SvgIcon from '@mui/material/SvgIcon'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { Controller, useForm } from 'react-hook-form'
+import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { Controller, useForm } from 'react-hook-form'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
-import Label from 'components/elements/Label'
 import { useWaypoints } from 'hooks/useWaypoints'
+import SpotLabel from './SpotLabel'
 
 type Forms = Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
 
 type Props = DialogProps & {
-  spot: Spot
+  spotId: string
 }
-const SpotEventEditor: React.FC<Props> = ({ spot, ...props }) => {
-  const [, waypointsApi] = useWaypoints()
+const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
+  const [waypoints, waypointsApi] = useWaypoints()
+  const spot = waypoints?.find((item) => item.id === spotId)
 
   const { control, register, watch } = useForm<Forms>({
     defaultValues: {
-      name: spot.name,
-      duration: spot.duration,
-      labels: spot.labels,
-      memo: spot.memo,
+      name: spot?.name,
+      duration: spot?.duration,
+      labels: spot?.labels,
+      memo: spot?.memo,
     },
   })
 
   React.useEffect(() => {
-    const subscription = watch((value) =>
-      waypointsApi.update(spot.id, {
+    const subscription = watch((value) => {
+      console.log(value)
+      waypointsApi.update(spotId, {
         ...value,
         labels: value.labels?.filter(
           (label): label is string => typeof label === 'string'
         ),
       })
-    )
+    })
     return () => subscription.unsubscribe()
-  }, [spot.id, watch, waypointsApi])
+  }, [spotId, watch, waypointsApi])
 
   return (
     <Dialog {...props} maxWidth="sm" fullWidth>
@@ -70,17 +72,51 @@ const SpotEventEditor: React.FC<Props> = ({ spot, ...props }) => {
                   </Select>
                 )}
               />
-              <Typography variant="subtitle1">{spot.durationUnit}</Typography>
+              <Typography variant="subtitle1">{spot?.durationUnit}</Typography>
             </Stack>
           </Stack>
           <Stack spacing={1}>
             <Typography variant="h5">ラベル</Typography>
             <Stack direction="row" spacing={0.5}>
-              <Label>
-                <SvgIcon fontSize="small">
-                  <FontAwesomeIcon icon={faPlus} />
-                </SvgIcon>
-              </Label>
+              {spot?.labels?.map((label, i) => (
+                <Controller
+                  key={`${label}-${i}`}
+                  control={control}
+                  name="labels"
+                  render={({ field }) => (
+                    <SpotLabel
+                      defaultLabel={label}
+                      onSave={(newLabel) =>
+                        field.onChange(
+                          spot.labels?.map((value, index) =>
+                            i === index ? newLabel : value
+                          )
+                        )
+                      }
+                      onRemove={() =>
+                        field.onChange(
+                          spot.labels?.filter((_, index) => i !== index)
+                        )
+                      }>
+                      <Typography>{label}</Typography>
+                    </SpotLabel>
+                  )}
+                />
+              ))}
+              <Controller
+                control={control}
+                name="labels"
+                render={({ field }) => (
+                  <SpotLabel
+                    onSave={(newLabel) =>
+                      field.onChange([...(spot?.labels || []), newLabel])
+                    }>
+                    <SvgIcon fontSize="small">
+                      <FontAwesomeIcon icon={faPlus} />
+                    </SvgIcon>
+                  </SpotLabel>
+                )}
+              />
             </Stack>
           </Stack>
           <Stack spacing={1}>
