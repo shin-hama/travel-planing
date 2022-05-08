@@ -24,7 +24,7 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
               justifyContent="space-between"
               alignItems="center"
               height="100%">
-              <Typography variant="subtitle1" textAlign="right">
+              <Typography variant="subtitle1">
                 {dayjs(start).format('HH:mm')}
               </Typography>
               <Box
@@ -35,7 +35,7 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
                   borderRadius: 5,
                 }}
               />
-              <Typography variant="subtitle1" textAlign="right">
+              <Typography variant="subtitle1">
                 {dayjs(start)
                   .add(spot.duration, spot.durationUnit)
                   .format('HH:mm')}

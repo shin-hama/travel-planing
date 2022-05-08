@@ -19,6 +19,8 @@ import DayMenu from './DayMenu'
 import { useList } from 'react-use'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import SpotEventCard from './SpotEventCard'
+import SpotEventEditor from './SpotEventEditor'
+import { Spot } from 'contexts/CurrentPlanProvider'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -30,6 +32,7 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = useTravelPlan()
   const [days, setDays] = useList([1])
+  const [editSpot, setEditSpot] = React.useState<Spot | null>(null)
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
 
   const handleAddDay = () => {
@@ -183,6 +186,7 @@ const ListScheduler: React.FC = () => {
                                 index={index}>
                                 {(provided) => (
                                   <Box
+                                    onClick={() => setEditSpot(spot)}
                                     ref={provided.innerRef}
                                     {...provided.dragHandleProps}
                                     {...provided.draggableProps}>
@@ -209,6 +213,11 @@ const ListScheduler: React.FC = () => {
         open={Boolean(anchor)}
         onClose={() => setAnchor(null)}
         onDelete={handleRemoveDay}
+      />
+      <SpotEventEditor
+        spot={editSpot}
+        open={Boolean(editSpot)}
+        onClose={() => setEditSpot(null)}
       />
     </>
   )
