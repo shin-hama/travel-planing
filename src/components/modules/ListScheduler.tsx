@@ -183,7 +183,10 @@ const ListScheduler: React.FC = () => {
                                       <SpotEventCard spot={spot} />
                                     </Box>
                                     {index !== event.spots.length - 1 && (
-                                      <Route />
+                                      <Route
+                                        origin={spot}
+                                        dest={event.spots[index + 1]}
+                                      />
                                     )}
                                   </Box>
                                 )}

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
@@ -9,13 +8,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBicycle,
   faCar,
-  faMapLocationDot,
+  faDiamondTurnRight,
   faTrain,
   faWalking,
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
 import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
+import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
+import { Spot } from 'contexts/CurrentPlanProvider'
 
 const modes: Record<TravelMode, IconDefinition> = {
   driving: faCar,
@@ -24,9 +25,15 @@ const modes: Record<TravelMode, IconDefinition> = {
   walking: faWalking,
 }
 
-const Route = () => {
+type Props = {
+  origin: Spot
+  dest: Spot
+}
+const Route: React.FC<Props> = ({ origin, dest }) => {
   const [selecting, setSelecting] = React.useState(false)
   const [selected, setSelected] = React.useState<TravelMode>('driving')
+
+  const openMap = useOpenMap()
 
   const handleClick = (value: string) => () => {
     if (selecting) {
@@ -62,9 +69,12 @@ const Route = () => {
         </Collapse>
         <Typography>10 分</Typography>
       </Stack>
-      <IconButton>
+      <IconButton
+        href={openMap(origin, dest, selected)}
+        target="_blank"
+        rel="noopener noreferrer">
         <SvgIcon>
-          <FontAwesomeIcon icon={faMapLocationDot} />
+          <FontAwesomeIcon icon={faDiamondTurnRight} />
         </SvgIcon>
       </IconButton>
     </Stack>
