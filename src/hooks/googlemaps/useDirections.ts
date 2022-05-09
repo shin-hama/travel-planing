@@ -4,6 +4,12 @@ import { DirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { useAxios } from 'hooks/axios/useAxios'
 import { bffConfigs } from 'configs'
 
+const TravelModes = ['driving', 'walking', 'bicycling', 'transit']
+export type TravelMode = 'driving' | 'walking' | 'bicycling' | 'transit'
+export const isTravelMode = (value: unknown): value is TravelMode => {
+  return typeof value === 'string' && TravelModes.includes(value)
+}
+
 type DirectionsRequest<
   T extends google.maps.LatLngLiteral,
   U extends google.maps.LatLngLiteral
@@ -11,7 +17,7 @@ type DirectionsRequest<
   origin: T | U
   destination: T | U
   waypoints?: Array<T>
-  mode: 'driving' | 'walking' | 'bicycling' | 'transit'
+  mode: TravelMode
 }
 
 type Leg = {
