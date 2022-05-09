@@ -30,6 +30,13 @@ type TimeAction =
       unit: keyof Time
     }
 
+const buildTime = (defaultTime?: Time): Time => {
+  return {
+    hour: defaultTime?.hour || 0,
+    minute: defaultTime?.minute || 0,
+  }
+}
+
 const reducer = (state: Time, action: TimeAction): Time => {
   switch (action.type) {
     case 'hour': {
@@ -90,14 +97,18 @@ const reducer = (state: Time, action: TimeAction): Time => {
     }
 
     default:
-      throw Error(`not implemented action: ${action.type}`)
+      throw Error(`not implemented action: ${action}`)
   }
 }
 
-const TimePicker = () => {
-  const [time, setTime] = React.useReducer(reducer, { hour: 0, minute: 0 })
+type Props = {
+  value?: Time
+  onChange?: (newTime: Time) => void
+}
+const TimePicker: React.FC<Props> = ({ onChange, value: defaultTime }) => {
+  const [time, setTime] = React.useReducer(reducer, defaultTime, buildTime)
 
-  const handleChange =
+  const handleEditChange =
     (type: keyof Time) =>
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
       const value = Number.parseInt(e.target.value)
@@ -116,43 +127,47 @@ const TimePicker = () => {
     setTime({ type: 'decrement', unit })
   }
 
+  React.useEffect(() => {
+    onChange?.(time)
+  }, [onChange, time])
+
   return (
     <Stack direction="row" spacing={1} alignItems="center">
       <Stack id="hour-picker">
-        <IconButton>
-          <SvgIcon onClick={handleUp('hour')}>
+        <IconButton onClick={handleUp('hour')}>
+          <SvgIcon>
             <FontAwesomeIcon icon={faAngleUp} />
           </SvgIcon>
         </IconButton>
         <TextField
           size="small"
           value={time.hour}
-          onChange={handleChange('hour')}
+          onChange={handleEditChange('hour')}
           inputProps={{ maxLength: 2, style: { textAlign: 'center' } }}
           sx={{ width: '3rem' }}
         />
-        <IconButton>
-          <SvgIcon onClick={handleDown('hour')}>
+        <IconButton onClick={handleDown('hour')}>
+          <SvgIcon>
             <FontAwesomeIcon icon={faAngleDown} />
           </SvgIcon>
         </IconButton>
       </Stack>
       <Typography>:</Typography>
       <Stack id="minute-picker">
-        <IconButton>
-          <SvgIcon onClick={handleUp('minute')}>
+        <IconButton onClick={handleUp('minute')}>
+          <SvgIcon>
             <FontAwesomeIcon icon={faAngleUp} />
           </SvgIcon>
         </IconButton>
         <TextField
           size="small"
           value={time.minute}
-          onChange={handleChange('minute')}
+          onChange={handleEditChange('minute')}
           inputProps={{ maxLength: 2, style: { textAlign: 'center' } }}
           sx={{ width: '3rem' }}
         />
-        <IconButton>
-          <SvgIcon onClick={handleDown('minute')}>
+        <IconButton onClick={handleDown('minute')}>
+          <SvgIcon>
             <FontAwesomeIcon icon={faAngleDown} />
           </SvgIcon>
         </IconButton>

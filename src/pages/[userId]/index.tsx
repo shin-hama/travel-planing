@@ -19,8 +19,6 @@ import { useConfirm } from 'hooks/useConfirm'
 import { useRouter } from 'hooks/useRouter'
 import { visuallyHidden } from '@mui/utils'
 
-import TimePicker from 'components/elements/TimePicker'
-
 const UserHome = () => {
   const router = useRouter()
   const { userId } = router.query
@@ -81,7 +79,6 @@ const UserHome = () => {
 
   return (
     <Layout>
-      <TimePicker />
       {nextPlan && (
         <Box style={{ height: '40%', backgroundColor: '#aaaaaa50' }}>
           <TravelPlanCard plan={nextPlan} />
