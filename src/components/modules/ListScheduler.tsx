@@ -20,6 +20,7 @@ import { useTravelPlan } from 'hooks/useTravelPlan'
 import SpotEventCard from './SpotEventCard'
 import SpotEventEditor from './SpotEventEditor'
 import { Spot } from 'contexts/CurrentPlanProvider'
+import Route from './Route'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -175,11 +176,15 @@ const ListScheduler: React.FC = () => {
                                 index={index}>
                                 {(provided) => (
                                   <Box
-                                    onClick={() => setEditSpot(spot)}
                                     ref={provided.innerRef}
                                     {...provided.dragHandleProps}
                                     {...provided.draggableProps}>
-                                    <SpotEventCard spot={spot} />
+                                    <Box onClick={() => setEditSpot(spot)}>
+                                      <SpotEventCard spot={spot} />
+                                    </Box>
+                                    {index !== event.spots.length - 1 && (
+                                      <Route />
+                                    )}
                                   </Box>
                                 )}
                               </Draggable>
