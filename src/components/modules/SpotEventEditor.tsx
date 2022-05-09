@@ -1,8 +1,6 @@
 import * as React from 'react'
 import Dialog, { DialogProps } from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -14,6 +12,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import { useWaypoints } from 'hooks/useWaypoints'
 import SpotLabel from './SpotLabel'
+import TimePicker from './TimePicker'
 
 type Forms = Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
 
@@ -35,7 +34,6 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
 
   React.useEffect(() => {
     const subscription = watch((value) => {
-      console.log(value)
       waypointsApi.update(spotId, {
         ...value,
         labels: value.labels?.filter(
@@ -63,16 +61,17 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
                 control={control}
                 name="duration"
                 render={({ field }) => (
-                  <Select {...field} size="small">
-                    {Array.from(Array(4 * 24)).map((_, i) => (
-                      <MenuItem key={i * 15} value={i * 15}>
-                        {i * 15}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <TimePicker
+                    value={{
+                      hour: Math.floor(field.value / 60),
+                      minute: field.value % 60,
+                    }}
+                    onChange={(time) =>
+                      field.onChange(time.hour * 60 + time.minute)
+                    }
+                  />
                 )}
               />
-              <Typography variant="subtitle1">{spot?.durationUnit}</Typography>
             </Stack>
           </Stack>
           <Stack spacing={1}>

@@ -32,6 +32,7 @@ const TimePicker: React.FC<Props> = ({ value, onChange }) => {
           .toString()
           .padStart(2, '0')}`}
         onClick={(e) => setAnchor(e.currentTarget)}
+        size="small"
         inputProps={{ readOnly: true, style: { textAlign: 'center' } }}
         sx={{ width: '5rem' }}
       />
