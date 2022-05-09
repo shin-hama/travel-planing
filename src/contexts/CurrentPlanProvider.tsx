@@ -1,6 +1,5 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
-import { EventInput } from '@fullcalendar/react' // must go before plugins
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
@@ -40,49 +39,6 @@ export const isSpot = (obj: any): obj is Spot => {
     typeof obj.lng === 'number'
   )
 }
-export type Route = {
-  from: string
-  to: string
-  duration: number
-  durationUnit: dayjs.ManipulateType
-  mode: 'bicycle' | 'car' | 'walk'
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isRoute = (obj: any): obj is Route => {
-  return (
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj.duration === 'number' &&
-    typeof obj.from === 'string' &&
-    typeof obj.to === 'string'
-  )
-}
-export type SpotProps = Pick<Spot, 'placeId' | 'imageUrl'> & {
-  type: 'spot'
-  from: string | null
-  to: string | null
-}
-export type MoveProps = {
-  type: 'move'
-  from: string
-  to: string
-  mode: 'bicycle' | 'car' | 'walk'
-}
-
-type CustomEventInput = Omit<EventInput, 'extendedProps'>
-export type EventBase = CustomEventInput & {
-  id: string
-  start: Date
-  end: Date
-}
-export type SpotEvent = EventBase & {
-  extendedProps: SpotProps
-}
-export type MoveEvent = EventBase & {
-  extendedProps: MoveProps
-}
-
-export type ScheduleEvent = SpotEvent | MoveEvent
 
 export type Belonging = {
   name: string
