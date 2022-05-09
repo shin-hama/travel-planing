@@ -1,11 +1,7 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
-import SvgIcon from '@mui/material/SvgIcon'
 import Typography from '@mui/material/Typography'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 import {
   DragDropContext,
   Draggable,
@@ -21,6 +17,7 @@ import SpotEventCard from './SpotEventCard'
 import SpotEventEditor from './SpotEventEditor'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import Route from './Route'
+import DayHeader from './DayHeader'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -146,29 +143,15 @@ const ListScheduler: React.FC = () => {
                         direction="vertical">
                         {(provided) => (
                           <Stack
-                            spacing={2}
+                            spacing={1}
                             minWidth="320px"
                             height="100%"
                             ref={provided.innerRef}
                             {...provided.droppableProps}>
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              justifyContent="space-between">
-                              <Typography>Day {i + 1}</Typography>
-                              <Box>
-                                <IconButton
-                                  onClick={(e) =>
-                                    handleOpenMenu(e.currentTarget)
-                                  }>
-                                  <SvgIcon>
-                                    <FontAwesomeIcon
-                                      icon={faEllipsisVertical}
-                                    />
-                                  </SvgIcon>
-                                </IconButton>
-                              </Box>
-                            </Stack>
+                            <DayHeader
+                              day={i + 1}
+                              onOpenMenu={handleOpenMenu}
+                            />
                             {event.spots.map((spot, index) => (
                               <Draggable
                                 key={spot.id}
@@ -179,7 +162,9 @@ const ListScheduler: React.FC = () => {
                                     ref={provided.innerRef}
                                     {...provided.dragHandleProps}
                                     {...provided.draggableProps}>
-                                    <Box onClick={() => setEditSpot(spot)}>
+                                    <Box
+                                      onClick={() => setEditSpot(spot)}
+                                      mb={1}>
                                       <SpotEventCard spot={spot} />
                                     </Box>
                                     {index !== event.spots.length - 1 && (
