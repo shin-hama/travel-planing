@@ -2,8 +2,8 @@ import * as React from 'react'
 import Button from '@mui/material/Button'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useWaypoints } from 'hooks/useWaypoints'
 import { Spot } from 'contexts/CurrentPlanProvider'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   newSpot: Omit<Spot, 'id'> & { id?: string | null }
@@ -12,7 +12,7 @@ type Props = {
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   const [waypoints, actions] = useWaypoints()
 
-  const selected = waypoints?.find((item) => item.id && item.id === newSpot.id)
+  const selected = waypoints?.find((spot) => spot.id === newSpot.id)
 
   const handleClick = () => {
     if (selected) {

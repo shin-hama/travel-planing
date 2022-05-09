@@ -23,14 +23,16 @@ const PlanView = () => {
   }
 
   return (
-    <Stack>
-      <Image
-        src={plan?.home.imageUrl}
-        width={16}
-        height={9}
-        layout="responsive"
-        objectFit="cover"
-      />
+    <Stack width="100%">
+      <Box width="100%">
+        <Image
+          src={plan?.thumbnail}
+          width={16}
+          height={9}
+          layout="responsive"
+          objectFit="cover"
+        />
+      </Box>
       <Box>
         <Tabs value={value} onChange={handleChange}>
           <Tab label="info" />

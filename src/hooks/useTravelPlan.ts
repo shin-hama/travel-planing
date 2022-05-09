@@ -3,11 +3,8 @@ import * as React from 'react'
 import {
   CurrentPlanContext,
   Plan,
-  Route,
   SetCurrentPlanContext,
-  Spot,
 } from 'contexts/CurrentPlanProvider'
-import { useDirections } from './googlemaps/useDirections'
 import {
   PLANING_USERS_PLANS_COLLECTIONS,
   useFirestore,
@@ -18,7 +15,6 @@ export interface PlanAPI {
   create: (newPlan: Plan) => Promise<string | undefined>
   clear: () => void
   delete: () => Promise<void>
-  optimizeRoute: () => Promise<void>
   set: (id: string, newPlan: Plan) => void
   update: (updated: Partial<Plan>) => void
 }
@@ -32,8 +28,6 @@ export const useTravelPlan = () => {
 
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan?.data || null
-
-  const { actions: directionService } = useDirections()
 
   const actions = React.useMemo<PlanAPI>(() => {
     const a: PlanAPI = {
@@ -61,6 +55,12 @@ export const useTravelPlan = () => {
       update: (updatedPlan: Partial<Plan>) => {
         try {
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
+          if (updatedPlan.events) {
+            // Event 更新時にリストが空になった場合削除する
+            updatedPlan.events = updatedPlan.events.filter(
+              (event) => event.spots.length !== 0
+            )
+          }
           setPlan({ type: 'update', value: updatedPlan })
         } catch (e) {
           console.error(updatedPlan)
@@ -77,75 +77,10 @@ export const useTravelPlan = () => {
           console.error(e)
         }
       },
-      optimizeRoute: async () => {
-        if (!directionService.isLoaded) {
-          console.error('google maps is not loaded')
-          return
-        }
-        if (!planRef.current) {
-          console.error('plan is not selected')
-          return
-        }
-
-        if (planRef.current.waypoints.length === 0) {
-          console.warn('There are no waypoints')
-          return
-        }
-
-        const result = await directionService.search({
-          origin: planRef.current.home,
-          destination: planRef.current.home,
-          waypoints: planRef.current.waypoints,
-          mode: 'driving',
-        })
-
-        if (result) {
-          const orderedWaypoints = result.waypoint_order
-            .map((i) => planRef.current?.waypoints[i] || null)
-            .filter((item): item is Spot => item !== null)
-          console.log(orderedWaypoints)
-          console.log(result.ordered_waypoints)
-
-          const newSpots: Array<Spot> = [
-            {
-              ...planRef.current.home,
-              id: `${planRef.current.home.placeId}-start`,
-              duration: 30,
-              durationUnit: 'minute',
-            },
-            ...orderedWaypoints,
-            {
-              ...planRef.current.home,
-              id: `${planRef.current.home.placeId}-end`,
-              duration: 30,
-              durationUnit: 'minute',
-            },
-          ]
-          const newRoutes = newSpots
-            .map((spot, index): Route | null => {
-              if (index === newSpots.length - 1) {
-                return null
-              }
-              return {
-                from: spot.id,
-                to: newSpots[index + 1].id,
-                duration: result.legs[index].duration?.value || 0,
-                durationUnit: 'second',
-                mode: 'car',
-              }
-            })
-            .filter((item): item is Route => item !== null)
-
-          setPlan({
-            type: 'update',
-            value: { waypoints: orderedWaypoints, routes: newRoutes },
-          })
-        }
-      },
     }
 
     return a
-  }, [db, directionService, plan, setPlan, user])
+  }, [db, plan, setPlan, user])
 
   return [plan?.data || null, actions] as const
 }

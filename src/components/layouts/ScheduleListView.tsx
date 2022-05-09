@@ -3,17 +3,19 @@ import Alert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 import Stack from '@mui/material/Stack'
 
-import Scheduler from 'components/modules/Scheduler'
 import SchedulerHeader from 'components/modules/SchedulerHeader'
 import { useRouter } from 'hooks/useRouter'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import ListScheduler from 'components/modules/ListScheduler'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   onClose: () => void
 }
-const ScheduleView: React.FC<Props> = ({ onClose }) => {
+const ScheduleListView: React.FC<Props> = ({ onClose }) => {
   const router = useRouter()
   const [plan, planApi] = useTravelPlan()
+  const [waypoints] = useWaypoints()
 
   React.useEffect(() => {
     if (!plan) {
@@ -38,17 +40,17 @@ const ScheduleView: React.FC<Props> = ({ onClose }) => {
 
   return (
     <>
-      <Stack height="100%" sx={{ overflow: 'hidden' }}>
+      <Stack height="100%">
         <SchedulerHeader
           plan={plan}
           addHotel={handleAddHotel}
           updateTitle={handleUpdate}
         />
-        <Scheduler plan={plan} planApi={planApi} />
+        <ListScheduler />
       </Stack>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={plan.waypoints?.length === 0}
+        open={waypoints?.length === 0}
         autoHideDuration={6000}>
         <Alert severity={'info'}>地図上で行きたい場所を選んでください。</Alert>
       </Snackbar>
@@ -56,4 +58,4 @@ const ScheduleView: React.FC<Props> = ({ onClose }) => {
   )
 }
 
-export default ScheduleView
+export default ScheduleListView

@@ -1,113 +1,71 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Chip from '@mui/material/Chip'
+import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import EventToolbar from 'components/modules/SpotEventToolbar'
-import { SpotEvent } from 'contexts/CurrentPlanProvider'
-import { useWaypoints } from 'hooks/useWaypoints'
+import { Spot } from 'contexts/CurrentPlanProvider'
+import dayjs from 'dayjs'
 
 type Props = {
-  event: SpotEvent
+  spot: Spot
 }
-const SpotEventCard: React.FC<Props> = ({ event }) => {
-  const [selected, setSelected] = React.useState(false)
-  const [waypoints, waypointsApi] = useWaypoints()
-
-  const handleMove = React.useCallback(
-    (mode: 'up' | 'down') => () => {
-      if (waypoints) {
-        console.log(`move ${mode}`)
-
-        const index = waypoints.findIndex((spot) => spot.id === event.id)
-        if (index !== -1) {
-          const target = mode === 'up' ? index - 1 : index + 1
-
-          waypointsApi.swap(index, target)
-        } else {
-          console.error('cannot find target event')
-        }
-      }
-    },
-    [event.id, waypoints, waypointsApi]
-  )
-
-  const handleRemove = React.useCallback(() => {
-    waypointsApi.remove(event.id)
-  }, [event.id, waypointsApi])
-
-  const handleClick = () => {
-    if (event.id === 'start' || event.id === 'end') {
-      return
-    }
-    if (waypoints?.find((spot) => spot.id === event.id)) {
-      setSelected(true)
-    }
-  }
-
-  const handleClickAway = () => {
-    setSelected(false)
-  }
-
+const SpotEventCard: React.FC<Props> = ({ spot }) => {
+  const start = new Date()
   return (
-    <ClickAwayListener onClickAway={handleClickAway}>
-      <Box
-        onClick={handleClick}
-        sx={{
-          height: '100%',
-          display: 'grid',
-          overflow: 'hidden',
-          borderRadius: 1,
-        }}>
-        <Box
-          sx={{
-            height: '100%',
-            gridArea: '1/-1',
-            background: (theme) =>
-              event.extendedProps.imageUrl
-                ? `url(${event.extendedProps.imageUrl})`
-                : theme.palette.primary.light,
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-          }}
-        />
-        <Box
-          sx={{
-            display: 'flex',
-            gridArea: '1/-1',
-            background: 'linear-gradient(to top, transparent 60%, #0000009c)',
-            alignItems: 'start',
-            justifyContent: 'start',
-            textAlign: 'start',
-          }}>
-          <Stack sx={{ pl: 1, pt: 0.5 }}>
-            <Typography variant="h5">{event.title}</Typography>
-            <Typography variant="caption">
-              {event.start?.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Typography>
-          </Stack>
-        </Box>
-        {selected && (
-          <Box
-            sx={{
-              display: 'flex',
-              gridArea: '1/-1',
-              alignItems: 'end',
-            }}>
-            <EventToolbar
-              moveUp={handleMove('up')}
-              moveDown={handleMove('down')}
-              remove={handleRemove}
-            />
-          </Box>
-        )}
-      </Box>
-    </ClickAwayListener>
+    <Card>
+      <CardContent>
+        <Grid container spacing={1}>
+          <Grid item xs={3}>
+            <Stack
+              justifyContent="space-between"
+              alignItems="center"
+              height="100%">
+              <Typography variant="subtitle1">
+                {dayjs(start).format('HH:mm')}
+              </Typography>
+              <Box
+                flexGrow={1}
+                sx={{
+                  border: (theme) => `solid ${theme.palette.grey[300]}`,
+                  width: 0,
+                  borderRadius: 5,
+                }}
+              />
+              <Typography variant="subtitle1">
+                {dayjs(start)
+                  .add(spot.duration, spot.durationUnit)
+                  .format('HH:mm')}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid item xs={9}>
+            <Stack
+              justifyContent="left"
+              alignItems="space-between"
+              spacing={1}
+              height="100%">
+              <Typography variant="h3" noWrap>
+                {spot.name}
+              </Typography>
+              {spot.labels?.[0] ? (
+                <Stack direction="row" spacing={1}>
+                  <Chip label={spot.labels[0]} />
+                  {spot.labels.length > 1 && (
+                    <Chip label={`+${spot.labels.length - 1}`} />
+                  )}
+                </Stack>
+              ) : (
+                <Chip sx={{ visibility: 'hidden' }}></Chip>
+              )}
+            </Stack>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   )
 }
 
