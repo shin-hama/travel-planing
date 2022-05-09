@@ -2,13 +2,11 @@ import * as React from 'react'
 import { useTheme } from '@mui/material/styles'
 import Box, { BoxProps } from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-import Paper from '@mui/material/Paper'
-import Popper from '@mui/material/Popper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 
 import { useForm } from 'react-hook-form'
+import PaperPopper from 'components/elements/PaperPopper'
 
 type Form = {
   label: string
@@ -75,34 +73,31 @@ const SpotLabel: React.FC<Props> = ({
         }}>
         {children}
       </Box>
-      <Popper
+      <PaperPopper
         open={open}
+        onClose={() => setOpen(false)}
         anchorEl={anchor}
         placement="bottom-start"
         style={{ zIndex: theme.zIndex.modal + 1 }}>
-        <ClickAwayListener onClickAway={() => setOpen(false)}>
-          <Paper sx={{ px: 1, py: 2 }}>
-            <form onSubmit={handleSubmit(handleSave)}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <TextField
-                  {...register('label')}
-                  variant="outlined"
-                  size="small"
-                  label="New Label"
-                />
-                <Button type="submit" variant="contained">
-                  Add
-                </Button>
-                {onRemove && (
-                  <Button variant="outlined" onClick={handleRemove}>
-                    Remove
-                  </Button>
-                )}
-              </Stack>
-            </form>
-          </Paper>
-        </ClickAwayListener>
-      </Popper>
+        <form onSubmit={handleSubmit(handleSave)}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <TextField
+              {...register('label')}
+              variant="outlined"
+              size="small"
+              label="New Label"
+            />
+            <Button type="submit" variant="contained">
+              Add
+            </Button>
+            {onRemove && (
+              <Button variant="outlined" onClick={handleRemove}>
+                Remove
+              </Button>
+            )}
+          </Stack>
+        </form>
+      </PaperPopper>
     </>
   )
 }
