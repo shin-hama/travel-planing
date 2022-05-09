@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
 
-type Time = {
+export type Time = {
   hour: number
   minute: number
 }
@@ -69,7 +69,11 @@ const reducer = (state: Time, action: TimeAction): Time => {
         return { ...state, hour: newValue }
       } else if (action.unit === 'minute') {
         if (state.minute >= 59) {
-          return { ...state, hour: state.hour + 1, minute: 0 }
+          return {
+            ...state,
+            hour: state.hour >= 23 ? 0 : state.hour + 1,
+            minute: 0,
+          }
         } else {
           return { ...state, minute: state.minute + 1 }
         }
@@ -87,7 +91,11 @@ const reducer = (state: Time, action: TimeAction): Time => {
         return { ...state, hour: newValue }
       } else if (action.unit === 'minute') {
         if (state.minute <= 0) {
-          return { ...state, hour: state.hour - 1, minute: 59 }
+          return {
+            ...state,
+            hour: state.hour <= 0 ? 23 : state.hour - 1,
+            minute: 59,
+          }
         } else {
           return { ...state, minute: state.minute - 1 }
         }
@@ -105,7 +113,7 @@ type Props = {
   value?: Time
   onChange?: (newTime: Time) => void
 }
-const TimePicker: React.FC<Props> = ({ onChange, value: defaultTime }) => {
+const TimeSelector: React.FC<Props> = ({ onChange, value: defaultTime }) => {
   const [time, setTime] = React.useReducer(reducer, defaultTime, buildTime)
 
   const handleEditChange =
@@ -176,4 +184,4 @@ const TimePicker: React.FC<Props> = ({ onChange, value: defaultTime }) => {
   )
 }
 
-export default TimePicker
+export default TimeSelector

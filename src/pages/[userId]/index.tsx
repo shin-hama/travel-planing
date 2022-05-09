@@ -18,6 +18,7 @@ import { usePlans } from 'hooks/usePlan'
 import { useConfirm } from 'hooks/useConfirm'
 import { useRouter } from 'hooks/useRouter'
 import { visuallyHidden } from '@mui/utils'
+import TimePicker from 'components/modules/TimePicker'
 
 const UserHome = () => {
   const router = useRouter()
@@ -79,6 +80,7 @@ const UserHome = () => {
 
   return (
     <Layout>
+      <TimePicker />
       {nextPlan && (
         <Box style={{ height: '40%', backgroundColor: '#aaaaaa50' }}>
           <TravelPlanCard plan={nextPlan} />
