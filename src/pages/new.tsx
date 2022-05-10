@@ -84,6 +84,7 @@ const PrefectureSelector = () => {
             spots: [],
           },
         ],
+        routes: [],
       }
       const id = await createPlan(newPlan)
 
