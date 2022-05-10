@@ -1,4 +1,5 @@
 import * as React from 'react'
+import CircularProgress from '@mui/material/CircularProgress'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
@@ -14,7 +15,11 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
+import {
+  TravelMode,
+  isTravelMode,
+  useDirections,
+} from 'hooks/googlemaps/useDirections'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
 import { Spot } from 'contexts/CurrentPlanProvider'
 
@@ -33,6 +38,9 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   const [selecting, setSelecting] = React.useState(false)
   const [selected, setSelected] = React.useState<TravelMode>('driving')
 
+  const { search, loading } = useDirections()
+  const [time, setTime] = React.useState('')
+
   const openMap = useOpenMap()
 
   const handleClick = (value: string) => () => {
@@ -45,6 +53,17 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
       setSelecting(true)
     }
   }
+
+  React.useEffect(() => {
+    search({
+      origin,
+      destination: dest,
+      mode: selected,
+    }).then((result) => {
+      console.log(result)
+      setTime(result?.legs[0].duration.text || 'Not Found')
+    })
+  }, [search, origin, dest, selected])
 
   return (
     <Stack direction="row" alignItems="center">
@@ -67,7 +86,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
               ))}
           </Stack>
         </Collapse>
-        <Typography>10 分</Typography>
+        {loading ? <CircularProgress /> : <Typography>{time}</Typography>}
       </Stack>
       <IconButton
         href={openMap(origin, dest, selected)}
