@@ -5,6 +5,7 @@ import Container from '@mui/material/Container'
 import SvgIcon from '@mui/material/SvgIcon'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
+import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -16,7 +17,6 @@ import Div100vh from 'react-div-100vh'
 
 import MapView from './MapView'
 import PlanView from './PlanView'
-import Header from 'components/modules/Header'
 import TabPanel from 'components/modules/TabPanel'
 import { MapLayerProvider } from 'contexts/MapLayerModeProvider'
 import ScheduleListView from './ScheduleListView'
@@ -51,7 +51,7 @@ const PlanningLayout: React.FC = () => {
           flex: 1,
           position: 'relative',
         }}>
-        <Header />
+        <Toolbar variant="dense" />
         <Box
           sx={{
             height: '100%',

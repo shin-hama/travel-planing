@@ -98,7 +98,7 @@ const PrefectureSelector = () => {
   )
 
   return (
-    <Layout>
+    <Layout title="New Plan">
       <LocalizationProvider dateAdapter={DateAdapter}>
         <Container maxWidth="xs">
           <Box

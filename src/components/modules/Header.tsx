@@ -14,7 +14,10 @@ import Link from 'next/link'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { useRouter } from 'hooks/useRouter'
 
-const Header: React.FC = () => {
+type Props = {
+  fixed?: boolean
+}
+const Header: React.FC<Props> = ({ fixed = false }) => {
   const router = useRouter()
 
   const [user, auth] = useAuthentication()
@@ -94,7 +97,7 @@ const Header: React.FC = () => {
           )}
         </Toolbar>
       </AppBar>
-      <Toolbar variant="dense" />
+      {!fixed && <Toolbar variant="dense" />}
     </>
   )
 }

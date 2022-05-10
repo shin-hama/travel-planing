@@ -8,7 +8,7 @@ import LoginForm from 'components/modules/LoginForm'
 
 const Login = () => {
   return (
-    <Layout>
+    <Layout title="Login">
       <Stack alignItems="center" spacing={4} sx={{ my: 4, width: '100%' }}>
         <LoginForm />
         <Typography>

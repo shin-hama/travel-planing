@@ -16,6 +16,18 @@ export default class MyDocument extends Document {
     return (
       <Html lang="ja">
         <Head>
+          <link rel="icon" href="/tabi-zukuri.svg" type="image/svg+xml" />
+          <meta name="description" content="旅行計画アプリ 「旅づくり」" />
+          <link
+            rel="apple-touch-icon"
+            href="/tabi-zukuri.svg"
+            type="image/svg+xml"
+          />
+          {/*
+            manifest.json provides metadata used when your web app is installed on a
+            user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+          */}
+          <link rel="manifest" href="manifest.json" />
           {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
