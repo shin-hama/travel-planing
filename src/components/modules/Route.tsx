@@ -20,8 +20,10 @@ import {
   isTravelMode,
   useDirections,
 } from 'hooks/googlemaps/useDirections'
+import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
 import { Spot } from 'contexts/CurrentPlanProvider'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 const modes: Record<TravelMode, IconDefinition> = {
   driving: faCar,
@@ -36,8 +38,12 @@ type Props = {
 }
 const Route: React.FC<Props> = ({ origin, dest }) => {
   const [selecting, setSelecting] = React.useState(false)
-  const [selected, setSelected] = React.useState<TravelMode>('driving')
+  const [selected, setSelected] = React.useState<TravelMode>(
+    origin.mode || 'driving'
+  )
 
+  const routesApi = useRoutes()
+  const [, waypointsApi] = useWaypoints()
   const { search, loading } = useDirections()
   const [time, setTime] = React.useState('')
 
@@ -55,15 +61,38 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   }
 
   React.useEffect(() => {
-    search({
-      origin,
-      destination: dest,
+    if (origin.mode !== selected) {
+      console.log('update travel mode')
+      waypointsApi.update(origin.id, { mode: selected })
+    }
+  }, [origin.id, origin.mode, selected, waypointsApi])
+
+  React.useEffect(() => {
+    const routeCache = routesApi.get({
+      from: origin.id,
+      to: dest.id,
       mode: selected,
-    }).then((result) => {
-      console.log(result)
-      setTime(result?.legs[0].duration.text || 'Not Found')
     })
-  }, [search, origin, dest, selected])
+    if (routeCache?.time) {
+      console.log('use route cache')
+      setTime(routeCache.time)
+    } else {
+      search({
+        origin,
+        destination: dest,
+        mode: selected,
+      }).then((result) => {
+        console.log('Calc route')
+        setTime(result?.legs[0].duration.text || 'Not Found')
+        routesApi.add({
+          from: origin.id,
+          to: dest.id,
+          mode: selected,
+          time: result?.legs[0].duration.text,
+        })
+      })
+    }
+  }, [search, origin, dest, selected, routesApi])
 
   return (
     <Stack direction="row" alignItems="center">

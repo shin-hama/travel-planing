@@ -7,7 +7,10 @@ export const useWaypoints = () => {
   const [plan, planApi] = useTravelPlan()
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan
-  const waypoints = plan?.events.map((event) => event.spots).flat()
+  const waypoints = React.useMemo(
+    () => plan?.events.map((event) => event.spots).flat(),
+    [plan?.events]
+  )
 
   const actions = React.useMemo(() => {
     const a = {

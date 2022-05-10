@@ -70,5 +70,5 @@ export const useDirections = () => {
     [post]
   )
 
-  return { search, loading }
+  return { search, loading } as const
 }
