@@ -1,14 +1,18 @@
 import * as React from 'react'
-import Box from '@mui/material/Box'
 
 import Header from 'components/modules/Header'
+import Head, { HeadProps } from 'components/modules/Head'
 
-const Layout: React.FC = ({ children }) => {
+type Props = HeadProps & {
+  fixedHeader?: boolean
+}
+const Layout: React.FC<Props> = ({ children, fixedHeader, ...props }) => {
   return (
-    <Box>
-      <Header />
+    <>
+      <Head {...props} />
+      <Header fixed={fixedHeader} />
       {children}
-    </Box>
+    </>
   )
 }
 

@@ -19,6 +19,8 @@ import { useConfirm } from 'hooks/useConfirm'
 import { useRouter } from 'hooks/useRouter'
 import { visuallyHidden } from '@mui/utils'
 
+const TITLE = 'Home'
+
 const UserHome = () => {
   const router = useRouter()
   const { userId } = router.query
@@ -69,7 +71,7 @@ const UserHome = () => {
 
   if (user?.uid !== userId) {
     return (
-      <Layout>
+      <Layout title={TITLE}>
         <Box display="flex" justifyContent="center" py={5}>
           <Typography>非公開リストです</Typography>
         </Box>
@@ -78,7 +80,7 @@ const UserHome = () => {
   }
 
   return (
-    <Layout>
+    <Layout title={TITLE}>
       {nextPlan && (
         <Box style={{ height: '40%', backgroundColor: '#aaaaaa50' }}>
           <TravelPlanCard plan={nextPlan} />

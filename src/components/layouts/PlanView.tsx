@@ -5,10 +5,10 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Image from 'next/image'
 
-import { useTravelPlan } from 'hooks/useTravelPlan'
-import TabPanel from 'components/modules/TabPanel'
-import PlanInfo from './PlanInfo'
 import BelongingsList from './BelongingsList'
+import PlanInfo from './PlanInfo'
+import TabPanel from 'components/modules/TabPanel'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 const PlanView = () => {
   const [plan] = useTravelPlan()

@@ -35,7 +35,7 @@ const UserHome = () => {
   }
 
   return (
-    <Layout>
+    <Layout title="Home">
       <Container maxWidth="lg" sx={{ my: 4 }}>
         <Box display="flex" justifyContent="center">
           <Button variant="contained" onClick={handleClick}>

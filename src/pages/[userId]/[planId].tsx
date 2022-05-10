@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import PlanView from 'components/layouts/PlanLayout'
+import PlanLayout from 'components/layouts/PlanLayout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { usePlans } from 'hooks/usePlan'
 import { useRouter } from 'hooks/useRouter'
@@ -13,23 +13,20 @@ const PlanPage = () => {
   const [, planApi] = useTravelPlan()
 
   React.useEffect(() => {
-    const func = async () => {
-      if (typeof planId === 'string' && typeof userId === 'string') {
-        getPlan(userId, planId)
-          .then((target) => {
-            if (!target) {
-              console.error(`Plan is not exist. ID: ${planId}`)
-              return
-            }
-            planApi.set(planId, target)
-          })
-          .catch(() => {
-            router.userHome(true)
-          })
-      }
+    if (typeof planId === 'string' && typeof userId === 'string') {
+      getPlan(userId, planId)
+        .then((target) => {
+          if (!target) {
+            console.error(`Plan is not exist. ID: ${planId}`)
+            // router.userHome(true)
+            return
+          }
+          planApi.set(planId, target)
+        })
+        .catch(() => {
+          router.userHome(true)
+        })
     }
-
-    func()
 
     return () => {
       planApi.clear()
@@ -37,7 +34,7 @@ const PlanPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planId, userId])
 
-  return <PlanView />
+  return <PlanLayout />
 }
 
 export default PlanPage
