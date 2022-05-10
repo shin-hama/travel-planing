@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 
+import TimePicker from './TimePicker'
+
 type Props = {
   day: number
   onOpenMenu: (anchor: HTMLElement) => void
@@ -14,7 +16,12 @@ type Props = {
 const DayHeader: React.FC<Props> = ({ day, onOpenMenu }) => {
   return (
     <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <Typography>Day {day}</Typography>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Typography>Day {day}</Typography>
+        <TimePicker type="text" />
+        <Typography> ~ </Typography>
+        <TimePicker type="text" />
+      </Stack>
       <Box>
         <IconButton onClick={(e) => onOpenMenu(e.currentTarget)}>
           <SvgIcon>

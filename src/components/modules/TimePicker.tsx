@@ -113,10 +113,15 @@ const reducer = (state: Time, action: TimeAction): Time => {
 }
 
 type Props = {
+  type?: 'input' | 'text'
   value?: number
   onChange?: (newTime: number) => void
 }
-const TimeSelector: React.FC<Props> = ({ onChange, value: defaultTime }) => {
+const TimeSelector: React.FC<Props> = ({
+  type = 'input',
+  value: defaultTime,
+  onChange,
+}) => {
   const [time, setTime] = React.useReducer(reducer, defaultTime, buildTime)
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null)
   const theme = useTheme()
@@ -149,18 +154,56 @@ const TimeSelector: React.FC<Props> = ({ onChange, value: defaultTime }) => {
     mounted.current = true
   }, [onChange, time])
 
+  const display = () => {
+    switch (type) {
+      case 'text':
+        return (
+          <Typography onClick={(e) => setAnchor(e.currentTarget)}>
+            {`${time.hour.toString().padStart(2, '0')}:${time.minute
+              .toString()
+              .padStart(2, '0')}`}
+          </Typography>
+        )
+
+      case 'input':
+        return (
+          <TextField
+            placeholder="HH:MM"
+            value={`${time.hour.toString().padStart(2, '0')}:${time.minute
+              .toString()
+              .padStart(2, '0')}`}
+            onClick={(e) => setAnchor(e.currentTarget)}
+            size="small"
+            inputProps={{
+              readOnly: true,
+              style: { textAlign: 'center' },
+            }}
+            sx={{ width: '5rem' }}
+          />
+        )
+
+      default:
+        return (
+          <TextField
+            placeholder="HH:MM"
+            value={`${time.hour.toString().padStart(2, '0')}:${time.minute
+              .toString()
+              .padStart(2, '0')}`}
+            onClick={(e) => setAnchor(e.currentTarget)}
+            size="small"
+            inputProps={{
+              readOnly: true,
+              style: { textAlign: 'center' },
+            }}
+            sx={{ width: '5rem' }}
+          />
+        )
+    }
+  }
+
   return (
     <>
-      <TextField
-        placeholder="HH:MM"
-        value={`${time.hour.toString().padStart(2, '0')}:${time.minute
-          .toString()
-          .padStart(2, '0')}`}
-        onClick={(e) => setAnchor(e.currentTarget)}
-        size="small"
-        inputProps={{ readOnly: true, style: { textAlign: 'center' } }}
-        sx={{ width: '5rem' }}
-      />
+      {display()}
       <PaperPopper
         open={Boolean(anchor)}
         onClose={() => setAnchor(null)}
