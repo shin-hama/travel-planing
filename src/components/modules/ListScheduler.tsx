@@ -152,32 +152,34 @@ const ListScheduler: React.FC = () => {
                               day={i + 1}
                               onOpenMenu={handleOpenMenu}
                             />
-                            {event.spots.map((spot, index) => (
-                              <Draggable
-                                key={spot.id}
-                                draggableId={spot.id}
-                                index={index}>
-                                {(provided) => (
-                                  <Box
-                                    ref={provided.innerRef}
-                                    {...provided.dragHandleProps}
-                                    {...provided.draggableProps}>
+                            <Box>
+                              {event.spots.map((spot, index) => (
+                                <Draggable
+                                  key={spot.id}
+                                  draggableId={spot.id}
+                                  index={index}>
+                                  {(provided) => (
                                     <Box
-                                      onClick={() => setEditSpot(spot)}
-                                      mb={1}>
-                                      <SpotEventCard spot={spot} />
+                                      ref={provided.innerRef}
+                                      {...provided.dragHandleProps}
+                                      {...provided.draggableProps}>
+                                      <Box onClick={() => setEditSpot(spot)}>
+                                        <SpotEventCard spot={spot} />
+                                      </Box>
+                                      {index !== event.spots.length - 1 && (
+                                        <Box py={0.5}>
+                                          <Route
+                                            origin={spot}
+                                            dest={event.spots[index + 1]}
+                                          />
+                                        </Box>
+                                      )}
                                     </Box>
-                                    {index !== event.spots.length - 1 && (
-                                      <Route
-                                        origin={spot}
-                                        dest={event.spots[index + 1]}
-                                      />
-                                    )}
-                                  </Box>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </Box>
                           </Stack>
                         )}
                       </Droppable>
@@ -188,7 +190,6 @@ const ListScheduler: React.FC = () => {
               <Droppable droppableId="newDay" type="ITEM">
                 {(provided) => (
                   <Stack
-                    spacing={2}
                     minWidth="320px"
                     justifyContent="center"
                     ref={provided.innerRef}

@@ -1,7 +1,5 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -16,8 +14,12 @@ type Props = {
 const SpotEventCard: React.FC<Props> = ({ spot }) => {
   const start = new Date()
   return (
-    <Card>
-      <CardContent>
+    <Box
+      sx={{
+        border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
+        borderRadius: 2,
+      }}>
+      <Box px={1} py={2}>
         <Grid container spacing={1}>
           <Grid item xs={3}>
             <Stack
@@ -30,7 +32,7 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
               <Box
                 flexGrow={1}
                 sx={{
-                  border: (theme) => `solid ${theme.palette.grey[300]}`,
+                  border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
                   width: 0,
                   borderRadius: 5,
                 }}
@@ -64,8 +66,8 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
             </Stack>
           </Grid>
         </Grid>
-      </CardContent>
-    </Card>
+      </Box>
+    </Box>
   )
 }
 

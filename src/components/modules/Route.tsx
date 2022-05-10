@@ -7,7 +7,7 @@ import SvgIcon from '@mui/material/SvgIcon'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faBicycle,
+  faPersonBiking,
   faCar,
   faDiamondTurnRight,
   faTrain,
@@ -27,8 +27,8 @@ import { useWaypoints } from 'hooks/useWaypoints'
 
 const modes: Record<TravelMode, IconDefinition> = {
   driving: faCar,
-  bicycling: faBicycle,
   transit: faTrain,
+  bicycling: faPersonBiking,
   walking: faWalking,
 }
 
@@ -95,9 +95,9 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   }, [origin.id, dest.id, selected])
 
   return (
-    <Stack direction="row" alignItems="center">
+    <Stack direction="row" alignItems="center" px={3}>
       <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
-        <IconButton onClick={handleClick(selected)}>
+        <IconButton onClick={handleClick(selected)} size="small">
           <SvgIcon>
             <FontAwesomeIcon icon={modes[selected]} />
           </SvgIcon>
@@ -107,7 +107,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
             {Object.entries(modes)
               .filter(([key]) => key !== selected)
               .map(([key, icon]) => (
-                <IconButton key={key} onClick={handleClick(key)}>
+                <IconButton key={key} onClick={handleClick(key)} size="small">
                   <SvgIcon>
                     <FontAwesomeIcon icon={icon} />
                   </SvgIcon>
@@ -115,13 +115,18 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
               ))}
           </Stack>
         </Collapse>
-        {loading ? <CircularProgress /> : <Typography>{time}</Typography>}
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Typography variant="body2">{time}</Typography>
+        )}
       </Stack>
       <IconButton
+        size="small"
         href={openMap(origin, dest, selected)}
         target="_blank"
         rel="noopener noreferrer">
-        <SvgIcon>
+        <SvgIcon fontSize="small">
           <FontAwesomeIcon icon={faDiamondTurnRight} />
         </SvgIcon>
       </IconButton>
