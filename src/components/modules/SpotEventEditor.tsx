@@ -21,6 +21,7 @@ type Props = DialogProps & {
 }
 const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
   const [waypoints, waypointsApi] = useWaypoints()
+  // 変更内容を反映するために、コンポーネント内で Spot 情報を常に最新で取得する
   const spot = waypoints?.find((item) => item.id === spotId)
 
   const { control, register, watch } = useForm<Forms>({
@@ -61,15 +62,7 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
                 control={control}
                 name="duration"
                 render={({ field }) => (
-                  <TimePicker
-                    value={{
-                      hour: Math.floor(field.value / 60),
-                      minute: field.value % 60,
-                    }}
-                    onChange={(time) =>
-                      field.onChange(time.hour * 60 + time.minute)
-                    }
-                  />
+                  <TimePicker value={field.value} onChange={field.onChange} />
                 )}
               />
             </Stack>

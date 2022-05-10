@@ -3,6 +3,7 @@ import * as React from 'react'
 import {
   CurrentPlanContext,
   Plan,
+  PlanDB,
   SetCurrentPlanContext,
 } from 'contexts/CurrentPlanProvider'
 import {
@@ -26,8 +27,8 @@ export const useTravelPlan = () => {
   const [user] = useAuthentication()
   const db = useFirestore()
 
-  const planRef = React.useRef<Plan | null>(null)
-  planRef.current = plan?.data || null
+  const planRef = React.useRef<PlanDB | null>(null)
+  planRef.current = plan || null
 
   const actions = React.useMemo<PlanAPI>(() => {
     const a: PlanAPI = {
@@ -68,9 +69,9 @@ export const useTravelPlan = () => {
       },
       delete: async () => {
         try {
-          if (user && plan) {
+          if (user && planRef.current) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            await db.delete(path, plan.id)
+            await db.delete(path, planRef.current.id)
             setPlan({ type: 'clear' })
           }
         } catch (e) {
@@ -80,7 +81,7 @@ export const useTravelPlan = () => {
     }
 
     return a
-  }, [db, plan, setPlan, user])
+  }, [db, setPlan, user])
 
   return [plan?.data || null, actions] as const
 }

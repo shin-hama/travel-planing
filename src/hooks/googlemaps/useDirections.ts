@@ -1,8 +1,13 @@
 import * as React from 'react'
 
-import { DirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { useAxios } from 'hooks/axios/useAxios'
 import { bffConfigs } from 'configs'
+
+const TravelModes = ['driving', 'walking', 'bicycling', 'transit']
+export type TravelMode = 'driving' | 'walking' | 'bicycling' | 'transit'
+export const isTravelMode = (value: unknown): value is TravelMode => {
+  return typeof value === 'string' && TravelModes.includes(value)
+}
 
 type DirectionsRequest<
   T extends google.maps.LatLngLiteral,
@@ -11,7 +16,7 @@ type DirectionsRequest<
   origin: T | U
   destination: T | U
   waypoints?: Array<T>
-  mode: 'driving' | 'walking' | 'bicycling' | 'transit'
+  mode: TravelMode
 }
 
 type Leg = {
@@ -34,46 +39,36 @@ type DirectionsResult<T extends google.maps.LatLngLiteral> = {
 }
 
 export const useDirections = () => {
-  const direction = React.useContext(DirectionServiceContext)
-  const [loading, setLoading] = React.useState(false)
   const { post } = useAxios()
+  const [loading, setLoading] = React.useState(false)
 
-  const directionService = React.useMemo(
-    () => ({
-      actions: {
-        isLoaded: direction !== null,
-        /**
-         * 入力されたスポットの一覧について、最適なルートを見つける
-         * @param props PlaceID のリスト
-         */
-        search: async <
-          T extends google.maps.LatLngLiteral,
-          U extends google.maps.LatLngLiteral
-        >(
-          props: DirectionsRequest<T, U>
-        ) => {
-          try {
-            setLoading(true)
-            const result = await post<DirectionsResult<T>>(
-              bffConfigs.url,
-              props
-            )
+  /**
+   * 入力されたスポットの一覧について、最適なルートを見つける
+   * @param {DirectionsRequest} props - リクエストに必要なオプション
+   */
+  const search = React.useCallback(
+    async <
+      T extends google.maps.LatLngLiteral,
+      U extends google.maps.LatLngLiteral
+    >(
+      props: DirectionsRequest<T, U>
+    ) => {
+      try {
+        setLoading(true)
+        const result = await post<DirectionsResult<T>>(bffConfigs.url, props)
 
-            if (result.route) {
-              return result.route
-            } else {
-              console.error(result.message)
-              return null
-            }
-          } finally {
-            setLoading(false)
-          }
-        },
-      },
-      loading,
-    }),
-    [direction, loading, post]
+        if (result.route) {
+          return result.route
+        } else {
+          console.error(result.message)
+          return null
+        }
+      } finally {
+        setLoading(false)
+      }
+    },
+    [post]
   )
 
-  return directionService
+  return { search, loading } as const
 }

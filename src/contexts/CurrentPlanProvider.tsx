@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
+import { TravelMode } from 'hooks/googlemaps/useDirections'
 
 export type Prefecture = {
   name: string
@@ -27,6 +28,7 @@ export type Spot = {
   lng: number
   labels?: Array<SpotLabel>
   memo?: string
+  mode?: TravelMode
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSpot = (obj: any): obj is Spot => {
@@ -39,6 +41,16 @@ export const isSpot = (obj: any): obj is Spot => {
     typeof obj.lng === 'number'
   )
 }
+
+export type Route = {
+  from: string
+  to: string
+  mode: TravelMode
+  time?: string | null
+}
+
+export const isSameRoute = (a: Route, b: Route) =>
+  a.from === b.from && a.to === b.to && a.mode === b.mode
 
 export type Belonging = {
   name: string
@@ -58,6 +70,7 @@ export type Plan = {
   startTime: Date
   end: Date
   events: Array<Schedule>
+  routes: Array<Route>
   lodging?: Omit<Spot, 'id'>
   belongings: Array<Belonging>
 }
