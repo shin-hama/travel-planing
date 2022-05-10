@@ -92,7 +92,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
         })
       })
     }
-  }, [search, origin, dest, selected, routesApi])
+  }, [origin.id, dest.id, selected])
 
   return (
     <Stack direction="row" alignItems="center">

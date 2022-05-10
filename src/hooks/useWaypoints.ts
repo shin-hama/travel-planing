@@ -16,14 +16,22 @@ export const useWaypoints = () => {
     const a = {
       add: (newSpot: Spot) => {
         if (planRef.current) {
+          const newEvents =
+            planRef.current.events.length > 0
+              ? planRef.current?.events.map((event, i) => {
+                  if (
+                    planRef.current &&
+                    i === planRef.current?.events.length - 1
+                  ) {
+                    return { ...event, spots: [...event.spots, newSpot] }
+                  } else {
+                    return event
+                  }
+                })
+              : [{ spots: [newSpot] }]
+
           planApi.update({
-            events: planRef.current?.events.map((event, i) => {
-              if (planRef.current && i === planRef.current?.events.length - 1) {
-                return { ...event, spots: [...event.spots, newSpot] }
-              } else {
-                return event
-              }
-            }),
+            events: newEvents,
           })
         } else {
           console.error('fail to update waypoints')
