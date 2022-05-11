@@ -153,7 +153,7 @@ const ListScheduler: React.FC = () => {
                         {(provided) => (
                           <Stack
                             spacing={1}
-                            minWidth="320px"
+                            width="320px"
                             height="100%"
                             ref={provided.innerRef}
                             {...provided.droppableProps}>
