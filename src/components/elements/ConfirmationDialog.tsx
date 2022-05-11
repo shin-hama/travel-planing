@@ -34,7 +34,7 @@ const ConfirmationDialog: React.FC<ConfirmationProps> = ({
       open={open}
       onClose={allowClose ? onClose : undefined}>
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>{description}</DialogContent>
+      {description && <DialogContent>{description}</DialogContent>}
       <DialogActions>
         <Button variant="outlined" onClick={onCancel}>
           Cancel
