@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
@@ -99,7 +100,13 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   return (
     <Stack direction="row" alignItems="center" px={3}>
       <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
-        <IconButton onClick={handleClick(selected)} size="small">
+        <IconButton
+          onClick={handleClick(selected)}
+          size="small"
+          sx={{
+            background: (theme) =>
+              selecting ? theme.palette.grey[300] : undefined,
+          }}>
           <SvgIcon>
             <FontAwesomeIcon icon={modes[selected]} />
           </SvgIcon>
@@ -117,11 +124,13 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
               ))}
           </Stack>
         </Collapse>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Typography variant="body2">{time}</Typography>
-        )}
+        <Box pl={1}>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Typography variant="body2">{time}</Typography>
+          )}
+        </Box>
       </Stack>
       <IconButton
         size="small"

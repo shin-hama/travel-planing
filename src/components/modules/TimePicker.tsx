@@ -155,6 +155,7 @@ const TimeSelector: React.FC<Props> = ({
       onChange?.(time)
     }
     mounted.current = true
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time])
 
   const display = () => {

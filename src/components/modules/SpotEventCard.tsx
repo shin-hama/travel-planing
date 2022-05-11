@@ -19,6 +19,7 @@ const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
   const start = () => {
     let _start = dayjs(dayStart)
     prevSpots.forEach((prev) => {
+      // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
       const nextRoute =
         prev.next &&
         routesApi.get({
@@ -26,7 +27,6 @@ const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
           to: prev.next.id,
           mode: prev.next.mode,
         })
-      console.log(nextRoute)
       _start = dayjs(_start)
         .add(prev.duration, prev.durationUnit)
         .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)

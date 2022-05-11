@@ -32,8 +32,10 @@ const PlanningLayout: React.FC = () => {
   const routesApi = useRoutes()
 
   React.useEffect(() => {
+    // とりあえずページアクセス時にキャッシュを削除するようにする
     console.log('clean routes cache')
     routesApi.clean()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {

@@ -25,6 +25,9 @@ export const useRoutes = () => {
           console.error('fail to update routes')
         }
       },
+      /**
+       * ルートキャッシュから、スケジュールに含まれていないスポットのルート情報を削除する
+       */
       clean: () => {
         if (planRef.current) {
           const { events, routes } = planRef.current
