@@ -22,7 +22,25 @@ export const useRoutes = () => {
             ],
           })
         } else {
-          console.error('fail to update waypoints')
+          console.error('fail to update routes')
+        }
+      },
+      /**
+       * ルートキャッシュから、スケジュールに含まれていないスポットのルート情報を削除する
+       */
+      clean: () => {
+        if (planRef.current) {
+          const { events, routes } = planRef.current
+          const waypoints = events.map((e) => e.spots).flat()
+          planApi.update({
+            routes: routes.filter(
+              (route) =>
+                waypoints.find((point) => point.id === route.from) &&
+                waypoints.find((point) => point.id === route.to)
+            ),
+          })
+        } else {
+          console.error('fail to update routes')
         }
       },
       remove: (removed: Route) => {
@@ -33,7 +51,7 @@ export const useRoutes = () => {
             ),
           })
         } else {
-          console.error('fail to update waypoints')
+          console.error('fail to update routes')
         }
       },
       get: (conditions: Pick<Route, 'from' | 'to' | 'mode'>) => {

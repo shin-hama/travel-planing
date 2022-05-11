@@ -62,7 +62,12 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
                 control={control}
                 name="duration"
                 render={({ field }) => (
-                  <TimePicker value={field.value} onChange={field.onChange} />
+                  <TimePicker
+                    value={field.value}
+                    onChange={(time) =>
+                      field.onChange(time.hour * 60 + time.minute)
+                    }
+                  />
                 )}
               />
             </Stack>

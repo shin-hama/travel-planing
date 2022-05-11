@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
@@ -39,7 +40,7 @@ type Props = {
 const Route: React.FC<Props> = ({ origin, dest }) => {
   const [selecting, setSelecting] = React.useState(false)
   const [selected, setSelected] = React.useState<TravelMode>(
-    origin.mode || 'driving'
+    origin.next?.mode || 'driving'
   )
 
   const routesApi = useRoutes()
@@ -61,11 +62,13 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   }
 
   React.useEffect(() => {
-    if (origin.mode !== selected) {
+    if (origin.next?.mode !== selected) {
       console.log('update travel mode')
-      waypointsApi.update(origin.id, { mode: selected })
+      waypointsApi.update(origin.id, {
+        next: { id: dest.id, mode: selected },
+      })
     }
-  }, [origin.id, origin.mode, selected, waypointsApi])
+  }, [dest.id, origin.id, origin.next, selected, waypointsApi])
 
   React.useEffect(() => {
     const routeCache = routesApi.get({
@@ -75,7 +78,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
     })
     if (routeCache?.time) {
       console.log('use route cache')
-      setTime(routeCache.time)
+      setTime(routeCache.time.text)
     } else {
       search({
         origin,
@@ -88,7 +91,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
           from: origin.id,
           to: dest.id,
           mode: selected,
-          time: result?.legs[0].duration.text,
+          time: result && { ...result.legs[0].duration, unit: 'second' },
         })
       })
     }
@@ -97,7 +100,13 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   return (
     <Stack direction="row" alignItems="center" px={3}>
       <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
-        <IconButton onClick={handleClick(selected)} size="small">
+        <IconButton
+          onClick={handleClick(selected)}
+          size="small"
+          sx={{
+            background: (theme) =>
+              selecting ? theme.palette.grey[300] : undefined,
+          }}>
           <SvgIcon>
             <FontAwesomeIcon icon={modes[selected]} />
           </SvgIcon>
@@ -115,11 +124,13 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
               ))}
           </Stack>
         </Collapse>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Typography variant="body2">{time}</Typography>
-        )}
+        <Box pl={1}>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Typography variant="body2">{time}</Typography>
+          )}
+        </Box>
       </Stack>
       <IconButton
         size="small"

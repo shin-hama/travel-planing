@@ -7,12 +7,34 @@ import Typography from '@mui/material/Typography'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
 import dayjs from 'dayjs'
+import { useRoutes } from 'hooks/useRoutes'
 
 type Props = {
   spot: Spot
+  prevSpots: Array<Spot>
+  dayStart: Date
 }
-const SpotEventCard: React.FC<Props> = ({ spot }) => {
-  const start = new Date()
+const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
+  const routesApi = useRoutes()
+  const start = () => {
+    let _start = dayjs(dayStart)
+    prevSpots.forEach((prev) => {
+      // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
+      const nextRoute =
+        prev.next &&
+        routesApi.get({
+          from: prev.id,
+          to: prev.next.id,
+          mode: prev.next.mode,
+        })
+      _start = dayjs(_start)
+        .add(prev.duration, prev.durationUnit)
+        .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)
+    })
+
+    return _start
+  }
+
   return (
     <Box
       sx={{
@@ -27,7 +49,7 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
               alignItems="center"
               height="100%">
               <Typography variant="subtitle1">
-                {dayjs(start).format('HH:mm')}
+                {start().format('HH:mm')}
               </Typography>
               <Box
                 flexGrow={1}
@@ -38,9 +60,7 @@ const SpotEventCard: React.FC<Props> = ({ spot }) => {
                 }}
               />
               <Typography variant="subtitle1">
-                {dayjs(start)
-                  .add(spot.duration, spot.durationUnit)
-                  .format('HH:mm')}
+                {start().add(spot.duration, spot.durationUnit).format('HH:mm')}
               </Typography>
             </Stack>
           </Grid>

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import dayjs from 'dayjs'
 
 import { Plan, Spot } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
@@ -28,7 +29,19 @@ export const useWaypoints = () => {
                     return event
                   }
                 })
-              : [{ spots: [newSpot] }]
+              : [
+                  {
+                    start: dayjs(planRef.current.start)
+                      .hour(9)
+                      .minute(0)
+                      .toDate(),
+                    end: dayjs(planRef.current.start)
+                      .hour(19)
+                      .minute(0)
+                      .toDate(),
+                    spots: [newSpot],
+                  },
+                ]
 
           planApi.update({
             events: newEvents,
