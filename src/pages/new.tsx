@@ -81,6 +81,8 @@ const PrefectureSelector = () => {
         belongings: [],
         events: [
           {
+            start: dayjs(planDTO.start).hour(9).minute(0).toDate(),
+            end: dayjs(planDTO.start).hour(19).minute(0).toDate(),
             spots: [],
           },
         ],

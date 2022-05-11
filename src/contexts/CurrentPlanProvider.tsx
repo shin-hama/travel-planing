@@ -58,6 +58,8 @@ export type Belonging = {
 }
 
 export type Schedule = {
+  start: Date
+  end: Date
   spots: Array<Spot>
 }
 

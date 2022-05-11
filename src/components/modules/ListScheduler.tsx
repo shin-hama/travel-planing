@@ -10,14 +10,15 @@ import {
   DroppableProvided,
   DropResult,
 } from 'react-beautiful-dnd'
+import dayjs from 'dayjs'
 
+import DayHeader from './DayHeader'
 import DayMenu from './DayMenu'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import Route from './Route'
 import SpotEventCard from './SpotEventCard'
 import SpotEventEditor from './SpotEventEditor'
 import { Spot } from 'contexts/CurrentPlanProvider'
-import Route from './Route'
-import DayHeader from './DayHeader'
+import { useTravelPlan } from 'hooks/useTravelPlan'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -82,13 +83,21 @@ const ListScheduler: React.FC = () => {
           ),
         })
       } else if (destination.droppableId === 'newDay') {
+        // Add a new day
         const [removedSpot] = plan.events[
           Number.parseInt(source.droppableId)
         ].spots.splice(source.index, 1)
+
+        const newDate = dayjs(plan.events.slice(-1)[0].start)
+          .add(1, 'day')
+          .hour(9)
+          .minute(0)
         planApi.update({
           events: [
             ...plan.events,
             {
+              start: newDate.toDate(),
+              end: newDate.hour(19).toDate(),
               spots: [removedSpot],
             },
           ],

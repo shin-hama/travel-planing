@@ -41,6 +41,7 @@ const buildTime = (defaultTime?: number): Time => {
 }
 
 const reducer = (state: Time, action: TimeAction): Time => {
+  const step = 15
   switch (action.type) {
     case 'hour': {
       let newValue = action.value
@@ -71,14 +72,14 @@ const reducer = (state: Time, action: TimeAction): Time => {
         }
         return { ...state, hour: newValue }
       } else if (action.unit === 'minute') {
-        if (state.minute >= 59) {
+        if (state.minute >= 60 - step) {
           return {
             ...state,
             hour: state.hour >= 23 ? 0 : state.hour + 1,
             minute: 0,
           }
         } else {
-          return { ...state, minute: state.minute + 1 }
+          return { ...state, minute: state.minute + step }
         }
       } else {
         throw new Error(`not implemented action: ${action.unit}`)
@@ -97,10 +98,10 @@ const reducer = (state: Time, action: TimeAction): Time => {
           return {
             ...state,
             hour: state.hour <= 0 ? 23 : state.hour - 1,
-            minute: 59,
+            minute: 60 - step,
           }
         } else {
-          return { ...state, minute: state.minute - 1 }
+          return { ...state, minute: state.minute - step }
         }
       } else {
         throw new Error(`not implemented action: ${action.unit}`)
@@ -114,11 +115,13 @@ const reducer = (state: Time, action: TimeAction): Time => {
 
 type Props = {
   type?: 'input' | 'text'
+  label?: string
   value?: number
-  onChange?: (newTime: number) => void
+  onChange?: (newTime: Time) => void
 }
 const TimeSelector: React.FC<Props> = ({
   type = 'input',
+  label = '',
   value: defaultTime,
   onChange,
 }) => {
@@ -149,17 +152,17 @@ const TimeSelector: React.FC<Props> = ({
   React.useEffect(() => {
     // 初期化時に無駄な保存処理が走らないようにする
     if (mounted.current) {
-      onChange?.(time.hour * 60 + time.minute)
+      onChange?.(time)
     }
     mounted.current = true
-  }, [onChange, time])
+  }, [time])
 
   const display = () => {
     switch (type) {
       case 'text':
         return (
           <Typography onClick={(e) => setAnchor(e.currentTarget)}>
-            {`${time.hour.toString().padStart(2, '0')}:${time.minute
+            {`${label}${time.hour.toString().padStart(2, '0')}:${time.minute
               .toString()
               .padStart(2, '0')}`}
           </Typography>
@@ -168,6 +171,7 @@ const TimeSelector: React.FC<Props> = ({
       case 'input':
         return (
           <TextField
+            label={label}
             placeholder="HH:MM"
             value={`${time.hour.toString().padStart(2, '0')}:${time.minute
               .toString()

@@ -58,8 +58,10 @@ export const useTravelPlan = () => {
           // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
           if (updatedPlan.events) {
             // Event 更新時にリストが空になった場合削除する
+            // ただし、Events が 0 個にならないようにする
+            // TODO: ユーザーが最小数を決めれるようにする
             updatedPlan.events = updatedPlan.events.filter(
-              (event) => event.spots.length !== 0
+              (event, i) => event.spots.length !== 0 ||  i === 0
             )
           }
           setPlan({ type: 'update', value: updatedPlan })
