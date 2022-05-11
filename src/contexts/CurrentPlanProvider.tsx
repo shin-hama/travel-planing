@@ -28,7 +28,10 @@ export type Spot = {
   lng: number
   labels?: Array<SpotLabel>
   memo?: string
-  mode?: TravelMode
+  next?: {
+    id: string
+    mode: TravelMode
+  }
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSpot = (obj: any): obj is Spot => {
@@ -46,7 +49,11 @@ export type Route = {
   from: string
   to: string
   mode: TravelMode
-  time?: string | null
+  time?: {
+    text: string
+    value: number
+    unit: dayjs.ManipulateType
+  } | null
 }
 
 export const isSameRoute = (a: Route, b: Route) =>

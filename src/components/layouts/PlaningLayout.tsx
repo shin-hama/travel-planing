@@ -20,6 +20,7 @@ import PlanView from './PlanView'
 import TabPanel from 'components/modules/TabPanel'
 import { MapLayerProvider } from 'contexts/MapLayerModeProvider'
 import ScheduleListView from './ScheduleListView'
+import { useRoutes } from 'hooks/useRoutes'
 
 const MyTab = styled(Tab)`
   padding: 0;
@@ -27,18 +28,16 @@ const MyTab = styled(Tab)`
 `
 
 const PlanningLayout: React.FC = () => {
-  const [isMounted, setIsMounted] = React.useState(false)
   const [value, setValue] = React.useState(1)
+  const routesApi = useRoutes()
+
+  React.useEffect(() => {
+    console.log('clean routes cache')
+    routesApi.clean()
+  }, [])
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
-  }
-  React.useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  if (!isMounted) {
-    return null
   }
 
   return (

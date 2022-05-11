@@ -39,7 +39,7 @@ type Props = {
 const Route: React.FC<Props> = ({ origin, dest }) => {
   const [selecting, setSelecting] = React.useState(false)
   const [selected, setSelected] = React.useState<TravelMode>(
-    origin.mode || 'driving'
+    origin.next?.mode || 'driving'
   )
 
   const routesApi = useRoutes()
@@ -61,11 +61,13 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   }
 
   React.useEffect(() => {
-    if (origin.mode !== selected) {
+    if (origin.next?.mode !== selected) {
       console.log('update travel mode')
-      waypointsApi.update(origin.id, { mode: selected })
+      waypointsApi.update(origin.id, {
+        next: { id: dest.id, mode: selected },
+      })
     }
-  }, [origin.id, origin.mode, selected, waypointsApi])
+  }, [dest.id, origin.id, origin.next, selected, waypointsApi])
 
   React.useEffect(() => {
     const routeCache = routesApi.get({
@@ -75,7 +77,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
     })
     if (routeCache?.time) {
       console.log('use route cache')
-      setTime(routeCache.time)
+      setTime(routeCache.time.text)
     } else {
       search({
         origin,
@@ -88,7 +90,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
           from: origin.id,
           to: dest.id,
           mode: selected,
-          time: result?.legs[0].duration.text,
+          time: result && { ...result.legs[0].duration, unit: 'second' },
         })
       })
     }

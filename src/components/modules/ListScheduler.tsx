@@ -173,7 +173,14 @@ const ListScheduler: React.FC = () => {
                                       {...provided.dragHandleProps}
                                       {...provided.draggableProps}>
                                       <Box onClick={() => setEditSpot(spot)}>
-                                        <SpotEventCard spot={spot} />
+                                        <SpotEventCard
+                                          spot={spot}
+                                          prevSpots={event.spots.slice(
+                                            0,
+                                            index
+                                          )}
+                                          dayStart={event.start}
+                                        />
                                       </Box>
                                       {index !== event.spots.length - 1 && (
                                         <Box py={0.5}>

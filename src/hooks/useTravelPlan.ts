@@ -61,7 +61,7 @@ export const useTravelPlan = () => {
             // ただし、Events が 0 個にならないようにする
             // TODO: ユーザーが最小数を決めれるようにする
             updatedPlan.events = updatedPlan.events.filter(
-              (event, i) => event.spots.length !== 0 ||  i === 0
+              (event, i) => event.spots.length !== 0 || i === 0
             )
           }
           setPlan({ type: 'update', value: updatedPlan })
