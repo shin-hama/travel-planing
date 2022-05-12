@@ -1,15 +1,14 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
 import SpeedDial from '@mui/material/SpeedDial'
 import SpeedDialAction from '@mui/material/SpeedDialAction'
 import SpeedDialIcon from '@mui/material/SpeedDialIcon'
-import Stack from '@mui/material/Stack'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faRoute } from '@fortawesome/free-solid-svg-icons'
+import { faRoute, faBed } from '@fortawesome/free-solid-svg-icons'
 
-import SchedulerHeader from 'components/modules/SchedulerHeader'
 import { useRouter } from 'hooks/useRouter'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import ListScheduler from 'components/modules/ListScheduler'
@@ -17,6 +16,7 @@ import { useWaypoints } from 'hooks/useWaypoints'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import type { Route } from 'contexts/CurrentPlanProvider'
+import { useMapLayer } from 'contexts/MapLayerModeProvider'
 
 type Action = {
   label: string
@@ -25,14 +25,15 @@ type Action = {
 }
 
 type Props = {
-  onClose: () => void
+  openMapView: () => void
 }
-const ScheduleListView: React.FC<Props> = ({ onClose }) => {
+const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
   const router = useRouter()
-  const [plan, planApi] = useTravelPlan()
+  const [plan] = useTravelPlan()
   const [waypoints, waypointsApi] = useWaypoints()
   const routesApi = useRoutes()
   const directions = useDirections()
+  const [, setLayer] = useMapLayer()
 
   React.useEffect(() => {
     if (!plan) {
@@ -40,16 +41,10 @@ const ScheduleListView: React.FC<Props> = ({ onClose }) => {
     }
   }, [plan, router])
 
-  const handleUpdate = React.useCallback(
-    (title: string) => {
-      planApi.update({ title })
-    },
-    [planApi]
-  )
-
   const handleAddHotel = React.useCallback(() => {
-    onClose()
-  }, [onClose])
+    openMapView()
+    setLayer('selector')
+  }, [setLayer])
 
   const handleOptimizeRoute = React.useCallback(async () => {
     if (!plan) {
@@ -98,23 +93,24 @@ const ScheduleListView: React.FC<Props> = ({ onClose }) => {
           </SvgIcon>
         ),
       },
+      {
+        label: 'ホテルを設定',
+        onClick: handleAddHotel,
+        icon: (
+          <SvgIcon>
+            <FontAwesomeIcon icon={faBed} />
+          </SvgIcon>
+        ),
+      },
     ],
-    [handleOptimizeRoute]
+    [handleAddHotel, handleOptimizeRoute]
   )
 
-  if (!plan) {
-    return <></>
-  }
   return (
     <>
-      <Stack height="100%">
-        <SchedulerHeader
-          plan={plan}
-          addHotel={handleAddHotel}
-          updateTitle={handleUpdate}
-        />
+      <Box height="100%">
         <ListScheduler />
-      </Stack>
+      </Box>
       <SpeedDial
         ariaLabel="SpeedDial basic example"
         sx={{ position: 'absolute', bottom: 16, right: 16 }}
