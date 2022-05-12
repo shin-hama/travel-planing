@@ -10,15 +10,18 @@ export const useRoutes = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      add: (newRoute: Route) => {
+      add: (...newRoutes: Array<Route>) => {
         if (planRef.current) {
           planApi.update({
             routes: [
               ...planRef.current.routes.filter(
                 // 同条件のルートオブジェクトがあれば上書きする
-                (route) => isSameRoute(route, newRoute) === false
+                (route) =>
+                  newRoutes.some(
+                    (newRoute) => isSameRoute(route, newRoute) === false
+                  )
               ),
-              newRoute,
+              ...newRoutes,
             ],
           })
         } else {
