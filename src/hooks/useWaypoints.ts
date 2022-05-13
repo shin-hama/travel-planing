@@ -78,6 +78,22 @@ export const useWaypoints = () => {
           })),
         })
       },
+      set: (newWaypoints: Array<Spot>) => {
+        if (!planRef.current) {
+          console.error('plan is not selected')
+          return
+        }
+
+        // 対象の Waypoint を更新した新しいイベントオブジェクトを作成する
+        planApi.update({
+          events: planRef.current?.events
+            .filter((_, i) => i === 0)
+            .map((event) => ({
+              ...event,
+              spots: newWaypoints,
+            })),
+        })
+      },
     }
 
     return a

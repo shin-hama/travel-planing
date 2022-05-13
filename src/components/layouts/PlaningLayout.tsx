@@ -82,7 +82,7 @@ const PlanningLayout: React.FC = () => {
               position="absolute"
               overflow="hidden auto">
               <Container sx={{ height: '100%', overflow: 'hidden' }}>
-                <ScheduleListView onClose={() => setValue(0)} />
+                <ScheduleListView openMapView={() => setValue(1)} />
               </Container>
             </TabPanel>
           </MapLayerProvider>
