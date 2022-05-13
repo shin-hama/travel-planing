@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import DateAdapter from '@mui/lab/AdapterDayjs'
@@ -22,7 +23,7 @@ import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
 import { useRouter } from 'hooks/useRouter'
 
-type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
+type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination' | 'days'>
 type Form = {
   label: string
   control: React.ReactNode
@@ -30,7 +31,8 @@ type Form = {
 
 const PrefectureSelector = () => {
   const router = useRouter()
-  const { register, control, handleSubmit } = useForm<PlanDTO>()
+  const { register, control, handleSubmit, watch } = useForm<PlanDTO>()
+  const dest = watch('destination')
   const [, { create: createPlan }] = useTravelPlan()
   const unsplash = useUnsplash()
 
@@ -93,9 +95,9 @@ const PrefectureSelector = () => {
         control: (
           <TextField
             fullWidth
-            label="プラン名"
+            placeholder={dest ? `${dest.name}旅行` : ''}
             variant="outlined"
-            defaultValue={'Travel Plan'}
+            defaultValue={''}
             {...register('title')}
           />
         ),
@@ -103,31 +105,42 @@ const PrefectureSelector = () => {
       {
         label: '出発日',
         control: (
-          <Controller
-            control={control}
-            name="start"
-            defaultValue={new Date()}
-            render={({ field }) => (
-              <MobileDatePicker
-                label="出発日"
-                inputFormat="YYYY/MM/DD"
-                mask={'____/__/__'}
-                value={field.value}
-                okText={<Button variant="contained">OK</Button>}
-                cancelText={
-                  <Typography variant="button" color="secondary">
-                    Cancel
-                  </Typography>
-                }
-                onChange={(e) => field.onChange(dayjs(e).toDate())}
-                renderInput={(params) => <TextField {...params} fullWidth />}
-              />
-            )}
-          />
+          <Stack direction="row" spacing={1}>
+            <Controller
+              control={control}
+              name="start"
+              defaultValue={new Date()}
+              render={({ field }) => (
+                <MobileDatePicker
+                  label="出発日"
+                  inputFormat="YYYY/MM/DD"
+                  mask={'____/__/__'}
+                  value={field.value}
+                  okText={<Button variant="contained">OK</Button>}
+                  cancelText={
+                    <Typography variant="button" color="secondary">
+                      Cancel
+                    </Typography>
+                  }
+                  onChange={(e) => field.onChange(dayjs(e).toDate())}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              )}
+            />
+            <TextField
+              placeholder="未定"
+              variant="outlined"
+              type="number"
+              InputProps={{ endAdornment: '泊' }}
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              defaultValue={null}
+              {...register('days')}
+            />
+          </Stack>
         ),
       },
     ],
-    [control, register]
+    [control, dest, register]
   )
 
   const [handlerState, handleCreatePlan] = useAsyncFn(
@@ -153,7 +166,7 @@ const PrefectureSelector = () => {
       }
 
       const newPlan: Parameters<typeof createPlan>[number] = {
-        title: planDTO.title,
+        title: planDTO.title || `${planDTO.destination.name}旅行`,
         start: planDTO.start,
         startTime: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
         end: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
@@ -169,6 +182,7 @@ const PrefectureSelector = () => {
           },
         ],
         routes: [],
+        days: planDTO.days,
       }
       const id = await createPlan(newPlan)
 

@@ -82,6 +82,10 @@ export type Plan = {
   routes: Array<Route>
   lodging?: Omit<Spot, 'id'>
   belongings: Array<Belonging>
+  /**
+   * 宿泊日数、未定なら null
+   */
+  days?: number | null
 }
 
 export type PlanDB = {
