@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
+import Backdrop from '@mui/material/Backdrop'
 import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
 import SpeedDial from '@mui/material/SpeedDial'
@@ -36,6 +37,10 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
   const directions = useDirections()
   const [, setLayer] = useMapLayer()
   const confirm = useConfirm()
+
+  const [open, setOpen] = React.useState(false)
+  const handleOpen = () => setOpen(true)
+  const handleClose = React.useCallback(() => setOpen(false), [])
 
   React.useEffect(() => {
     if (!plan) {
@@ -93,13 +98,17 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
     } else {
       alert('cannot find roue')
     }
-  }, [directions, plan, routesApi, waypoints, waypointsApi])
+  }, [plan, waypoints])
 
-  const actions = React.useMemo<Array<Action>>(
-    () => [
+  const actions = React.useMemo<Array<Action>>(() => {
+    const handleRun = (action: () => void) => () => {
+      handleClose()
+      action()
+    }
+    return [
       {
         label: 'ルート最適化',
-        onClick: handleOptimizeRoute,
+        onClick: handleRun(handleOptimizeRoute),
         icon: (
           <SvgIcon>
             <FontAwesomeIcon icon={faRoute} />
@@ -108,23 +117,26 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
       },
       {
         label: 'ホテルを設定',
-        onClick: handleAddHotel,
+        onClick: handleRun(handleAddHotel),
         icon: (
           <SvgIcon>
             <FontAwesomeIcon icon={faBed} />
           </SvgIcon>
         ),
       },
-    ],
-    [handleAddHotel, handleOptimizeRoute]
-  )
+    ]
+  }, [handleAddHotel, handleClose, handleOptimizeRoute])
 
   return (
     <>
       <Box height="100%">
         <ListScheduler />
       </Box>
+      <Backdrop open={open} />
       <SpeedDial
+        open={open}
+        onOpen={handleOpen}
+        onClose={handleClose}
         ariaLabel="SpeedDial basic example"
         sx={{ position: 'absolute', bottom: 16, right: 16 }}
         icon={<SpeedDialIcon />}>
