@@ -17,6 +17,7 @@ import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import type { Route } from 'contexts/CurrentPlanProvider'
 import { useMapLayer } from 'contexts/MapLayerModeProvider'
+import { useConfirm } from 'hooks/useConfirm'
 
 type Action = {
   label: string
@@ -34,6 +35,7 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
   const routesApi = useRoutes()
   const directions = useDirections()
   const [, setLayer] = useMapLayer()
+  const confirm = useConfirm()
 
   React.useEffect(() => {
     if (!plan) {
@@ -48,6 +50,17 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
 
   const handleOptimizeRoute = React.useCallback(async () => {
     if (!plan) {
+      return
+    }
+    try {
+      await confirm({
+        title: 'Caution!',
+        description: '現在のスケジュールが上書きされます。よろしいですか?',
+        dialogProps: {
+          maxWidth: 'sm',
+        },
+      })
+    } catch {
       return
     }
     const cloned = Array.from(waypoints || [])
