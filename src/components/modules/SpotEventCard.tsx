@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import dayjs from 'dayjs'
 import { useRoutes } from 'hooks/useRoutes'
+import { useSpotEditor } from 'contexts/SpotEditorProvider'
 
 type Props = {
   spot: Spot
@@ -15,7 +16,9 @@ type Props = {
   dayStart: Date
 }
 const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
+  const { open } = useSpotEditor()
   const routesApi = useRoutes()
+
   const start = () => {
     let _start = dayjs(dayStart)
     prevSpots.forEach((prev) => {
@@ -37,6 +40,7 @@ const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
 
   return (
     <Box
+      onClick={() => open(spot)}
       sx={{
         border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
         borderRadius: 2,

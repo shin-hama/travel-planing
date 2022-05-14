@@ -12,13 +12,8 @@ import {
 } from 'react-beautiful-dnd'
 import dayjs from 'dayjs'
 
-import DayHeader from './DayHeader'
-import DayMenu from './DayMenu'
-import Route from './Route'
-import SpotEventCard from './SpotEventCard'
-import SpotEventEditor from './SpotEventEditor'
-import { Spot } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import DayColumn from './DayColumn'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -29,18 +24,6 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
 }
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = useTravelPlan()
-  const [editSpot, setEditSpot] = React.useState<Spot | null>(null)
-  const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
-
-  const handleRemoveDay = () => {
-    planApi.update({
-      events: plan?.events.filter((_, i) => i !== plan.events.length - 1),
-    })
-  }
-
-  const handleOpenMenu = (anchor: HTMLElement) => {
-    setAnchor(anchor)
-  }
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !plan) {
@@ -146,59 +129,7 @@ const ListScheduler: React.FC = () => {
                       ref={provided.innerRef}
                       {...provided.dragHandleProps}
                       {...provided.draggableProps}>
-                      <Droppable
-                        droppableId={i.toString()}
-                        type="ITEM"
-                        direction="vertical">
-                        {(provided) => (
-                          <Stack
-                            spacing={1}
-                            width="320px"
-                            height="100%"
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}>
-                            <DayHeader
-                              day={i + 1}
-                              onOpenMenu={handleOpenMenu}
-                            />
-                            <Box>
-                              {event.spots.map((spot, index) => (
-                                <Draggable
-                                  key={spot.id}
-                                  draggableId={spot.id}
-                                  index={index}>
-                                  {(provided) => (
-                                    <Box
-                                      ref={provided.innerRef}
-                                      {...provided.dragHandleProps}
-                                      {...provided.draggableProps}>
-                                      <Box onClick={() => setEditSpot(spot)}>
-                                        <SpotEventCard
-                                          spot={spot}
-                                          prevSpots={event.spots.slice(
-                                            0,
-                                            index
-                                          )}
-                                          dayStart={event.start}
-                                        />
-                                      </Box>
-                                      {index !== event.spots.length - 1 && (
-                                        <Box py={0.5}>
-                                          <Route
-                                            origin={spot}
-                                            dest={event.spots[index + 1]}
-                                          />
-                                        </Box>
-                                      )}
-                                    </Box>
-                                  )}
-                                </Draggable>
-                              ))}
-                              {provided.placeholder}
-                            </Box>
-                          </Stack>
-                        )}
-                      </Droppable>
+                      <DayColumn day={i} schedule={event} />
                     </Box>
                   )}
                 </Draggable>
@@ -224,19 +155,6 @@ const ListScheduler: React.FC = () => {
           )}
         </Droppable>
       </DragDropContext>
-      <DayMenu
-        anchorEl={anchor}
-        open={Boolean(anchor)}
-        onClose={() => setAnchor(null)}
-        onDelete={handleRemoveDay}
-      />
-      {editSpot && (
-        <SpotEventEditor
-          spotId={editSpot.id}
-          open={Boolean(editSpot)}
-          onClose={() => setEditSpot(null)}
-        />
-      )}
     </>
   )
 }
