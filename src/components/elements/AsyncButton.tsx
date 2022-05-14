@@ -1,5 +1,4 @@
 import * as React from 'react'
-import Box from '@mui/material/Box'
 import Button, { ButtonProps } from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -13,13 +12,13 @@ const AsyncButton: React.FC<Props> = ({
   ...buttonProps
 }) => {
   return (
-    <Box display="flex" alignItems="stretch">
+    <>
       {loading ? (
         <CircularProgress />
       ) : (
         <Button {...buttonProps}>{children}</Button>
       )}
-    </Box>
+    </>
   )
 }
 

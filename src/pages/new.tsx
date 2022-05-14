@@ -11,42 +11,119 @@ import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import dayjs from 'dayjs'
 
-import SelectPrefectureDialog, {
-  Props,
-} from 'components/modules/SelectPrefectureDialog'
-import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
+import { Plan } from 'contexts/CurrentPlanProvider'
 import { useUnsplash } from 'hooks/useUnsplash'
 import Layout from 'components/layouts/Layout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
 import { useRouter } from 'hooks/useRouter'
+import PrefectureSelector from 'components/modules/PrefectureSelector'
 
-type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination'>
+type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination' | 'days'>
+type Form = {
+  label?: string
+  required?: boolean
+  control: React.ReactNode
+}
 
-const PrefectureSelector = () => {
+const NewPlan = () => {
   const router = useRouter()
-  const { register, control, handleSubmit } = useForm<PlanDTO>()
+  const { register, control, handleSubmit, watch } = useForm<PlanDTO>()
+  const dest = watch('destination')
   const [, { create: createPlan }] = useTravelPlan()
   const unsplash = useUnsplash()
 
-  const [openDialog, setOpenDialog] = React.useState<Props>({ open: false })
-
-  const handleClick = async () => {
-    try {
-      return await new Promise<Omit<Prefecture, 'imageUrl'>>(
-        (resolve, reject) => {
-          setOpenDialog({
-            open: true,
-            onOK: resolve,
-            onClose: reject,
-          })
-        }
-      )
-    } finally {
-      setOpenDialog({ open: false })
-    }
-  }
+  const forms = React.useMemo<Array<Form>>(
+    () => [
+      {
+        control: (
+          <Controller
+            control={control}
+            name="home"
+            render={({ field }) => (
+              <PrefectureSelector
+                label={'出発地'}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        ),
+      },
+      {
+        control: (
+          <Controller
+            control={control}
+            name="destination"
+            render={({ field }) => (
+              <PrefectureSelector
+                label={'目的地'}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        ),
+      },
+      {
+        control: (
+          <TextField
+            fullWidth
+            size="small"
+            label="プラン名"
+            placeholder={dest ? `${dest.name}旅行` : '〇〇旅行'}
+            InputLabelProps={{ shrink: true }}
+            variant="outlined"
+            defaultValue={''}
+            {...register('title')}
+          />
+        ),
+      },
+      {
+        control: (
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Controller
+              control={control}
+              name="start"
+              defaultValue={dayjs().add(7, 'day').toDate()}
+              render={({ field }) => (
+                <MobileDatePicker
+                  label="出発日"
+                  inputFormat="YYYY/MM/DD"
+                  mask={'____/__/__'}
+                  value={field.value}
+                  okText={<Button variant="contained">OK</Button>}
+                  cancelText={
+                    <Typography variant="button" color="secondary">
+                      Cancel
+                    </Typography>
+                  }
+                  onChange={(e) => field.onChange(dayjs(e).toDate())}
+                  renderInput={(params) => (
+                    <TextField {...params} size="small" fullWidth />
+                  )}
+                />
+              )}
+            />
+            <TextField
+              label="日数"
+              placeholder="未定"
+              InputLabelProps={{ shrink: true }}
+              variant="outlined"
+              type="number"
+              size="small"
+              InputProps={{ endAdornment: '泊' }}
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              defaultValue={null}
+              {...register('days')}
+            />
+          </Stack>
+        ),
+      },
+    ],
+    [control, dest, register]
+  )
 
   const [handlerState, handleCreatePlan] = useAsyncFn(
     async (planDTO: PlanDTO) => {
@@ -71,7 +148,7 @@ const PrefectureSelector = () => {
       }
 
       const newPlan: Parameters<typeof createPlan>[number] = {
-        title: planDTO.title,
+        title: planDTO.title || `${planDTO.destination.name}旅行`,
         start: planDTO.start,
         startTime: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
         end: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
@@ -87,6 +164,7 @@ const PrefectureSelector = () => {
           },
         ],
         routes: [],
+        days: planDTO.days,
       }
       const id = await createPlan(newPlan)
 
@@ -103,91 +181,40 @@ const PrefectureSelector = () => {
     <Layout title="New Plan">
       <LocalizationProvider dateAdapter={DateAdapter}>
         <Container maxWidth="xs">
-          <Box
-            sx={{
-              mt: 2,
-              ml: 2,
-            }}>
+          <Box sx={{ pt: 2, pb: 3 }}>
             <Typography variant="h4">旅程の作成</Typography>
           </Box>
           <form
-            style={{ width: '100%' }}
             onSubmit={handleSubmit(handleCreatePlan, () => {
               console.log('invalid')
             })}>
-            <Stack alignItems="center" spacing={2} sx={{ pt: 3, px: 2 }}>
-              <Box width="100%">
-                <TextField
-                  fullWidth
-                  label="プラン名"
-                  variant="outlined"
-                  defaultValue={'Travel Plan'}
-                  {...register('title')}
-                />
-              </Box>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography>出発地:</Typography>
-                <Controller
-                  control={control}
-                  name="home"
-                  render={({ field }) => (
-                    <Button
-                      color="secondary"
-                      variant="outlined"
-                      onClick={async () => field.onChange(await handleClick())}>
-                      {field.value?.name || 'Select'}
-                    </Button>
-                  )}
-                />
-              </Stack>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography>目的地:</Typography>
-                <Controller
-                  control={control}
-                  name="destination"
-                  render={({ field }) => (
-                    <Button
-                      color="secondary"
-                      variant="outlined"
-                      onClick={async () => field.onChange(await handleClick())}>
-                      {field.value?.name || 'Select'}
-                    </Button>
-                  )}
-                />
-              </Stack>
-              <Controller
-                control={control}
-                name="start"
-                defaultValue={new Date()}
-                render={({ field }) => (
-                  <MobileDatePicker
-                    label="出発日"
-                    inputFormat="YYYY/MM/DD"
-                    mask={'____/__/__'}
-                    value={field.value}
-                    okText={<Button variant="contained">OK</Button>}
-                    cancelText={
-                      <Typography variant="button" color="secondary">
-                        Cancel
-                      </Typography>
-                    }
-                    onChange={(e) => field.onChange(dayjs(e).toDate())}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                )}></Controller>
+            <Stack spacing={2}>
+              {forms.map(({ label, control }, i) => (
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                  key={`${label}-${i}`}>
+                  {label && <Typography textAlign="left">{label}</Typography>}
+                  {control}
+                </Stack>
+              ))}
+            </Stack>
+            <Box sx={{ pt: 4 }}>
               <AsyncButton
+                fullWidth
+                size="large"
                 loading={handlerState.loading}
                 variant="contained"
                 type="submit">
-                {"Let's Start Planning"}
+                Let&rsquo;s Start Traveling
               </AsyncButton>
-            </Stack>
+            </Box>
           </form>
-          <SelectPrefectureDialog {...openDialog} />
         </Container>
       </LocalizationProvider>
     </Layout>
   )
 }
 
-export default PrefectureSelector
+export default NewPlan
