@@ -5,10 +5,12 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose, faSearch } from '@fortawesome/free-solid-svg-icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -40,12 +42,7 @@ const SearchBox = () => {
     setEnd(NUM_CARD)
   }, [searchedSpots])
 
-  React.useEffect(() => {
-    console.log(end)
-  }, [end])
-
   const handleLoadMore = React.useCallback(() => {
-    console.log('load more')
     setEnd((prev) => prev + NUM_CARD)
   }, [])
 
@@ -65,7 +62,6 @@ const SearchBox = () => {
   }
 
   React.useEffect(() => {
-    console.log('try search')
     if (timerRef.current) {
       clearTimeout(timerRef.current)
     }
@@ -112,7 +108,7 @@ const SearchBox = () => {
           },
         }}>
         <DialogContent id="scrollableDiv">
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" alignItems="center" spacing={2}>
             <IconButton disableTouchRipple onClick={handleClose}>
               <FontAwesomeIcon icon={faClose} />
             </IconButton>
@@ -123,13 +119,23 @@ const SearchBox = () => {
               onChange={handleChanged}
               placeholder="Search..."
             />
-            <Switch checked={advance} onChange={toggleMode}></Switch>
+            <FormControlLabel
+              control={
+                <Switch checked={advance} onChange={toggleMode} size="small" />
+              }
+              label={
+                <Typography variant="caption">
+                  {advance ? 'Pro (β)' : 'Normal'}
+                </Typography>
+              }
+              labelPlacement="top"
+            />
           </Stack>
           <Box pt={2}>
             {error ? (
-              <>Error</>
+              <Typography>Error</Typography>
             ) : loading ? (
-              <>Now loading...</>
+              <Typography>Now Searching ...</Typography>
             ) : (
               <Container maxWidth="xs">
                 {searchedSpots.length > 0 ? (
@@ -137,13 +143,13 @@ const SearchBox = () => {
                     dataLength={searchedSpots.slice(0, end).length}
                     next={handleLoadMore}
                     hasMore={searchedSpots.length >= end}
-                    loader={<>Load More ...</>}
+                    loader={<Typography>Load More ...</Typography>}
                     endMessage={<></>}
                     scrollableTarget="scrollableDiv">
                     <SpotsList spots={searchedSpots.slice(0, end)} />
                   </InfiniteScroll>
                 ) : (
-                  <>No result</>
+                  <Typography>No result</Typography>
                 )}
               </Container>
             )}
