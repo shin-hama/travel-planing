@@ -1,6 +1,11 @@
 import * as React from 'react'
 
-import { Plan, Route, isSameRoute } from 'contexts/CurrentPlanProvider'
+import {
+  Plan,
+  Route,
+  isSameRoute,
+  SpotBase,
+} from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
 
 export const useRoutes = () => {
@@ -34,7 +39,15 @@ export const useRoutes = () => {
       clean: () => {
         if (planRef.current) {
           const { events, routes } = planRef.current
-          const waypoints = events.map((e) => e.spots).flat()
+          const waypoints = events
+            .map((e): Array<SpotBase> => e.spots)
+            .flat()
+            .concat(
+              [planRef.current.home, planRef.current.lodging].filter(
+                (spot): spot is SpotBase => spot !== undefined
+              )
+            )
+
           planApi.update({
             routes: routes.filter(
               (route) =>

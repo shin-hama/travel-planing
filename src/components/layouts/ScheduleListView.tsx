@@ -39,8 +39,12 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
   const confirm = useConfirm()
 
   const [open, setOpen] = React.useState(false)
-  const handleOpen = () => setOpen(true)
-  const handleClose = React.useCallback(() => setOpen(false), [])
+  const handleClick = () => setOpen((prev) => !prev)
+  const handleClose = React.useCallback((_, reason: string) => {
+    if (reason !== 'mouseLeave') {
+      setOpen(false)
+    }
+  }, [])
 
   React.useEffect(() => {
     if (!plan) {
@@ -51,7 +55,7 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
   const handleAddHotel = React.useCallback(() => {
     openMapView()
     setLayer('selector')
-  }, [setLayer])
+  }, [openMapView, setLayer])
 
   const handleOptimizeRoute = React.useCallback(async () => {
     if (!plan) {
@@ -63,6 +67,7 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
         description: '現在のスケジュールが上書きされます。よろしいですか?',
         dialogProps: {
           maxWidth: 'sm',
+          disableRestoreFocus: true,
         },
       })
     } catch {
@@ -85,8 +90,8 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
       routesApi.add(
         ...legs.map(
           (leg, i): Route => ({
-            from: spots[i].placeId || '',
-            to: spots[i + 1].placeId || '',
+            from: spots[i].id || '',
+            to: spots[i + 1].id || '',
             mode: 'driving',
             time: {
               ...leg.duration,
@@ -98,17 +103,13 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
     } else {
       alert('cannot find roue')
     }
-  }, [plan, waypoints])
+  }, [confirm, directions, plan, routesApi, waypoints, waypointsApi])
 
   const actions = React.useMemo<Array<Action>>(() => {
-    const handleRun = (action: () => void) => () => {
-      handleClose()
-      action()
-    }
     return [
       {
         label: 'ルート最適化',
-        onClick: handleRun(handleOptimizeRoute),
+        onClick: handleOptimizeRoute,
         icon: (
           <SvgIcon>
             <FontAwesomeIcon icon={faRoute} />
@@ -117,7 +118,7 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
       },
       {
         label: 'ホテルを設定',
-        onClick: handleRun(handleAddHotel),
+        onClick: handleAddHotel,
         icon: (
           <SvgIcon>
             <FontAwesomeIcon icon={faBed} />
@@ -125,7 +126,7 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
         ),
       },
     ]
-  }, [handleAddHotel, handleClose, handleOptimizeRoute])
+  }, [handleAddHotel, handleOptimizeRoute])
 
   return (
     <>
@@ -135,7 +136,7 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
       <Backdrop open={open} />
       <SpeedDial
         open={open}
-        onOpen={handleOpen}
+        onClick={handleClick}
         onClose={handleClose}
         ariaLabel="SpeedDial basic example"
         sx={{ position: 'absolute', bottom: 16, right: 16 }}

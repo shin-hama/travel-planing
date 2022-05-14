@@ -6,37 +6,19 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
+import { useSpotEditor } from 'contexts/SpotEditorProvider'
 import dayjs from 'dayjs'
-import { useRoutes } from 'hooks/useRoutes'
 
 type Props = {
   spot: Spot
-  prevSpots: Array<Spot>
-  dayStart: Date
+  start: Date
 }
-const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
-  const routesApi = useRoutes()
-  const start = () => {
-    let _start = dayjs(dayStart)
-    prevSpots.forEach((prev) => {
-      // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
-      const nextRoute =
-        prev.next &&
-        routesApi.get({
-          from: prev.id,
-          to: prev.next.id,
-          mode: prev.next.mode,
-        })
-      _start = dayjs(_start)
-        .add(prev.duration, prev.durationUnit)
-        .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)
-    })
-
-    return _start
-  }
+const SpotEventCard: React.FC<Props> = ({ spot, start }) => {
+  const { open } = useSpotEditor()
 
   return (
     <Box
+      onClick={() => open(spot)}
       sx={{
         border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
         borderRadius: 2,
@@ -49,7 +31,7 @@ const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
               alignItems="center"
               height="100%">
               <Typography variant="subtitle1">
-                {start().format('HH:mm')}
+                {dayjs(start).format('HH:mm')}
               </Typography>
               <Box
                 flexGrow={1}
@@ -60,7 +42,9 @@ const SpotEventCard: React.FC<Props> = ({ spot, prevSpots, dayStart }) => {
                 }}
               />
               <Typography variant="subtitle1">
-                {start().add(spot.duration, spot.durationUnit).format('HH:mm')}
+                {dayjs(start)
+                  .add(spot.duration, spot.durationUnit)
+                  .format('HH:mm')}
               </Typography>
             </Stack>
           </Grid>

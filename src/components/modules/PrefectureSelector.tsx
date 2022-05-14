@@ -37,7 +37,7 @@ const PrefectureSelector: React.FC<Props> = ({ value, label, onChange }) => {
     if (prefecture) {
       onChange?.({
         ...prefecture,
-        placeId: prefecture.place_id,
+        id: prefecture.place_id,
       })
     }
   }
@@ -72,8 +72,7 @@ const PrefectureSelector: React.FC<Props> = ({ value, label, onChange }) => {
           label={label}
           id={`prefecture-selector-${label}`}
           value={
-            data?.prefectures.find((p) => p.place_id === value?.placeId)
-              ?.code || ''
+            data?.prefectures.find((p) => p.place_id === value?.id)?.code || ''
           }
           onChange={handleChange}>
           {loading ? (

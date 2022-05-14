@@ -17,6 +17,7 @@ import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 import { MapPropsProvider } from 'contexts/MapPropsProvider'
 import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
 import UserAuthorizationProvider from 'contexts/UserAuthorizationProvider'
+import { SpotEditorProvider } from 'contexts/SpotEditorProvider'
 
 const clientSideEmotionCache = createEmotionCache()
 interface MyAppProps extends AppProps {
@@ -42,10 +43,12 @@ const App: React.FC<MyAppProps> = ({
                   <PlacesServiceProvider>
                     <CurrentPlanContextProvider>
                       <SelectedSpotsProvider>
-                        <ThemeProvider theme={theme}>
-                          <CssBaseline />
-                          <Component {...pageProps} />
-                        </ThemeProvider>
+                        <SpotEditorProvider>
+                          <ThemeProvider theme={theme}>
+                            <CssBaseline />
+                            <Component {...pageProps} />
+                          </ThemeProvider>
+                        </SpotEditorProvider>
                       </SelectedSpotsProvider>
                     </CurrentPlanContextProvider>
                   </PlacesServiceProvider>

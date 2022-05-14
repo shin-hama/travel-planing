@@ -23,8 +23,7 @@ import {
 } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import { Spot } from 'contexts/CurrentPlanProvider'
-import { useWaypoints } from 'hooks/useWaypoints'
+import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 
 const modes: Record<TravelMode, IconDefinition> = {
   driving: faCar,
@@ -34,17 +33,17 @@ const modes: Record<TravelMode, IconDefinition> = {
 }
 
 type Props = {
-  origin: Spot
-  dest: Spot
+  origin: RouteGuidanceAvailable
+  dest: RouteGuidanceAvailable
+  onChange: (next: NextMove, prevId: string) => void
 }
-const Route: React.FC<Props> = ({ origin, dest }) => {
+const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
   const [selected, setSelected] = React.useState<TravelMode>(
     origin.next?.mode || 'driving'
   )
 
   const routesApi = useRoutes()
-  const [, waypointsApi] = useWaypoints()
   const { search, loading } = useDirections()
   const [time, setTime] = React.useState('')
 
@@ -62,15 +61,10 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
   }
 
   React.useEffect(() => {
-    if (origin.next?.mode !== selected) {
-      console.log('update travel mode')
-      waypointsApi.update(origin.id, {
-        next: { id: dest.id, mode: selected },
-      })
+    if (origin.next?.mode !== selected || origin.next.id !== dest.id) {
+      onChange({ id: dest.id, mode: selected }, origin.id)
     }
-  }, [dest.id, origin.id, origin.next, selected, waypointsApi])
 
-  React.useEffect(() => {
     const routeCache = routesApi.get({
       from: origin.id,
       to: dest.id,
@@ -95,6 +89,7 @@ const Route: React.FC<Props> = ({ origin, dest }) => {
         })
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin.id, dest.id, selected])
 
   return (

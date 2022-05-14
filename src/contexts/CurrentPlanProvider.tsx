@@ -5,34 +5,39 @@ import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
 import { TravelMode } from 'hooks/googlemaps/useDirections'
 
-export type Prefecture = {
-  name: string
-  name_en: string
+export type NextMove = {
+  id: string
+  mode: TravelMode
+}
+
+export type SpotBase = {
+  id: string
   lat: number
   lng: number
+  name: string
+}
+export type RouteGuidanceAvailable = SpotBase & {
+  next?: NextMove
+}
+
+export type Prefecture = SpotBase & {
+  name: string
+  name_en: string
   zoom: number
-  placeId: string
   imageUrl: string
 }
 
 export type SpotLabel = string
 
-export type Spot = {
-  id: string
+export type Spot = RouteGuidanceAvailable & {
   imageUrl: string
   placeId?: string | null
-  name: string
   duration: number
   durationUnit: dayjs.ManipulateType
-  lat: number
-  lng: number
   labels?: Array<SpotLabel>
   memo?: string
-  next?: {
-    id: string
-    mode: TravelMode
-  }
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSpot = (obj: any): obj is Spot => {
   return (
@@ -67,6 +72,7 @@ export type Belonging = {
 export type Schedule = {
   start: Date
   end: Date
+  dept?: NextMove
   spots: Array<Spot>
 }
 
@@ -80,7 +86,7 @@ export type Plan = {
   end: Date
   events: Array<Schedule>
   routes: Array<Route>
-  lodging?: Omit<Spot, 'id'>
+  lodging?: SpotBase
   belongings: Array<Belonging>
   /**
    * 宿泊日数、未定なら null
