@@ -93,7 +93,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
     setAnchor(anchor)
   }
 
-  const handleUpdateHome = React.useCallback(
+  const handleUpdateDeparture = React.useCallback(
     (next: NextMove) => {
       if (plan) {
         planApi.update({
@@ -108,14 +108,14 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
         })
       }
     },
-    [plan, schedule]
+    [plan, planApi, schedule]
   )
 
   const handleUpdateWaypointNext = React.useCallback(
     (next: NextMove, id: string) => {
       waypointsApi.update(id, { next })
     },
-    []
+    [waypointsApi]
   )
 
   return (
@@ -137,7 +137,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                     <Route
                       origin={home}
                       dest={schedule.spots[0]}
-                      onChange={handleUpdateHome}
+                      onChange={handleUpdateDeparture}
                     />
                   </Box>
                 </>

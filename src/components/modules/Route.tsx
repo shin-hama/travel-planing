@@ -61,13 +61,10 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   }
 
   React.useEffect(() => {
-    if (origin.next?.mode !== selected) {
-      console.log('update travel mode')
+    if (origin.next?.mode !== selected || origin.next.id !== dest.id) {
       onChange({ id: dest.id, mode: selected }, origin.id)
     }
-  }, [dest.id, origin.id, selected])
 
-  React.useEffect(() => {
     const routeCache = routesApi.get({
       from: origin.id,
       to: dest.id,
@@ -92,6 +89,7 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
         })
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin.id, dest.id, selected])
 
   return (
