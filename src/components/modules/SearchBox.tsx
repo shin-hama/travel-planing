@@ -11,6 +11,7 @@ import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose, faSearch } from '@fortawesome/free-solid-svg-icons'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useGetSpotsWithMatchingNameLazyQuery } from 'generated/graphql'
 import SpotsList from './SpotsList'
@@ -18,6 +19,8 @@ import type { SpotDTO } from './SpotCard'
 import { useToggle } from 'react-use'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
 import { useGoogleMap } from '@react-google-maps/api'
+
+const NUM_CARD = 7
 
 const SearchBox = () => {
   const [open, setOpen] = React.useState(false)
@@ -31,6 +34,20 @@ const SearchBox = () => {
 
   const [getSpots, { loading, error }] = useGetSpotsWithMatchingNameLazyQuery()
   const [searchedSpots, setSearchedSpots] = React.useState<Array<SpotDTO>>([])
+  const [end, setEnd] = React.useState(NUM_CARD)
+
+  React.useEffect(() => {
+    setEnd(NUM_CARD)
+  }, [searchedSpots])
+
+  React.useEffect(() => {
+    console.log(end)
+  }, [end])
+
+  const handleLoadMore = React.useCallback(() => {
+    console.log('load more')
+    setEnd((prev) => prev + NUM_CARD)
+  }, [])
 
   const handleOpen = () => {
     setOpen(true)
@@ -94,7 +111,7 @@ const SearchBox = () => {
             alignItems: 'self-start',
           },
         }}>
-        <DialogContent>
+        <DialogContent id="scrollableDiv">
           <Stack direction="row" spacing={2}>
             <IconButton disableTouchRipple onClick={handleClose}>
               <FontAwesomeIcon icon={faClose} />
@@ -116,7 +133,15 @@ const SearchBox = () => {
             ) : (
               <Container maxWidth="xs">
                 {searchedSpots.length > 0 ? (
-                  <SpotsList spots={searchedSpots} />
+                  <InfiniteScroll
+                    dataLength={searchedSpots.slice(0, end).length}
+                    next={handleLoadMore}
+                    hasMore={searchedSpots.length >= end}
+                    loader={<>Load More ...</>}
+                    endMessage={<></>}
+                    scrollableTarget="scrollableDiv">
+                    <SpotsList spots={searchedSpots.slice(0, end)} />
+                  </InfiniteScroll>
                 ) : (
                   <>No result</>
                 )}
