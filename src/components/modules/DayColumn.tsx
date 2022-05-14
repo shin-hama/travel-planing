@@ -6,18 +6,31 @@ import { Draggable, Droppable } from 'react-beautiful-dnd'
 import DayHeader from './DayHeader'
 import Route from './Route'
 import SpotEventCard from './SpotEventCard'
-import { Schedule } from 'contexts/CurrentPlanProvider'
+import { NextMove, Schedule } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import HomeEventCard from './HomeEventCard'
+import { useWaypoints } from 'hooks/useWaypoints'
 
 type Props = {
   day: number
   schedule: Schedule
+  first?: boolean
+  last?: boolean
 }
-const DayColumn: React.FC<Props> = ({ day, schedule }) => {
+const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
   const [plan, planApi] = useTravelPlan()
+  const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
+
+  const home = React.useMemo(
+    () => (plan && first ? plan.home : plan?.lodging),
+    [first, plan]
+  )
+  const dest = React.useMemo(
+    () => (plan && last ? plan.home : plan?.lodging),
+    [last, plan]
+  )
 
   const handleRemoveDay = () => {
     planApi.update({
@@ -28,6 +41,31 @@ const DayColumn: React.FC<Props> = ({ day, schedule }) => {
   const handleOpenMenu = (anchor: HTMLElement) => {
     setAnchor(anchor)
   }
+
+  const handleUpdateHome = React.useCallback(
+    (next: NextMove) => {
+      if (plan) {
+        planApi.update({
+          events: plan.events.map((event) =>
+            event.start === schedule.start
+              ? {
+                  ...schedule,
+                  dept: next,
+                }
+              : event
+          ),
+        })
+      }
+    },
+    [plan, schedule]
+  )
+
+  const handleUpdateWaypointNext = React.useCallback(
+    (next: NextMove, id: string) => {
+      waypointsApi.update(id, { next })
+    },
+    []
+  )
 
   return (
     <>
@@ -41,11 +79,15 @@ const DayColumn: React.FC<Props> = ({ day, schedule }) => {
             {...provided.droppableProps}>
             <DayHeader day={day + 1} onOpenMenu={handleOpenMenu} />
             <Box>
-              {plan?.home && (
+              {home && (
                 <>
-                  <HomeEventCard name={plan.home.name} date={schedule.start} />
+                  <HomeEventCard name={home.name} date={schedule.start} />
                   <Box py={0.5}>
-                    <Route origin={plan.home} dest={schedule.spots[0]} />
+                    <Route
+                      origin={home}
+                      dest={schedule.spots[0]}
+                      onChange={handleUpdateHome}
+                    />
                   </Box>
                 </>
               )}
@@ -66,6 +108,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule }) => {
                           <Route
                             origin={spot}
                             dest={schedule.spots[index + 1]}
+                            onChange={handleUpdateWaypointNext}
                           />
                         </Box>
                       )}
@@ -73,15 +116,16 @@ const DayColumn: React.FC<Props> = ({ day, schedule }) => {
                   )}
                 </Draggable>
               ))}
-              {plan?.home && (
+              {dest && (
                 <>
                   <Box py={0.5}>
                     <Route
                       origin={schedule.spots.slice(-1)[0]}
-                      dest={plan.home}
+                      dest={dest}
+                      onChange={handleUpdateWaypointNext}
                     />
                   </Box>
-                  <HomeEventCard name={plan.home.name} date={schedule.end} />
+                  <HomeEventCard name={dest.name} date={schedule.end} />
                 </>
               )}
               {provided.placeholder}

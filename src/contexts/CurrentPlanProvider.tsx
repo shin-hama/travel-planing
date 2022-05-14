@@ -5,7 +5,7 @@ import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
 import { TravelMode } from 'hooks/googlemaps/useDirections'
 
-type NextMove = {
+export type NextMove = {
   id: string
   mode: TravelMode
 }
@@ -16,7 +16,11 @@ export type RouteGuidanceAvailable = {
   lng: number
   next?: NextMove
 }
-export type Prefecture = RouteGuidanceAvailable & {
+type SpotBase = RouteGuidanceAvailable & {
+  name: string
+}
+
+export type Prefecture = SpotBase & {
   name: string
   name_en: string
   zoom: number
@@ -25,10 +29,9 @@ export type Prefecture = RouteGuidanceAvailable & {
 
 export type SpotLabel = string
 
-export type Spot = RouteGuidanceAvailable & {
+export type Spot = SpotBase & {
   imageUrl: string
   placeId?: string | null
-  name: string
   duration: number
   durationUnit: dayjs.ManipulateType
   labels?: Array<SpotLabel>
@@ -69,6 +72,7 @@ export type Belonging = {
 export type Schedule = {
   start: Date
   end: Date
+  dept?: NextMove
   spots: Array<Spot>
 }
 
@@ -82,7 +86,7 @@ export type Plan = {
   end: Date
   events: Array<Schedule>
   routes: Array<Route>
-  lodging?: Omit<Spot, 'id'>
+  lodging?: SpotBase
   belongings: Array<Belonging>
   /**
    * 宿泊日数、未定なら null

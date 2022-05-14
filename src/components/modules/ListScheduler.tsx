@@ -129,7 +129,12 @@ const ListScheduler: React.FC = () => {
                       ref={provided.innerRef}
                       {...provided.dragHandleProps}
                       {...provided.draggableProps}>
-                      <DayColumn day={i} schedule={event} />
+                      <DayColumn
+                        day={i}
+                        schedule={event}
+                        first={i === 0}
+                        last={i === plan.events.length - 1}
+                      />
                     </Box>
                   )}
                 </Draggable>
