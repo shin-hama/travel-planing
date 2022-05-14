@@ -10,14 +10,14 @@ export type NextMove = {
   mode: TravelMode
 }
 
-export type RouteGuidanceAvailable = {
+export type SpotBase = {
   id: string
   lat: number
   lng: number
-  next?: NextMove
-}
-type SpotBase = RouteGuidanceAvailable & {
   name: string
+}
+export type RouteGuidanceAvailable = SpotBase & {
+  next?: NextMove
 }
 
 export type Prefecture = SpotBase & {
@@ -29,7 +29,7 @@ export type Prefecture = SpotBase & {
 
 export type SpotLabel = string
 
-export type Spot = SpotBase & {
+export type Spot = RouteGuidanceAvailable & {
   imageUrl: string
   placeId?: string | null
   duration: number

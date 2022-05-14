@@ -6,7 +6,11 @@ import { Draggable, Droppable } from 'react-beautiful-dnd'
 import DayHeader from './DayHeader'
 import Route from './Route'
 import SpotEventCard from './SpotEventCard'
-import { NextMove, Schedule } from 'contexts/CurrentPlanProvider'
+import {
+  NextMove,
+  RouteGuidanceAvailable,
+  Schedule,
+} from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import HomeEventCard from './HomeEventCard'
@@ -23,14 +27,29 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
   const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
 
-  const home = React.useMemo(
-    () => (plan && first ? plan.home : plan?.lodging),
-    [first, plan]
-  )
-  const dest = React.useMemo(
-    () => (plan && last ? plan.home : plan?.lodging),
-    [last, plan]
-  )
+  const home = React.useMemo<RouteGuidanceAvailable | null>(() => {
+    if (plan) {
+      if (first) {
+        return { ...plan.home, next: schedule.dept }
+      } else if (plan.lodging) {
+        return { ...plan.lodging, next: schedule.dept }
+      }
+    }
+
+    return null
+  }, [first, plan, schedule.dept])
+
+  const dest = React.useMemo<RouteGuidanceAvailable | null>(() => {
+    if (plan) {
+      if (last) {
+        return { ...plan.home, next: schedule.dept }
+      } else if (plan.lodging) {
+        return { ...plan.lodging, next: schedule.dept }
+      }
+    }
+
+    return null
+  }, [last, plan, schedule.dept])
 
   const handleRemoveDay = () => {
     planApi.update({
