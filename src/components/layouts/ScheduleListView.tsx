@@ -85,8 +85,8 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
       routesApi.add(
         ...legs.map(
           (leg, i): Route => ({
-            from: spots[i].placeId || '',
-            to: spots[i + 1].placeId || '',
+            from: spots[i].id || '',
+            to: spots[i + 1].id || '',
             mode: 'driving',
             time: {
               ...leg.duration,

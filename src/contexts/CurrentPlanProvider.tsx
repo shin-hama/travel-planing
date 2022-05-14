@@ -5,34 +5,36 @@ import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlan'
 import { TravelMode } from 'hooks/googlemaps/useDirections'
 
-export type Prefecture = {
-  name: string
-  name_en: string
+type NextMove = {
+  id: string
+  mode: TravelMode
+}
+
+export type RouteGuidanceAvailable = {
+  id: string
   lat: number
   lng: number
+  next?: NextMove
+}
+export type Prefecture = RouteGuidanceAvailable & {
+  name: string
+  name_en: string
   zoom: number
-  placeId: string
   imageUrl: string
 }
 
 export type SpotLabel = string
 
-export type Spot = {
-  id: string
+export type Spot = RouteGuidanceAvailable & {
   imageUrl: string
   placeId?: string | null
   name: string
   duration: number
   durationUnit: dayjs.ManipulateType
-  lat: number
-  lng: number
   labels?: Array<SpotLabel>
   memo?: string
-  next?: {
-    id: string
-    mode: TravelMode
-  }
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSpot = (obj: any): obj is Spot => {
   return (

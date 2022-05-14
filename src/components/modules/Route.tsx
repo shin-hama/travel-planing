@@ -23,7 +23,7 @@ import {
 } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import { Spot } from 'contexts/CurrentPlanProvider'
+import { RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 import { useWaypoints } from 'hooks/useWaypoints'
 
 const modes: Record<TravelMode, IconDefinition> = {
@@ -34,8 +34,8 @@ const modes: Record<TravelMode, IconDefinition> = {
 }
 
 type Props = {
-  origin: Spot
-  dest: Spot
+  origin: RouteGuidanceAvailable
+  dest: RouteGuidanceAvailable
 }
 const Route: React.FC<Props> = ({ origin, dest }) => {
   const [selecting, setSelecting] = React.useState(false)

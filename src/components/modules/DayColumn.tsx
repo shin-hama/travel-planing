@@ -9,6 +9,7 @@ import SpotEventCard from './SpotEventCard'
 import { Schedule } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { useTravelPlan } from 'hooks/useTravelPlan'
+import HomeEventCard from './HomeEventCard'
 
 type Props = {
   day: number
@@ -40,6 +41,14 @@ const DayColumn: React.FC<Props> = ({ day, schedule }) => {
             {...provided.droppableProps}>
             <DayHeader day={day + 1} onOpenMenu={handleOpenMenu} />
             <Box>
+              {plan?.home && (
+                <>
+                  <HomeEventCard name={plan.home.name} date={schedule.start} />
+                  <Box py={0.5}>
+                    <Route origin={plan.home} dest={schedule.spots[0]} />
+                  </Box>
+                </>
+              )}
               {schedule.spots.map((spot, index) => (
                 <Draggable key={spot.id} draggableId={spot.id} index={index}>
                   {(provided) => (
@@ -64,6 +73,17 @@ const DayColumn: React.FC<Props> = ({ day, schedule }) => {
                   )}
                 </Draggable>
               ))}
+              {plan?.home && (
+                <>
+                  <Box py={0.5}>
+                    <Route
+                      origin={schedule.spots.slice(-1)[0]}
+                      dest={plan.home}
+                    />
+                  </Box>
+                  <HomeEventCard name={plan.home.name} date={schedule.end} />
+                </>
+              )}
               {provided.placeholder}
             </Box>
           </Stack>
