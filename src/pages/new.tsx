@@ -11,16 +11,14 @@ import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import dayjs from 'dayjs'
 
-import SelectPrefectureDialog, {
-  Props,
-} from 'components/modules/SelectPrefectureDialog'
-import { Prefecture, Plan } from 'contexts/CurrentPlanProvider'
+import { Plan } from 'contexts/CurrentPlanProvider'
 import { useUnsplash } from 'hooks/useUnsplash'
 import Layout from 'components/layouts/Layout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
 import { useRouter } from 'hooks/useRouter'
+import PrefectureSelector from 'components/modules/PrefectureSelector'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination' | 'days'>
 type Form = {
@@ -29,63 +27,41 @@ type Form = {
   control: React.ReactNode
 }
 
-const PrefectureSelector = () => {
+const NewPlan = () => {
   const router = useRouter()
   const { register, control, handleSubmit, watch } = useForm<PlanDTO>()
   const dest = watch('destination')
   const [, { create: createPlan }] = useTravelPlan()
   const unsplash = useUnsplash()
 
-  const [openDialog, setOpenDialog] = React.useState<Props>({ open: false })
-
-  const handleClick = async () => {
-    try {
-      return await new Promise<Omit<Prefecture, 'imageUrl'>>(
-        (resolve, reject) => {
-          setOpenDialog({
-            open: true,
-            onOK: resolve,
-            onClose: reject,
-          })
-        }
-      )
-    } finally {
-      setOpenDialog({ open: false })
-    }
-  }
-
   const forms = React.useMemo<Array<Form>>(
     () => [
       {
-        label: '出発地',
         control: (
           <Controller
             control={control}
             name="home"
             render={({ field }) => (
-              <Button
-                color="primary"
-                variant="outlined"
-                onClick={async () => field.onChange(await handleClick())}>
-                {field.value?.name || 'Select'}
-              </Button>
+              <PrefectureSelector
+                label={'出発地'}
+                value={field.value}
+                onChange={field.onChange}
+              />
             )}
           />
         ),
       },
       {
-        label: '目的地',
         control: (
           <Controller
             control={control}
             name="destination"
             render={({ field }) => (
-              <Button
-                color="primary"
-                variant="outlined"
-                onClick={async () => field.onChange(await handleClick())}>
-                {field.value?.name || 'Select'}
-              </Button>
+              <PrefectureSelector
+                label={'目的地'}
+                value={field.value}
+                onChange={field.onChange}
+              />
             )}
           />
         ),
@@ -213,12 +189,12 @@ const PrefectureSelector = () => {
               console.log('invalid')
             })}>
             <Stack spacing={2}>
-              {forms.map(({ label, control }) => (
+              {forms.map(({ label, control }, i) => (
                 <Stack
                   direction="row"
                   alignItems="center"
                   spacing={1}
-                  key={label}>
+                  key={`${label}-${i}`}>
                   {label && <Typography textAlign="left">{label}</Typography>}
                   {control}
                 </Stack>
@@ -236,10 +212,9 @@ const PrefectureSelector = () => {
             </Box>
           </form>
         </Container>
-        <SelectPrefectureDialog {...openDialog} />
       </LocalizationProvider>
     </Layout>
   )
 }
 
-export default PrefectureSelector
+export default NewPlan
