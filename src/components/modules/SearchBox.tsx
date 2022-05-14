@@ -7,6 +7,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
+import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose, faSearch } from '@fortawesome/free-solid-svg-icons'
@@ -14,6 +15,9 @@ import { faClose, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useGetSpotsWithMatchingNameLazyQuery } from 'generated/graphql'
 import SpotsList from './SpotsList'
 import type { SpotDTO } from './SpotCard'
+import { useToggle } from 'react-use'
+import { usePlaces } from 'hooks/googlemaps/usePlaces'
+import { useGoogleMap } from '@react-google-maps/api'
 
 const SearchBox = () => {
   const [open, setOpen] = React.useState(false)
@@ -21,6 +25,9 @@ const SearchBox = () => {
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   const theme = useTheme()
   const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
+  const [advance, toggleMode] = useToggle(false)
+  const { search } = usePlaces()
+  const maps = useGoogleMap()
 
   const [getSpots, { loading, error }] = useGetSpotsWithMatchingNameLazyQuery()
   const [searchedSpots, setSearchedSpots] = React.useState<Array<SpotDTO>>([])
@@ -41,6 +48,7 @@ const SearchBox = () => {
   }
 
   React.useEffect(() => {
+    console.log('try search')
     if (timerRef.current) {
       clearTimeout(timerRef.current)
     }
@@ -50,10 +58,15 @@ const SearchBox = () => {
 
     // 連続入力中に検索用の API が連続で呼ばれないようにする
     timerRef.current = setTimeout(async () => {
-      const { data } = await getSpots({ variables: { name: `.*${text}.*` } })
-      setSearchedSpots(data?.spots || [])
+      if (advance) {
+        const result = await search({ query: text, bounds: maps?.getBounds() })
+        setSearchedSpots(result)
+      } else {
+        const { data } = await getSpots({ variables: { name: `.*${text}.*` } })
+        setSearchedSpots(data?.spots || [])
+      }
     }, 500)
-  }, [getSpots, text])
+  }, [getSpots, text, advance, search, maps])
 
   return (
     <>
@@ -93,6 +106,7 @@ const SearchBox = () => {
               onChange={handleChanged}
               placeholder="Search..."
             />
+            <Switch checked={advance} onChange={toggleMode}></Switch>
           </Stack>
           <Box pt={2}>
             {error ? (

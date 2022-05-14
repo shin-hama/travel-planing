@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import { PlacesServiceContext } from 'contexts/PlacesServiceProvider'
+import { SpotDTO } from 'components/modules/SpotCard'
 
 export const usePlaces = () => {
   const places = React.useContext(PlacesServiceContext)
@@ -30,6 +31,31 @@ export const usePlaces = () => {
         })
 
         return photos
+      },
+      search: async (params: google.maps.places.TextSearchRequest) => {
+        if (places === null) {
+          throw Error('JS Google Map api is not loaded')
+        }
+
+        return await new Promise<Array<SpotDTO>>((resolve, reject) => {
+          try {
+            places.textSearch(params, (result) => {
+              resolve(
+                result?.map<SpotDTO>((spot) => {
+                  return {
+                    id: spot.place_id || '',
+                    placeId: spot.place_id,
+                    name: spot.name || '',
+                    lat: spot.geometry?.location?.lat() || 0,
+                    lng: spot.geometry?.location?.lng() || 0,
+                  }
+                }) || []
+              )
+            })
+          } catch (e) {
+            reject(e)
+          }
+        })
       },
     }),
     [places]
