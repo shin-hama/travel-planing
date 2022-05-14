@@ -2,7 +2,6 @@ import * as React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -25,7 +24,8 @@ import { useRouter } from 'hooks/useRouter'
 
 type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination' | 'days'>
 type Form = {
-  label: string
+  label?: string
+  required?: boolean
   control: React.ReactNode
 }
 
@@ -91,12 +91,13 @@ const PrefectureSelector = () => {
         ),
       },
       {
-        label: 'プラン名',
         control: (
           <TextField
             fullWidth
             size="small"
-            placeholder={dest ? `${dest.name}旅行` : ''}
+            label="プラン名"
+            placeholder={dest ? `${dest.name}旅行` : '〇〇旅行'}
+            InputLabelProps={{ shrink: true }}
             variant="outlined"
             defaultValue={''}
             {...register('title')}
@@ -104,13 +105,12 @@ const PrefectureSelector = () => {
         ),
       },
       {
-        label: '出発日',
         control: (
           <Stack direction="row" spacing={1} alignItems="center">
             <Controller
               control={control}
               name="start"
-              defaultValue={new Date()}
+              defaultValue={dayjs().add(7, 'day').toDate()}
               render={({ field }) => (
                 <MobileDatePicker
                   label="出発日"
@@ -131,7 +131,9 @@ const PrefectureSelector = () => {
               )}
             />
             <TextField
+              label="日数"
               placeholder="未定"
+              InputLabelProps={{ shrink: true }}
               variant="outlined"
               type="number"
               size="small"
@@ -207,22 +209,21 @@ const PrefectureSelector = () => {
             <Typography variant="h4">旅程の作成</Typography>
           </Box>
           <form
-            style={{ width: '100%' }}
             onSubmit={handleSubmit(handleCreatePlan, () => {
               console.log('invalid')
             })}>
-            <Grid container alignItems="center" spacing={1} rowSpacing={2}>
+            <Stack spacing={2}>
               {forms.map(({ label, control }) => (
-                <React.Fragment key={label}>
-                  <Grid item xs={3}>
-                    <Typography textAlign="right">{label}:</Typography>
-                  </Grid>
-                  <Grid item xs={9}>
-                    {control}
-                  </Grid>
-                </React.Fragment>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                  key={label}>
+                  {label && <Typography textAlign="left">{label}</Typography>}
+                  {control}
+                </Stack>
               ))}
-            </Grid>
+            </Stack>
             <Box sx={{ pt: 4 }}>
               <AsyncButton
                 fullWidth
