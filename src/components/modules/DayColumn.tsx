@@ -10,11 +10,14 @@ import {
   NextMove,
   RouteGuidanceAvailable,
   Schedule,
+  Spot,
 } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import HomeEventCard from './HomeEventCard'
 import { useWaypoints } from 'hooks/useWaypoints'
+import { useRoutes } from 'hooks/useRoutes'
+import dayjs from 'dayjs'
 
 type Props = {
   day: number
@@ -50,6 +53,35 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
 
     return null
   }, [last, plan, schedule.dept])
+
+  const routesApi = useRoutes()
+
+  const summarizeTotalTime = (prevSpots: Array<Spot>): Date => {
+    let _start = dayjs(schedule.start)
+    prevSpots.forEach((prev) => {
+      // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
+      const nextRoute =
+        prev.next &&
+        routesApi.get({
+          from: prev.id,
+          to: prev.next.id,
+          mode: prev.next.mode,
+        })
+      _start = _start
+        .add(prev.duration, prev.durationUnit)
+        .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)
+    })
+
+    if (home && schedule.dept) {
+      const deptRoute = routesApi.get({
+        from: home.id,
+        to: schedule.dept.id,
+        mode: schedule.dept.mode,
+      })
+      _start = _start.add(deptRoute?.time?.value || 0, deptRoute?.time?.unit)
+    }
+    return _start.toDate()
+  }
 
   const handleRemoveDay = () => {
     planApi.update({
@@ -119,8 +151,9 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                       {...provided.draggableProps}>
                       <SpotEventCard
                         spot={spot}
-                        prevSpots={schedule.spots.slice(0, index)}
-                        dayStart={schedule.start}
+                        start={summarizeTotalTime(
+                          schedule.spots.slice(0, index)
+                        )}
                       />
                       {index !== schedule.spots.length - 1 && (
                         <Box py={0.5}>
@@ -144,7 +177,10 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                       onChange={handleUpdateWaypointNext}
                     />
                   </Box>
-                  <HomeEventCard name={dest.name} date={schedule.end} />
+                  <HomeEventCard
+                    name={dest.name}
+                    date={summarizeTotalTime(schedule.spots)}
+                  />
                 </>
               )}
               {provided.placeholder}
