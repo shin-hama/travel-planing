@@ -95,6 +95,7 @@ const PrefectureSelector = () => {
         control: (
           <TextField
             fullWidth
+            size="small"
             placeholder={dest ? `${dest.name}旅行` : ''}
             variant="outlined"
             defaultValue={''}
@@ -105,7 +106,7 @@ const PrefectureSelector = () => {
       {
         label: '出発日',
         control: (
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center">
             <Controller
               control={control}
               name="start"
@@ -123,7 +124,9 @@ const PrefectureSelector = () => {
                     </Typography>
                   }
                   onChange={(e) => field.onChange(dayjs(e).toDate())}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  renderInput={(params) => (
+                    <TextField {...params} size="small" fullWidth />
+                  )}
                 />
               )}
             />
@@ -131,6 +134,7 @@ const PrefectureSelector = () => {
               placeholder="未定"
               variant="outlined"
               type="number"
+              size="small"
               InputProps={{ endAdornment: '泊' }}
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
               defaultValue={null}
@@ -199,11 +203,7 @@ const PrefectureSelector = () => {
     <Layout title="New Plan">
       <LocalizationProvider dateAdapter={DateAdapter}>
         <Container maxWidth="xs">
-          <Box
-            sx={{
-              mt: 2,
-              ml: 2,
-            }}>
+          <Box sx={{ pt: 2, pb: 3 }}>
             <Typography variant="h4">旅程の作成</Typography>
           </Box>
           <form
@@ -211,12 +211,7 @@ const PrefectureSelector = () => {
             onSubmit={handleSubmit(handleCreatePlan, () => {
               console.log('invalid')
             })}>
-            <Grid
-              container
-              alignItems="center"
-              spacing={1}
-              rowSpacing={2}
-              sx={{ pt: 3, px: 2 }}>
+            <Grid container alignItems="center" spacing={1} rowSpacing={2}>
               {forms.map(({ label, control }) => (
                 <React.Fragment key={label}>
                   <Grid item xs={3}>
@@ -227,19 +222,20 @@ const PrefectureSelector = () => {
                   </Grid>
                 </React.Fragment>
               ))}
-              <Grid item xs={12} textAlign="center">
-                <AsyncButton
-                  fullWidth
-                  loading={handlerState.loading}
-                  variant="contained"
-                  type="submit">
-                  {"Let's Start Planning"}
-                </AsyncButton>
-              </Grid>
             </Grid>
+            <Box sx={{ pt: 4 }}>
+              <AsyncButton
+                fullWidth
+                size="large"
+                loading={handlerState.loading}
+                variant="contained"
+                type="submit">
+                Let&rsquo;s Start Traveling
+              </AsyncButton>
+            </Box>
           </form>
-          <SelectPrefectureDialog {...openDialog} />
         </Container>
+        <SelectPrefectureDialog {...openDialog} />
       </LocalizationProvider>
     </Layout>
   )
