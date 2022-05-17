@@ -1,12 +1,12 @@
 import * as React from 'react'
 import Box, { BoxProps } from '@mui/material/Box'
-import { PlanningTab } from 'contexts/PlannigTabProvider'
 
-type Props = BoxProps & {
-  index: PlanningTab
-  value: PlanningTab
+type Props<T> = BoxProps & {
+  index: T
+  value: T
 }
-const TabPanel: React.FC<Props> = ({ children, value, index, ...props }) => {
+const TabPanel = <T,>(props: Props<T>) => {
+  const { index, value, children, ...boxProps } = props
   return (
     <Box
       width="100%"
@@ -15,7 +15,7 @@ const TabPanel: React.FC<Props> = ({ children, value, index, ...props }) => {
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
-      {...props}>
+      {...boxProps}>
       {value === index && children}
     </Box>
   )
