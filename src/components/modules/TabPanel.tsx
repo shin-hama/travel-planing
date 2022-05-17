@@ -1,9 +1,10 @@
 import * as React from 'react'
 import Box, { BoxProps } from '@mui/material/Box'
+import { PlanningTab } from 'contexts/PlannigTabProvider'
 
 type Props = BoxProps & {
-  index: number
-  value: number
+  index: PlanningTab
+  value: PlanningTab
 }
 const TabPanel: React.FC<Props> = ({ children, value, index, ...props }) => {
   return (

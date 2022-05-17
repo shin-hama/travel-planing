@@ -19,6 +19,7 @@ import { useWaypoints } from 'hooks/useWaypoints'
 import { useRoutes } from 'hooks/useRoutes'
 import dayjs from 'dayjs'
 import AddEventCard from './AddEventCard'
+import { usePlanningTab } from 'contexts/PlannigTabProvider'
 
 type Props = {
   day: number
@@ -30,6 +31,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
   const [plan, planApi] = useTravelPlan()
   const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
+  const [, tabSwitch] = usePlanningTab()
 
   const home = React.useMemo<RouteGuidanceAvailable | null>(() => {
     if (plan) {
@@ -187,7 +189,10 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                 </>
               ) : (
                 <Box pt={4}>
-                  <AddEventCard text="ホテルを設定する" onClick={() => null} />
+                  <AddEventCard
+                    text="ホテルを設定する"
+                    onClick={tabSwitch.openMap}
+                  />
                 </Box>
               )}
               {provided.placeholder}

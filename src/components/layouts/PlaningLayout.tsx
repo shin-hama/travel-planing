@@ -21,6 +21,7 @@ import TabPanel from 'components/modules/TabPanel'
 import { MapLayerProvider } from 'contexts/MapLayerModeProvider'
 import ScheduleListView from './ScheduleListView'
 import { useRoutes } from 'hooks/useRoutes'
+import { PlanningTab, usePlanningTab } from 'contexts/PlannigTabProvider'
 
 const MyTab = styled(Tab)`
   padding: 0;
@@ -28,8 +29,8 @@ const MyTab = styled(Tab)`
 `
 
 const PlanningLayout: React.FC = () => {
-  const [value, setValue] = React.useState(1)
   const routesApi = useRoutes()
+  const [tab, tabSwitch] = usePlanningTab()
 
   React.useEffect(() => {
     // とりあえずページアクセス時にキャッシュを削除するようにする
@@ -38,8 +39,8 @@ const PlanningLayout: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue)
+  const handleChange = (event: React.SyntheticEvent, newValue: PlanningTab) => {
+    tabSwitch.open(newValue)
   }
 
   return (
@@ -61,8 +62,8 @@ const PlanningLayout: React.FC = () => {
           }}>
           <MapLayerProvider>
             <TabPanel
-              value={value}
-              index={0}
+              value={tab}
+              index={'info'}
               position="absolute"
               overflow="hidden auto">
               <Box maxWidth="sm" mx="auto">
@@ -70,25 +71,26 @@ const PlanningLayout: React.FC = () => {
               </Box>
             </TabPanel>
             <TabPanel
-              value={value}
-              index={1}
+              value={tab}
+              index={'map'}
               position="absolute"
               overflow="hidden auto">
               <MapView />
             </TabPanel>
             <TabPanel
-              value={value}
-              index={2}
+              value={tab}
+              index={'schedule'}
               position="absolute"
               overflow="hidden auto">
               <Container sx={{ height: '100%', overflow: 'hidden' }}>
-                <ScheduleListView openMapView={() => setValue(1)} />
+                <ScheduleListView openMapView={tabSwitch.openMap} />
               </Container>
             </TabPanel>
           </MapLayerProvider>
         </Box>
-        <Tabs value={value} variant="fullWidth" onChange={handleChange}>
+        <Tabs value={tab} variant="fullWidth" onChange={handleChange}>
           <MyTab
+            value="info"
             icon={
               <SvgIcon>
                 <FontAwesomeIcon icon={faSuitcase} />
@@ -97,6 +99,7 @@ const PlanningLayout: React.FC = () => {
             label={<Typography variant="caption">プラン情報</Typography>}
           />
           <MyTab
+            value="map"
             icon={
               <SvgIcon>
                 <FontAwesomeIcon icon={faMapLocationDot} />
@@ -105,6 +108,7 @@ const PlanningLayout: React.FC = () => {
             label={<Typography variant="caption">マップ</Typography>}
           />
           <MyTab
+            value="schedule"
             icon={
               <SvgIcon>
                 <FontAwesomeIcon icon={faCalendarWeek} />
