@@ -5,6 +5,7 @@ import Link from 'next/link'
 
 import Layout from './Layout'
 import PlanningLayout from 'components/layouts/PlaningLayout'
+import { PlanningTabProvider } from 'contexts/PlannigTabProvider'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRouter } from 'hooks/useRouter'
 
@@ -24,9 +25,11 @@ const PlanLayout = () => {
   }
 
   return (
-    <Layout title={plan.title} fixedHeader>
-      <PlanningLayout />
-    </Layout>
+    <PlanningTabProvider>
+      <Layout title={plan.title} fixedHeader>
+        <PlanningLayout />
+      </Layout>
+    </PlanningTabProvider>
   )
 }
 

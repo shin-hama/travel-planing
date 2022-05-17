@@ -17,8 +17,8 @@ import { useWaypoints } from 'hooks/useWaypoints'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import type { Route } from 'contexts/CurrentPlanProvider'
-import { useMapLayer } from 'contexts/MapLayerModeProvider'
 import { useConfirm } from 'hooks/useConfirm'
+import { usePlanningTab } from 'contexts/PlannigTabProvider'
 
 type Action = {
   label: string
@@ -26,17 +26,14 @@ type Action = {
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
 }
 
-type Props = {
-  openMapView: () => void
-}
-const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
+const ScheduleListView: React.FC = () => {
   const router = useRouter()
   const [plan] = useTravelPlan()
   const [waypoints, waypointsApi] = useWaypoints()
   const routesApi = useRoutes()
   const directions = useDirections()
-  const [, setLayer] = useMapLayer()
   const confirm = useConfirm()
+  const [, { openMap }] = usePlanningTab()
 
   const [open, setOpen] = React.useState(false)
   const handleClick = () => setOpen((prev) => !prev)
@@ -53,9 +50,8 @@ const ScheduleListView: React.FC<Props> = ({ openMapView }) => {
   }, [plan, router])
 
   const handleAddHotel = React.useCallback(() => {
-    openMapView()
-    setLayer('selector')
-  }, [openMapView, setLayer])
+    openMap('selector')
+  }, [openMap])
 
   const handleOptimizeRoute = React.useCallback(async () => {
     if (!plan) {

@@ -14,10 +14,9 @@ import PlanMenu from './PlanMenu'
 
 type Props = {
   plan: Plan
-  addHotel: () => void
   updateTitle: (newTitle: string) => void
 }
-const SchedulerHeader: React.FC<Props> = ({ plan, addHotel, updateTitle }) => {
+const SchedulerHeader: React.FC<Props> = ({ plan, updateTitle }) => {
   const [editTitle, setEditTitle] = React.useState(false)
   const { register, handleSubmit } = useForm<{ title: string }>()
   const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
@@ -64,7 +63,6 @@ const SchedulerHeader: React.FC<Props> = ({ plan, addHotel, updateTitle }) => {
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
         onClose={() => setMenuAnchor(null)}
-        addHotelCallback={addHotel}
       />
     </>
   )

@@ -8,16 +8,14 @@ import MenuItem from '@mui/material/MenuItem'
 import { useConfirm } from 'hooks/useConfirm'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
-import { useMapLayer } from 'contexts/MapLayerModeProvider'
 import { useRouter } from 'hooks/useRouter'
+import { usePlanningTab } from 'contexts/PlannigTabProvider'
 
-type Props = MenuProps & {
-  addHotelCallback?: () => void
-}
-const PlanMenu: React.FC<Props> = ({ addHotelCallback, ...props }) => {
+type Props = MenuProps
+const PlanMenu: React.FC<Props> = (props) => {
   const [, planApi] = useTravelPlan()
+  const [, { openMap }] = usePlanningTab()
   const confirm = useConfirm()
-  const [, setMode] = useMapLayer()
   const router = useRouter()
 
   const [{ loading }, handleOptimize] = useAsyncFn(async () => {
@@ -40,9 +38,8 @@ const PlanMenu: React.FC<Props> = ({ addHotelCallback, ...props }) => {
   }, [confirm, planApi])
 
   const handleAddHotel = () => {
-    setMode('selector')
+    openMap('selector')
     props.onClose?.({}, 'backdropClick')
-    addHotelCallback?.()
   }
 
   const handleDelete = async () => {
