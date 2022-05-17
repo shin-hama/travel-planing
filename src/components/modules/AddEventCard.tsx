@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 
 type Props = {
   text: string
-  onClick: () => void
+  onClick: (e?: React.MouseEvent) => void
 }
 const AddEventCard: React.FC<Props> = ({ text, onClick }) => {
   return (

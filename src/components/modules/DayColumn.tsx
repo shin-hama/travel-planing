@@ -31,7 +31,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
   const [plan, planApi] = useTravelPlan()
   const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
-  const [, tabSwitch] = usePlanningTab()
+  const [, { openMap }] = usePlanningTab()
 
   const home = React.useMemo<RouteGuidanceAvailable | null>(() => {
     if (plan) {
@@ -191,7 +191,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                 <Box pt={4}>
                   <AddEventCard
                     text="ホテルを設定する"
-                    onClick={tabSwitch.openMap}
+                    onClick={() => openMap('selector')}
                   />
                 </Box>
               )}

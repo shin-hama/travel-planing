@@ -18,7 +18,6 @@ import Div100vh from 'react-div-100vh'
 import MapView from './MapView'
 import PlanView from './PlanView'
 import TabPanel from 'components/modules/TabPanel'
-import { MapLayerProvider } from 'contexts/MapLayerModeProvider'
 import ScheduleListView from './ScheduleListView'
 import { useRoutes } from 'hooks/useRoutes'
 import { PlanningTab, usePlanningTab } from 'contexts/PlannigTabProvider'
@@ -60,33 +59,31 @@ const PlanningLayout: React.FC = () => {
             position: 'relative',
             flex: '1 1 0%',
           }}>
-          <MapLayerProvider>
-            <TabPanel
-              value={tab}
-              index={'info'}
-              position="absolute"
-              overflow="hidden auto">
-              <Box maxWidth="sm" mx="auto">
-                <PlanView />
-              </Box>
-            </TabPanel>
-            <TabPanel
-              value={tab}
-              index={'map'}
-              position="absolute"
-              overflow="hidden auto">
-              <MapView />
-            </TabPanel>
-            <TabPanel
-              value={tab}
-              index={'schedule'}
-              position="absolute"
-              overflow="hidden auto">
-              <Container sx={{ height: '100%', overflow: 'hidden' }}>
-                <ScheduleListView openMapView={tabSwitch.openMap} />
-              </Container>
-            </TabPanel>
-          </MapLayerProvider>
+          <TabPanel
+            value={tab}
+            index={'info'}
+            position="absolute"
+            overflow="hidden auto">
+            <Box maxWidth="sm" mx="auto">
+              <PlanView />
+            </Box>
+          </TabPanel>
+          <TabPanel
+            value={tab}
+            index={'map'}
+            position="absolute"
+            overflow="hidden auto">
+            <MapView />
+          </TabPanel>
+          <TabPanel
+            value={tab}
+            index={'schedule'}
+            position="absolute"
+            overflow="hidden auto">
+            <Container sx={{ height: '100%', overflow: 'hidden' }}>
+              <ScheduleListView />
+            </Container>
+          </TabPanel>
         </Box>
         <Tabs value={tab} variant="fullWidth" onChange={handleChange}>
           <MyTab

@@ -2,7 +2,7 @@ import * as React from 'react'
 import MapOverlay from 'components/modules/MapOverlay'
 import MapSelectorLayer from 'components/modules/MapSelectorLayer'
 
-type LayerMode = 'normal' | 'selector'
+export type LayerMode = 'normal' | 'selector'
 const MapLayerModeContext = React.createContext<LayerMode | null>(null)
 const SetMapLayerModeContext = React.createContext<
   React.Dispatch<React.SetStateAction<LayerMode>>

@@ -1,5 +1,11 @@
 import * as React from 'react'
 
+import {
+  LayerMode,
+  MapLayerProvider,
+  useMapLayer,
+} from 'contexts/MapLayerModeProvider'
+
 export type PlanningTab = 'info' | 'map' | 'schedule'
 const PlanningTabContext = React.createContext<PlanningTab | null>(null)
 const SetPlanningTabContext = React.createContext<
@@ -13,7 +19,7 @@ export const PlanningTabProvider: React.FC = ({ children }) => {
   return (
     <PlanningTabContext.Provider value={tab}>
       <SetPlanningTabContext.Provider value={setTab}>
-        {children}
+        <MapLayerProvider>{children}</MapLayerProvider>
       </SetPlanningTabContext.Provider>
     </PlanningTabContext.Provider>
   )
@@ -27,16 +33,20 @@ export const usePlanningTab = () => {
     throw Error('PlanningTab is not wrapped')
   }
 
+  const [, setLayer] = useMapLayer()
   const actions = React.useMemo(() => {
     const a = {
       open: (value: PlanningTab) => setTab(value),
       openInfo: () => setTab('info'),
-      openMap: () => setTab('map'),
+      openMap: (layer: LayerMode = 'normal') => {
+        setTab('map')
+        setLayer(layer)
+      },
       openSchedule: () => setTab('schedule'),
     }
 
     return a
-  }, [setTab])
+  }, [setLayer, setTab])
 
   return [tab, actions] as const
 }
