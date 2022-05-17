@@ -18,6 +18,7 @@ import HomeEventCard from './HomeEventCard'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { useRoutes } from 'hooks/useRoutes'
 import dayjs from 'dayjs'
+import AddEventCard from './AddEventCard'
 
 type Props = {
   day: number
@@ -48,6 +49,8 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
         return { ...plan.home, next: schedule.dept }
       } else if (plan.lodging) {
         return { ...plan.lodging, next: schedule.dept }
+      } else {
+        return null
       }
     }
 
@@ -168,7 +171,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                   )}
                 </Draggable>
               ))}
-              {dest && (
+              {dest ? (
                 <>
                   <Box py={0.5}>
                     <Route
@@ -182,6 +185,10 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                     date={summarizeTotalTime(schedule.spots)}
                   />
                 </>
+              ) : (
+                <Box pt={4}>
+                  <AddEventCard text="ホテルを設定する" onClick={() => null} />
+                </Box>
               )}
               {provided.placeholder}
             </Box>

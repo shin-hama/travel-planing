@@ -23,7 +23,7 @@ const PrefectureSelector: React.FC<Props> = ({ value, label, onChange }) => {
   const [openDialog, setOpenDialog] = React.useState<DialogProps>({
     open: false,
   })
-  const { data, loading, error } = useGetPrefecturesQuery()
+  const { data, error } = useGetPrefecturesQuery()
 
   const handleChange = (event: SelectChangeEvent<number | string>) => {
     if (!data) {
@@ -75,15 +75,11 @@ const PrefectureSelector: React.FC<Props> = ({ value, label, onChange }) => {
             data?.prefectures.find((p) => p.place_id === value?.id)?.code || ''
           }
           onChange={handleChange}>
-          {loading ? (
-            <>loading</>
-          ) : (
-            data?.prefectures.map((prefecture) => (
-              <MenuItem key={prefecture.code} value={prefecture.code}>
-                {prefecture.name}
-              </MenuItem>
-            ))
-          )}
+          {data?.prefectures.map((prefecture) => (
+            <MenuItem key={prefecture.code} value={prefecture.code}>
+              {prefecture.name}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <IconButton color="primary" onClick={handleClick}>
