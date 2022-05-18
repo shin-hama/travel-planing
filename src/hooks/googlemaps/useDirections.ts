@@ -55,7 +55,10 @@ export const useDirections = () => {
     ) => {
       try {
         setLoading(true)
-        const result = await post<DirectionsResult<T>>(bffConfigs.url, props)
+        const result = await post<DirectionsResult<T>>(
+          `${bffConfigs.url}/directions`,
+          props
+        )
 
         if (result.route) {
           return result.route

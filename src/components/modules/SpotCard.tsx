@@ -22,7 +22,7 @@ type Props = {
 }
 const SpotCard: React.FC<Props> = ({ spot }) => {
   const placesService = usePlaces()
-  const [photos, setPhotos] = React.useState<Array<string>>([])
+  const [photo, setPhotos] = React.useState<string>('')
 
   const countRef = React.useRef(0)
   React.useEffect(() => {
@@ -30,9 +30,6 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
   }, [])
 
   React.useEffect(() => {
-    if (!placesService.isLoaded) {
-      return
-    }
     if (countRef.current !== 0) {
       return
     }
@@ -45,7 +42,7 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
     }
 
     return () => {
-      setPhotos([])
+      setPhotos('')
     }
   }, [spot.placeId, placesService])
 
@@ -69,7 +66,7 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
               <AddSpotButton
                 newSpot={{
                   ...spot,
-                  imageUrl: photos[0] || '',
+                  imageUrl: '',
                   duration: 60,
                   durationUnit: 'minute',
                 }}
@@ -78,9 +75,9 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
           </CardActions>
         </Grid>
         <Grid item xs={4}>
-          {photos.length > 0 && (
+          {photo.length > 0 && (
             <Image
-              src={photos[0]}
+              src={`data:image/png;base64,${photo}`}
               width={200}
               height={200}
               layout="responsive"
