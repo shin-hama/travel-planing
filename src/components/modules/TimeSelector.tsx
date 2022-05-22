@@ -9,13 +9,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
 
 import PaperPopper from 'components/elements/PaperPopper'
+import { Box } from '@mui/material'
 
-export type Time = {
+export type TimeValue = {
   hour: number
   minute: number
 }
 
 type TimeAction =
+  | {
+      type: 'set'
+      value: TimeValue
+    }
   | {
       type: 'hour'
       value: number
@@ -26,21 +31,21 @@ type TimeAction =
     }
   | {
       type: 'increment'
-      unit: keyof Time
+      unit: keyof TimeValue
     }
   | {
       type: 'decrement'
-      unit: keyof Time
+      unit: keyof TimeValue
     }
 
-const buildTime = (defaultTime?: number): Time => {
+const buildTime = (defaultTime?: number): TimeValue => {
   return {
     hour: Math.floor((defaultTime || 0) / 60),
     minute: (defaultTime || 0) % 60,
   }
 }
 
-const reducer = (state: Time, action: TimeAction): Time => {
+const reducer = (state: TimeValue, action: TimeAction): TimeValue => {
   const step = 15
   switch (action.type) {
     case 'hour': {
@@ -108,6 +113,9 @@ const reducer = (state: Time, action: TimeAction): Time => {
       }
     }
 
+    case 'set':
+      return action.value
+
     default:
       throw Error(`not implemented action: ${action}`)
   }
@@ -117,20 +125,25 @@ type Props = {
   type?: 'input' | 'text'
   label?: string
   value?: number
-  onChange?: (newTime: Time) => void
+  onChange?: (newTime: TimeValue) => void
 }
 const TimeSelector: React.FC<Props> = ({
   type = 'input',
   label = '',
   value: defaultTime,
+  children,
   onChange,
 }) => {
   const [time, setTime] = React.useReducer(reducer, defaultTime, buildTime)
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null)
   const theme = useTheme()
 
+  React.useEffect(() => {
+    setTime({ type: 'set', value: buildTime(defaultTime) })
+  }, [defaultTime])
+
   const handleEditChange =
-    (type: keyof Time) =>
+    (type: keyof TimeValue) =>
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
       const newValue = Number.parseInt(e.target.value)
       if (newValue && newValue > 0) {
@@ -140,11 +153,11 @@ const TimeSelector: React.FC<Props> = ({
       }
     }
 
-  const handleUp = (unit: keyof Time) => () => {
+  const handleUp = (unit: keyof TimeValue) => () => {
     setTime({ type: 'increment', unit })
   }
 
-  const handleDown = (unit: keyof Time) => () => {
+  const handleDown = (unit: keyof TimeValue) => () => {
     setTime({ type: 'decrement', unit })
   }
 
@@ -155,7 +168,7 @@ const TimeSelector: React.FC<Props> = ({
       onChange?.(time)
     }
     mounted.current = true
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time])
 
   const display = () => {
@@ -208,7 +221,11 @@ const TimeSelector: React.FC<Props> = ({
 
   return (
     <>
-      {display()}
+      {children ? (
+        <Box onClick={(e) => setAnchor(e.currentTarget)}>{children}</Box>
+      ) : (
+        display()
+      )}
       <PaperPopper
         open={Boolean(anchor)}
         onClose={() => setAnchor(null)}

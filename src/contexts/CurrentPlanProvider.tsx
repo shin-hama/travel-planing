@@ -50,15 +50,17 @@ export const isSpot = (obj: any): obj is Spot => {
   )
 }
 
+export type Time = {
+  text: string
+  value: number
+  unit: 'second' | 'minute'
+}
+
 export type Route = {
   from: string
   to: string
   mode: TravelMode
-  time?: {
-    text: string
-    value: number
-    unit: dayjs.ManipulateType
-  } | null
+  time?: Time | null
 }
 
 export const isSameRoute = (a: Route, b: Route) =>

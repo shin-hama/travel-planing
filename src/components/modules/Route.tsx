@@ -23,7 +23,16 @@ import {
 } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import {
+  NextMove,
+  RouteGuidanceAvailable,
+  Time,
+} from 'contexts/CurrentPlanProvider'
+import TimeSelector, { TimeValue } from './TimeSelector'
+
+const convertSecToMin = (value: number) => {
+  return Math.floor(value / 60)
+}
 
 const modes: Record<TravelMode, IconDefinition> = {
   driving: faCar,
@@ -43,11 +52,31 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     origin.next?.mode || 'driving'
   )
 
+  const openMap = useOpenMap()
   const routesApi = useRoutes()
   const { search, loading } = useDirections()
-  const [time, setTime] = React.useState('')
 
-  const openMap = useOpenMap()
+  const [time, setTime] = React.useState<Time | null>()
+
+  React.useEffect(() => {
+    if (time) {
+      routesApi.add({
+        from: origin.id,
+        to: dest.id,
+        mode: selected,
+        time: time,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [time])
+
+  const handleChangeTime = React.useCallback((newTime: TimeValue) => {
+    setTime({
+      text: `${newTime.hour} hour ${newTime.minute} minutes`,
+      value: newTime.hour * 60 + newTime.minute,
+      unit: 'minute',
+    })
+  }, [])
 
   const handleClick = (value: string) => () => {
     if (selecting) {
@@ -72,20 +101,19 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     })
     if (routeCache?.time) {
       console.log('use route cache')
-      setTime(routeCache.time.text)
+      setTime(routeCache.time)
     } else {
+      setTime(null)
       search({
         origin,
         destination: dest,
         mode: selected,
       }).then((result) => {
         console.log('Calc route')
-        setTime(result?.legs[0].duration.text || 'Not Found')
-        routesApi.add({
-          from: origin.id,
-          to: dest.id,
-          mode: selected,
-          time: result && { ...result.legs[0].duration, unit: 'second' },
+        setTime({
+          text: result?.legs[0].duration.text || 'Not Found',
+          value: result?.legs[0].duration.value || 0,
+          unit: 'second',
         })
       })
     }
@@ -120,10 +148,18 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
           </Stack>
         </Collapse>
         <Box pl={1}>
-          {loading ? (
+          {loading || !time ? (
             <CircularProgress />
           ) : (
-            <Typography variant="body2">{time}</Typography>
+            <TimeSelector
+              value={
+                time.unit === 'second'
+                  ? convertSecToMin(time.value)
+                  : time.value
+              }
+              onChange={handleChangeTime}>
+              <Typography variant="body2">{time.text}</Typography>
+            </TimeSelector>
           )}
         </Box>
       </Stack>
