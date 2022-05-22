@@ -150,16 +150,18 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
               {schedule.spots.map((spot, index) => (
                 <Draggable key={spot.id} draggableId={spot.id} index={index}>
                   {(provided) => (
-                    <Box
-                      ref={provided.innerRef}
-                      {...provided.dragHandleProps}
-                      {...provided.draggableProps}>
-                      <SpotEventCard
-                        spot={spot}
-                        start={summarizeTotalTime(
-                          schedule.spots.slice(0, index)
-                        )}
-                      />
+                    <>
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.dragHandleProps}
+                        {...provided.draggableProps}>
+                        <SpotEventCard
+                          spot={spot}
+                          start={summarizeTotalTime(
+                            schedule.spots.slice(0, index)
+                          )}
+                        />
+                      </Box>
                       {index !== schedule.spots.length - 1 && (
                         <Box py={0.5}>
                           <Route
@@ -169,7 +171,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                           />
                         </Box>
                       )}
-                    </Box>
+                    </>
                   )}
                 </Draggable>
               ))}

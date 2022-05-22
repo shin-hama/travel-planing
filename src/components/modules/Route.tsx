@@ -11,6 +11,7 @@ import {
   faPersonBiking,
   faCar,
   faDiamondTurnRight,
+  faRotateRight,
   faTrain,
   faWalking,
   IconDefinition,
@@ -57,6 +58,11 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   const { search, loading } = useDirections()
 
   const [time, setTime] = React.useState<Time | null>()
+  const [timeEditing, setTimeEditing] = React.useState(false)
+
+  const handleChangeOpen = React.useCallback((open: boolean) => {
+    setTimeEditing(open)
+  }, [])
 
   React.useEffect(() => {
     if (time) {
@@ -71,8 +77,10 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   }, [time])
 
   const handleChangeTime = React.useCallback((newTime: TimeValue) => {
+    const hour = newTime.hour !== 0 ? `${newTime.hour} hour` : ''
+    const minute = `${newTime.minute} minutes`
     setTime({
-      text: `${newTime.hour} hour ${newTime.minute} minutes`,
+      text: `${hour} ${minute}`,
       value: newTime.hour * 60 + newTime.minute,
       unit: 'minute',
     })
@@ -108,14 +116,25 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
         origin,
         destination: dest,
         mode: selected,
-      }).then((result) => {
-        console.log('Calc route')
-        setTime({
-          text: result?.legs[0].duration.text || 'Not Found',
-          value: result?.legs[0].duration.value || 0,
-          unit: 'second',
-        })
       })
+        .then((result) => {
+          console.log('Calc route')
+          if (!result) {
+            throw Error()
+          }
+          setTime({
+            text: result.legs[0].duration.text,
+            value: result.legs[0].duration.value,
+            unit: 'second',
+          })
+        })
+        .catch(() => {
+          setTime({
+            text: 'Not Found',
+            value: 0,
+            unit: 'second',
+          })
+        })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin.id, dest.id, selected])
@@ -157,8 +176,18 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
                   ? convertSecToMin(time.value)
                   : time.value
               }
-              onChange={handleChangeTime}>
-              <Typography variant="body2">{time.text}</Typography>
+              onChange={handleChangeTime}
+              onOpenChange={handleChangeOpen}>
+              <Typography variant="body2">
+                {time.text}
+                {timeEditing && (
+                  <IconButton onClick={() => console.log('test')}>
+                    <SvgIcon>
+                      <FontAwesomeIcon icon={faRotateRight} />
+                    </SvgIcon>
+                  </IconButton>
+                )}
+              </Typography>
             </TimeSelector>
           )}
         </Box>

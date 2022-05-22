@@ -126,6 +126,8 @@ type Props = {
   label?: string
   value?: number
   onChange?: (newTime: TimeValue) => void
+  onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
+  onOpenChange?: (open: boolean) => void
 }
 const TimeSelector: React.FC<Props> = ({
   type = 'input',
@@ -133,6 +135,8 @@ const TimeSelector: React.FC<Props> = ({
   value: defaultTime,
   children,
   onChange,
+  onClick,
+  onOpenChange,
 }) => {
   const [time, setTime] = React.useReducer(reducer, defaultTime, buildTime)
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null)
@@ -141,6 +145,18 @@ const TimeSelector: React.FC<Props> = ({
   React.useEffect(() => {
     setTime({ type: 'set', value: buildTime(defaultTime) })
   }, [defaultTime])
+
+  React.useEffect(() => {
+    onOpenChange?.(Boolean(anchor))
+  }, [anchor, onOpenChange])
+
+  const handleClick = React.useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      setAnchor(e.currentTarget)
+      onClick?.(e)
+    },
+    [onClick]
+  )
 
   const handleEditChange =
     (type: keyof TimeValue) =>
@@ -175,7 +191,7 @@ const TimeSelector: React.FC<Props> = ({
     switch (type) {
       case 'text':
         return (
-          <Typography onClick={(e) => setAnchor(e.currentTarget)}>
+          <Typography onClick={handleClick}>
             {`${label}${time.hour.toString().padStart(2, '0')}:${time.minute
               .toString()
               .padStart(2, '0')}`}
@@ -190,7 +206,7 @@ const TimeSelector: React.FC<Props> = ({
             value={`${time.hour.toString().padStart(2, '0')}:${time.minute
               .toString()
               .padStart(2, '0')}`}
-            onClick={(e) => setAnchor(e.currentTarget)}
+            onClick={handleClick}
             size="small"
             inputProps={{
               readOnly: true,
@@ -201,31 +217,13 @@ const TimeSelector: React.FC<Props> = ({
         )
 
       default:
-        return (
-          <TextField
-            placeholder="HH:MM"
-            value={`${time.hour.toString().padStart(2, '0')}:${time.minute
-              .toString()
-              .padStart(2, '0')}`}
-            onClick={(e) => setAnchor(e.currentTarget)}
-            size="small"
-            inputProps={{
-              readOnly: true,
-              style: { textAlign: 'center' },
-            }}
-            sx={{ width: '5rem' }}
-          />
-        )
+        return <></>
     }
   }
 
   return (
     <>
-      {children ? (
-        <Box onClick={(e) => setAnchor(e.currentTarget)}>{children}</Box>
-      ) : (
-        display()
-      )}
+      {children ? <Box onClick={handleClick}>{children}</Box> : display()}
       <PaperPopper
         open={Boolean(anchor)}
         onClose={() => setAnchor(null)}
