@@ -61,6 +61,7 @@ export type Route = {
   to: string
   mode: TravelMode
   time?: Time | null
+  memo?: string | null
 }
 
 export const isSameRoute = (a: Route, b: Route) =>

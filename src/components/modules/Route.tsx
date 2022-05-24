@@ -11,7 +11,6 @@ import {
   faPersonBiking,
   faCar,
   faDiamondTurnRight,
-  faRotateRight,
   faTrain,
   faWalking,
   IconDefinition,
@@ -24,18 +23,10 @@ import {
 } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import {
-  NextMove,
-  RouteGuidanceAvailable,
-  Time,
-} from 'contexts/CurrentPlanProvider'
-import TimeSelector, { TimeValue } from './TimeSelector'
+import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import RouteEditor from './RouteEditor'
 
-const convertSecToMin = (value: number) => {
-  return Math.floor(value / 60)
-}
-
-const modes: Record<TravelMode, IconDefinition> = {
+export const TravelModes: Record<TravelMode, IconDefinition> = {
   driving: faCar,
   transit: faTrain,
   bicycling: faPersonBiking,
@@ -55,36 +46,72 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
 
   const openMap = useOpenMap()
   const routesApi = useRoutes()
+  const route = routesApi.get({
+    from: origin.id,
+    to: dest.id,
+    mode: selected,
+  })
+
+  React.useEffect(() => {
+    console.log('updated')
+  }, [route])
+
+  React.useEffect(() => {
+    if (route) {
+      console.log('use route cache')
+    } else {
+      search({
+        origin,
+        destination: dest,
+        mode: selected,
+      })
+        .then((result) => {
+          console.log('Calc route')
+          if (!result) {
+            throw Error()
+          }
+
+          routesApi.add({
+            from: origin.id,
+            to: dest.id,
+            mode: selected,
+            time: {
+              text: result.legs[0].duration.text,
+              value: result.legs[0].duration.value,
+              unit: 'second',
+            },
+          })
+        })
+        .catch(() => {
+          routesApi.add({
+            from: origin.id,
+            to: dest.id,
+            mode: selected,
+            time: {
+              text: 'Not Found',
+              value: 0,
+              unit: 'second',
+            },
+          })
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [origin.id, dest.id, selected])
+
   const { search, loading } = useDirections()
 
-  const [time, setTime] = React.useState<Time | null>()
   const [timeEditing, setTimeEditing] = React.useState(false)
 
-  const handleChangeOpen = React.useCallback((open: boolean) => {
-    setTimeEditing(open)
+  const handleOpen = React.useCallback(() => {
+    setTimeEditing(true)
   }, [])
 
   React.useEffect(() => {
-    if (time) {
-      routesApi.add({
-        from: origin.id,
-        to: dest.id,
-        mode: selected,
-        time: time,
-      })
+    if (route) {
+      routesApi.add(route)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [time])
-
-  const handleChangeTime = React.useCallback((newTime: TimeValue) => {
-    const hour = newTime.hour !== 0 ? `${newTime.hour} hour` : ''
-    const minute = `${newTime.minute} minutes`
-    setTime({
-      text: `${hour} ${minute}`,
-      value: newTime.hour * 60 + newTime.minute,
-      unit: 'minute',
-    })
-  }, [])
+  }, [route])
 
   const handleClick = (value: string) => () => {
     if (selecting) {
@@ -102,106 +129,69 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
       onChange({ id: dest.id, mode: selected }, origin.id)
     }
 
-    const routeCache = routesApi.get({
-      from: origin.id,
-      to: dest.id,
-      mode: selected,
-    })
-    if (routeCache?.time) {
-      console.log('use route cache')
-      setTime(routeCache.time)
-    } else {
-      setTime(null)
-      search({
-        origin,
-        destination: dest,
-        mode: selected,
-      })
-        .then((result) => {
-          console.log('Calc route')
-          if (!result) {
-            throw Error()
-          }
-          setTime({
-            text: result.legs[0].duration.text,
-            value: result.legs[0].duration.value,
-            unit: 'second',
-          })
-        })
-        .catch(() => {
-          setTime({
-            text: 'Not Found',
-            value: 0,
-            unit: 'second',
-          })
-        })
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin.id, dest.id, selected])
 
+  if (!route) {
+    return <CircularProgress />
+  }
+
   return (
-    <Stack direction="row" alignItems="center" px={3}>
-      <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
-        <IconButton
-          onClick={handleClick(selected)}
-          size="small"
-          sx={{
-            background: (theme) =>
-              selecting ? theme.palette.grey[300] : undefined,
-          }}>
-          <SvgIcon>
-            <FontAwesomeIcon icon={modes[selected]} />
-          </SvgIcon>
-        </IconButton>
-        <Collapse in={selecting} orientation="horizontal">
-          <Stack direction="row" alignItems="center">
-            {Object.entries(modes)
-              .filter(([key]) => key !== selected)
-              .map(([key, icon]) => (
-                <IconButton key={key} onClick={handleClick(key)} size="small">
-                  <SvgIcon>
-                    <FontAwesomeIcon icon={icon} />
-                  </SvgIcon>
-                </IconButton>
-              ))}
-          </Stack>
-        </Collapse>
-        <Box pl={1}>
-          {loading || !time ? (
-            <CircularProgress />
-          ) : (
-            <TimeSelector
-              value={
-                time.unit === 'second'
-                  ? convertSecToMin(time.value)
-                  : time.value
-              }
-              onChange={handleChangeTime}
-              onOpenChange={handleChangeOpen}>
-              <Typography variant="body2">
-                {time.text}
-                {timeEditing && (
-                  <IconButton onClick={() => console.log('test')}>
+    <>
+      <Stack direction="row" alignItems="center" px={3}>
+        <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
+          <IconButton
+            onClick={handleClick(selected)}
+            size="small"
+            sx={{
+              background: (theme) =>
+                selecting ? theme.palette.grey[300] : undefined,
+            }}>
+            <SvgIcon>
+              <FontAwesomeIcon icon={TravelModes[selected]} />
+            </SvgIcon>
+          </IconButton>
+          <Collapse in={selecting} orientation="horizontal">
+            <Stack direction="row" alignItems="center">
+              {Object.entries(TravelModes)
+                .filter(([key]) => key !== selected)
+                .map(([key, icon]) => (
+                  <IconButton key={key} onClick={handleClick(key)} size="small">
                     <SvgIcon>
-                      <FontAwesomeIcon icon={faRotateRight} />
+                      <FontAwesomeIcon icon={icon} />
                     </SvgIcon>
                   </IconButton>
-                )}
+                ))}
+            </Stack>
+          </Collapse>
+          <Box pl={1}>
+            {loading || !route?.time ? (
+              <CircularProgress />
+            ) : (
+              <Typography variant="body2" onClick={handleOpen}>
+                {route.time.text}
               </Typography>
-            </TimeSelector>
-          )}
-        </Box>
+            )}
+          </Box>
+        </Stack>
+        <IconButton
+          size="small"
+          href={openMap(origin, dest, selected)}
+          target="_blank"
+          rel="noopener noreferrer">
+          <SvgIcon fontSize="small">
+            <FontAwesomeIcon icon={faDiamondTurnRight} />
+          </SvgIcon>
+        </IconButton>
       </Stack>
-      <IconButton
-        size="small"
-        href={openMap(origin, dest, selected)}
-        target="_blank"
-        rel="noopener noreferrer">
-        <SvgIcon fontSize="small">
-          <FontAwesomeIcon icon={faDiamondTurnRight} />
-        </SvgIcon>
-      </IconButton>
-    </Stack>
+      {timeEditing && (
+        <RouteEditor
+          open={timeEditing}
+          onClose={() => setTimeEditing(false)}
+          route={route}
+        />
+      )}
+    </>
   )
 }
 
