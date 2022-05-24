@@ -91,7 +91,7 @@ const ScheduleListView: React.FC = () => {
             mode: 'driving',
             time: {
               ...leg.duration,
-              unit: 'seconds',
+              unit: 'second',
             },
           })
         )

@@ -52,8 +52,10 @@ type Props = {
 }
 const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
-  const selected = React.useMemo<TravelMode>(
-    () => origin.next?.mode || 'driving',
+  const selected = React.useMemo<ModeIcon>(
+    () =>
+      TravelModes.find((mode) => mode.key === origin.next?.mode) ||
+      TravelModes[0],
     [origin.next?.mode]
   )
 
@@ -62,7 +64,7 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   const route = routesApi.get({
     from: origin.id,
     to: dest.id,
-    mode: selected,
+    mode: selected.key,
   })
 
   React.useEffect(() => {
@@ -73,7 +75,7 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     if (route) {
       console.log('use route cache')
     } else {
-      routesApi.searchRoute(origin, dest, selected)
+      routesApi.searchRoute(origin, dest, selected.key)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin.id, dest.id, selected, route])
@@ -108,21 +110,19 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
       <Stack direction="row" alignItems="center" px={3}>
         <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
           <IconButton
-            onClick={handleClick(selected)}
+            onClick={handleClick(selected.key)}
             size="small"
             sx={{
               background: (theme) =>
                 selecting ? theme.palette.grey[300] : undefined,
             }}>
             <SvgIcon>
-              <FontAwesomeIcon
-                icon={TravelModes.find((mode) => mode.key === selected)?.icon}
-              />
+              <FontAwesomeIcon icon={selected.icon} />
             </SvgIcon>
           </IconButton>
           <Collapse in={selecting} orientation="horizontal">
             <Stack direction="row" alignItems="center">
-              {TravelModes.filter(({ key }) => key !== selected).map(
+              {TravelModes.filter(({ key }) => key !== selected.key).map(
                 ({ key, icon }) => (
                   <IconButton key={key} onClick={handleClick(key)} size="small">
                     <SvgIcon>
@@ -145,7 +145,7 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
         </Stack>
         <IconButton
           size="small"
-          href={openMap(origin, dest, selected)}
+          href={openMap(origin, dest, selected.key)}
           target="_blank"
           rel="noopener noreferrer">
           <SvgIcon fontSize="small">

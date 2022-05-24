@@ -86,21 +86,22 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
   return (
     <Dialog {...props} maxWidth="sm" fullWidth>
       <DialogContent>
-        <Stack spacing={4}>
+        <Stack spacing={2}>
           <Typography variant="h4" noWrap>
             {origin?.name} to {dest?.name}
           </Typography>
           {loading ? (
             <CircularProgress />
           ) : (
-            <Stack direction="row" spacing={1}>
+            <Stack direction="row" alignItems="center">
               <Stack direction="row">
                 {TravelModes.map(({ key, icon }) => (
                   <IconButton
                     key={key}
-                    size="small"
+                    size="large"
+                    color={key === target.mode ? 'primary' : undefined}
                     onClick={handleSelectMode(key)}>
-                    <SvgIcon>
+                    <SvgIcon fontSize={key === target.mode ? 'large' : 'small'}>
                       <FontAwesomeIcon icon={icon} />
                     </SvgIcon>
                   </IconButton>
@@ -114,8 +115,9 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
                 }
                 onChange={handleUpdateTime}
               />
+              <div style={{ flexGrow: 1 }} />
               <Button
-                variant="outlined"
+                variant="text"
                 onClick={handleResetTime}
                 startIcon={
                   <SvgIcon>
@@ -133,7 +135,7 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
               onChange={handleUpdateMemo}
               multiline
               rows={4}
-              placeholder="説明を入力してください"
+              placeholder="移動に必要な情報を入力してください"
             />
           </Stack>
         </Stack>
