@@ -26,12 +26,28 @@ import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
 import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 import RouteEditor from './RouteEditor'
 
-export const TravelModes: Record<TravelMode, IconDefinition> = {
-  driving: faCar,
-  transit: faTrain,
-  bicycling: faPersonBiking,
-  walking: faWalking,
+type ModeIcon = {
+  key: TravelMode
+  icon: IconDefinition
 }
+export const TravelModes: Array<ModeIcon> = [
+  {
+    key: 'driving',
+    icon: faCar,
+  },
+  {
+    key: 'transit',
+    icon: faTrain,
+  },
+  {
+    key: 'bicycling',
+    icon: faPersonBiking,
+  },
+  {
+    key: 'walking',
+    icon: faWalking,
+  },
+]
 
 type Props = {
   origin: RouteGuidanceAvailable
@@ -40,8 +56,9 @@ type Props = {
 }
 const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
-  const [selected, setSelected] = React.useState<TravelMode>(
-    origin.next?.mode || 'driving'
+  const selected = React.useMemo<TravelMode>(
+    () => origin.next?.mode || 'driving',
+    [origin.next?.mode]
   )
 
   const openMap = useOpenMap()
@@ -117,20 +134,20 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     if (selecting) {
       setSelecting(false)
       if (isTravelMode(value)) {
-        setSelected(value)
+        console.log(value)
+        onChange({ id: dest.id, mode: value }, origin.id)
       }
     } else {
       setSelecting(true)
     }
   }
 
-  React.useEffect(() => {
-    if (origin.next?.mode !== selected || origin.next.id !== dest.id) {
-      onChange({ id: dest.id, mode: selected }, origin.id)
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [origin.id, dest.id, selected])
+  // React.useEffect(() => {
+  //   if (origin.next?.mode !== selected || origin.next.id !== dest.id) {
+  //     onChange({ id: dest.id, mode: selected }, origin.id)
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [origin.id, dest.id, selected])
 
   if (!route) {
     return <CircularProgress />
@@ -148,20 +165,22 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
                 selecting ? theme.palette.grey[300] : undefined,
             }}>
             <SvgIcon>
-              <FontAwesomeIcon icon={TravelModes[selected]} />
+              <FontAwesomeIcon
+                icon={TravelModes.find((mode) => mode.key === selected)?.icon}
+              />
             </SvgIcon>
           </IconButton>
           <Collapse in={selecting} orientation="horizontal">
             <Stack direction="row" alignItems="center">
-              {Object.entries(TravelModes)
-                .filter(([key]) => key !== selected)
-                .map(([key, icon]) => (
+              {TravelModes.filter(({ key }) => key !== selected).map(
+                ({ key, icon }) => (
                   <IconButton key={key} onClick={handleClick(key)} size="small">
                     <SvgIcon>
                       <FontAwesomeIcon icon={icon} />
                     </SvgIcon>
                   </IconButton>
-                ))}
+                )
+              )}
             </Stack>
           </Collapse>
           <Box pl={1}>
