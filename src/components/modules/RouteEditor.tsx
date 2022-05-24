@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Dialog, { DialogProps } from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
@@ -25,7 +26,7 @@ type Props = DialogProps & {
   route: Route
 }
 const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
-  const routeApi = useRoutes()
+  const { routesApi, loading } = useRoutes()
   // const route = routeApi.get(target)
   const [waypoints, waypointsApi] = useWaypoints()
   // 変更内容を反映するために、コンポーネント内で Spot 情報を常に最新で取得する
@@ -42,6 +43,10 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
 
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   const handleUpdateTime = (newTime: TimeValue) => {
+    if (!target) {
+      return
+    }
+
     const hour = newTime.hour !== 0 ? `${newTime.hour} hour` : ''
     const minute = `${newTime.minute} minutes`
     const time: Time = {
@@ -55,8 +60,14 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
     }
 
     timerRef.current = setTimeout(async () => {
-      routeApi.add({ ...target, time: time })
+      routesApi.add({ ...target, time: time })
     }, 500)
+  }
+
+  const handleResetTime = () => {
+    if (origin && dest) {
+      routesApi.searchRoute(origin, dest, target.mode)
+    }
   }
 
   const handleUpdateMemo = (
@@ -68,7 +79,7 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
     }
 
     timerRef.current = setTimeout(async () => {
-      routeApi.add({ ...target, memo: e.target.value })
+      routesApi.add({ ...target, memo: e.target.value })
     }, 500)
   }
 
@@ -79,28 +90,42 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
           <Typography variant="h4" noWrap>
             {origin?.name} to {dest?.name}
           </Typography>
-          <Stack direction="row" spacing={1}>
-            <Stack direction="row">
-              {TravelModes.map(({ key, icon }) => (
-                <IconButton
-                  key={key}
-                  size="small"
-                  onClick={handleSelectMode(key)}>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Stack direction="row" spacing={1}>
+              <Stack direction="row">
+                {TravelModes.map(({ key, icon }) => (
+                  <IconButton
+                    key={key}
+                    size="small"
+                    onClick={handleSelectMode(key)}>
+                    <SvgIcon>
+                      <FontAwesomeIcon icon={icon} />
+                    </SvgIcon>
+                  </IconButton>
+                ))}
+              </Stack>
+              <TimePicker
+                value={
+                  target.time?.unit === 'second'
+                    ? convertSecToMin(target.time.value || 0)
+                    : target.time?.value
+                }
+                onChange={handleUpdateTime}
+              />
+              <Button
+                variant="outlined"
+                onClick={handleResetTime}
+                startIcon={
                   <SvgIcon>
-                    <FontAwesomeIcon icon={icon} />
+                    <FontAwesomeIcon icon={faRotateRight} />
                   </SvgIcon>
-                </IconButton>
-              ))}
+                }>
+                Reset Time
+              </Button>
             </Stack>
-            <TimePicker
-              value={
-                target.time?.unit === 'second'
-                  ? convertSecToMin(target.time?.value || 0)
-                  : target.time?.value
-              }
-              onChange={handleUpdateTime}
-            />
-          </Stack>
+          )}
           <Stack spacing={1}>
             <Typography variant="h5">メモ</Typography>
             <TextField

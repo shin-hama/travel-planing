@@ -59,7 +59,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
     return null
   }, [last, plan, schedule.dept])
 
-  const routesApi = useRoutes()
+  const { routesApi } = useRoutes()
 
   const summarizeTotalTime = (prevSpots: Array<Spot>): Date => {
     let _start = dayjs(schedule.start)

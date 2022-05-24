@@ -30,7 +30,7 @@ const ScheduleListView: React.FC = () => {
   const router = useRouter()
   const [plan] = useTravelPlan()
   const [waypoints, waypointsApi] = useWaypoints()
-  const routesApi = useRoutes()
+  const { routesApi } = useRoutes()
   const directions = useDirections()
   const confirm = useConfirm()
   const [, { openMap }] = usePlanningTab()

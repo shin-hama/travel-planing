@@ -16,11 +16,7 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-import {
-  TravelMode,
-  isTravelMode,
-  useDirections,
-} from 'hooks/googlemaps/useDirections'
+import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
 import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
@@ -62,7 +58,7 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   )
 
   const openMap = useOpenMap()
-  const routesApi = useRoutes()
+  const { routesApi, loading } = useRoutes()
   const route = routesApi.get({
     from: origin.id,
     to: dest.id,
@@ -77,45 +73,10 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     if (route) {
       console.log('use route cache')
     } else {
-      search({
-        origin,
-        destination: dest,
-        mode: selected,
-      })
-        .then((result) => {
-          console.log('Calc route')
-          if (!result) {
-            throw Error()
-          }
-
-          routesApi.add({
-            from: origin.id,
-            to: dest.id,
-            mode: selected,
-            time: {
-              text: result.legs[0].duration.text,
-              value: result.legs[0].duration.value,
-              unit: 'second',
-            },
-          })
-        })
-        .catch(() => {
-          routesApi.add({
-            from: origin.id,
-            to: dest.id,
-            mode: selected,
-            time: {
-              text: 'Not Found',
-              value: 0,
-              unit: 'second',
-            },
-          })
-        })
+      routesApi.searchRoute(origin, dest, selected)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [origin.id, dest.id, selected])
-
-  const { search, loading } = useDirections()
+  }, [origin.id, dest.id, selected, route])
 
   const [timeEditing, setTimeEditing] = React.useState(false)
 
@@ -140,17 +101,6 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     } else {
       setSelecting(true)
     }
-  }
-
-  // React.useEffect(() => {
-  //   if (origin.next?.mode !== selected || origin.next.id !== dest.id) {
-  //     onChange({ id: dest.id, mode: selected }, origin.id)
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [origin.id, dest.id, selected])
-
-  if (!route) {
-    return <CircularProgress />
   }
 
   return (
@@ -203,7 +153,7 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
           </SvgIcon>
         </IconButton>
       </Stack>
-      {timeEditing && (
+      {route && timeEditing && (
         <RouteEditor
           open={timeEditing}
           onClose={() => setTimeEditing(false)}

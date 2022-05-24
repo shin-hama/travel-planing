@@ -5,13 +5,17 @@ import {
   Route,
   isSameRoute,
   SpotBase,
+  RouteGuidanceAvailable,
 } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
+import { TravelMode, useDirections } from './googlemaps/useDirections'
 
 export const useRoutes = () => {
   const [plan, planApi] = useTravelPlan()
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan
+
+  const { search, loading } = useDirections()
 
   const actions = React.useMemo(() => {
     const a = {
@@ -83,10 +87,50 @@ export const useRoutes = () => {
           ) || null
         )
       },
+      searchRoute: (
+        origin: RouteGuidanceAvailable,
+        destination: RouteGuidanceAvailable,
+        mode: TravelMode
+      ) => {
+        search({
+          origin,
+          destination,
+          mode,
+        })
+          .then((result) => {
+            console.log('Calc route')
+            if (!result) {
+              throw Error()
+            }
+
+            actions.add({
+              from: origin.id,
+              to: destination.id,
+              mode: mode,
+              time: {
+                text: result.legs[0].duration.text,
+                value: result.legs[0].duration.value,
+                unit: 'second',
+              },
+            })
+          })
+          .catch(() => {
+            actions.add({
+              from: origin.id,
+              to: destination.id,
+              mode: mode,
+              time: {
+                text: 'Not Found',
+                value: 0,
+                unit: 'second',
+              },
+            })
+          })
+      },
     }
 
     return a
-  }, [planApi])
+  }, [planApi, search])
 
-  return actions
+  return { routesApi: actions, loading }
 }
