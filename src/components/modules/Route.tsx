@@ -16,21 +16,34 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-import {
-  TravelMode,
-  isTravelMode,
-  useDirections,
-} from 'hooks/googlemaps/useDirections'
+import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
 import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import RouteEditor from './RouteEditor'
 
-const modes: Record<TravelMode, IconDefinition> = {
-  driving: faCar,
-  transit: faTrain,
-  bicycling: faPersonBiking,
-  walking: faWalking,
+type ModeIcon = {
+  key: TravelMode
+  icon: IconDefinition
 }
+export const TravelModes: Array<ModeIcon> = [
+  {
+    key: 'driving',
+    icon: faCar,
+  },
+  {
+    key: 'transit',
+    icon: faTrain,
+  },
+  {
+    key: 'bicycling',
+    icon: faPersonBiking,
+  },
+  {
+    key: 'walking',
+    icon: faWalking,
+  },
+]
 
 type Props = {
   origin: RouteGuidanceAvailable
@@ -39,104 +52,115 @@ type Props = {
 }
 const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
-  const [selected, setSelected] = React.useState<TravelMode>(
-    origin.next?.mode || 'driving'
+  const selected = React.useMemo<ModeIcon>(
+    () =>
+      TravelModes.find((mode) => mode.key === origin.next?.mode) ||
+      TravelModes[0],
+    [origin.next?.mode]
   )
 
-  const routesApi = useRoutes()
-  const { search, loading } = useDirections()
-  const [time, setTime] = React.useState('')
-
   const openMap = useOpenMap()
+  const { routesApi, loading } = useRoutes()
+  const route = routesApi.get({
+    from: origin.id,
+    to: dest.id,
+    mode: selected.key,
+  })
+
+  React.useEffect(() => {
+    console.log('updated')
+  }, [route])
+
+  React.useEffect(() => {
+    if (route) {
+      console.log('use route cache')
+    } else {
+      routesApi.searchRoute(origin, dest, selected.key)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [origin.id, dest.id, selected, route])
+
+  const [timeEditing, setTimeEditing] = React.useState(false)
+
+  const handleOpen = React.useCallback(() => {
+    setTimeEditing(true)
+  }, [])
+
+  React.useEffect(() => {
+    if (route) {
+      routesApi.add(route)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route])
 
   const handleClick = (value: string) => () => {
     if (selecting) {
       setSelecting(false)
       if (isTravelMode(value)) {
-        setSelected(value)
+        console.log(value)
+        onChange({ id: dest.id, mode: value }, origin.id)
       }
     } else {
       setSelecting(true)
     }
   }
 
-  React.useEffect(() => {
-    if (origin.next?.mode !== selected || origin.next.id !== dest.id) {
-      onChange({ id: dest.id, mode: selected }, origin.id)
-    }
-
-    const routeCache = routesApi.get({
-      from: origin.id,
-      to: dest.id,
-      mode: selected,
-    })
-    if (routeCache?.time) {
-      console.log('use route cache')
-      setTime(routeCache.time.text)
-    } else {
-      search({
-        origin,
-        destination: dest,
-        mode: selected,
-      }).then((result) => {
-        console.log('Calc route')
-        setTime(result?.legs[0].duration.text || 'Not Found')
-        routesApi.add({
-          from: origin.id,
-          to: dest.id,
-          mode: selected,
-          time: result && { ...result.legs[0].duration, unit: 'second' },
-        })
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [origin.id, dest.id, selected])
-
   return (
-    <Stack direction="row" alignItems="center" px={3}>
-      <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
+    <>
+      <Stack direction="row" alignItems="center" px={3}>
+        <Stack direction="row" alignItems="center" sx={{ flexGrow: 1 }}>
+          <IconButton
+            onClick={handleClick(selected.key)}
+            size="small"
+            sx={{
+              background: (theme) =>
+                selecting ? theme.palette.grey[300] : undefined,
+            }}>
+            <SvgIcon>
+              <FontAwesomeIcon icon={selected.icon} />
+            </SvgIcon>
+          </IconButton>
+          <Collapse in={selecting} orientation="horizontal">
+            <Stack direction="row" alignItems="center">
+              {TravelModes.filter(({ key }) => key !== selected.key).map(
+                ({ key, icon }) => (
+                  <IconButton key={key} onClick={handleClick(key)} size="small">
+                    <SvgIcon>
+                      <FontAwesomeIcon icon={icon} />
+                    </SvgIcon>
+                  </IconButton>
+                )
+              )}
+            </Stack>
+          </Collapse>
+          <Box pl={1}>
+            {loading || !route?.time ? (
+              <CircularProgress />
+            ) : (
+              <Typography variant="body2" onClick={handleOpen}>
+                {route.time.text}
+              </Typography>
+            )}
+          </Box>
+        </Stack>
         <IconButton
-          onClick={handleClick(selected)}
           size="small"
-          sx={{
-            background: (theme) =>
-              selecting ? theme.palette.grey[300] : undefined,
-          }}>
-          <SvgIcon>
-            <FontAwesomeIcon icon={modes[selected]} />
+          href={openMap(origin, dest, selected.key)}
+          target="_blank"
+          rel="noopener noreferrer">
+          <SvgIcon fontSize="small">
+            <FontAwesomeIcon icon={faDiamondTurnRight} />
           </SvgIcon>
         </IconButton>
-        <Collapse in={selecting} orientation="horizontal">
-          <Stack direction="row" alignItems="center">
-            {Object.entries(modes)
-              .filter(([key]) => key !== selected)
-              .map(([key, icon]) => (
-                <IconButton key={key} onClick={handleClick(key)} size="small">
-                  <SvgIcon>
-                    <FontAwesomeIcon icon={icon} />
-                  </SvgIcon>
-                </IconButton>
-              ))}
-          </Stack>
-        </Collapse>
-        <Box pl={1}>
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <Typography variant="body2">{time}</Typography>
-          )}
-        </Box>
       </Stack>
-      <IconButton
-        size="small"
-        href={openMap(origin, dest, selected)}
-        target="_blank"
-        rel="noopener noreferrer">
-        <SvgIcon fontSize="small">
-          <FontAwesomeIcon icon={faDiamondTurnRight} />
-        </SvgIcon>
-      </IconButton>
-    </Stack>
+      {route && timeEditing && (
+        <RouteEditor
+          open={timeEditing}
+          onClose={() => setTimeEditing(false)}
+          route={route}
+        />
+      )}
+    </>
   )
 }
 

@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 
-import TimePicker, { Time } from './TimePicker'
+import TimePicker, { TimeValue } from './TimeSelector'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import dayjs from 'dayjs'
 
@@ -22,7 +22,7 @@ const DayHeader: React.FC<Props> = ({ day, onOpenMenu }) => {
   const event = plan?.events[day - 1]
 
   const handleChange = React.useCallback(
-    (value: Time) => {
+    (value: TimeValue) => {
       planApi.update({
         events: plan?.events.map((event, i) => {
           if (i === day - 1) {

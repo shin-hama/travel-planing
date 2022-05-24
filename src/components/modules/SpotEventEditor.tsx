@@ -15,7 +15,7 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import { useWaypoints } from 'hooks/useWaypoints'
 import SpotLabel from './SpotLabel'
-import TimePicker from './TimePicker'
+import TimePicker from './TimeSelector'
 import { useConfirm } from 'hooks/useConfirm'
 
 type Forms = Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>

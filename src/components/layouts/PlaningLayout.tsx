@@ -28,7 +28,7 @@ const MyTab = styled(Tab)`
 `
 
 const PlanningLayout: React.FC = () => {
-  const routesApi = useRoutes()
+  const { routesApi } = useRoutes()
   const [tab, tabSwitch] = usePlanningTab()
 
   React.useEffect(() => {
