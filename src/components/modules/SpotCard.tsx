@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
@@ -22,7 +23,7 @@ type Props = {
 }
 const SpotCard: React.FC<Props> = ({ spot }) => {
   const placesService = usePlaces()
-  const [photo, setPhotos] = React.useState<string>('')
+  const [photo, setPhoto] = React.useState<string>('')
 
   const countRef = React.useRef(0)
   React.useEffect(() => {
@@ -36,13 +37,13 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
     countRef.current += 1
 
     if (spot.placeId) {
-      placesService.getPhotos(spot.placeId).then((results) => {
-        setPhotos(results)
+      placesService.getPhotos(spot.placeId).then((image) => {
+        setPhoto(image)
       })
     }
 
     return () => {
-      setPhotos('')
+      setPhoto('')
     }
   }, [spot.placeId, placesService])
 
@@ -62,7 +63,7 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
               rel="noopener noreferrer">
               <FontAwesomeIcon icon={faInstagram} />
             </IconButton>
-            <div style={{ marginLeft: 'auto' }}>
+            <Box ml="auto">
               <AddSpotButton
                 newSpot={{
                   ...spot,
@@ -71,11 +72,11 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
                   durationUnit: 'minute',
                 }}
               />
-            </div>
+            </Box>
           </CardActions>
         </Grid>
         <Grid item xs={4}>
-          {photo.length > 0 && (
+          {photo ? (
             <Image
               src={`data:image/png;base64,${photo}`}
               width={200}
@@ -83,6 +84,14 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
               layout="responsive"
               objectFit="cover"
             />
+          ) : (
+            <Box
+              height="100%"
+              display="flex"
+              alignItems="center"
+              justifyContent="center">
+              <Typography>No Image</Typography>
+            </Box>
           )}
         </Grid>
       </Grid>

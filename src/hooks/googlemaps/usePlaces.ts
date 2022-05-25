@@ -6,8 +6,8 @@ import { bffConfigs } from 'configs'
 import { PlacesServiceContext } from 'contexts/PlacesServiceProvider'
 
 type PlacesPhotoResult = {
-  html_attribute: Array<string>
-  image: string
+  html_attribute?: Array<string>
+  image?: string
 }
 
 export const usePlaces = () => {
@@ -21,8 +21,8 @@ export const usePlaces = () => {
           `${bffConfigs.url}/places_photos`,
           { place_id: placeId, max_width: 150, max_height: 150 }
         )
-        console.log(result)
-        return result.image
+
+        return result.image || ''
       },
       search: async (params: google.maps.places.TextSearchRequest) => {
         if (places === null) {

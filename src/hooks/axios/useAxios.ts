@@ -6,7 +6,7 @@ export const useAxios = () => {
     const a = {
       post: async <T>(...params: Parameters<typeof axios.post>) => {
         const result = await axios.post<T>(...params)
-
+        console.log(result)
         return result.data
       },
     }
