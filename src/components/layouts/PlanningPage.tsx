@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { styled } from '@mui/system'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
@@ -22,6 +23,12 @@ import TabPanel from 'components/modules/TabPanel'
 import ScheduleListView from './ScheduleListView'
 import { useRoutes } from 'hooks/useRoutes'
 import { PlanningTab, usePlanningTab } from 'contexts/PlanningTabProvider'
+
+const MyTab = styled(Tab)`
+  padding: 0;
+  padding-top: 4px;
+  min-height: 0;
+`
 
 type Menu = {
   label: string
@@ -93,17 +100,16 @@ const PlanningPage: React.FC = () => {
           <ScheduleListView />
         </Container>
       </TabPanel>
-
       <Toolbar />
       <AppBar position="fixed" color="inherit" sx={{ top: 'auto', bottom: 0 }}>
-        <Toolbar>
+        <Toolbar disableGutters sx={{ alignItems: 'stretch' }}>
           <Tabs
             value={tab}
             variant="fullWidth"
             onChange={handleChange}
             sx={{ width: '100%' }}>
             {TabMenus.map((menu) => (
-              <Tab
+              <MyTab
                 key={menu.value}
                 value={menu.value}
                 icon={
