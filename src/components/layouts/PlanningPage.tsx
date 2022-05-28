@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { styled } from '@mui/system'
+import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import SvgIcon from '@mui/material/SvgIcon'
@@ -12,6 +12,7 @@ import {
   faCalendarWeek,
   faMapLocationDot,
   faSuitcase,
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 import Div100vh from 'react-div-100vh'
 
@@ -22,10 +23,33 @@ import ScheduleListView from './ScheduleListView'
 import { useRoutes } from 'hooks/useRoutes'
 import { PlanningTab, usePlanningTab } from 'contexts/PlanningTabProvider'
 
-const MyTab = styled(Tab)`
-  padding: 0;
-  min-height: 60px;
-`
+type Menu = {
+  label: string
+  icon: IconDefinition
+  value: PlanningTab
+}
+const TabMenus: Array<Menu> = [
+  { label: 'プラン情報', icon: faSuitcase, value: 'info' },
+  { label: 'マップ', icon: faMapLocationDot, value: 'map' },
+  { label: 'スケジュール', icon: faCalendarWeek, value: 'schedule' },
+]
+
+const MapWrapper: React.FC = ({ children }) => {
+  return (
+    <Div100vh>
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          position: 'relative',
+        }}>
+        {children}
+      </Box>
+    </Div100vh>
+  )
+}
 
 const PlanningPage: React.FC = () => {
   const { routesApi } = useRoutes()
@@ -42,80 +66,58 @@ const PlanningPage: React.FC = () => {
     tabSwitch.open(newValue)
   }
 
+  const Wrapper = React.useMemo(() => (tab === 'map' ? MapWrapper : Box), [tab])
+
   return (
-    <Div100vh style={{ width: '100%' }}>
-      <Box
-        sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-          position: 'relative',
-        }}>
-        <Toolbar variant="dense" />
-        <Box
-          sx={{
-            height: '100%',
-            position: 'relative',
-            flex: '1 1 0%',
-          }}>
-          <TabPanel
-            value={tab}
-            index={'info'}
-            position="absolute"
-            overflow="hidden auto">
-            <Box maxWidth="sm" mx="auto">
-              <PlanView />
-            </Box>
-          </TabPanel>
-          <TabPanel
-            value={tab}
-            index={'map'}
-            position="absolute"
-            overflow="hidden auto">
-            <MapView />
-          </TabPanel>
-          <TabPanel
-            value={tab}
-            index={'schedule'}
-            position="absolute"
-            overflow="hidden auto">
-            <Container sx={{ height: '100%', overflow: 'hidden' }}>
-              <ScheduleListView />
-            </Container>
-          </TabPanel>
+    <Wrapper>
+      <Toolbar variant="dense" />
+      <TabPanel value={tab} index={'info'}>
+        <Box maxWidth="sm" mx="auto" sx={{ overflow: 'hidden' }}>
+          <PlanView />
         </Box>
-        <Tabs value={tab} variant="fullWidth" onChange={handleChange}>
-          <MyTab
-            value="info"
-            icon={
-              <SvgIcon>
-                <FontAwesomeIcon icon={faSuitcase} />
-              </SvgIcon>
-            }
-            label={<Typography variant="caption">プラン情報</Typography>}
-          />
-          <MyTab
-            value="map"
-            icon={
-              <SvgIcon>
-                <FontAwesomeIcon icon={faMapLocationDot} />
-              </SvgIcon>
-            }
-            label={<Typography variant="caption">マップ</Typography>}
-          />
-          <MyTab
-            value="schedule"
-            icon={
-              <SvgIcon>
-                <FontAwesomeIcon icon={faCalendarWeek} />
-              </SvgIcon>
-            }
-            label={<Typography variant="caption">スケジュール</Typography>}
-          />
-        </Tabs>
-      </Box>
-    </Div100vh>
+      </TabPanel>
+      <TabPanel
+        value={tab}
+        index={'map'}
+        display="flex"
+        sx={{
+          position: 'relative',
+          flex: '1 1 0%',
+        }}>
+        <Box flexGrow={1}>
+          <MapView />
+        </Box>
+      </TabPanel>
+      <TabPanel value={tab} index={'schedule'}>
+        <Container sx={{ overflow: 'hidden' }}>
+          <ScheduleListView />
+        </Container>
+      </TabPanel>
+
+      <Toolbar />
+      <AppBar position="fixed" color="inherit" sx={{ top: 'auto', bottom: 0 }}>
+        <Toolbar>
+          <Tabs
+            value={tab}
+            variant="fullWidth"
+            onChange={handleChange}
+            sx={{ width: '100%' }}>
+            {TabMenus.map((menu) => (
+              <Tab
+                key={menu.value}
+                value={menu.value}
+                icon={
+                  <SvgIcon>
+                    <FontAwesomeIcon icon={menu.icon} />
+                  </SvgIcon>
+                }
+                label={<Typography variant="caption">{menu.label}</Typography>}
+              />
+            ))}
+          </Tabs>
+        </Toolbar>
+      </AppBar>
+    </Wrapper>
   )
 }
 

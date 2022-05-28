@@ -10,7 +10,6 @@ const TabPanel = <T,>(props: Props<T>) => {
   return (
     <Box
       width="100%"
-      height="100%"
       role="tabpanel"
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
