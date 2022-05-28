@@ -18,23 +18,26 @@ const PlanInfo: React.FC<Props> = ({ plan }) => {
   const [waypoints] = useWaypoints()
   return (
     <Stack spacing={4}>
-      <Stack direction="row" justifyContent="space-between" alignItems="start">
-        <Stack>
+      <Stack>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="start">
           <Typography variant="h1" noWrap>
             {plan?.title}
           </Typography>
-          <Typography variant="subtitle2">
-            {`${plan.start.toLocaleDateString()} ~ ${plan.end.toLocaleDateString()}`}
-          </Typography>
-          <Typography variant="caption">
-            {`from ${plan.home.name} to ${plan.destination.name}`}
-          </Typography>
+          <IconButton disabled>
+            <SvgIcon>
+              <FontAwesomeIcon icon={faEdit} />
+            </SvgIcon>
+          </IconButton>
         </Stack>
-        <IconButton disabled>
-          <SvgIcon>
-            <FontAwesomeIcon icon={faEdit} />
-          </SvgIcon>
-        </IconButton>
+        <Typography variant="subtitle2">
+          {`${plan.start.toLocaleDateString()} ~ ${plan.end.toLocaleDateString()}`}
+        </Typography>
+        <Typography variant="caption">
+          {`from ${plan.home.name} to ${plan.destination.name}`}
+        </Typography>
       </Stack>
       <Stack spacing={2} alignItems="center" maxHeight="500px">
         <Typography variant="h2" textAlign="left" sx={{ width: '100%' }}>
