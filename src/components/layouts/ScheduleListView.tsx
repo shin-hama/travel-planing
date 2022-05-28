@@ -18,7 +18,7 @@ import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import type { Route } from 'contexts/CurrentPlanProvider'
 import { useConfirm } from 'hooks/useConfirm'
-import { usePlanningTab } from 'contexts/PlannigTabProvider'
+import { usePlanningTab } from 'contexts/PlanningTabProvider'
 
 type Action = {
   label: string
@@ -135,7 +135,7 @@ const ScheduleListView: React.FC = () => {
         onClick={handleClick}
         onClose={handleClose}
         ariaLabel="SpeedDial basic example"
-        sx={{ position: 'absolute', bottom: 16, right: 16 }}
+        sx={{ position: 'fixed', bottom: 100, right: 16 }}
         icon={<SpeedDialIcon />}>
         {actions.map((action) => (
           <SpeedDialAction

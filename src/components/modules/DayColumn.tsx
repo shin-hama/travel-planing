@@ -19,7 +19,7 @@ import { useWaypoints } from 'hooks/useWaypoints'
 import { useRoutes } from 'hooks/useRoutes'
 import dayjs from 'dayjs'
 import AddEventCard from './AddEventCard'
-import { usePlanningTab } from 'contexts/PlannigTabProvider'
+import { usePlanningTab } from 'contexts/PlanningTabProvider'
 
 type Props = {
   day: number

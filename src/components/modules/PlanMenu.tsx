@@ -9,7 +9,7 @@ import { useConfirm } from 'hooks/useConfirm'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useAsyncFn } from 'react-use'
 import { useRouter } from 'hooks/useRouter'
-import { usePlanningTab } from 'contexts/PlannigTabProvider'
+import { usePlanningTab } from 'contexts/PlanningTabProvider'
 
 type Props = MenuProps
 const PlanMenu: React.FC<Props> = (props) => {
