@@ -20,14 +20,14 @@ import PlanView from './PlanView'
 import TabPanel from 'components/modules/TabPanel'
 import ScheduleListView from './ScheduleListView'
 import { useRoutes } from 'hooks/useRoutes'
-import { PlanningTab, usePlanningTab } from 'contexts/PlannigTabProvider'
+import { PlanningTab, usePlanningTab } from 'contexts/PlanningTabProvider'
 
 const MyTab = styled(Tab)`
   padding: 0;
   min-height: 60px;
 `
 
-const PlanningLayout: React.FC = () => {
+const PlanningPage: React.FC = () => {
   const { routesApi } = useRoutes()
   const [tab, tabSwitch] = usePlanningTab()
 
@@ -119,4 +119,4 @@ const PlanningLayout: React.FC = () => {
   )
 }
 
-export default PlanningLayout
+export default PlanningPage

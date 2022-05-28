@@ -18,7 +18,7 @@ import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import type { Route } from 'contexts/CurrentPlanProvider'
 import { useConfirm } from 'hooks/useConfirm'
-import { usePlanningTab } from 'contexts/PlannigTabProvider'
+import { usePlanningTab } from 'contexts/PlanningTabProvider'
 
 type Action = {
   label: string

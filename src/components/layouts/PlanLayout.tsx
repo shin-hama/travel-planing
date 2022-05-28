@@ -4,8 +4,8 @@ import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 
 import Layout from './Layout'
-import PlanningLayout from 'components/layouts/PlaningLayout'
-import { PlanningTabProvider } from 'contexts/PlannigTabProvider'
+import PlanningPage from 'components/layouts/PlanningPage'
+import { PlanningTabProvider } from 'contexts/PlanningTabProvider'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRouter } from 'hooks/useRouter'
 
@@ -27,7 +27,7 @@ const PlanLayout = () => {
   return (
     <PlanningTabProvider>
       <Layout title={plan.title} fixedHeader>
-        <PlanningLayout />
+        <PlanningPage />
       </Layout>
     </PlanningTabProvider>
   )
