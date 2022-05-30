@@ -1,7 +1,6 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
 import Backdrop from '@mui/material/Backdrop'
-import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
 import SpeedDial from '@mui/material/SpeedDial'
 import SpeedDialAction from '@mui/material/SpeedDialAction'
@@ -126,9 +125,7 @@ const ScheduleListView: React.FC = () => {
 
   return (
     <>
-      <Box height="100%">
-        <ListScheduler />
-      </Box>
+      <ListScheduler />
       <Backdrop open={open} />
       <SpeedDial
         open={open}

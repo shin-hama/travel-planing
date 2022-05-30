@@ -96,7 +96,7 @@ const PlanningPage: React.FC = () => {
         </Box>
       </TabPanel>
       <TabPanel value={tab} index={'schedule'}>
-        <Container sx={{ overflow: 'hidden' }}>
+        <Container sx={{ py: 2, overflow: 'hidden' }}>
           <ScheduleListView />
         </Container>
       </TabPanel>
