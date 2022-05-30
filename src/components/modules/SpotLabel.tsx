@@ -5,12 +5,8 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 
-import { useForm } from 'react-hook-form'
 import PaperPopper from 'components/elements/PaperPopper'
 
-type Form = {
-  label: string
-}
 type Props = BoxProps & {
   children: React.ReactNode
   onSave: (value: string) => void
@@ -26,18 +22,19 @@ const SpotLabel: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = React.useState(false)
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null)
-  const { register, handleSubmit } = useForm<Form>({
-    defaultValues: {
-      label: defaultLabel,
-    },
-  })
+  const [label, setLabel] = React.useState(defaultLabel || '')
   const theme = useTheme()
 
-  const handleSave = (data: Form, e?: React.BaseSyntheticEvent) => {
-    e?.preventDefault()
-    const newLabel = data.label
-    if (newLabel.trim().length > 0) {
-      onSave(data.label)
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setLabel(e.target.value)
+  }
+
+  const handleSave = () => {
+    if (label.trim().length > 0) {
+      onSave(label)
+      setLabel('')
       setOpen(false)
     }
   }
@@ -79,24 +76,23 @@ const SpotLabel: React.FC<Props> = ({
         anchorEl={anchor}
         placement="bottom-start"
         style={{ zIndex: theme.zIndex.modal + 1 }}>
-        <form onSubmit={handleSubmit(handleSave)}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <TextField
-              {...register('label')}
-              variant="outlined"
-              size="small"
-              label="New Label"
-            />
-            <Button type="submit" variant="contained">
-              Add
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <TextField
+            value={label}
+            onChange={handleChange}
+            variant="outlined"
+            size="small"
+            label="New Label"
+          />
+          <Button variant="contained" onClick={handleSave}>
+            Add
+          </Button>
+          {onRemove && (
+            <Button variant="outlined" onClick={handleRemove}>
+              Remove
             </Button>
-            {onRemove && (
-              <Button variant="outlined" onClick={handleRemove}>
-                Remove
-              </Button>
-            )}
-          </Stack>
-        </form>
+          )}
+        </Stack>
       </PaperPopper>
     </>
   )
