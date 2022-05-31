@@ -6,6 +6,7 @@ import {
   isSameRoute,
   SpotBase,
   RouteGuidanceAvailable,
+  Time,
 } from 'contexts/CurrentPlanProvider'
 import { useTravelPlan } from './useTravelPlan'
 import { TravelMode, useDirections } from './googlemaps/useDirections'
@@ -87,12 +88,36 @@ export const useRoutes = () => {
           ) || null
         )
       },
-      searchRoute: (
+      getAndSearch: async (
         origin: RouteGuidanceAvailable,
         destination: RouteGuidanceAvailable,
         mode: TravelMode
-      ) => {
-        search({
+      ): Promise<Route> => {
+        // 同条件の Route オブジェクトを取得する
+        const routeBase = { from: origin.id, to: destination.id, mode }
+        const route =
+          planRef.current?.routes.find((route) =>
+            isSameRoute(route, routeBase)
+          ) || null
+
+        if (route?.time) {
+          console.log('use route cache')
+          return route
+        } else {
+          const time = await actions.searchRoute(origin, destination, mode)
+
+          const newRoute = { ...routeBase, time }
+          console.log(newRoute)
+          actions.add(newRoute)
+          return newRoute
+        }
+      },
+      searchRoute: async (
+        origin: RouteGuidanceAvailable,
+        destination: RouteGuidanceAvailable,
+        mode: TravelMode
+      ): Promise<Time> => {
+        return await search({
           origin,
           destination,
           mode,
@@ -103,28 +128,18 @@ export const useRoutes = () => {
               throw Error()
             }
 
-            actions.add({
-              from: origin.id,
-              to: destination.id,
-              mode: mode,
-              time: {
-                text: result.legs[0].duration.text,
-                value: result.legs[0].duration.value,
-                unit: 'second',
-              },
-            })
+            return {
+              text: result.legs[0].duration.text,
+              value: result.legs[0].duration.value,
+              unit: 'second',
+            } as Time
           })
           .catch(() => {
-            actions.add({
-              from: origin.id,
-              to: destination.id,
-              mode: mode,
-              time: {
-                text: 'Not Found',
-                value: 0,
-                unit: 'second',
-              },
-            })
+            return {
+              text: 'Not Found',
+              value: 0,
+              unit: 'second',
+            } as Time
           })
       },
     }
