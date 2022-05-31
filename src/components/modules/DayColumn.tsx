@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 
 import DayHeader from './DayHeader'
-import Route from './Route'
+import RouteEvent from './Route'
 import SpotEventCard from './SpotEventCard'
 import {
   NextMove,
@@ -139,7 +139,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                 <>
                   <HomeEventCard name={home.name} date={schedule.start} />
                   <Box py={0.5}>
-                    <Route
+                    <RouteEvent
                       origin={home}
                       dest={schedule.spots[0]}
                       onChange={handleUpdateDeparture}
@@ -164,7 +164,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                       </Box>
                       {index !== schedule.spots.length - 1 && (
                         <Box py={0.5}>
-                          <Route
+                          <RouteEvent
                             origin={spot}
                             dest={schedule.spots[index + 1]}
                             onChange={handleUpdateWaypointNext}
@@ -178,7 +178,7 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
               {dest ? (
                 <>
                   <Box py={0.5}>
-                    <Route
+                    <RouteEvent
                       origin={schedule.spots.slice(-1)[0]}
                       dest={dest}
                       onChange={handleUpdateWaypointNext}

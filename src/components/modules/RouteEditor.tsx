@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons'
 
-import { Route, Time } from 'contexts/CurrentPlanProvider'
+import { Route, isSameRoute } from 'contexts/CurrentPlanProvider'
 import { useWaypoints } from 'hooks/useWaypoints'
 import TimePicker, { TimeValue } from './TimeSelector'
 import { TravelModes } from './Route'
@@ -24,56 +24,81 @@ const convertSecToMin = (value: number) => {
 
 type Props = DialogProps & {
   route: Route
+  onClose: (newRoute: Route) => void
 }
-const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
+const RouteEditor: React.FC<Props> = ({ route: target, onClose, ...props }) => {
   const { routesApi, loading } = useRoutes()
-  // const route = routeApi.get(target)
+
+  const [edited, setEdited] = React.useState<Route>(target)
   const [waypoints, waypointsApi] = useWaypoints()
   // 変更内容を反映するために、コンポーネント内で Spot 情報を常に最新で取得する
   const origin = waypoints?.find((item) => item.id === target.from)
-  const dest = waypoints?.find((item) => item.id === target.to)
+  const destination = waypoints?.find((item) => item.id === target.to)
 
-  const handleSelectMode = (key: TravelMode) => () => {
-    if (origin?.next && origin.next.mode !== key) {
-      waypointsApi.update(origin.id, {
-        next: { ...origin.next, mode: key },
-      })
+  const handleSelectMode = (key: TravelMode) => async () => {
+    if (origin && destination) {
+      const changed = await routesApi.getAndSearch(origin, destination, key)
+      setEdited(changed)
     }
   }
 
   const handleUpdateTime = (newTime: TimeValue) => {
-    if (!target) {
-      return
-    }
-
     const hour = newTime.hour !== 0 ? `${newTime.hour} hour` : ''
     const minute = `${newTime.minute} minutes`
-    const time: Time = {
-      text: `${hour} ${minute}`,
-      value: newTime.hour * 60 + newTime.minute,
-      unit: 'minute',
-    }
-    routesApi.add({ ...target, time: time })
+
+    setEdited({
+      ...edited,
+      time: {
+        text: `${hour} ${minute}`,
+        value: newTime.hour * 60 + newTime.minute,
+        unit: 'minute',
+      },
+    })
   }
 
-  const handleResetTime = () => {
-    if (origin && dest) {
-      routesApi.searchRoute(origin, dest, target.mode)
+  const handleResetTime = async () => {
+    if (origin && destination) {
+      const newTime = await routesApi.searchRoute(
+        origin,
+        destination,
+        edited.mode
+      )
+      setEdited({
+        ...edited,
+        time: newTime,
+      })
     }
   }
 
   const handleUpdateMemo = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    routesApi.add({ ...target, memo: e.target.value })
+    setEdited({ ...edited, memo: e.target.value })
+  }
+
+  const handleClose = () => {
+    if (
+      isSameRoute(target, edited) === false ||
+      target.time?.value !== edited.time?.value
+    ) {
+      console.log('update route')
+      routesApi.add(edited)
+
+      if (origin?.next && origin.next.mode !== edited.mode) {
+        waypointsApi.update(origin.id, {
+          next: { ...origin.next, mode: edited.mode },
+        })
+      }
+    }
+    onClose(edited)
   }
 
   return (
-    <Dialog {...props} maxWidth="sm" fullWidth>
+    <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogContent>
         <Stack spacing={2}>
           <Typography variant="h4" noWrap>
-            {origin?.name} to {dest?.name}
+            {origin?.name} to {destination?.name}
           </Typography>
           {loading ? (
             <CircularProgress />
@@ -84,9 +109,9 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
                   <IconButton
                     key={key}
                     size="large"
-                    color={key === target.mode ? 'primary' : undefined}
+                    color={key === edited.mode ? 'primary' : undefined}
                     onClick={handleSelectMode(key)}>
-                    <SvgIcon fontSize={key === target.mode ? 'large' : 'small'}>
+                    <SvgIcon fontSize={key === edited.mode ? 'large' : 'small'}>
                       <FontAwesomeIcon icon={icon} />
                     </SvgIcon>
                   </IconButton>
@@ -94,9 +119,9 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
               </Stack>
               <TimePicker
                 value={
-                  target.time?.unit === 'second'
-                    ? convertSecToMin(target.time.value || 0)
-                    : target.time?.value
+                  edited.time?.unit === 'second'
+                    ? convertSecToMin(edited.time.value || 0)
+                    : edited.time?.value
                 }
                 onChange={handleUpdateTime}
               />
@@ -116,7 +141,7 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
           <Stack spacing={1}>
             <Typography variant="h5">メモ</Typography>
             <TextField
-              value={target.memo}
+              value={edited.memo}
               onChange={handleUpdateMemo}
               multiline
               rows={4}

@@ -19,7 +19,11 @@ import {
 import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import { NextMove, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import {
+  NextMove,
+  Route,
+  RouteGuidanceAvailable,
+} from 'contexts/CurrentPlanProvider'
 import RouteEditor from './RouteEditor'
 
 type ModeIcon = {
@@ -50,7 +54,7 @@ type Props = {
   dest: RouteGuidanceAvailable
   onChange: (next: NextMove, prevId: string) => void
 }
-const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
+const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
   const selected = React.useMemo<ModeIcon>(
     () =>
@@ -61,24 +65,14 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
 
   const openMap = useOpenMap()
   const { routesApi, loading } = useRoutes()
-  const route = routesApi.get({
-    from: origin.id,
-    to: dest.id,
-    mode: selected.key,
-  })
+  const [route, setRoute] = React.useState<Route | null>(null)
 
   React.useEffect(() => {
-    console.log('updated')
-  }, [route])
-
-  React.useEffect(() => {
-    if (route) {
-      console.log('use route cache')
-    } else {
-      routesApi.searchRoute(origin, dest, selected.key)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [origin.id, dest.id, selected, route])
+    routesApi.getAndSearch(origin, dest, selected.key).then((result) => {
+      console.log(result)
+      setRoute(result)
+    })
+  }, [dest, origin, routesApi, selected.key])
 
   const [timeEditing, setTimeEditing] = React.useState(false)
 
@@ -86,12 +80,10 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
     setTimeEditing(true)
   }, [])
 
-  React.useEffect(() => {
-    if (route) {
-      routesApi.add(route)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route])
+  const handleClose = React.useCallback((newRoute: Route) => {
+    setRoute(newRoute)
+    setTimeEditing(false)
+  }, [])
 
   const handleClick = (value: string) => () => {
     if (selecting) {
@@ -154,14 +146,10 @@ const Route: React.FC<Props> = ({ origin, dest, onChange }) => {
         </IconButton>
       </Stack>
       {route && timeEditing && (
-        <RouteEditor
-          open={timeEditing}
-          onClose={() => setTimeEditing(false)}
-          route={route}
-        />
+        <RouteEditor open={timeEditing} onClose={handleClose} route={route} />
       )}
     </>
   )
 }
 
-export default Route
+export default RouteEvent
