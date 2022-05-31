@@ -41,7 +41,6 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
     }
   }
 
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   const handleUpdateTime = (newTime: TimeValue) => {
     if (!target) {
       return
@@ -54,14 +53,7 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
       value: newTime.hour * 60 + newTime.minute,
       unit: 'minute',
     }
-    // 連続して保存が実行されないように、タイムアウト処理で管理
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-
-    timerRef.current = setTimeout(async () => {
-      routesApi.add({ ...target, time: time })
-    }, 500)
+    routesApi.add({ ...target, time: time })
   }
 
   const handleResetTime = () => {
@@ -73,14 +65,7 @@ const RouteEditor: React.FC<Props> = ({ route: target, ...props }) => {
   const handleUpdateMemo = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    // 連続して保存が実行されないように、タイムアウト処理で管理
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-
-    timerRef.current = setTimeout(async () => {
-      routesApi.add({ ...target, memo: e.target.value })
-    }, 500)
+    routesApi.add({ ...target, memo: e.target.value })
   }
 
   return (
