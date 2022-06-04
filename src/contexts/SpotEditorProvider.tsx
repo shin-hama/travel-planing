@@ -1,4 +1,4 @@
-import SpotEventEditor from 'components/modules/SpotEventEditor'
+import SpotEventEditor from 'components/modules/Schedule/SpotEventEditor'
 import * as React from 'react'
 import { Spot } from './CurrentPlanProvider'
 

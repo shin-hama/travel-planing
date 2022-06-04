@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 
-import GoogleMap from 'components/modules/GoogleMap'
+import GoogleMap from 'components/modules/Map/GoogleMap'
 import { useMapLayer } from 'contexts/MapLayerModeProvider'
 
 const MapView = () => {

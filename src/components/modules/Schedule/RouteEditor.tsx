@@ -13,7 +13,7 @@ import { faRotateRight } from '@fortawesome/free-solid-svg-icons'
 
 import { Route, isSameRoute } from 'contexts/CurrentPlanProvider'
 import { useWaypoints } from 'hooks/useWaypoints'
-import TimePicker, { TimeValue } from './TimeSelector'
+import TimePicker, { TimeValue } from '../TimeSelector'
 import { TravelModes } from './Route'
 import { useRoutes } from 'hooks/useRoutes'
 import { TravelMode } from 'hooks/googlemaps/useDirections'

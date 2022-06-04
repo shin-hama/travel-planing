@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 
-import TimePicker, { TimeValue } from './TimeSelector'
+import TimePicker, { TimeValue } from '../TimeSelector'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import dayjs from 'dayjs'
 

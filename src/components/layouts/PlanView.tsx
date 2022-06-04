@@ -7,7 +7,7 @@ import Image from 'next/image'
 
 import BelongingsList from './BelongingsList'
 import PlanInfo from './PlanInfo'
-import TabPanel from 'components/modules/TabPanel'
+import TabPanel from 'components/elements/TabPanel'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 
 const PlanView = () => {

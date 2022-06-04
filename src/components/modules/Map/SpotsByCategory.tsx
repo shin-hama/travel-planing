@@ -8,7 +8,7 @@ import {
 import PlaceMarker from './PlaceMarker'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useWaypoints } from 'hooks/useWaypoints'
-import type { SpotDTO } from './SpotCard'
+import type { SpotDTO } from '../SpotCard'
 
 type Props = {
   categoryId: number | null

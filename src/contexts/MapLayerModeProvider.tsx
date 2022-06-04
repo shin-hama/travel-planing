@@ -1,6 +1,6 @@
 import * as React from 'react'
-import MapOverlay from 'components/modules/MapOverlay'
-import MapSelectorLayer from 'components/modules/MapSelectorLayer'
+import MapOverlay from 'components/modules/Map/SpotsOverlay'
+import MapSelectorLayer from 'components/modules/Map/SelectorLayer'
 
 export type LayerMode = 'normal' | 'selector'
 const MapLayerModeContext = React.createContext<LayerMode | null>(null)

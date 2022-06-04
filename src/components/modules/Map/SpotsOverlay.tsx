@@ -7,7 +7,7 @@ import { useClickAway } from 'react-use'
 import CategorySelector from './CategorySelector'
 import SearchBox from './SearchBox'
 import SpotsByCategory from './SpotsByCategory'
-import SpotCard, { SpotDTO } from './SpotCard'
+import SpotCard, { SpotDTO } from '../SpotCard'
 import AnySpotCard from './AnySpotCard'
 
 type Props = {
