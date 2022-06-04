@@ -37,11 +37,11 @@ const App: React.FC<MyAppProps> = ({
       <ApolloClientProvider>
         <UserAuthorizationProvider>
           <ConfirmationProvider>
-            <DirectionServiceProvider>
-              <DistanceMatrixProvider>
-                <MapPropsProvider>
+            <CurrentPlanContextProvider>
+              <DirectionServiceProvider>
+                <DistanceMatrixProvider>
                   <PlacesServiceProvider>
-                    <CurrentPlanContextProvider>
+                    <MapPropsProvider>
                       <SelectedSpotsProvider>
                         <SpotEditorProvider>
                           <ThemeProvider theme={theme}>
@@ -50,11 +50,11 @@ const App: React.FC<MyAppProps> = ({
                           </ThemeProvider>
                         </SpotEditorProvider>
                       </SelectedSpotsProvider>
-                    </CurrentPlanContextProvider>
+                    </MapPropsProvider>
                   </PlacesServiceProvider>
-                </MapPropsProvider>
-              </DistanceMatrixProvider>
-            </DirectionServiceProvider>
+                </DistanceMatrixProvider>
+              </DirectionServiceProvider>
+            </CurrentPlanContextProvider>
           </ConfirmationProvider>
         </UserAuthorizationProvider>
       </ApolloClientProvider>
