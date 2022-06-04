@@ -69,7 +69,6 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
 
   React.useEffect(() => {
     routesApi.getAndSearch(origin, dest, selected.key).then((result) => {
-      console.log(result)
       setRoute(result)
     })
   }, [dest, origin, routesApi, selected.key])

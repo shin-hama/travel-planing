@@ -1,5 +1,7 @@
 import * as React from 'react'
 
+import { useTravelPlan } from 'hooks/useTravelPlan'
+
 const DEFAULT_CENTER = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
 type MapProps = {
@@ -22,6 +24,20 @@ export const MapPropsProvider: React.FC = ({ children }) => {
     bounds: null,
     mounted: false,
   })
+
+  const [plan] = useTravelPlan()
+
+  React.useEffect(() => {
+    // 選択しているプランの目的地を中心にする
+    if (plan?.destination) {
+      const { lat, lng, zoom } = plan.destination
+      setMapProps((prev) => ({
+        ...prev,
+        center: { lat, lng },
+        zoom: zoom,
+      }))
+    }
+  }, [plan?.destination, setMapProps])
 
   return (
     <MapPropsContext.Provider value={mapProps}>

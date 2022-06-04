@@ -9,7 +9,6 @@ import { SetDirectionServiceContext } from 'contexts/DirectionServiceProvider'
 import { SetDistanceMatrixContext } from 'contexts/DistanceMatrixProvider'
 import { SetPlacesServiceContext } from 'contexts/PlacesServiceProvider'
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
-import { useTravelPlan } from 'hooks/useTravelPlan'
 
 const containerStyle = {
   width: '100%',
@@ -32,7 +31,6 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     libraries: libs,
     // ...otherOptions
   })
-  const [plan] = useTravelPlan()
 
   const [mapProps, setMapProps] = useMapProps()
 
@@ -76,18 +74,6 @@ const GoogleMap: React.FC<Props> = React.memo(function Map({
     setGoogleMap(mapInstance)
     onLoad?.(mapInstance)
   }
-
-  React.useEffect(() => {
-    // 選択しているプランの目的地を中心にする
-    if (plan?.destination) {
-      const { lat, lng, zoom } = plan.destination
-      setMapProps((prev) => ({
-        ...prev,
-        center: { lat, lng },
-        zoom: zoom,
-      }))
-    }
-  }, [plan?.destination, setMapProps])
 
   if (loadError) {
     console.log('Error has occurred when loading google map')
