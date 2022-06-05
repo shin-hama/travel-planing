@@ -1,69 +1,29 @@
 import * as React from 'react'
 
-import {
-  GetSpotsByCategoryQuery,
-  useGetSpotsByCategoryLazyQuery,
-} from 'generated/graphql'
-
 import PlaceMarker from './PlaceMarker'
-import { useMapProps } from 'hooks/googlemaps/useMapProps'
 import { useWaypoints } from 'hooks/useWaypoints'
 import type { SpotDTO } from '../SpotCard'
 
 type Props = {
-  categoryId: number | null
+  spots: Array<SpotDTO>
   focusedSpot: SpotDTO | null
   onClick: (placeId: SpotDTO) => void
 }
-const SpotsByCategory: React.FC<Props> = ({
-  categoryId,
-  focusedSpot,
-  onClick,
-}) => {
-  const [spots, setSpots] = React.useState<GetSpotsByCategoryQuery['spots']>([])
-  const [getSpots] = useGetSpotsByCategoryLazyQuery()
-  const [mapProps] = useMapProps()
+const SpotsByCategory: React.FC<Props> = ({ spots, focusedSpot, onClick }) => {
   const [waypoints] = useWaypoints()
-
-  React.useEffect(() => {
-    if (!mapProps.mounted) {
-      return
-    }
-
-    const bounds = mapProps.bounds
-    if (bounds && categoryId) {
-      getSpots({
-        variables: {
-          categoryId,
-          ...bounds.toJSON(),
-        },
-      })
-        .then((results) => {
-          if (results.error) {
-            console.error(`Fail to fetch types by category id ${categoryId}`)
-          }
-          setSpots(results.data?.spots || [])
-        })
-        .catch((error) => {
-          console.error(error)
-        })
-    }
-    // マップが移動するたびに何度も Fetch することを防ぐため、bounds は依存に含めない
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId, getSpots, mapProps.mounted])
 
   return (
     <>
       {spots.map((item) => (
         <PlaceMarker
-          key={item.place_id}
+          key={item.placeId}
           name={item.name}
-          placeId={item.place_id}
+          placeId={item.placeId}
           selected={
-            waypoints?.find((spot) => spot.placeId === item.place_id) !==
+            waypoints?.find((spot) => spot.placeId === item.placeId) !==
             undefined
           }
-          focused={item.place_id === focusedSpot?.placeId}
+          focused={item.placeId === focusedSpot?.placeId}
           lat={item.lat}
           lng={item.lng}
           onClick={onClick}

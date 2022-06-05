@@ -4,13 +4,9 @@ import { Marker } from '@react-google-maps/api'
 
 import { SpotDTO } from '../SpotCard'
 
-type Props = {
-  name: string
-  placeId: string
+type Props = SpotDTO & {
   focused: boolean
   selected: boolean
-  lat: number
-  lng: number
   onClick: (spot: SpotDTO) => void
 }
 const PlaceMarker: React.FC<Props> = ({
