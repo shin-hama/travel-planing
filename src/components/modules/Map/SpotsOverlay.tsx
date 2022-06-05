@@ -1,14 +1,19 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import Switch from '@mui/material/Switch'
+import IconButton from '@mui/material/IconButton'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRoute } from '@fortawesome/free-solid-svg-icons'
 import { Marker } from '@react-google-maps/api'
-import { useClickAway } from 'react-use'
+import { useClickAway, useToggle } from 'react-use'
 
 import CategorySelector from './CategorySelector'
 import SearchBox from './SearchBox'
 import SpotsByCategory from './SpotsByCategory'
 import SpotCard, { SpotDTO } from '../SpotCard'
 import AnySpotCard from './AnySpotCard'
+import { SvgIcon } from '@mui/material'
 
 type Props = {
   anySpot?: google.maps.LatLngLiteral | null
@@ -22,6 +27,7 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
     null
   )
   const [focusedSpot, setFocusedSpot] = React.useState<SpotDTO | null>(null)
+  const [routeMode, toggleMode] = useToggle(false)
 
   React.useEffect(() => {
     if (anySpot && !focusedSpot) {
@@ -51,6 +57,25 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
           <SearchBox />
           <CategorySelector onChange={setSelectedCategory} />
         </Stack>
+      </Box>
+      <Box sx={{ position: 'absolute', right: 0, top: 0, mr: 2, mt: 2 }}>
+        <Box
+          sx={{
+            color: 'white',
+            transitionDuration: '300ms',
+            backgroundColor: (theme) =>
+              routeMode ? theme.palette.primary.main : 'white',
+            borderRadius: 1,
+          }}>
+          <IconButton
+            disableRipple
+            onClick={toggleMode}
+            color={routeMode ? 'inherit' : 'default'}>
+            <SvgIcon>
+              <FontAwesomeIcon icon={faRoute} />
+            </SvgIcon>
+          </IconButton>
+        </Box>
       </Box>
       {focusedSpot && (
         <>
