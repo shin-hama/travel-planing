@@ -9,7 +9,7 @@ type Props = {
   focusedSpot: SpotDTO | null
   onClick: (placeId: SpotDTO) => void
 }
-const SpotsByCategory: React.FC<Props> = ({ spots, focusedSpot, onClick }) => {
+const SpotMarkers: React.FC<Props> = ({ spots, focusedSpot, onClick }) => {
   const [waypoints] = useWaypoints()
 
   return (
@@ -33,4 +33,4 @@ const SpotsByCategory: React.FC<Props> = ({ spots, focusedSpot, onClick }) => {
   )
 }
 
-export default SpotsByCategory
+export default SpotMarkers
