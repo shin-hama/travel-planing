@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRoute } from '@fortawesome/free-solid-svg-icons'
-import { Marker } from '@react-google-maps/api'
+import { Marker, Polyline } from '@react-google-maps/api'
 import { useClickAway, useToggle } from 'react-use'
 
 import CategorySelector from './CategorySelector'
@@ -15,6 +15,18 @@ import SpotCard, { SpotDTO } from '../SpotCard'
 import AnySpotCard from './AnySpotCard'
 import { useSpots } from 'hooks/useSpots'
 import { useWaypoints } from 'hooks/useWaypoints'
+
+const polylineOptions = {
+  strokeColor: '#FF0000',
+  strokeOpacity: 0.8,
+  strokeWeight: 10,
+  fillOpacity: 0.35,
+  clickable: false,
+  draggable: false,
+  editable: false,
+  visible: true,
+  zIndex: 1,
+}
 
 type Props = {
   anySpot?: google.maps.LatLngLiteral | null
@@ -63,6 +75,7 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
         focusedSpot={focusedSpot}
         onClick={handleMarkerClicked}
       />
+      {routeMode && <Polyline path={waypoints} options={polylineOptions} />}
       <Box sx={{ position: 'absolute', left: 0, top: 0, ml: 2, mt: 2 }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <SearchBox />
