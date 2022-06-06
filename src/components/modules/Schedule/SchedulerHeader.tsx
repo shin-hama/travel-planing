@@ -10,7 +10,7 @@ import { faEllipsisVertical, faPen } from '@fortawesome/free-solid-svg-icons'
 import { useForm } from 'react-hook-form'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
-import PlanMenu from './PlanMenu'
+import PlanMenu from '../PlanMenu'
 
 type Props = {
   plan: Plan

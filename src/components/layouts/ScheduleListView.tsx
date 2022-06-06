@@ -11,7 +11,7 @@ import { faRoute, faBed } from '@fortawesome/free-solid-svg-icons'
 
 import { useRouter } from 'hooks/useRouter'
 import { useTravelPlan } from 'hooks/useTravelPlan'
-import ListScheduler from 'components/modules/ListScheduler'
+import ListScheduler from 'components/modules/Schedule/ListScheduler'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { useDirections } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'

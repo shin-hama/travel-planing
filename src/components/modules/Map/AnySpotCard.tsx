@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { v4 as uuidv4 } from 'uuid'
 
-import AddSpotButton from './AddSpotButton'
+import AddSpotButton from '../AddSpotButton'
 
 type Props = {
   lat: number

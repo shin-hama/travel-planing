@@ -19,7 +19,7 @@ import Div100vh from 'react-div-100vh'
 
 import MapView from './MapView'
 import PlanView from './PlanView'
-import TabPanel from 'components/modules/TabPanel'
+import TabPanel from 'components/elements/TabPanel'
 import ScheduleListView from './ScheduleListView'
 import { useRoutes } from 'hooks/useRoutes'
 import { PlanningTab, usePlanningTab } from 'contexts/PlanningTabProvider'
