@@ -74,6 +74,7 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
         spots={routeMode ? waypoints || [] : spots}
         focusedSpot={focusedSpot}
         onClick={handleMarkerClicked}
+        routeMode={routeMode}
       />
       {routeMode && <Polyline path={waypoints} options={polylineOptions} />}
       <Box sx={{ position: 'absolute', left: 0, top: 0, ml: 2, mt: 2 }}>

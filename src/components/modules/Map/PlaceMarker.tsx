@@ -1,34 +1,17 @@
 import React from 'react'
 import { useTheme } from '@mui/material/styles'
-import { Marker } from '@react-google-maps/api'
+import { Marker, MarkerProps } from '@react-google-maps/api'
 
-import { SpotDTO } from '../SpotCard'
-
-type Props = SpotDTO & {
+type Props = MarkerProps & {
   focused: boolean
   selected: boolean
-  onClick: (spot: SpotDTO) => void
 }
-const PlaceMarker: React.FC<Props> = ({
-  name,
-  placeId,
-  focused,
-  selected,
-  lat,
-  lng,
-  onClick,
-}) => {
+const PlaceMarker: React.FC<Props> = ({ focused, selected, ...props }) => {
   const theme = useTheme()
-  const handleClick = () => {
-    onClick({
-      name,
-      placeId,
-      lat,
-      lng,
-    })
-  }
+
   return (
     <Marker
+      {...props}
       icon={
         focused
           ? undefined
@@ -44,10 +27,10 @@ const PlaceMarker: React.FC<Props> = ({
               scale: 1,
               strokeColor: '#FFF',
               strokeWeight: 1,
+              labelOrigin: new google.maps.Point(10, 10),
             }
       }
-      position={{ lat, lng }}
-      onClick={handleClick}></Marker>
+    />
   )
 }
 
