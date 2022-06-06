@@ -21,6 +21,7 @@ const polylineOptions = {
   strokeOpacity: 0.8,
   strokeWeight: 10,
   fillOpacity: 0.35,
+  geodesic: true,
   clickable: false,
   draggable: false,
   editable: false,
