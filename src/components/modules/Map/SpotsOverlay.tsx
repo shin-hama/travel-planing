@@ -113,12 +113,13 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
               sx={{
                 zIndex: 10,
                 position: 'absolute',
-                bottom: 25,
+                bottom: 30,
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: '90%',
                 maxWidth: '400px',
-                maxHeight: '150px',
+                overflow: 'auto',
+                maxHeight: '200px',
               }}>
               {focusedSpot.placeId ? (
                 <SpotCard spot={{ ...focusedSpot, id: focusedSpot.placeId }} />

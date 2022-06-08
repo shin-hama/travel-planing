@@ -19,12 +19,13 @@ const AnySpotCard: React.FC<Props> = ({ lat, lng }) => {
 
   return (
     <Card sx={{ zIndex: 100 }}>
-      <CardContent sx={{ pb: 1 }}>
+      <CardContent>
         <Typography variant="h6" noWrap>
           New Spot
         </Typography>
         <TextField
           fullWidth
+          size="small"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={'Enter New Spot Name'}

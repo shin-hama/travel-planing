@@ -48,6 +48,7 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
         <Select
           labelId="day-select-label"
           id="day-select"
+          size="small"
           value={day}
           label="Age"
           onChange={handleChange}>

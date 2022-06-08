@@ -76,23 +76,14 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
           </CardActions>
         </Grid>
         <Grid item xs={4}>
-          {photo ? (
-            <Image
-              src={`data:image/png;base64,${photo}`}
-              width={200}
-              height={200}
-              layout="responsive"
-              objectFit="cover"
-            />
-          ) : (
-            <Box
-              height="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center">
-              <Typography>No Image</Typography>
-            </Box>
-          )}
+          <Image
+            src={`data:image/png;base64,${photo}`}
+            width={200}
+            height={200}
+            quality={100}
+            layout="responsive"
+            objectFit="cover"
+          />
         </Grid>
       </Grid>
     </Card>
