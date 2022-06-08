@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
 import { useWaypoints } from 'hooks/useWaypoints'
+import { usePlanViewConfig } from 'hooks/usePlanViewConfig'
 
 type Props = {
   newSpot: Omit<Spot, 'id'> & { id?: string | null }
@@ -17,9 +18,17 @@ type Props = {
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   const [waypoints, actions] = useWaypoints()
   const [day, setDay] = React.useState(0)
+  const config = usePlanViewConfig()
+
+  React.useEffect(() => {
+    setDay(config.get('lastAddDay') || 0)
+  }, [config])
 
   const handleChange = (event: SelectChangeEvent<number>) => {
-    setDay(event.target.value as number)
+    const newDay = event.target.value as number
+    setDay(newDay)
+
+    config.set('lastAddDay', newDay)
   }
 
   const selected = waypoints?.find((spot) => spot.id === newSpot.id)
