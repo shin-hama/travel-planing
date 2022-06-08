@@ -16,7 +16,7 @@ type Props = {
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   const [waypoints, actions] = useWaypoints()
-  const [day, setDay] = React.useState(1)
+  const [day, setDay] = React.useState(0)
 
   const handleChange = (event: SelectChangeEvent<number>) => {
     setDay(event.target.value as number)
@@ -28,23 +28,25 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
     if (selected) {
       actions.remove(selected.id)
     } else {
-      actions.add({ ...newSpot, id: newSpot.id || uuidv4() })
+      actions.add({ ...newSpot, id: newSpot.id || uuidv4() }, day)
     }
   }
 
   return (
     <Stack direction="row" spacing={1}>
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Age</InputLabel>
+        <InputLabel id="day-select-label">Day</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="day-select-label"
+          id="day-select"
           value={day}
           label="Age"
           onChange={handleChange}>
-          <MenuItem value={1}>1日目</MenuItem>
-          <MenuItem value={2}>2日目</MenuItem>
-          <MenuItem value={3}>3日目</MenuItem>
+          {[...Array(actions.getDays())].map((_, i) => (
+            <MenuItem key={i} value={i}>
+              {i + 1}日目
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <Button

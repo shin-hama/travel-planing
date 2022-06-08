@@ -15,15 +15,12 @@ export const useWaypoints = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      add: (newSpot: Spot) => {
+      add: (newSpot: Spot, day: number) => {
         if (planRef.current) {
           const newEvents =
             planRef.current.events.length > 0
               ? planRef.current?.events.map((event, i) => {
-                  if (
-                    planRef.current &&
-                    i === planRef.current?.events.length - 1
-                  ) {
+                  if (planRef.current && i === day) {
                     return { ...event, spots: [...event.spots, newSpot] }
                   } else {
                     return event
@@ -94,6 +91,7 @@ export const useWaypoints = () => {
             })),
         })
       },
+      getDays: () => planRef.current?.events.length || 0,
     }
 
     return a
