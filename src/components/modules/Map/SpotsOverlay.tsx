@@ -1,12 +1,13 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
 import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRoute } from '@fortawesome/free-solid-svg-icons'
 import { Marker, Polyline } from '@react-google-maps/api'
-import { useClickAway, useToggle } from 'react-use'
+import { useToggle } from 'react-use'
 
 import CategorySelector from './CategorySelector'
 import SearchBox from './SearchBox'
@@ -36,7 +37,6 @@ type Props = {
   >
 }
 const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
-  const spotCardRef = React.useRef<HTMLDivElement>(null)
   const [selectedCategory, setSelectedCategory] = React.useState<number | null>(
     null
   )
@@ -60,9 +60,9 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [anySpot])
 
-  useClickAway(spotCardRef, () => {
+  const handleClickAway = () => {
     setFocusedSpot(null)
-  })
+  }
 
   const handleMarkerClicked = (spot: SpotDTO) => {
     setFocusedSpot(spot)
@@ -106,24 +106,27 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
       {focusedSpot && (
         <>
           {anySpot && !focusedSpot.placeId && <Marker position={anySpot} />}
-          <Box
-            ref={spotCardRef}
-            sx={{
-              zIndex: 10,
-              position: 'absolute',
-              bottom: 25,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '90%',
-              maxWidth: '400px',
-              maxHeight: '150px',
-            }}>
-            {focusedSpot.placeId ? (
-              <SpotCard spot={{ ...focusedSpot, id: focusedSpot.placeId }} />
-            ) : (
-              <AnySpotCard lat={focusedSpot.lat} lng={focusedSpot.lng} />
-            )}
-          </Box>
+          <ClickAwayListener
+            mouseEvent="onMouseUp"
+            onClickAway={handleClickAway}>
+            <Box
+              sx={{
+                zIndex: 10,
+                position: 'absolute',
+                bottom: 25,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '90%',
+                maxWidth: '400px',
+                maxHeight: '150px',
+              }}>
+              {focusedSpot.placeId ? (
+                <SpotCard spot={{ ...focusedSpot, id: focusedSpot.placeId }} />
+              ) : (
+                <AnySpotCard lat={focusedSpot.lat} lng={focusedSpot.lng} />
+              )}
+            </Box>
+          </ClickAwayListener>
         </>
       )}
     </>
