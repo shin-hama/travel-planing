@@ -11,7 +11,7 @@ import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import dayjs from 'dayjs'
 
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { Plan, Schedule } from 'contexts/CurrentPlanProvider'
 import { useUnsplash } from 'hooks/useUnsplash'
 import Layout from 'components/layouts/Layout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
@@ -156,15 +156,18 @@ const NewPlan = () => {
         home: { ...planDTO.home, imageUrl: homePhoto },
         destination: { ...planDTO.destination, imageUrl: destPhoto },
         belongings: [],
-        events: [
-          {
-            start: dayjs(planDTO.start).hour(9).minute(0).toDate(),
+        events: [...Array(planDTO.days)].map(
+          (_, i): Schedule => ({
+            start: dayjs(planDTO.start)
+              .add(i, 'day')
+              .hour(9)
+              .minute(0)
+              .toDate(),
             end: dayjs(planDTO.start).hour(19).minute(0).toDate(),
             spots: [],
-          },
-        ],
+          })
+        ),
         routes: [],
-        days: planDTO.days,
       }
       const id = await createPlan(newPlan)
 

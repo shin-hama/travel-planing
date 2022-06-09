@@ -8,6 +8,7 @@ import PlanningPage from 'components/layouts/PlanningPage'
 import { PlanningTabProvider } from 'contexts/PlanningTabProvider'
 import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRouter } from 'hooks/useRouter'
+import { PlanViewConfigProvider } from 'contexts/PlanViewConfigProvider'
 
 const PlanLayout = () => {
   const router = useRouter()
@@ -25,11 +26,13 @@ const PlanLayout = () => {
   }
 
   return (
-    <PlanningTabProvider>
-      <Layout title={plan.title} fixedHeader>
-        <PlanningPage />
-      </Layout>
-    </PlanningTabProvider>
+    <PlanViewConfigProvider>
+      <PlanningTabProvider>
+        <Layout title={plan.title} fixedHeader>
+          <PlanningPage />
+        </Layout>
+      </PlanningTabProvider>
+    </PlanViewConfigProvider>
   )
 }
 

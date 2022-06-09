@@ -43,7 +43,6 @@ const planConverter: FirestoreDataConverter<Plan> = {
       routes: data.routes || [],
       lodging: data.lodging || undefined,
       belongings: data.belongings || [],
-      days: data.days,
     }
   },
 }

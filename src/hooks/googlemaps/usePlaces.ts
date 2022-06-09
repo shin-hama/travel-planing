@@ -19,7 +19,7 @@ export const usePlaces = () => {
       getPhotos: async (placeId: string) => {
         const result = await post<PlacesPhotoResult>(
           `${bffConfigs.url}/places_photos`,
-          { place_id: placeId, max_width: 150, max_height: 150 }
+          { place_id: placeId, max_width: 200, max_height: 200 }
         )
 
         return result.image || ''

@@ -139,11 +139,21 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                 <>
                   <HomeEventCard name={home.name} date={schedule.start} />
                   <Box py={0.5}>
-                    <RouteEvent
-                      origin={home}
-                      dest={schedule.spots[0]}
-                      onChange={handleUpdateDeparture}
-                    />
+                    {schedule.spots.length > 0 ? (
+                      <RouteEvent
+                        origin={home}
+                        dest={schedule.spots[0]}
+                        onChange={handleUpdateDeparture}
+                      />
+                    ) : dest ? (
+                      <RouteEvent
+                        origin={home}
+                        dest={dest}
+                        onChange={handleUpdateDeparture}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </Box>
                 </>
               )}
@@ -177,13 +187,15 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
               ))}
               {dest ? (
                 <>
-                  <Box py={0.5}>
-                    <RouteEvent
-                      origin={schedule.spots.slice(-1)[0]}
-                      dest={dest}
-                      onChange={handleUpdateWaypointNext}
-                    />
-                  </Box>
+                  {schedule.spots.length > 0 && (
+                    <Box py={0.5}>
+                      <RouteEvent
+                        origin={schedule.spots.slice(-1)[0]}
+                        dest={dest}
+                        onChange={handleUpdateWaypointNext}
+                      />
+                    </Box>
+                  )}
                   <HomeEventCard
                     name={dest.name}
                     date={summarizeTotalTime(schedule.spots)}

@@ -122,29 +122,23 @@ const ListScheduler: React.FC = () => {
                   display: 'none',
                 },
               }}>
-              {plan?.events.map(
-                (event, i) =>
-                  event.spots.length > 0 && (
-                    <Draggable
-                      key={`day-${i}`}
-                      draggableId={`day-${i}`}
-                      index={i}>
-                      {(provided: DraggableProvided) => (
-                        <Box
-                          ref={provided.innerRef}
-                          {...provided.dragHandleProps}
-                          {...provided.draggableProps}>
-                          <DayColumn
-                            day={i}
-                            schedule={event}
-                            first={i === 0}
-                            last={i === plan.events.length - 1}
-                          />
-                        </Box>
-                      )}
-                    </Draggable>
-                  )
-              )}
+              {plan?.events.map((event, i) => (
+                <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
+                  {(provided: DraggableProvided) => (
+                    <Box
+                      ref={provided.innerRef}
+                      {...provided.dragHandleProps}
+                      {...provided.draggableProps}>
+                      <DayColumn
+                        day={i}
+                        schedule={event}
+                        first={i === 0}
+                        last={i === plan.events.length - 1}
+                      />
+                    </Box>
+                  )}
+                </Draggable>
+              ))}
               <Droppable droppableId="newDay" type="ITEM">
                 {(provided) => (
                   <Stack
