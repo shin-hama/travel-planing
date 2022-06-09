@@ -16,6 +16,7 @@ import SpotCard, { SpotDTO } from '../SpotCard'
 import AnySpotCard from './AnySpotCard'
 import { useSpots } from 'hooks/useSpots'
 import { useWaypoints } from 'hooks/useWaypoints'
+import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
 
 const polylineOptions = {
   strokeColor: '#FF0000',
@@ -40,10 +41,15 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
   const [selectedCategory, setSelectedCategory] = React.useState<number | null>(
     null
   )
+  const [config, setConfig] = usePlanViewConfig()
   const [focusedSpot, setFocusedSpot] = React.useState<SpotDTO | null>(null)
-  const [routeMode, toggleMode] = useToggle(false)
+  const [routeMode, toggleMode] = useToggle(config.routeMode)
   const [spots, reload] = useSpots()
   const [waypoints] = useWaypoints()
+
+  React.useEffect(() => {
+    setConfig({ routeMode })
+  }, [setConfig, routeMode])
 
   React.useEffect(() => {
     if (selectedCategory) {
