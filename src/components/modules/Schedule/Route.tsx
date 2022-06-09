@@ -96,6 +96,10 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
     }
   }
 
+  React.useEffect(() => {
+    onChange({ id: dest.id, mode: selected.key }, origin.id)
+  }, [])
+
   return (
     <>
       <Stack direction="row" alignItems="center" px={3}>
