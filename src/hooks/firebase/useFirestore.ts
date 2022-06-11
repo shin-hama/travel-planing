@@ -11,9 +11,14 @@ import {
   setDoc,
   serverTimestamp,
   WithFieldValue,
+  CollectionReference,
 } from 'firebase/firestore'
 
 import { db } from 'configs'
+
+export type DocumentBase = DocumentData & {
+  createdAt: Date
+}
 
 /**
  *
@@ -69,7 +74,22 @@ export const useFirestore = () => {
           const docRef = await addDoc(collection(db, path), {
             ...data,
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
+          })
+          console.log('Document written with ID: ', docRef.id)
+          return docRef
+        } catch (e) {
+          console.error('Error adding document: ', e)
+          throw e
+        }
+      },
+      addByRef: async (
+        ref: CollectionReference,
+        data: WithFieldValue<DocumentData>
+      ) => {
+        try {
+          const docRef = await addDoc(ref, {
+            ...data,
+            createdAt: serverTimestamp(),
           })
           console.log('Document written with ID: ', docRef.id)
           return docRef
