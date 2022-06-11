@@ -9,8 +9,7 @@ import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRoute, faBed } from '@fortawesome/free-solid-svg-icons'
 
-import { useRouter } from 'hooks/useRouter'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import ListScheduler from 'components/modules/Schedule/ListScheduler'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { useDirections } from 'hooks/googlemaps/useDirections'
@@ -26,8 +25,7 @@ type Action = {
 }
 
 const ScheduleListView: React.FC = () => {
-  const router = useRouter()
-  const [plan] = useTravelPlan()
+  const [plan] = usePlan()
   const [waypoints, waypointsApi] = useWaypoints()
   const { routesApi } = useRoutes()
   const directions = useDirections()
@@ -41,12 +39,6 @@ const ScheduleListView: React.FC = () => {
       setOpen(false)
     }
   }, [])
-
-  React.useEffect(() => {
-    if (!plan) {
-      router.userHome(true)
-    }
-  }, [plan, router])
 
   const handleAddHotel = React.useCallback(() => {
     openMap('selector')

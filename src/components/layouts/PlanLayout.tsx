@@ -5,20 +5,14 @@ import Link from 'next/link'
 
 import Layout from './Layout'
 import PlanningPage from 'components/layouts/PlanningPage'
-import { PlanningTabProvider } from 'contexts/PlanningTabProvider' 
+import { PlanningTabProvider } from 'contexts/PlanningTabProvider'
 import { useRouter } from 'hooks/useRouter'
 import { PlanViewConfigProvider } from 'contexts/PlanViewConfigProvider'
-import { useDocument } from 'hooks/firebase/useDocument'
-import { planConverter } from 'hooks/usePlans'
-import { DocumentReference } from 'firebase/firestore'
-import { Plan } from 'contexts/CurrentPlanProvider'
+import { usePlan } from 'hooks/usePlan'
 
-type Props = {
-  plan: DocumentReference<Plan>
-}
-const PlanLayout: React.FC<Props> = ({ plan: planRef }) => {
+const PlanLayout: React.FC = () => {
   const router = useRouter()
-  const [plan] = useDocument(planRef, planConverter)
+  const [plan] = usePlan()
 
   if (!plan) {
     return (

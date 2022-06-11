@@ -13,15 +13,16 @@ export type DocActions<T> = {
 }
 
 export const useDocument = <T>(
-  ref: DocumentReference<T>,
+  ref: DocumentReference<T> | null,
   converter: FirestoreDataConverter<T>
 ) => {
   const [document, setDocument] = React.useState<T | null>(null)
 
   React.useEffect(() => {
+    if (!ref) {
+      return
+    }
     const unsubscribe = onSnapshot(ref.withConverter(converter), (doc) => {
-      console.log(doc)
-      console.log(doc.data())
       setDocument(doc.data() || null)
     })
 
@@ -33,7 +34,9 @@ export const useDocument = <T>(
   const actions = React.useMemo<DocActions<T>>(() => {
     const a: DocActions<T> = {
       update: async (updated) => {
-        updateDoc(ref, updated)
+        if (ref) {
+          updateDoc(ref, updated)
+        }
       },
     }
 

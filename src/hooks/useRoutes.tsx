@@ -8,11 +8,11 @@ import {
   RouteGuidanceAvailable,
   Time,
 } from 'contexts/CurrentPlanProvider'
-import { useTravelPlan } from './useTravelPlan'
+import { usePlan } from './usePlan'
 import { TravelMode, useDirections } from './googlemaps/useDirections'
 
 export const useRoutes = () => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan, planApi] = usePlan()
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan
 

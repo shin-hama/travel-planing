@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 
 const DEFAULT_CENTER = { lat: 36.5941035450526, lng: 138.70038569359122 }
 
@@ -25,7 +25,7 @@ export const MapPropsProvider: React.FC = ({ children }) => {
     mounted: false,
   })
 
-  const [plan] = useTravelPlan()
+  const [plan] = usePlan()
 
   React.useEffect(() => {
     // 選択しているプランの目的地を中心にする

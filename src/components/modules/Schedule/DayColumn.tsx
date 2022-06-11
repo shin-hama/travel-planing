@@ -13,7 +13,7 @@ import {
   Spot,
 } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import HomeEventCard from './HomeEventCard'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { useRoutes } from 'hooks/useRoutes'
@@ -28,7 +28,7 @@ type Props = {
   last?: boolean
 }
 const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan, planApi] = usePlan()
   const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
   const [, { openMap }] = usePlanningTab()

@@ -2,6 +2,13 @@ import * as React from 'react'
 import dayjs from 'dayjs'
 
 import { TravelMode } from 'hooks/googlemaps/useDirections'
+import { DocumentReference } from 'firebase/firestore'
+import {
+  PLANING_USERS_PLANS_COLLECTIONS,
+  useFirestore,
+} from 'hooks/firebase/useFirestore'
+import { planConverter } from 'hooks/usePlans'
+import { DocActions, useDocument } from 'hooks/firebase/useDocument'
 
 export type NextMove = {
   id: string
@@ -96,20 +103,55 @@ export type Plan = {
 }
 
 export const CurrentPlanContext = React.createContext<Plan | null>(null)
-export const SetCurrentPlanContext = React.createContext<
-  React.Dispatch<React.SetStateAction<Plan | null>>
->(() => {
-  throw new Error('CurrentPlanContextProvider is not wrapped')
-})
 
-export const CurrentPlanContextProvider: React.FC = ({ children }) => {
-  const [currentPlan, setPlan] = React.useState<Plan | null>(null)
+type PlanActions = DocActions<Plan>
+export const CurrentPlanActionsContext =
+  React.createContext<PlanActions | null>(null)
+
+type Props = {
+  query: {
+    userId: string
+    planId: string
+  }
+}
+export const CurrentPlanContextProvider: React.FC<Props> = ({
+  children,
+  query,
+}) => {
+  const [currentPlan, setPlan] = React.useState<DocumentReference<Plan> | null>(
+    null
+  )
+  const db = useFirestore()
+
+  const [plan, docActions] = useDocument(currentPlan, planConverter)
+
+  const actions = React.useMemo(() => {
+    const a = {
+      ...docActions,
+    }
+
+    return a
+  }, [docActions])
+
+  React.useEffect(() => {
+    const fetch = async () => {
+      try {
+        const path = PLANING_USERS_PLANS_COLLECTIONS(query.userId)
+        const result = await db.get(path, query.planId, planConverter)
+        setPlan(result.ref)
+      } catch (e) {
+        console.error(e)
+        setPlan(null)
+      }
+    }
+    fetch()
+  }, [db, query.planId, query.userId])
 
   return (
-    <CurrentPlanContext.Provider value={currentPlan}>
-      <SetCurrentPlanContext.Provider value={setPlan}>
+    <CurrentPlanContext.Provider value={plan}>
+      <CurrentPlanActionsContext.Provider value={actions}>
         {children}
-      </SetCurrentPlanContext.Provider>
+      </CurrentPlanActionsContext.Provider>
     </CurrentPlanContext.Provider>
   )
 }

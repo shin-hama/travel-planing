@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import { Plan, Schedule } from 'contexts/CurrentPlanProvider'
 import { useUnsplash } from 'hooks/useUnsplash'
 import Layout from 'components/layouts/Layout'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
 import { useRouter } from 'hooks/useRouter'
@@ -31,7 +31,7 @@ const NewPlan = () => {
   const router = useRouter()
   const { register, control, handleSubmit, watch } = useForm<PlanDTO>()
   const dest = watch('destination')
-  const [, { create: createPlan }] = useTravelPlan()
+  const [, { create: createPlan }] = usePlan()
   const unsplash = useUnsplash()
 
   const forms = React.useMemo<Array<Form>>(

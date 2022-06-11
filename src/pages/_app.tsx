@@ -8,13 +8,11 @@ import { CacheProvider, EmotionCache } from '@emotion/react'
 import theme from 'configs/theme'
 import createEmotionCache from 'configs/createEmotionCache'
 
-import { CurrentPlanContextProvider } from 'contexts/CurrentPlanProvider'
 import { ApolloClientProvider } from 'contexts/ApolloClientProvider'
 import { DirectionServiceProvider } from 'contexts/DirectionServiceProvider'
 import { DistanceMatrixProvider } from 'contexts/DistanceMatrixProvider'
 import { PlacesServiceProvider } from 'contexts/PlacesServiceProvider'
 import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
-import { MapPropsProvider } from 'contexts/MapPropsProvider'
 import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
 import UserAuthorizationProvider from 'contexts/UserAuthorizationProvider'
 import { SpotEditorProvider } from 'contexts/SpotEditorProvider'
@@ -37,24 +35,20 @@ const App: React.FC<MyAppProps> = ({
       <ApolloClientProvider>
         <UserAuthorizationProvider>
           <ConfirmationProvider>
-            <CurrentPlanContextProvider>
-              <DirectionServiceProvider>
-                <DistanceMatrixProvider>
-                  <PlacesServiceProvider>
-                    <MapPropsProvider>
-                      <SelectedSpotsProvider>
-                        <SpotEditorProvider>
-                          <ThemeProvider theme={theme}>
-                            <CssBaseline />
-                            <Component {...pageProps} />
-                          </ThemeProvider>
-                        </SpotEditorProvider>
-                      </SelectedSpotsProvider>
-                    </MapPropsProvider>
-                  </PlacesServiceProvider>
-                </DistanceMatrixProvider>
-              </DirectionServiceProvider>
-            </CurrentPlanContextProvider>
+            <DirectionServiceProvider>
+              <DistanceMatrixProvider>
+                <PlacesServiceProvider>
+                  <SelectedSpotsProvider>
+                    <SpotEditorProvider>
+                      <ThemeProvider theme={theme}>
+                        <CssBaseline />
+                        <Component {...pageProps} />
+                      </ThemeProvider>
+                    </SpotEditorProvider>
+                  </SelectedSpotsProvider>
+                </PlacesServiceProvider>
+              </DistanceMatrixProvider>
+            </DirectionServiceProvider>
           </ConfirmationProvider>
         </UserAuthorizationProvider>
       </ApolloClientProvider>

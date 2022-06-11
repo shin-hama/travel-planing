@@ -10,11 +10,11 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faClose } from '@fortawesome/free-solid-svg-icons'
 
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import { Belonging } from 'contexts/CurrentPlanProvider'
 
 const BelongingsList: React.FC = () => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan, planApi] = usePlan()
   const [added, setAdded] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
 

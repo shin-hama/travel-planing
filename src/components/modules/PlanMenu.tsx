@@ -6,14 +6,14 @@ import Menu, { MenuProps } from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
 import { useConfirm } from 'hooks/useConfirm'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import { useAsyncFn } from 'react-use'
 import { useRouter } from 'hooks/useRouter'
 import { usePlanningTab } from 'contexts/PlanningTabProvider'
 
 type Props = MenuProps
 const PlanMenu: React.FC<Props> = (props) => {
-  const [, planApi] = useTravelPlan()
+  const [, planApi] = usePlan()
   const [, { openMap }] = usePlanningTab()
   const confirm = useConfirm()
   const router = useRouter()

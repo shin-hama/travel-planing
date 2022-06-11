@@ -2,10 +2,10 @@ import * as React from 'react'
 import dayjs from 'dayjs'
 
 import { Plan, Spot } from 'contexts/CurrentPlanProvider'
-import { useTravelPlan } from './useTravelPlan'
+import { usePlan } from './usePlan'
 
 export const useWaypoints = () => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan, planApi] = usePlan()
   const planRef = React.useRef<Plan | null>(null)
   planRef.current = plan
   const waypoints = React.useMemo(

@@ -12,8 +12,8 @@ import {
 } from 'react-beautiful-dnd'
 import dayjs from 'dayjs'
 
-import { useTravelPlan } from 'hooks/useTravelPlan'
 import DayColumn from './DayColumn'
+import { usePlan } from 'hooks/usePlan'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -23,7 +23,7 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   return result
 }
 const ListScheduler: React.FC = () => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan, planApi] = usePlan()
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !plan) {

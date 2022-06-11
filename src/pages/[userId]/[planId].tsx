@@ -1,25 +1,25 @@
 import * as React from 'react'
 
 import PlanLayout from 'components/layouts/PlanLayout'
-import { usePlan } from 'hooks/usePlan'
+import { CurrentPlanContextProvider } from 'contexts/CurrentPlanProvider'
+import { MapPropsProvider } from 'contexts/MapPropsProvider'
 import { useRouter } from 'hooks/useRouter'
 
 const PlanPage = () => {
   const router = useRouter()
   const { userId, planId } = router.query
-  const [plan, fetch] = usePlan()
 
-  React.useEffect(() => {
-    if (typeof userId === 'string' && typeof planId === 'string') {
-      fetch(userId, planId)
-    }
-  }, [fetch, planId, userId])
-
-  if (!plan) {
-    return <>Not Found</>
+  if (typeof userId === 'string' && typeof planId === 'string') {
+    return (
+      <CurrentPlanContextProvider query={{ userId, planId }}>
+        <MapPropsProvider>
+          <PlanLayout />
+        </MapPropsProvider>
+      </CurrentPlanContextProvider>
+    )
   }
 
-  return <PlanLayout plan={plan} />
+  return <>Not Found</>
 }
 
 export default PlanPage

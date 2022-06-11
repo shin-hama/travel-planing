@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 
 import TimePicker, { TimeValue } from '../TimeSelector'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import dayjs from 'dayjs'
 
 const fromMidnight = (date: Date) => date.getHours() * 60 + date.getMinutes()
@@ -18,7 +18,7 @@ type Props = {
   onOpenMenu: (anchor: HTMLElement) => void
 }
 const DayHeader: React.FC<Props> = ({ day, onOpenMenu }) => {
-  const [plan, planApi] = useTravelPlan()
+  const [plan, planApi] = usePlan()
   const event = plan?.events[day - 1]
 
   const handleChange = React.useCallback(
