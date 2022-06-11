@@ -3,7 +3,6 @@ import * as React from 'react'
 import {
   CurrentPlanContext,
   Plan,
-  PlanDB,
   SetCurrentPlanContext,
 } from 'contexts/CurrentPlanProvider'
 import {
@@ -15,9 +14,6 @@ import { useAuthentication } from './firebase/useAuthentication'
 export interface PlanAPI {
   create: (newPlan: Plan) => Promise<string | undefined>
   clear: () => void
-  delete: () => Promise<void>
-  set: (id: string, newPlan: Plan) => void
-  update: (updated: Partial<Plan>) => void
 }
 
 export const useTravelPlan = () => {
@@ -27,9 +23,6 @@ export const useTravelPlan = () => {
   const [user] = useAuthentication()
   const db = useFirestore()
 
-  const planRef = React.useRef<PlanDB | null>(null)
-  planRef.current = plan || null
-
   const actions = React.useMemo<PlanAPI>(() => {
     const a: PlanAPI = {
       create: async (newPlan: Plan): Promise<string | undefined> => {
@@ -38,45 +31,19 @@ export const useTravelPlan = () => {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             const ref = await db.add(path, newPlan)
 
-            actions.set(ref.id, newPlan)
             return ref.id
-          } else {
-            setPlan({ type: 'create', value: newPlan })
           }
         } catch (e) {
           console.error(e)
         }
       },
-      createSchedule: (newSchedule: string) => {},
       clear: () => {
-        setPlan({ type: 'clear' })
-      },
-      set: (id: string, newPlan: Plan) => {
-        setPlan({ type: 'set', value: { id, data: newPlan } })
-      },
-      update: (updatedPlan: Partial<Plan>) => {
-        try {
-          // Guest user でも Plan が更新されるように、DB 周りとは隔離して更新する
-          setPlan({ type: 'update', value: updatedPlan })
-        } catch (e) {
-          console.error(updatedPlan)
-        }
-      },
-      delete: async () => {
-        try {
-          if (user && planRef.current) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            await db.delete(path, planRef.current.id)
-            setPlan({ type: 'clear' })
-          }
-        } catch (e) {
-          console.error(e)
-        }
+        setPlan(null)
       },
     }
 
     return a
   }, [db, setPlan, user])
 
-  return [plan?.data || null, actions] as const
+  return [plan || null, actions] as const
 }

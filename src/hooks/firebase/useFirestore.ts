@@ -69,7 +69,10 @@ export const useFirestore = () => {
       /**
        * Add data to firestore and generate id automatically
        */
-      add: async (path: string, data: WithFieldValue<DocumentData>) => {
+      add: async <T extends DocumentData>(
+        path: string,
+        data: WithFieldValue<T>
+      ) => {
         try {
           const docRef = await addDoc(collection(db, path), {
             ...data,

@@ -1,8 +1,6 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
 
-import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { usePlans } from 'hooks/usePlans'
 import { TravelMode } from 'hooks/googlemaps/useDirections'
 
 export type NextMove = {
@@ -97,89 +95,15 @@ export type Plan = {
   days?: number | null
 }
 
-export type PlanDB = {
-  id: string
-  data: Plan
-}
-
-type PlanAction =
-  | {
-      type: 'set'
-      value: PlanDB
-    }
-  | {
-      type: 'clear'
-    }
-  | {
-      type: 'create'
-      value: Plan
-    }
-  | {
-      type: 'update'
-      value: Partial<Plan>
-    }
-
-const planReducer = (
-  state: PlanDB | null,
-  action: PlanAction
-): PlanDB | null => {
-  switch (action.type) {
-    case 'create':
-      return { id: '', data: action.value }
-
-    case 'set':
-      return action.value
-
-    case 'update':
-      if (state === null) {
-        console.warn('Cannot update plan before selecting')
-        return null
-      }
-      return {
-        id: state.id,
-        data: {
-          ...state.data,
-          ...action.value,
-        },
-      }
-
-    case 'clear':
-      return null
-
-    default:
-      throw new Error(`Action: "${action}" is not implemented`)
-  }
-}
-
-export const CurrentPlanContext = React.createContext<PlanDB | null>(null)
+export const CurrentPlanContext = React.createContext<Plan | null>(null)
 export const SetCurrentPlanContext = React.createContext<
-  React.Dispatch<PlanAction>
+  React.Dispatch<React.SetStateAction<Plan | null>>
 >(() => {
   throw new Error('CurrentPlanContextProvider is not wrapped')
 })
 
 export const CurrentPlanContextProvider: React.FC = ({ children }) => {
-  const [, planDBApi] = usePlans()
-  const [currentPlan, setPlan] = React.useReducer(planReducer, null)
-
-  const [user] = useAuthentication()
-
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null)
-  React.useEffect(() => {
-    // 連続して保存が実行されないように、タイムアウト処理で管理
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-
-    if (!currentPlan || !user) {
-      return
-    }
-
-    timerRef.current = setTimeout(async () => {
-      const saved = await planDBApi.save(user.uid, currentPlan)
-      setPlan({ type: 'set', value: saved })
-    }, 500)
-  }, [currentPlan, planDBApi, user])
+  const [currentPlan, setPlan] = React.useState<Plan | null>(null)
 
   return (
     <CurrentPlanContext.Provider value={currentPlan}>

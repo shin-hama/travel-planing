@@ -12,7 +12,7 @@ import {
   PLANING_USERS_PLANS_COLLECTIONS,
   useFirestore,
 } from './firebase/useFirestore'
-import { Plan, PlanDB } from 'contexts/CurrentPlanProvider'
+import { Plan } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from './firebase/useAuthentication'
 
 // Firestore data converter
@@ -66,37 +66,12 @@ export const usePlans = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      save: async (userId: string, plan: PlanDB): Promise<PlanDB> => {
-        console.log('save plan')
-        const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
-        if (plan.id !== '' && userId) {
-          await db.set(path, plan.id, plan.data, planConverter)
-          return plan
-        } else {
-          const ref = await db.add(path, plan.data)
-          return { id: ref.id, data: plan.data }
-        }
-      },
-      fetch: async (userId: string): Promise<Array<PlanDB>> => {
-        try {
-          const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
-          const results = await db.getDocuments(path, planConverter)
-
-          return results.docs.map((result) => ({
-            id: result.id,
-            data: result.data(),
-          }))
-        } catch (e) {
-          console.error(e)
-        }
-        return []
-      },
       get: async (userId: string, planId: string) => {
         try {
           const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
           const result = await db.get(path, planId, planConverter)
 
-          return result.data()
+          return result.ref
         } catch (e) {
           console.error(e)
         }
