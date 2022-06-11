@@ -3,6 +3,7 @@ import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
+  QuerySnapshot,
   serverTimestamp,
   SnapshotOptions,
 } from 'firebase/firestore'
@@ -12,9 +13,10 @@ import {
   useFirestore,
 } from './firebase/useFirestore'
 import { Plan, PlanDB } from 'contexts/CurrentPlanProvider'
+import { useAuthentication } from './firebase/useAuthentication'
 
 // Firestore data converter
-const planConverter: FirestoreDataConverter<Plan> = {
+export const planConverter: FirestoreDataConverter<Plan> = {
   toFirestore: (plan: Plan) => {
     return {
       ...plan,
@@ -49,6 +51,18 @@ const planConverter: FirestoreDataConverter<Plan> = {
 
 export const usePlans = () => {
   const db = useFirestore()
+  const [user] = useAuthentication()
+  const [plans, setPlans] = React.useState<QuerySnapshot<Plan> | null>(null)
+
+  React.useEffect(() => {
+    if (!user) {
+      return
+    }
+    const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
+    db.getDocuments(path, planConverter).then((result) => {
+      setPlans(result)
+    })
+  }, [db, user])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -92,5 +106,5 @@ export const usePlans = () => {
     return a
   }, [db])
 
-  return actions
+  return [plans, actions] as const
 }

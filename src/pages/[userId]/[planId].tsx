@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import PlanLayout from 'components/layouts/PlanLayout'
 import { useTravelPlan } from 'hooks/useTravelPlan'
-import { usePlans } from 'hooks/usePlan'
+import { usePlans } from 'hooks/usePlans'
 import { useRouter } from 'hooks/useRouter'
 
 const PlanPage = () => {

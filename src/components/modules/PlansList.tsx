@@ -1,24 +1,25 @@
 import * as React from 'react'
 import Grid from '@mui/material/Grid'
 
-import { PlanDB } from 'contexts/CurrentPlanProvider'
+import { Plan } from 'contexts/CurrentPlanProvider'
 import TravelPlanCard from './TravelPlanCard'
+import { QuerySnapshot } from 'firebase/firestore'
 
 type Props = {
-  plans: Array<PlanDB>
+  plans: QuerySnapshot<Plan>
 }
 const PlansList: React.FC<Props> = ({ plans }) => {
   return (
     <Grid container spacing={2}>
-      {plans.map((plan) => (
+      {plans.docs.map((doc) => (
         <Grid
-          key={plan.id}
+          key={doc.id}
           item
           xs={12}
           sm={6}
           alignItems="center"
           sx={{ minHeight: '40vh' }}>
-          <TravelPlanCard plan={plan} />
+          <TravelPlanCard plan={doc.ref} />
         </Grid>
       ))}
     </Grid>

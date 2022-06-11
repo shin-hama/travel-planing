@@ -2,7 +2,7 @@ import * as React from 'react'
 import dayjs from 'dayjs'
 
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { usePlans } from 'hooks/usePlan'
+import { usePlans } from 'hooks/usePlans'
 import { TravelMode } from 'hooks/googlemaps/useDirections'
 
 export type NextMove = {
@@ -159,8 +159,8 @@ export const SetCurrentPlanContext = React.createContext<
 })
 
 export const CurrentPlanContextProvider: React.FC = ({ children }) => {
+  const [, planDBApi] = usePlans()
   const [currentPlan, setPlan] = React.useReducer(planReducer, null)
-  const planDBApi = usePlans()
 
   const [user] = useAuthentication()
 

@@ -47,6 +47,7 @@ export const useTravelPlan = () => {
           console.error(e)
         }
       },
+      createSchedule: (newSchedule: string) => {},
       clear: () => {
         setPlan({ type: 'clear' })
       },
