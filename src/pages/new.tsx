@@ -11,16 +11,13 @@ import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import dayjs from 'dayjs'
 
-import { Plan, Schedule } from 'contexts/CurrentPlanProvider'
-import { useUnsplash } from 'hooks/useUnsplash'
 import Layout from 'components/layouts/Layout'
-import { usePlan } from 'hooks/usePlan'
 import { useAsyncFn } from 'react-use'
 import AsyncButton from 'components/elements/AsyncButton'
 import { useRouter } from 'hooks/useRouter'
 import PrefectureSelector from 'components/modules/PrefectureSelector'
+import { PlanDTO, usePlans } from 'hooks/usePlans'
 
-type PlanDTO = Pick<Plan, 'title' | 'start' | 'home' | 'destination' | 'days'>
 type Form = {
   label?: string
   required?: boolean
@@ -31,8 +28,7 @@ const NewPlan = () => {
   const router = useRouter()
   const { register, control, handleSubmit, watch } = useForm<PlanDTO>()
   const dest = watch('destination')
-  const [, { create: createPlan }] = usePlan()
-  const unsplash = useUnsplash()
+  const [, { create: createPlan }] = usePlans()
 
   const forms = React.useMemo<Array<Form>>(
     () => [
@@ -116,7 +112,7 @@ const NewPlan = () => {
               InputProps={{ endAdornment: '泊' }}
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
               defaultValue={null}
-              {...register('days')}
+              {...register('days', { valueAsNumber: true })}
             />
           </Stack>
         ),
@@ -132,44 +128,7 @@ const NewPlan = () => {
         return
       }
 
-      let homePhoto
-      let destPhoto
-      try {
-        homePhoto = (await unsplash.searchPhoto(planDTO.home.name_en)).urls
-          .regular
-        destPhoto = (await unsplash.searchPhoto(planDTO.destination.name_en))
-          .urls.regular
-      } catch {
-        // デモバージョンは rate limit が厳しいので、取得できないときは決め打ちで与える
-        homePhoto =
-          'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
-        destPhoto =
-          'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
-      }
-
-      const newPlan: Parameters<typeof createPlan>[number] = {
-        title: planDTO.title || `${planDTO.destination.name}旅行`,
-        start: planDTO.start,
-        startTime: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
-        end: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
-        thumbnail: destPhoto,
-        home: { ...planDTO.home, imageUrl: homePhoto },
-        destination: { ...planDTO.destination, imageUrl: destPhoto },
-        belongings: [],
-        events: [...Array(planDTO.days)].map(
-          (_, i): Schedule => ({
-            start: dayjs(planDTO.start)
-              .add(i, 'day')
-              .hour(9)
-              .minute(0)
-              .toDate(),
-            end: dayjs(planDTO.start).hour(19).minute(0).toDate(),
-            spots: [],
-          })
-        ),
-        routes: [],
-      }
-      const id = await createPlan(newPlan)
+      const id = await createPlan(planDTO)
 
       if (id) {
         router.userPlan(id)
@@ -177,7 +136,7 @@ const NewPlan = () => {
         router.push('plan')
       }
     },
-    [createPlan, router, unsplash]
+    [createPlan, router]
   )
 
   return (
