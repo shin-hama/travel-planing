@@ -127,9 +127,6 @@ export const usePlans = () => {
               }
             })
 
-            console.log(planDTO)
-            console.log(events)
-
             events.forEach((event) => {
               db.addByRef(collection(plan, 'schedules'), event)
             })

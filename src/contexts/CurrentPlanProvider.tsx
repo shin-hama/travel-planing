@@ -103,6 +103,8 @@ export type Plan = {
 }
 
 export const CurrentPlanContext = React.createContext<Plan | null>(null)
+export const CurrentPlanRefContext =
+  React.createContext<DocumentReference<Plan> | null>(null)
 
 type PlanActions = DocActions<Plan>
 export const CurrentPlanActionsContext =
@@ -148,10 +150,12 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
   }, [db, query.planId, query.userId])
 
   return (
-    <CurrentPlanContext.Provider value={plan}>
-      <CurrentPlanActionsContext.Provider value={actions}>
-        {children}
-      </CurrentPlanActionsContext.Provider>
-    </CurrentPlanContext.Provider>
+    <CurrentPlanRefContext.Provider value={currentPlan}>
+      <CurrentPlanContext.Provider value={plan}>
+        <CurrentPlanActionsContext.Provider value={actions}>
+          {children}
+        </CurrentPlanActionsContext.Provider>
+      </CurrentPlanContext.Provider>
+    </CurrentPlanRefContext.Provider>
   )
 }

@@ -14,6 +14,7 @@ import dayjs from 'dayjs'
 
 import DayColumn from './DayColumn'
 import { usePlan } from 'hooks/usePlan'
+import { useSchedules } from 'hooks/useSchedules'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -24,6 +25,7 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
 }
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = usePlan()
+  const schedules = useSchedules()
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !plan) {

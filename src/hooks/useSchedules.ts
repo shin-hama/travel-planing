@@ -1,19 +1,19 @@
 import * as React from 'react'
 
 import {
-  DocumentReference,
+  collection,
   FirestoreDataConverter,
-  onSnapshot,
+  getDocs,
   QueryDocumentSnapshot,
+  QuerySnapshot,
   SnapshotOptions,
-  updateDoc,
 } from 'firebase/firestore'
 
 import {
   DocumentBase,
   PLANING_USERS_PLANS_COLLECTIONS,
 } from './firebase/useFirestore'
-import { Spot } from 'contexts/CurrentPlanProvider'
+import { CurrentPlanRefContext, Spot } from 'contexts/CurrentPlanProvider'
 
 /**
  * @param {string} userId - target user id
@@ -54,30 +54,23 @@ const converter: FirestoreDataConverter<Schedule> = {
   },
 }
 
-export const useSchedule = (ref: DocumentReference<Schedule>) => {
-  const [schedule, setSchedule] = React.useState<Schedule | null>(null)
+export const useSchedules = () => {
+  const planRef = React.useContext(CurrentPlanRefContext)
+  const [schedules, setSchedules] =
+    React.useState<QuerySnapshot<Schedule> | null>()
 
   React.useEffect(() => {
-    const unsubscribe = onSnapshot(ref.withConverter(converter), (doc) => {
-      console.log(doc)
-      console.log(doc.data())
-      setSchedule(doc.data() || null)
-    })
-
-    return () => {
-      unsubscribe()
+    if (!planRef) {
+      return
     }
-  }, [ref])
+    getDocs(collection(planRef, 'schedules').withConverter(converter))
+      .then((result) => {
+        setSchedules(result)
+      })
+      .catch(() => {
+        setSchedules(null)
+      })
+  }, [planRef])
 
-  const actions = React.useMemo<DocActions<Schedule>>(() => {
-    const a: DocActions<Schedule> = {
-      update: async (updated) => {
-        updateDoc(ref, updated)
-      },
-    }
-
-    return a
-  }, [ref])
-
-  return [schedule, actions] as const
+  return schedules
 }
