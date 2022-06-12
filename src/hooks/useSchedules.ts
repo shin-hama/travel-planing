@@ -1,12 +1,17 @@
 import * as React from 'react'
 
 import {
+  addDoc,
   collection,
+  DocumentReference,
   FirestoreDataConverter,
   getDocs,
+  orderBy,
+  query,
   QueryDocumentSnapshot,
   QuerySnapshot,
   SnapshotOptions,
+  where,
 } from 'firebase/firestore'
 
 import {
@@ -32,6 +37,9 @@ type Schedule = DocumentBase & {
   end: Date
   spots: Array<Spot>
 }
+
+const EVENTS_SUB_COLLECTIONS = (schedule: DocumentReference<Schedule>) =>
+  collection(schedule, 'events')
 
 // Firestore data converter
 const converter: FirestoreDataConverter<Schedule> = {
@@ -63,7 +71,12 @@ export const useSchedules = () => {
     if (!planRef) {
       return
     }
-    getDocs(collection(planRef, 'schedules').withConverter(converter))
+    getDocs(
+      query(
+        collection(planRef, 'schedules').withConverter(converter),
+        orderBy('start')
+      )
+    )
       .then((result) => {
         setSchedules(result)
       })
@@ -72,5 +85,36 @@ export const useSchedules = () => {
       })
   }, [planRef])
 
-  return schedules
+  const actions = React.useMemo(() => {
+    const a = {
+      addSpot: async (newSpot: Spot, day: number) => {
+        if (schedules && day < schedules.size) {
+          const target = schedules.docs[day]
+          const spot = await addDoc(EVENTS_SUB_COLLECTIONS(target.ref), newSpot)
+          return spot
+        }
+      },
+      findSpots: async (placeId: string, day: number) => {
+        if (schedules && placeId && day < schedules.size) {
+          const target = schedules.docs[day]
+          const q = query(
+            EVENTS_SUB_COLLECTIONS(target.ref),
+            where('placeId', '==', placeId)
+          )
+          const result = await getDocs(q)
+          if (result.empty) {
+            return null
+          } else {
+            return result.docs.map((doc) => doc.ref)
+          }
+        }
+
+        return null
+      },
+    }
+
+    return a
+  }, [schedules])
+
+  return [schedules, actions] as const
 }

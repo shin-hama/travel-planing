@@ -25,7 +25,7 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
 }
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = usePlan()
-  const schedules = useSchedules()
+  const [schedules] = useSchedules()
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !plan) {

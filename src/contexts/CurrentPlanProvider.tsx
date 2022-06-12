@@ -16,7 +16,7 @@ export type NextMove = {
 }
 
 export type SpotBase = {
-  id: string
+  id?: string
   lat: number
   lng: number
   name: string
