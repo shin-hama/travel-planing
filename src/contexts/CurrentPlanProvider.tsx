@@ -41,6 +41,7 @@ export type Spot = RouteGuidanceAvailable & {
   durationUnit: dayjs.ManipulateType
   labels?: Array<SpotLabel>
   memo?: string
+  position: number
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

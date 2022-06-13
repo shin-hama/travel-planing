@@ -39,9 +39,6 @@ const AnySpotCard: React.FC<Props> = ({ lat, lng }) => {
               id: id,
               name: name,
               placeId: null,
-              imageUrl: '',
-              duration: 60,
-              durationUnit: 'minute',
               lat,
               lng,
             }}

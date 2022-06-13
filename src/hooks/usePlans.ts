@@ -11,13 +11,14 @@ import {
 
 import dayjs from 'dayjs'
 
-import { Schedule, Plan } from 'contexts/CurrentPlanProvider'
+import { Plan } from 'contexts/CurrentPlanProvider'
 import {
   PLANING_USERS_PLANS_COLLECTIONS,
   useFirestore,
 } from './firebase/useFirestore'
 import { useAuthentication } from './firebase/useAuthentication'
 import { useUnsplash } from 'hooks/useUnsplash'
+import { ScheduleDTO } from './useSchedules'
 
 // Firestore data converter
 export const planConverter: FirestoreDataConverter<Plan> = {
@@ -114,7 +115,7 @@ export const usePlans = () => {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
             const plan = await db.add<Plan>(path, newPlan)
 
-            const events = [...Array(planDTO.days)].map((_, i): Schedule => {
+            const events = [...Array(planDTO.days)].map((_, i): ScheduleDTO => {
               const startDate = dayjs(planDTO.start)
                 .add(i, 'day')
                 .hour(9)
@@ -123,7 +124,7 @@ export const usePlans = () => {
               return {
                 start: startDate.toDate(),
                 end: startDate.hour(19).minute(0).toDate(),
-                spots: [],
+                size: 0,
               }
             })
 

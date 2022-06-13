@@ -6,12 +6,11 @@ import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 
-import { Spot } from 'contexts/CurrentPlanProvider'
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
-import { useSchedules } from 'hooks/useSchedules'
+import { SpotDTO, useSchedules } from 'hooks/useSchedules'
 
 type Props = {
-  newSpot: Spot
+  newSpot: SpotDTO
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
