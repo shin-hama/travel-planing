@@ -14,19 +14,10 @@ import {
 } from 'firebase/firestore'
 
 import { Schedule } from './useSchedules'
-import { Route, Spot } from 'contexts/CurrentPlanProvider'
+import { Spot } from 'contexts/CurrentPlanProvider'
 
-type Next = Route & {
-  lat: number
-  lng: number
-}
-
-export type SpotDocument = Spot & {
-  next: Next
-}
-
-const converter: FirestoreDataConverter<SpotDocument> = {
-  toFirestore: (spot: SpotDocument) => {
+const converter: FirestoreDataConverter<Spot> = {
+  toFirestore: (spot: Spot) => {
     return {
       ...spot,
     }
@@ -34,7 +25,7 @@ const converter: FirestoreDataConverter<SpotDocument> = {
   fromFirestore: (
     snapshot: QueryDocumentSnapshot,
     options: SnapshotOptions
-  ): SpotDocument => {
+  ): Spot => {
     const data = snapshot.data(options)
     return {
       id: data.spot,
@@ -54,11 +45,10 @@ const converter: FirestoreDataConverter<SpotDocument> = {
 }
 
 export const EVENTS_SUB_COLLECTIONS = (schedule: DocumentReference<Schedule>) =>
-  collection(schedule, 'events') as CollectionReference<SpotDocument>
+  collection(schedule, 'events') as CollectionReference<Spot>
 
 export const useEvents = (schedule: DocumentReference<Schedule>) => {
-  const [events, setEvents] =
-    React.useState<QuerySnapshot<SpotDocument> | null>()
+  const [events, setEvents] = React.useState<QuerySnapshot<Spot> | null>()
 
   React.useEffect(() => {
     getDocs(

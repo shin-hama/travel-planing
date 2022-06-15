@@ -6,20 +6,10 @@ import { DocumentReference } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
-import SpotEventCard from './SpotEventCard'
-import {
-  NextMove,
-  Route,
-  RouteGuidanceAvailable,
-  Spot,
-  SpotBase,
-} from 'contexts/CurrentPlanProvider'
+import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { usePlan } from 'hooks/usePlan'
 import HomeEventCard from './HomeEventCard'
-import { useWaypoints } from 'hooks/useWaypoints'
-import { useRoutes } from 'hooks/useRoutes'
-import dayjs from 'dayjs'
 import AddEventCard from './AddEventCard'
 import { usePlanningTab } from 'contexts/PlanningTabProvider'
 import { Schedule } from 'hooks/useSchedules'
@@ -42,11 +32,10 @@ const DayColumn: React.FC<Props> = ({
   const [plan, planApi] = usePlan()
   const [schedule, scheduleApi] = useDocument(scheduleRef)
   const [events] = useEvents(scheduleRef)
-  const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
   const [, { openMap }] = usePlanningTab()
 
-  const home = React.useMemo<(SpotBase & { next?: Route }) | null>(() => {
+  const home = React.useMemo<RouteGuidanceAvailable | null>(() => {
     if (plan && schedule) {
       if (first) {
         return { ...plan.home, next: schedule.dept }
@@ -58,7 +47,7 @@ const DayColumn: React.FC<Props> = ({
     return null
   }, [first, plan, schedule])
 
-  const dest = React.useMemo<(SpotBase & { next?: Route }) | null>(() => {
+  const dest = React.useMemo<RouteGuidanceAvailable | null>(() => {
     if (plan && schedule) {
       if (last) {
         return { ...plan.home, next: schedule.dept }
@@ -118,13 +107,6 @@ const DayColumn: React.FC<Props> = ({
       })
     },
     [scheduleApi]
-  )
-
-  const handleUpdateWaypointNext = React.useCallback(
-    (next: NextMove, id: string) => {
-      waypointsApi.update(id, { next })
-    },
-    [waypointsApi]
   )
 
   if (!schedule) {
@@ -188,18 +170,7 @@ const DayColumn: React.FC<Props> = ({
                 </Draggable>
               ))}
               {dest ? (
-                <>
-                  {events && events.size > 0 && (
-                    <Box py={0.5}>
-                      <RouteEvent
-                        origin={events.docs.slice(-1)[0].data()}
-                        dest={dest}
-                        onChange={handleUpdateWaypointNext}
-                      />
-                    </Box>
-                  )}
-                  <HomeEventCard name={dest.name} date={schedule.start} />
-                </>
+                <HomeEventCard name={dest.name} date={schedule.start} />
               ) : (
                 <Box pt={4}>
                   <AddEventCard

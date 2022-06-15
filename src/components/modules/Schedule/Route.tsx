@@ -19,7 +19,11 @@ import {
 import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import {
+  Route,
+  RouteGuidanceAvailable,
+  SpotBase,
+} from 'contexts/CurrentPlanProvider'
 import RouteEditor from './RouteEditor'
 
 type ModeIcon = {
@@ -47,7 +51,7 @@ export const TravelModes: Array<ModeIcon> = [
 
 type Props = {
   origin: RouteGuidanceAvailable
-  dest: RouteGuidanceAvailable
+  dest: SpotBase
   onChange: (route: Route) => void
 }
 const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
@@ -61,14 +65,16 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
 
   const openMap = useOpenMap()
   const { routesApi, loading } = useRoutes()
-  const [route, setRoute] = React.useState<Route | null>(null)
+  const route = React.useMemo(() => origin.next || null, [origin.next])
 
   React.useEffect(() => {
     const mode = origin.next?.mode || 'driving'
-    routesApi.getAndSearch(origin, dest, mode).then((result) => {
-      setRoute(result)
-    })
-  }, [dest, origin, routesApi])
+    if (route?.to.lat !== dest.lat || route?.to.lng !== dest.lng) {
+      routesApi.search(origin, dest, mode).then((result) => {
+        onChange(result)
+      })
+    }
+  }, [dest])
 
   const [timeEditing, setTimeEditing] = React.useState(false)
 
@@ -76,30 +82,27 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
     setTimeEditing(true)
   }, [])
 
-  const handleClose = React.useCallback((newRoute: Route) => {
-    setRoute(newRoute)
-    setTimeEditing(false)
-  }, [])
+  const handleClose = React.useCallback(
+    (newRoute: Route) => {
+      onChange(newRoute)
+      setTimeEditing(false)
+    },
+    [onChange]
+  )
 
   const handleClick = (value: string) => () => {
     if (selecting) {
       setSelecting(false)
       if (isTravelMode(value)) {
         console.log(value)
-        routesApi.getAndSearch(origin, dest, value).then((result) => {
-          setRoute(result)
+        routesApi.search(origin, dest, value).then((result) => {
+          onChange(result)
         })
       }
     } else {
       setSelecting(true)
     }
   }
-
-  React.useEffect(() => {
-    if (route) {
-      onChange(route)
-    }
-  }, [route])
 
   return (
     <>

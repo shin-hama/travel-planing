@@ -4,12 +4,11 @@ import Box from '@mui/material/Box'
 import RouteEvent from './Route'
 import SpotEventCard from './SpotEventCard'
 import { DocumentReference } from 'firebase/firestore'
-import { SpotDocument } from 'hooks/useEvents'
 import { useDocument } from 'hooks/firebase/useDocument'
-import { Route, SpotBase } from 'contexts/CurrentPlanProvider'
+import { Route, Spot, SpotBase } from 'contexts/CurrentPlanProvider'
 
 type Props = {
-  originRef: DocumentReference<SpotDocument>
+  originRef: DocumentReference<Spot>
   start: Date
   dest?: SpotBase | null
 }
@@ -22,8 +21,6 @@ const SpotEvent: React.FC<Props> = ({ originRef, dest, start }) => {
         actions.update({
           next: {
             ...route,
-            lat: dest.lat,
-            lng: dest.lng,
           },
         })
       }

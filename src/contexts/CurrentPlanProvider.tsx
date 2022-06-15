@@ -16,23 +16,31 @@ export type Time = {
   unit: 'second' | 'minute'
 }
 
+type LatLng = {
+  lat: number
+  lng: number
+}
+
 export type Route = {
-  from: string
-  to: string
+  from: LatLng
+  to: LatLng
   mode: TravelMode
   time?: Time | null
   memo?: string | null
 }
 
 export const isSameRoute = (a: Route, b: Route) =>
-  a.from === b.from && a.to === b.to && a.mode === b.mode
+  a.from.lat === b.from.lat &&
+  a.from.lng === b.from.lng &&
+  a.to.lat === b.to.lat &&
+  a.to.lng === b.to.lng &&
+  a.mode === b.mode
 
-export type SpotBase = {
+export type SpotBase = LatLng & {
   id?: string
-  lat: number
-  lng: number
   name: string
 }
+
 export type RouteGuidanceAvailable = SpotBase & {
   next?: Route
 }

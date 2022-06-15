@@ -21,7 +21,6 @@ import MapView from './MapView'
 import PlanView from './PlanView'
 import TabPanel from 'components/elements/TabPanel'
 import ScheduleListView from './ScheduleListView'
-import { useRoutes } from 'hooks/useRoutes'
 import { PlanningTab, usePlanningTab } from 'contexts/PlanningTabProvider'
 
 const MyTab = styled(Tab)`
@@ -59,15 +58,7 @@ const MapWrapper: React.FC = ({ children }) => {
 }
 
 const PlanningPage: React.FC = () => {
-  const { routesApi } = useRoutes()
   const [tab, tabSwitch] = usePlanningTab()
-
-  React.useEffect(() => {
-    // とりあえずページアクセス時にキャッシュを削除するようにする
-    console.log('clean routes cache')
-    routesApi.clean()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const handleChange = (event: React.SyntheticEvent, newValue: PlanningTab) => {
     tabSwitch.open(newValue)
