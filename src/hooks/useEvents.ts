@@ -5,7 +5,7 @@ import {
   CollectionReference,
   DocumentReference,
   FirestoreDataConverter,
-  getDocs,
+  onSnapshot,
   orderBy,
   query,
   QueryDocumentSnapshot,
@@ -51,18 +51,24 @@ export const useEvents = (schedule: DocumentReference<Schedule>) => {
   const [events, setEvents] = React.useState<QuerySnapshot<Spot> | null>()
 
   React.useEffect(() => {
-    getDocs(
-      query(
-        EVENTS_SUB_COLLECTIONS(schedule).withConverter(converter),
-        orderBy('position')
-      )
+    const q = query(
+      EVENTS_SUB_COLLECTIONS(schedule).withConverter(converter),
+      orderBy('position')
     )
-      .then((result) => {
+    const unsubscribe = onSnapshot(
+      q,
+      (result) => {
         setEvents(result)
-      })
-      .catch(() => {
+      },
+      (error) => {
+        console.error(error)
         setEvents(null)
-      })
+      }
+    )
+
+    return () => {
+      unsubscribe()
+    }
   }, [schedule])
 
   return [events] as const

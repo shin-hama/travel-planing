@@ -1,8 +1,11 @@
 import * as React from 'react'
 import {
+  addDoc,
   collection,
   DocumentData,
   FirestoreDataConverter,
+  onSnapshot,
+  query,
   QueryDocumentSnapshot,
   QuerySnapshot,
   serverTimestamp,
@@ -12,13 +15,11 @@ import {
 import dayjs from 'dayjs'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
-import {
-  PLANING_USERS_PLANS_COLLECTIONS,
-  useFirestore,
-} from './firebase/useFirestore'
+import { PLANING_USERS_PLANS_COLLECTIONS } from './firebase/useFirestore'
 import { useAuthentication } from './firebase/useAuthentication'
 import { useUnsplash } from 'hooks/useUnsplash'
 import { ScheduleDTO } from './useSchedules'
+import { db } from 'configs'
 
 // Firestore data converter
 export const planConverter: FirestoreDataConverter<Plan> = {
@@ -59,7 +60,6 @@ export type PlanDTO = Pick<
 >
 
 export const usePlans = () => {
-  const db = useFirestore()
   const [user] = useAuthentication()
   const [plans, setPlans] = React.useState<QuerySnapshot<Plan> | null>(null)
   const unsplash = useUnsplash()
@@ -69,10 +69,22 @@ export const usePlans = () => {
       return
     }
     const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-    db.getDocuments(path, planConverter).then((result) => {
-      setPlans(result)
-    })
-  }, [db, user])
+    const q = query(collection(db, path).withConverter(planConverter))
+    const unsubscribe = onSnapshot(
+      q,
+      (result) => {
+        setPlans(result)
+      },
+      (error) => {
+        console.error(error)
+        setPlans(null)
+      }
+    )
+
+    return () => {
+      unsubscribe()
+    }
+  }, [user])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -113,7 +125,7 @@ export const usePlans = () => {
 
           if (user) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            const plan = await db.add<Plan>(path, newPlan)
+            const plan = await addDoc<Plan>(collection(db, path), newPlan)
 
             const events = [...Array(planDTO.days)].map((_, i): ScheduleDTO => {
               const startDate = dayjs(planDTO.start)
@@ -129,7 +141,7 @@ export const usePlans = () => {
             })
 
             events.forEach((event) => {
-              db.addByRef(collection(plan, 'schedules'), event)
+              addDoc(collection(plan, 'schedules'), event)
             })
 
             return plan.id
@@ -141,7 +153,7 @@ export const usePlans = () => {
     }
 
     return a
-  }, [db, unsplash, user])
+  }, [unsplash, user])
 
   return [plans, actions] as const
 }
