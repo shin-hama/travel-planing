@@ -19,11 +19,7 @@ import {
 import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
-import {
-  NextMove,
-  Route,
-  RouteGuidanceAvailable,
-} from 'contexts/CurrentPlanProvider'
+import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 import RouteEditor from './RouteEditor'
 
 type ModeIcon = {
@@ -52,7 +48,7 @@ export const TravelModes: Array<ModeIcon> = [
 type Props = {
   origin: RouteGuidanceAvailable
   dest: RouteGuidanceAvailable
-  onChange: (next: NextMove, prevId: string) => void
+  onChange: (route: Route) => void
 }
 const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
@@ -68,10 +64,11 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [route, setRoute] = React.useState<Route | null>(null)
 
   React.useEffect(() => {
-    routesApi.getAndSearch(origin, dest, selected.key).then((result) => {
+    const mode = origin.next?.mode || 'driving'
+    routesApi.getAndSearch(origin, dest, mode).then((result) => {
       setRoute(result)
     })
-  }, [dest, origin, routesApi, selected.key])
+  }, [dest, origin, routesApi])
 
   const [timeEditing, setTimeEditing] = React.useState(false)
 
@@ -89,7 +86,9 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
       setSelecting(false)
       if (isTravelMode(value)) {
         console.log(value)
-        onChange({ id: dest.id, mode: value }, origin.id)
+        routesApi.getAndSearch(origin, dest, value).then((result) => {
+          setRoute(result)
+        })
       }
     } else {
       setSelecting(true)
@@ -97,8 +96,10 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
   }
 
   React.useEffect(() => {
-    onChange({ id: dest.id, mode: selected.key }, origin.id)
-  }, [])
+    if (route) {
+      onChange(route)
+    }
+  }, [route])
 
   return (
     <>

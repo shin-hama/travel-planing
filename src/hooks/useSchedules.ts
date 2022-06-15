@@ -16,7 +16,11 @@ import {
 } from 'firebase/firestore'
 
 import { DocumentBase } from './firebase/useFirestore'
-import { CurrentPlanRefContext, Spot } from 'contexts/CurrentPlanProvider'
+import {
+  CurrentPlanRefContext,
+  Route,
+  Spot,
+} from 'contexts/CurrentPlanProvider'
 import { EVENTS_SUB_COLLECTIONS } from './useEvents'
 
 export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
@@ -31,6 +35,7 @@ export type Schedule = DocumentBase & {
   start: Date
   end: Date
   size: number
+  dept?: Route
 }
 
 export type ScheduleDTO = Pick<Schedule, 'start' | 'end' | 'size'>
@@ -51,6 +56,7 @@ const converter: FirestoreDataConverter<Schedule> = {
       start: data.start?.toDate(), // Convert firestore timestamp to js Date.
       end: data.end?.toDate(),
       size: data.size || 0,
+      dept: data.dept,
       createdAt: data.createdAt?.toDate(),
     }
   },

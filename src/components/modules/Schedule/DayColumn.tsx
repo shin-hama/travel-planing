@@ -9,8 +9,10 @@ import RouteEvent from './Route'
 import SpotEventCard from './SpotEventCard'
 import {
   NextMove,
+  Route,
   RouteGuidanceAvailable,
   Spot,
+  SpotBase,
 } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { usePlan } from 'hooks/usePlan'
@@ -23,6 +25,7 @@ import { usePlanningTab } from 'contexts/PlanningTabProvider'
 import { Schedule } from 'hooks/useSchedules'
 import { useDocument } from 'hooks/firebase/useDocument'
 import { useEvents } from 'hooks/useEvents'
+import SpotEvent from './SpotEvent'
 
 type Props = {
   day: number
@@ -37,13 +40,13 @@ const DayColumn: React.FC<Props> = ({
   last,
 }) => {
   const [plan, planApi] = usePlan()
-  const [schedule] = useDocument(scheduleRef)
+  const [schedule, scheduleApi] = useDocument(scheduleRef)
   const [events] = useEvents(scheduleRef)
   const [, waypointsApi] = useWaypoints()
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
   const [, { openMap }] = usePlanningTab()
 
-  const home = React.useMemo<RouteGuidanceAvailable | null>(() => {
+  const home = React.useMemo<(SpotBase & { next?: Route }) | null>(() => {
     if (plan && schedule) {
       if (first) {
         return { ...plan.home, next: schedule.dept }
@@ -55,7 +58,7 @@ const DayColumn: React.FC<Props> = ({
     return null
   }, [first, plan, schedule])
 
-  const dest = React.useMemo<RouteGuidanceAvailable | null>(() => {
+  const dest = React.useMemo<(SpotBase & { next?: Route }) | null>(() => {
     if (plan && schedule) {
       if (last) {
         return { ...plan.home, next: schedule.dept }
@@ -109,21 +112,12 @@ const DayColumn: React.FC<Props> = ({
   }
 
   const handleUpdateDeparture = React.useCallback(
-    (next: NextMove) => {
-      if (plan) {
-        planApi.update({
-          events: plan.events.map((event) =>
-            event.start === schedule?.start
-              ? {
-                  ...schedule,
-                  dept: next,
-                }
-              : event
-          ),
-        })
-      }
+    (route: Route) => {
+      scheduleApi.update({
+        dept: route,
+      })
     },
-    [plan, planApi, schedule]
+    [scheduleApi]
   )
 
   const handleUpdateWaypointNext = React.useCallback(
@@ -179,20 +173,16 @@ const DayColumn: React.FC<Props> = ({
                         ref={provided.innerRef}
                         {...provided.dragHandleProps}
                         {...provided.draggableProps}>
-                        <SpotEventCard
-                          event={event.ref}
+                        <SpotEvent
+                          originRef={event.ref}
+                          dest={
+                            index !== events.size - 1
+                              ? events.docs[index + 1].data()
+                              : dest
+                          }
                           start={schedule.start}
                         />
                       </Box>
-                      {index !== events.size - 1 && (
-                        <Box py={0.5}>
-                          <RouteEvent
-                            origin={event.data()}
-                            dest={events.docs[index + 1].data()}
-                            onChange={handleUpdateWaypointNext}
-                          />
-                        </Box>
-                      )}
                     </>
                   )}
                 </Draggable>

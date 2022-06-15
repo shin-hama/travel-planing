@@ -89,8 +89,8 @@ export const useRoutes = () => {
         )
       },
       getAndSearch: async (
-        origin: RouteGuidanceAvailable,
-        destination: RouteGuidanceAvailable,
+        origin: SpotBase,
+        destination: SpotBase,
         mode: TravelMode
       ): Promise<Route> => {
         // 同条件の Route オブジェクトを取得する
@@ -113,8 +113,8 @@ export const useRoutes = () => {
         }
       },
       searchRoute: async (
-        origin: RouteGuidanceAvailable,
-        destination: RouteGuidanceAvailable,
+        origin: SpotBase,
+        destination: SpotBase,
         mode: TravelMode
       ): Promise<Time> => {
         return await search({

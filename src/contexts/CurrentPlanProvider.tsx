@@ -10,10 +10,22 @@ import {
 import { planConverter } from 'hooks/usePlans'
 import { DocActions, useDocument } from 'hooks/firebase/useDocument'
 
-export type NextMove = {
-  id: string
-  mode: TravelMode
+export type Time = {
+  text: string
+  value: number
+  unit: 'second' | 'minute'
 }
+
+export type Route = {
+  from: string
+  to: string
+  mode: TravelMode
+  time?: Time | null
+  memo?: string | null
+}
+
+export const isSameRoute = (a: Route, b: Route) =>
+  a.from === b.from && a.to === b.to && a.mode === b.mode
 
 export type SpotBase = {
   id?: string
@@ -22,7 +34,7 @@ export type SpotBase = {
   name: string
 }
 export type RouteGuidanceAvailable = SpotBase & {
-  next?: NextMove
+  next?: Route
 }
 
 export type Prefecture = SpotBase & {
@@ -56,23 +68,6 @@ export const isSpot = (obj: any): obj is Spot => {
   )
 }
 
-export type Time = {
-  text: string
-  value: number
-  unit: 'second' | 'minute'
-}
-
-export type Route = {
-  from: string
-  to: string
-  mode: TravelMode
-  time?: Time | null
-  memo?: string | null
-}
-
-export const isSameRoute = (a: Route, b: Route) =>
-  a.from === b.from && a.to === b.to && a.mode === b.mode
-
 export type Belonging = {
   name: string
   checked: boolean
@@ -81,7 +76,7 @@ export type Belonging = {
 export type Schedule = {
   start: Date
   end: Date
-  dept?: NextMove
+  dept?: Route
   spots: Array<Spot>
 }
 
