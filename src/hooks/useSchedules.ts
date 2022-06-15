@@ -6,6 +6,7 @@ import {
   FirestoreDataConverter,
   getDocs,
   increment,
+  onSnapshot,
   orderBy,
   query,
   QueryDocumentSnapshot,
@@ -36,9 +37,10 @@ export type Schedule = DocumentBase & {
   end: Date
   size: number
   dept?: Route
+  position: number
 }
 
-export type ScheduleDTO = Pick<Schedule, 'start' | 'end' | 'size'>
+export type ScheduleDTO = Pick<Schedule, 'start' | 'end' | 'size' | 'position'>
 
 // Firestore data converter
 const converter: FirestoreDataConverter<Schedule> = {
@@ -57,6 +59,7 @@ const converter: FirestoreDataConverter<Schedule> = {
       end: data.end?.toDate(),
       size: data.size || 0,
       dept: data.dept,
+      position: data.position,
       createdAt: data.createdAt?.toDate(),
     }
   },
@@ -71,18 +74,25 @@ export const useSchedules = () => {
     if (!planRef) {
       return
     }
-    getDocs(
-      query(
-        collection(planRef, 'schedules').withConverter(converter),
-        orderBy('start')
-      )
+
+    const q = query(
+      collection(planRef, 'schedules').withConverter(converter),
+      orderBy('start')
     )
-      .then((result) => {
+    const unsubscribe = onSnapshot(
+      q,
+      (result) => {
         setSchedules(result)
-      })
-      .catch(() => {
+      },
+      (error) => {
+        console.error(error)
         setSchedules(null)
-      })
+      }
+    )
+
+    return () => {
+      unsubscribe()
+    }
   }, [planRef])
 
   const actions = React.useMemo(() => {

@@ -12,6 +12,9 @@ import {
   serverTimestamp,
   WithFieldValue,
   CollectionReference,
+  DocumentReference,
+  updateDoc,
+  UpdateData,
 } from 'firebase/firestore'
 
 import { db } from 'configs'
@@ -121,6 +124,9 @@ export const useFirestore = () => {
         converter: FirestoreDataConverter<T>
       ) => {
         return getDocs(collection(db, path).withConverter(converter))
+      },
+      update: async <T>(doc: DocumentReference<T>, updated: UpdateData<T>) => {
+        await updateDoc(doc, updated)
       },
     }
     return a

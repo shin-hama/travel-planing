@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import PlaceMarker from './PlaceMarker'
 import { useWaypoints } from 'hooks/useWaypoints'
-import type { SpotDTO } from '../SpotCard'
+import { SpotDTO } from 'hooks/useSchedules'
 
 type Props = {
   spots: Array<SpotDTO>

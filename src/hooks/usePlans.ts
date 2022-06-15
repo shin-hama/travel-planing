@@ -125,7 +125,7 @@ export const usePlans = () => {
 
           if (user) {
             const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            const plan = await addDoc<Plan>(collection(db, path), newPlan)
+            const plan = await addDoc(collection(db, path), newPlan)
 
             const events = [...Array(planDTO.days)].map((_, i): ScheduleDTO => {
               const startDate = dayjs(planDTO.start)
@@ -137,6 +137,7 @@ export const usePlans = () => {
                 start: startDate.toDate(),
                 end: startDate.hour(19).minute(0).toDate(),
                 size: 0,
+                position: 1024 * (i + 1),
               }
             })
 

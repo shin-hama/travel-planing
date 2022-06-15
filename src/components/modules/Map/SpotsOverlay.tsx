@@ -12,11 +12,12 @@ import { useToggle } from 'react-use'
 import CategorySelector from './CategorySelector'
 import SearchBox from './SearchBox'
 import SpotMarkers from './SpotMarkers'
-import SpotCard, { SpotDTO } from '../SpotCard'
+import SpotCard from '../SpotCard'
 import AnySpotCard from './AnySpotCard'
 import { useSpots } from 'hooks/useSpots'
 import { useWaypoints } from 'hooks/useWaypoints'
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
+import { SpotDTO } from 'hooks/useSchedules'
 
 const polylineOptions = {
   strokeColor: '#FF0000',

@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import DayColumn from './DayColumn'
 import { usePlan } from 'hooks/usePlan'
 import { useSchedules } from 'hooks/useSchedules'
+import { useFirestore } from 'hooks/firebase/useFirestore'
 
 const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list)
@@ -27,6 +28,7 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
 const ListScheduler: React.FC = () => {
   const [plan, planApi] = usePlan()
   const [schedules] = useSchedules()
+  const db = useFirestore()
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !plan) {
@@ -47,7 +49,9 @@ const ListScheduler: React.FC = () => {
     // reordering column
     if (result.type === 'COLUMN') {
       const newEvents = reorder(plan.events, source.index, destination.index)
+      const moved = schedules?.docs[source.index]
 
+      db.update(moved, {})
       planApi.update({ events: newEvents })
     } else if (result.type === 'ITEM') {
       if (source.droppableId === destination.droppableId) {

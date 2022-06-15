@@ -29,7 +29,7 @@ const DayColumn: React.FC<Props> = ({
   first,
   last,
 }) => {
-  const [plan, planApi] = usePlan()
+  const [plan] = usePlan()
   const [schedule, scheduleApi] = useDocument(scheduleRef)
   const [events] = useEvents(scheduleRef)
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
@@ -91,9 +91,7 @@ const DayColumn: React.FC<Props> = ({
   // }
 
   const handleRemoveDay = () => {
-    planApi.update({
-      events: plan?.events.filter((_, i) => i !== plan.events.length - 1),
-    })
+    scheduleApi.delete()
   }
 
   const handleOpenMenu = (anchor: HTMLElement) => {
