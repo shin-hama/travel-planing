@@ -2,15 +2,33 @@ import SpotEventEditor from 'components/modules/Schedule/SpotEventEditor'
 import * as React from 'react'
 import { Spot } from './CurrentPlanProvider'
 
+type SpotEditor = {
+  spot: Spot
+  update: (updated: Spot) => void
+  delete: () => void
+}
+
 const SpotEditorContext = React.createContext<
-  React.Dispatch<React.SetStateAction<Spot | null>>
+  React.Dispatch<React.SetStateAction<SpotEditor | null>>
 >(() => {
   throw Error('SpotEditorProvider is not wrapped')
 })
 
 export const SpotEditorProvider: React.FC = ({ children }) => {
-  const [spot, setSpot] = React.useState<Spot | null>(null)
+  const [spot, setSpot] = React.useState<SpotEditor | null>(null)
 
+  const handleDelete = React.useCallback(() => {
+    spot?.delete()
+    setSpot(null)
+  }, [spot])
+
+  const handleUpdate = React.useCallback(
+    (updated: Spot) => {
+      spot?.update(updated)
+      setSpot(null)
+    },
+    [spot]
+  )
   return (
     <>
       <SpotEditorContext.Provider value={setSpot}>
@@ -19,8 +37,9 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
       {spot && (
         <SpotEventEditor
           open={Boolean(spot)}
-          onClose={() => setSpot(null)}
-          spotId={spot.id}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+          spot={spot.spot}
         />
       )}
     </>
@@ -32,8 +51,7 @@ export const useSpotEditor = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      open: (target: Spot) => setSpot(target),
-      close: () => setSpot(null),
+      open: (target: SpotEditor) => setSpot(target),
     }
 
     return a

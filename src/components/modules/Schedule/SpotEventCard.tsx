@@ -16,7 +16,7 @@ type Props = {
   start: Date
 }
 const SpotEventCard: React.FC<Props> = ({ event: eventRef, start }) => {
-  const [spot] = useDocument(eventRef)
+  const [spot, actions] = useDocument(eventRef)
   const { open } = useSpotEditor()
 
   if (!spot) {
@@ -25,7 +25,7 @@ const SpotEventCard: React.FC<Props> = ({ event: eventRef, start }) => {
 
   return (
     <Box
-      onClick={() => open(spot)}
+      onClick={() => open({ spot, ...actions })}
       sx={{
         border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
         borderRadius: 2,

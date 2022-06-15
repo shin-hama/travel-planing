@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import {
+  deleteDoc,
   DocumentReference,
   onSnapshot,
   UpdateData,
@@ -8,7 +9,8 @@ import {
 } from 'firebase/firestore'
 
 export type DocActions<T> = {
-  update: (updated: UpdateData<T>) => void
+  update: (updated: UpdateData<T>) => Promise<void>
+  delete: () => Promise<void>
 }
 
 export const useDocument = <T>(ref: DocumentReference<T> | null) => {
@@ -33,6 +35,11 @@ export const useDocument = <T>(ref: DocumentReference<T> | null) => {
       update: async (updated) => {
         if (ref) {
           updateDoc(ref, updated)
+        }
+      },
+      delete: async () => {
+        if (ref) {
+          await deleteDoc(ref)
         }
       },
     }
