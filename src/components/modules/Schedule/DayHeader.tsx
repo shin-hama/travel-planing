@@ -8,41 +8,38 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 
 import TimePicker, { TimeValue } from '../TimeSelector'
-import { usePlan } from 'hooks/usePlan'
 import dayjs from 'dayjs'
+import { Schedule } from 'hooks/useSchedules'
 
 const fromMidnight = (date: Date) => date.getHours() * 60 + date.getMinutes()
 
 type Props = {
   day: number
+  schedule: Schedule
   onOpenMenu: (anchor: HTMLElement) => void
+  onChangeSchedule: (updated: Partial<Schedule>) => void
 }
-const DayHeader: React.FC<Props> = ({ day, onOpenMenu }) => {
-  const [plan, planApi] = usePlan()
-  const event = plan?.events[day - 1]
-
+const DayHeader: React.FC<Props> = ({
+  day,
+  schedule,
+  onOpenMenu,
+  onChangeSchedule,
+}) => {
   const handleChange = React.useCallback(
     (value: TimeValue) => {
-      planApi.update({
-        events: plan?.events.map((event, i) => {
-          if (i === day - 1) {
-            return {
-              ...event,
-              start: dayjs(event.start)
-                .hour(value.hour)
-                .minute(value.minute)
-                .toDate(),
-            }
-          } else {
-            return event
-          }
-        }),
-      })
+      if (schedule) {
+        onChangeSchedule({
+          start: dayjs(schedule.start)
+            .hour(value.hour)
+            .minute(value.minute)
+            .toDate(),
+        })
+      }
     },
-    [day, plan?.events, planApi]
+    [schedule, onChangeSchedule]
   )
 
-  if (!event) {
+  if (!schedule) {
     return <></>
   }
   return (
@@ -52,7 +49,7 @@ const DayHeader: React.FC<Props> = ({ day, onOpenMenu }) => {
         <TimePicker
           type="text"
           label="開始時刻 : "
-          value={fromMidnight(event.start)}
+          value={fromMidnight(schedule.start)}
           onChange={handleChange}
         />
       </Stack>

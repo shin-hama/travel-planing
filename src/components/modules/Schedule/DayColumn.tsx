@@ -123,7 +123,12 @@ const DayColumn: React.FC<Props> = ({
             height="100%"
             ref={provided.innerRef}
             {...provided.droppableProps}>
-            <DayHeader day={day + 1} onOpenMenu={handleOpenMenu} />
+            <DayHeader
+              day={day + 1}
+              schedule={schedule}
+              onOpenMenu={handleOpenMenu}
+              onChangeSchedule={scheduleApi.update}
+            />
             <Box>
               {home && (
                 <>
