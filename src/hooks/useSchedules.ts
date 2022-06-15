@@ -3,8 +3,6 @@ import * as React from 'react'
 import {
   addDoc,
   collection,
-  CollectionReference,
-  DocumentReference,
   FirestoreDataConverter,
   getDocs,
   increment,
@@ -17,23 +15,13 @@ import {
   where,
 } from 'firebase/firestore'
 
-import {
-  DocumentBase,
-  PLANING_USERS_PLANS_COLLECTIONS,
-} from './firebase/useFirestore'
+import { DocumentBase } from './firebase/useFirestore'
 import { CurrentPlanRefContext, Spot } from 'contexts/CurrentPlanProvider'
+import { EVENTS_SUB_COLLECTIONS } from './useEvents'
 
 export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
   id?: string | null
 }
-
-/**
- * @param {string} userId - target user id
- * @param {string} planId - target plan id
- * @returns {string} path - planing/v1/users/${userId}/plans/${planId}/schedules
- */
-export const SCHEDULE_COLLECTIONS = (userId: string, planId: string): string =>
-  `${PLANING_USERS_PLANS_COLLECTIONS(userId)}/${planId}/schedules`
 
 export type DocActions<T> = {
   update: (updated: Partial<T>) => void
@@ -46,9 +34,6 @@ export type Schedule = DocumentBase & {
 }
 
 export type ScheduleDTO = Pick<Schedule, 'start' | 'end' | 'size'>
-
-const EVENTS_SUB_COLLECTIONS = (schedule: DocumentReference<Schedule>) =>
-  collection(schedule, 'events') as CollectionReference<Spot>
 
 // Firestore data converter
 const converter: FirestoreDataConverter<Schedule> = {

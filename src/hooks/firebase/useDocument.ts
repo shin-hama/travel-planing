@@ -2,7 +2,6 @@ import * as React from 'react'
 
 import {
   DocumentReference,
-  FirestoreDataConverter,
   onSnapshot,
   UpdateData,
   updateDoc,
@@ -12,24 +11,22 @@ export type DocActions<T> = {
   update: (updated: UpdateData<T>) => void
 }
 
-export const useDocument = <T>(
-  ref: DocumentReference<T> | null,
-  converter: FirestoreDataConverter<T>
-) => {
+export const useDocument = <T>(ref: DocumentReference<T> | null) => {
   const [document, setDocument] = React.useState<T | null>(null)
 
   React.useEffect(() => {
     if (!ref) {
       return
     }
-    const unsubscribe = onSnapshot(ref.withConverter(converter), (doc) => {
+
+    const unsubscribe = onSnapshot(ref, (doc) => {
       setDocument(doc.data() || null)
     })
 
     return () => {
       unsubscribe()
     }
-  }, [converter, ref])
+  }, [ref])
 
   const actions = React.useMemo<DocActions<T>>(() => {
     const a: DocActions<T> = {

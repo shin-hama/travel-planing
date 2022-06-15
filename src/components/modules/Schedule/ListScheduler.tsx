@@ -124,7 +124,7 @@ const ListScheduler: React.FC = () => {
                   display: 'none',
                 },
               }}>
-              {plan?.events.map((event, i) => (
+              {schedules?.docs.map((schedule, i) => (
                 <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
                   {(provided: DraggableProvided) => (
                     <Box
@@ -133,9 +133,9 @@ const ListScheduler: React.FC = () => {
                       {...provided.draggableProps}>
                       <DayColumn
                         day={i}
-                        schedule={event}
+                        schedule={schedule.ref}
                         first={i === 0}
-                        last={i === plan.events.length - 1}
+                        last={i === schedules.size - 1}
                       />
                     </Box>
                   )}

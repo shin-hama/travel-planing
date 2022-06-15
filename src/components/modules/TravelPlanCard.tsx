@@ -7,14 +7,13 @@ import Typography from '@mui/material/Typography'
 import { useRouter } from 'hooks/useRouter'
 import { DocumentReference } from 'firebase/firestore'
 import { useDocument } from 'hooks/firebase/useDocument'
-import { planConverter } from 'hooks/usePlans'
 import { Plan } from 'contexts/CurrentPlanProvider'
 
 type Props = {
   plan: DocumentReference<Plan>
 }
 const TravelPlanCard: React.FC<Props> = ({ plan: ref }) => {
-  const [plan] = useDocument<Plan>(ref, planConverter)
+  const [plan] = useDocument<Plan>(ref)
   const router = useRouter()
 
   const handleClick = () => {

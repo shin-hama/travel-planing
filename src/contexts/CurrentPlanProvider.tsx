@@ -126,7 +126,7 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
   )
   const db = useFirestore()
 
-  const [plan, docActions] = useDocument(currentPlan, planConverter)
+  const [plan, docActions] = useDocument(currentPlan)
 
   const actions = React.useMemo(() => {
     const a = {

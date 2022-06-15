@@ -8,13 +8,20 @@ import Typography from '@mui/material/Typography'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import { useSpotEditor } from 'contexts/SpotEditorProvider'
 import dayjs from 'dayjs'
+import { DocumentReference } from 'firebase/firestore'
+import { useDocument } from 'hooks/firebase/useDocument'
 
 type Props = {
-  spot: Spot
+  event: DocumentReference<Spot>
   start: Date
 }
-const SpotEventCard: React.FC<Props> = ({ spot, start }) => {
+const SpotEventCard: React.FC<Props> = ({ event: eventRef, start }) => {
+  const [spot] = useDocument(eventRef)
   const { open } = useSpotEditor()
+
+  if (!spot) {
+    return <>No spot ref</>
+  }
 
   return (
     <Box
