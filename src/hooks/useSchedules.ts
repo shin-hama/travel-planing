@@ -97,6 +97,12 @@ export const useSchedules = () => {
 
   const actions = React.useMemo(() => {
     const a = {
+      create: async (newSchedule: ScheduleDTO) => {
+        if (planRef) {
+          const c = collection(planRef, 'schedules')
+          return await addDoc(c, newSchedule)
+        }
+      },
       addSpot: async (newSpot: SpotDTO, day: number) => {
         if (schedules && day < schedules.size) {
           const target = schedules.docs[day]
@@ -138,7 +144,7 @@ export const useSchedules = () => {
     }
 
     return a
-  }, [schedules])
+  }, [planRef, schedules])
 
   return [schedules, actions] as const
 }
