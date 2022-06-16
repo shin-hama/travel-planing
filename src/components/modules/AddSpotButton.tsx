@@ -8,16 +8,18 @@ import Stack from '@mui/material/Stack'
 
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
 import { SpotDTO, useSchedules } from 'hooks/useSchedules'
+import { useEvents } from 'hooks/useEvents'
 
 type Props = {
   newSpot: SpotDTO
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
-  const [schedules, actions] = useSchedules()
+  const [schedules] = useSchedules()
+  const [, eventsApi] = useEvents()
   const [config, setConfig] = usePlanViewConfig()
   const [day, setDay] = React.useState(config.lastAddDay)
-  console.log(schedules)
+
   const handleChange = (event: SelectChangeEvent<number>) => {
     const newDay = event.target.value as number
     setDay(newDay)
@@ -26,7 +28,9 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   }
 
   const handleClick = async () => {
-    await actions.addSpot(newSpot, day)
+    if (schedules) {
+      await eventsApi.create(newSpot, schedules.docs[day].ref)
+    }
   }
 
   return (

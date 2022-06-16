@@ -3,18 +3,20 @@ import Box from '@mui/material/Box'
 
 import RouteEvent from './Route'
 import SpotEventCard from './SpotEventCard'
-import { DocumentReference } from 'firebase/firestore'
 import { useDocument } from 'hooks/firebase/useDocument'
 import { Route, Spot, SpotBase } from 'contexts/CurrentPlanProvider'
 import { useSpotEditor } from 'contexts/SpotEditorProvider'
 
 type Props = {
-  originRef: DocumentReference<Spot>
+  origin: Spot
   start: Date
   dest?: SpotBase | null
 }
-const SpotEvent: React.FC<Props> = ({ originRef, dest, start }) => {
-  const [origin, actions] = useDocument(originRef)
+const SpotEvent: React.FC<Props> = React.memo(function SpotCard({
+  origin,
+  dest,
+  start,
+}) {
   const { open } = useSpotEditor()
 
   const handleUpdateNext = React.useCallback(
@@ -27,7 +29,7 @@ const SpotEvent: React.FC<Props> = ({ originRef, dest, start }) => {
         })
       }
     },
-    [actions, dest]
+    [dest]
   )
 
   if (!origin) {
@@ -37,7 +39,7 @@ const SpotEvent: React.FC<Props> = ({ originRef, dest, start }) => {
   return (
     <>
       <Box
-        onClick={() => open({ spot: origin, ...actions })}
+        onClick={() => open({ spot: origin })}
         sx={{
           border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
           borderRadius: 2,
@@ -51,6 +53,6 @@ const SpotEvent: React.FC<Props> = ({ originRef, dest, start }) => {
       )}
     </>
   )
-}
+})
 
 export default SpotEvent

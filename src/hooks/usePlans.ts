@@ -1,11 +1,9 @@
 import * as React from 'react'
 import {
   addDoc,
-  collection,
   DocumentData,
   FirestoreDataConverter,
   onSnapshot,
-  query,
   QueryDocumentSnapshot,
   QuerySnapshot,
   serverTimestamp,
@@ -14,12 +12,11 @@ import {
 
 import dayjs from 'dayjs'
 
-import { Plan } from 'contexts/CurrentPlanProvider'
-import { PLANING_USERS_PLANS_COLLECTIONS } from './firebase/useFirestore'
+import { Plan, PLANS_SUB_COLLECTIONS } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from './firebase/useAuthentication'
 import { useUnsplash } from 'hooks/useUnsplash'
 import { ScheduleDTO } from './useSchedules'
-import { db } from 'configs'
+import { SCHEDULES_SUB_COLLECTIONS } from 'contexts/CurrentSchedulesProvider'
 
 // Firestore data converter
 export const planConverter: FirestoreDataConverter<Plan> = {
@@ -68,10 +65,9 @@ export const usePlans = () => {
     if (!user) {
       return
     }
-    const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-    const q = query(collection(db, path).withConverter(planConverter))
+
     const unsubscribe = onSnapshot(
-      q,
+      PLANS_SUB_COLLECTIONS(user.uid),
       (result) => {
         setPlans(result)
       },
@@ -124,8 +120,7 @@ export const usePlans = () => {
           }
 
           if (user) {
-            const path = PLANING_USERS_PLANS_COLLECTIONS(user.uid)
-            const plan = await addDoc(collection(db, path), newPlan)
+            const plan = await addDoc(PLANS_SUB_COLLECTIONS(user.uid), newPlan)
 
             const events = [...Array(planDTO.days)].map((_, i): ScheduleDTO => {
               const startDate = dayjs(planDTO.start)
@@ -142,7 +137,7 @@ export const usePlans = () => {
             })
 
             events.forEach((event) => {
-              addDoc(collection(plan, 'schedules'), event)
+              addDoc(SCHEDULES_SUB_COLLECTIONS(plan), event)
             })
 
             return plan.id

@@ -2,13 +2,13 @@ import * as React from 'react'
 import dayjs from 'dayjs'
 
 import { TravelMode } from 'hooks/googlemaps/useDirections'
-import { DocumentReference } from 'firebase/firestore'
-import {
-  PLANING_USERS_PLANS_COLLECTIONS,
-  useFirestore,
-} from 'hooks/firebase/useFirestore'
+import { collection, doc, DocumentReference, getDoc } from 'firebase/firestore'
+import { PLANING_USERS_PLANS_COLLECTIONS } from 'hooks/firebase/useFirestore'
 import { planConverter } from 'hooks/usePlans'
 import { DocActions, useDocument } from 'hooks/firebase/useDocument'
+import { CurrentSchedulesContextProvider } from './CurrentSchedulesProvider'
+import { CurrentEventsContextProvider } from './CurrentEventsProvider'
+import { db } from 'configs'
 
 export type Time = {
   text: string
@@ -52,6 +52,12 @@ export type Prefecture = SpotBase & {
   imageUrl: string
 }
 
+export type Schedule = {
+  start: Date
+  end: Date
+  dept?: Route
+}
+
 export type SpotLabel = string
 
 export type Spot = RouteGuidanceAvailable & {
@@ -62,6 +68,7 @@ export type Spot = RouteGuidanceAvailable & {
   labels?: Array<SpotLabel>
   memo?: string
   position: number
+  schedule: DocumentReference<Schedule>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,13 +86,6 @@ export const isSpot = (obj: any): obj is Spot => {
 export type Belonging = {
   name: string
   checked: boolean
-}
-
-export type Schedule = {
-  start: Date
-  end: Date
-  dept?: Route
-  spots: Array<Spot>
 }
 
 export type Plan = {
@@ -114,6 +114,11 @@ type PlanActions = DocActions<Plan>
 export const CurrentPlanActionsContext =
   React.createContext<PlanActions | null>(null)
 
+export const PLANS_SUB_COLLECTIONS = (userId: string) => {
+  const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
+  return collection(db, path).withConverter(planConverter)
+}
+
 type Props = {
   query: {
     userId: string
@@ -127,7 +132,6 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
   const [currentPlan, setPlan] = React.useState<DocumentReference<Plan> | null>(
     null
   )
-  const db = useFirestore()
 
   const [plan, docActions] = useDocument(currentPlan)
 
@@ -142,8 +146,9 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
   React.useEffect(() => {
     const fetch = async () => {
       try {
-        const path = PLANING_USERS_PLANS_COLLECTIONS(query.userId)
-        const result = await db.get(path, query.planId, planConverter)
+        const result = await getDoc(
+          doc(PLANS_SUB_COLLECTIONS(query.userId), query.planId)
+        )
         setPlan(result.ref)
       } catch (e) {
         console.error(e)
@@ -151,13 +156,17 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
       }
     }
     fetch()
-  }, [db, query.planId, query.userId])
+  }, [query.planId, query.userId])
 
   return (
     <CurrentPlanRefContext.Provider value={currentPlan}>
       <CurrentPlanContext.Provider value={plan}>
         <CurrentPlanActionsContext.Provider value={actions}>
-          {children}
+          <CurrentSchedulesContextProvider planRef={currentPlan}>
+            <CurrentEventsContextProvider planRef={currentPlan}>
+              {children}
+            </CurrentEventsContextProvider>
+          </CurrentSchedulesContextProvider>
         </CurrentPlanActionsContext.Provider>
       </CurrentPlanContext.Provider>
     </CurrentPlanRefContext.Provider>

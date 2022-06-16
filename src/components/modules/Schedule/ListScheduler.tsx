@@ -89,7 +89,7 @@ const ListScheduler: React.FC = () => {
                     {...provided.draggableProps}>
                     <DayColumn
                       day={i}
-                      schedule={schedule.ref}
+                      schedule={schedule}
                       first={i === 0}
                       last={i === schedules.size - 1}
                     />

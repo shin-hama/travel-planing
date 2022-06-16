@@ -1,75 +1,53 @@
 import * as React from 'react'
 
+import { addDoc, DocumentReference } from 'firebase/firestore'
+
+import { Schedule, SpotDTO } from './useSchedules'
+import { CurrentPlanRefContext, Spot } from 'contexts/CurrentPlanProvider'
 import {
-  collection,
-  CollectionReference,
-  DocumentReference,
-  FirestoreDataConverter,
-  onSnapshot,
-  orderBy,
-  query,
-  QueryDocumentSnapshot,
-  QuerySnapshot,
-  SnapshotOptions,
-} from 'firebase/firestore'
+  CurrentEventsContext,
+  EVENTS_SUB_COLLECTIONS,
+} from 'contexts/CurrentEventsProvider'
 
-import { Schedule } from './useSchedules'
-import { Spot } from 'contexts/CurrentPlanProvider'
+export const useEvents = (schedule?: DocumentReference<Schedule>) => {
+  const planRef = React.useContext(CurrentPlanRefContext)
+  const events = React.useContext(CurrentEventsContext)
 
-const converter: FirestoreDataConverter<Spot> = {
-  toFirestore: (spot: Spot) => {
-    return {
-      ...spot,
-    }
-  },
-  fromFirestore: (
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): Spot => {
-    const data = snapshot.data(options)
-    return {
-      id: data.spot,
-      lat: data.lat,
-      lng: data.lng,
-      name: data.name,
-      duration: data.duration,
-      durationUnit: data.durationUnit,
-      imageUrl: data.imageUrl,
-      placeId: data.placeId,
-      labels: data.labels || [],
-      memo: data.memo,
-      position: data.position,
-      next: data.next,
-    }
-  },
-}
-
-export const EVENTS_SUB_COLLECTIONS = (schedule: DocumentReference<Schedule>) =>
-  collection(schedule, 'events') as CollectionReference<Spot>
-
-export const useEvents = (schedule: DocumentReference<Schedule>) => {
-  const [events, setEvents] = React.useState<QuerySnapshot<Spot> | null>()
-
-  React.useEffect(() => {
-    const q = query(
-      EVENTS_SUB_COLLECTIONS(schedule).withConverter(converter),
-      orderBy('position')
+  const filtered = React.useMemo(() => {
+    console.log(schedule)
+    console.log(events?.docs.map((doc) => doc.get('schedule')))
+    return (
+      events?.docs.filter(
+        (doc) => !schedule || doc.data().schedule.id === schedule.id
+      ) || []
     )
-    const unsubscribe = onSnapshot(
-      q,
-      (result) => {
-        setEvents(result)
+  }, [events?.docs, schedule])
+
+  const actions = React.useMemo(() => {
+    const a = {
+      create: async (
+        newSpot: SpotDTO,
+        schedule: DocumentReference<Schedule>
+      ) => {
+        if (planRef) {
+          const size = filtered.length || 0
+          const spot: Spot = {
+            ...newSpot,
+            id: '',
+            duration: 60,
+            durationUnit: 'minute',
+            position: 1000 * (size + 1),
+            imageUrl: '',
+            schedule,
+          }
+          const c = EVENTS_SUB_COLLECTIONS(planRef)
+          await addDoc(c, spot)
+        }
       },
-      (error) => {
-        console.error(error)
-        setEvents(null)
-      }
-    )
-
-    return () => {
-      unsubscribe()
     }
-  }, [schedule])
 
-  return [events] as const
+    return a
+  }, [filtered.length, planRef])
+
+  return [filtered, actions] as const
 }

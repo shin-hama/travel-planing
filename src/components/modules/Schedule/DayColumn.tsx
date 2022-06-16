@@ -7,7 +7,7 @@ import {
   Droppable,
   DropResult,
 } from 'react-beautiful-dnd'
-import { DocumentReference } from 'firebase/firestore'
+import { DocumentReference, QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
@@ -18,7 +18,6 @@ import HomeEventCard from './HomeEventCard'
 import AddEventCard from './AddEventCard'
 import { usePlanningTab } from 'contexts/PlanningTabProvider'
 import { Schedule } from 'hooks/useSchedules'
-import { useDocument } from 'hooks/firebase/useDocument'
 import { useEvents } from 'hooks/useEvents'
 import SpotEvent from './SpotEvent'
 import { useFirestore } from 'hooks/firebase/useFirestore'
@@ -26,19 +25,20 @@ import { useMove } from 'hooks/useMove'
 
 type Props = {
   day: number
-  schedule: DocumentReference<Schedule>
+  schedule: QueryDocumentSnapshot<Schedule>
   first?: boolean
   last?: boolean
 }
-const DayColumn: React.FC<Props> = ({
+const DayColumn: React.FC<Props> = React.memo(function DayColumn({
   day,
-  schedule: scheduleRef,
+  schedule: scheduleQuery,
   first,
   last,
-}) => {
+}) {
   const [plan] = usePlan()
-  const [schedule, scheduleApi] = useDocument(scheduleRef)
-  const [events] = useEvents(scheduleRef)
+  const [events] = useEvents(scheduleQuery.ref)
+  console.log(events)
+  const schedule = React.useMemo(() => scheduleQuery.data(), [scheduleQuery])
   const { updatePosition } = useMove()
   const db = useFirestore()
 
@@ -100,22 +100,23 @@ const DayColumn: React.FC<Props> = ({
   //   return _start.toDate()
   // }
 
+  const handleUpdate = () => {
+    // scheduleApi.update()
+  }
+
   const handleRemoveDay = () => {
-    scheduleApi.delete()
+    // scheduleApi.delete()
   }
 
   const handleOpenMenu = (anchor: HTMLElement) => {
     setAnchor(anchor)
   }
 
-  const handleUpdateDeparture = React.useCallback(
-    (route: Route) => {
-      scheduleApi.update({
-        dept: route,
-      })
-    },
-    [scheduleApi]
-  )
+  const handleUpdateDeparture = React.useCallback((route: Route) => {
+    // scheduleApi.update({
+    //   dept: route,
+    // })
+  }, [])
 
   const handleDropEnd = (result: DropResult) => {
     if (!result.destination || !events) {
@@ -138,13 +139,13 @@ const DayColumn: React.FC<Props> = ({
     if (result.type === 'ITEM') {
       if (source.droppableId === destination.droppableId) {
         // moving to same list
-        const items = events.docs.map((doc) => doc.data())
+        const items = events.map((doc) => doc.data())
         const reordered = updatePosition(items, source.index, destination.index)
 
-        db.update(events.docs[source.index].ref, reordered)
+        db.update(events[source.index].ref, reordered)
       } else {
         // moving to another day
-        const [removedSpot] = events.docs.splice(source.index, 1)
+        const [removedSpot] = events.splice(source.index, 1)
       }
     }
   }
@@ -157,7 +158,7 @@ const DayColumn: React.FC<Props> = ({
     <>
       <DragDropContext onDragEnd={handleDropEnd}>
         <Droppable
-          droppableId={scheduleRef.id}
+          droppableId={scheduleQuery.id}
           type="ITEM"
           direction="vertical">
           {(provided) => (
@@ -171,17 +172,17 @@ const DayColumn: React.FC<Props> = ({
                 day={day + 1}
                 schedule={schedule}
                 onOpenMenu={handleOpenMenu}
-                onChangeSchedule={scheduleApi.update}
+                onChangeSchedule={handleUpdate}
               />
               <Box>
                 {home && (
                   <>
                     <HomeEventCard name={home.name} date={schedule.start} />
                     <Box py={0.5}>
-                      {events && events.size > 0 ? (
+                      {events && events.length > 0 ? (
                         <RouteEvent
                           origin={home}
-                          dest={events?.docs[0].data()}
+                          dest={events[0].data()}
                           onChange={handleUpdateDeparture}
                         />
                       ) : dest ? (
@@ -196,7 +197,7 @@ const DayColumn: React.FC<Props> = ({
                     </Box>
                   </>
                 )}
-                {events?.docs?.map((event, index) => (
+                {events.map((event, index) => (
                   <Draggable
                     key={event.id}
                     draggableId={event.id}
@@ -208,10 +209,10 @@ const DayColumn: React.FC<Props> = ({
                           {...provided.dragHandleProps}
                           {...provided.draggableProps}>
                           <SpotEvent
-                            originRef={event.ref}
+                            origin={event.data()}
                             dest={
-                              index !== events.size - 1
-                                ? events.docs[index + 1].data()
+                              index !== events.length - 1
+                                ? events[index + 1].data()
                                 : dest
                             }
                             start={schedule.start}
@@ -245,6 +246,6 @@ const DayColumn: React.FC<Props> = ({
       />
     </>
   )
-}
+})
 
 export default DayColumn
