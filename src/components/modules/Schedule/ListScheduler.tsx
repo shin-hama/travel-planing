@@ -17,12 +17,25 @@ import { usePlan } from 'hooks/usePlan'
 import { useSchedules } from 'hooks/useSchedules'
 import { useFirestore } from 'hooks/firebase/useFirestore'
 
-const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
-  const result = Array.from(list)
-  const [removed] = result.splice(startIndex, 1)
-  result.splice(endIndex, 0, removed)
+type OrderedItem = {
+  position: number
+}
 
-  return result
+const movePosition = <T extends OrderedItem>(
+  items: T[],
+  startIndex: number,
+  destIndex: number
+): T => {
+  const cloned = Array.from(items)
+  const [target] = cloned.splice(startIndex, 1)
+
+  const prevPos = cloned[destIndex - 1]?.position || 0
+  const nextPos =
+    cloned[destIndex]?.position || cloned[cloned.length - 1].position * 2
+
+  target.position = (prevPos + nextPos) / 2
+
+  return target
 }
 
 const ListScheduler: React.FC = () => {
@@ -48,15 +61,18 @@ const ListScheduler: React.FC = () => {
 
     // reordering column
     if (result.type === 'COLUMN') {
-      const newEvents = reorder(plan.events, source.index, destination.index)
-      const moved = schedules?.docs[source.index]
+      if (schedules) {
+        const items = schedules.docs.map((doc) => doc.data())
+        const newSchedule = movePosition(items, source.index, destination.index)
 
-      db.update(moved, {})
-      planApi.update({ events: newEvents })
+        console.log(newSchedule)
+
+        db.update(schedules.docs[source.index].ref, newSchedule)
+      }
     } else if (result.type === 'ITEM') {
       if (source.droppableId === destination.droppableId) {
         // moving to same list
-        const reordered = reorder(
+        const reordered = movePosition(
           plan.events[Number.parseInt(source.droppableId)].spots,
           source.index,
           destination.index

@@ -77,7 +77,7 @@ export const useSchedules = () => {
 
     const q = query(
       collection(planRef, 'schedules').withConverter(converter),
-      orderBy('start')
+      orderBy('position')
     )
     const unsubscribe = onSnapshot(
       q,
