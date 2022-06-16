@@ -13,13 +13,11 @@ import {
 import dayjs from 'dayjs'
 
 import DayColumn from './DayColumn'
-import { usePlan } from 'hooks/usePlan'
 import { useSchedules } from 'hooks/useSchedules'
 import { useFirestore } from 'hooks/firebase/useFirestore'
 import { useMove } from 'hooks/useMove'
 
 const ListScheduler: React.FC = () => {
-  const [plan, planApi] = usePlan()
   const [schedules, schedulesApi] = useSchedules()
   const db = useFirestore()
   const { updatePosition } = useMove()

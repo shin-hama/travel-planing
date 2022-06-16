@@ -77,8 +77,8 @@ const ScheduleListView: React.FC = () => {
       routesApi.add(
         ...legs.map(
           (leg, i): Route => ({
-            from: spots[i].id || '',
-            to: spots[i + 1].id || '',
+            from: { lat: spots[i].lat, lng: spots[i].lng },
+            to: { lat: spots[i + 1].lat, lng: spots[i + 1].lng },
             mode: 'driving',
             time: {
               ...leg.duration,

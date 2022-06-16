@@ -143,6 +143,7 @@ const DayColumn: React.FC<Props> = ({
 
         db.update(events.docs[source.index].ref, reordered)
       } else {
+        // moving to another day
         const [removedSpot] = events.docs.splice(source.index, 1)
       }
     }
