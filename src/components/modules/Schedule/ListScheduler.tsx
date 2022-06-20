@@ -18,7 +18,7 @@ import { useFirestore } from 'hooks/firebase/useFirestore'
 import { useMove } from 'hooks/useMove'
 
 const ListScheduler: React.FC = () => {
-  const [schedules, schedulesApi] = useSchedules()
+  const [schedules] = useSchedules()
   const db = useFirestore()
   const { updatePosition } = useMove()
 

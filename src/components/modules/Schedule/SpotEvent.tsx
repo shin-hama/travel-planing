@@ -3,7 +3,6 @@ import Box from '@mui/material/Box'
 
 import RouteEvent from './Route'
 import SpotEventCard from './SpotEventCard'
-import { useDocument } from 'hooks/firebase/useDocument'
 import { Route, Spot, SpotBase } from 'contexts/CurrentPlanProvider'
 import { useSpotEditor } from 'contexts/SpotEditorProvider'
 
@@ -11,25 +10,25 @@ type Props = {
   origin: Spot
   start: Date
   dest?: SpotBase | null
+  handleUpdate: (updated: Partial<Spot>) => void
 }
 const SpotEvent: React.FC<Props> = React.memo(function SpotCard({
   origin,
   dest,
   start,
+  handleUpdate,
 }) {
   const { open } = useSpotEditor()
 
   const handleUpdateNext = React.useCallback(
     (route: Route) => {
-      if (dest) {
-        actions.update({
-          next: {
-            ...route,
-          },
-        })
-      }
+      handleUpdate({
+        next: {
+          ...route,
+        },
+      })
     },
-    [dest]
+    [handleUpdate]
   )
 
   if (!origin) {

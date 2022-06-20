@@ -104,9 +104,9 @@ export const useFirestore = () => {
           throw e
         }
       },
-      delete: async (path: string, id: string) => {
+      delete: async (document: DocumentReference) => {
         try {
-          await deleteDoc(doc(db, path, id))
+          await deleteDoc(document)
         } catch (e) {
           console.error(`fail to update: ${e}`)
           throw e

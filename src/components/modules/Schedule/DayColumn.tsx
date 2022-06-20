@@ -7,7 +7,7 @@ import {
   Droppable,
   DropResult,
 } from 'react-beautiful-dnd'
-import { DocumentReference, QueryDocumentSnapshot } from 'firebase/firestore'
+import { QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
@@ -100,23 +100,27 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
   //   return _start.toDate()
   // }
 
-  const handleUpdate = () => {
-    // scheduleApi.update()
-  }
+  const handleUpdate = React.useCallback(
+    (updated: Partial<Schedule>) => {
+      db.update(scheduleQuery.ref, updated)
+    },
+    [db, scheduleQuery.ref]
+  )
 
   const handleRemoveDay = () => {
-    // scheduleApi.delete()
+    db.delete(scheduleQuery.ref)
   }
 
   const handleOpenMenu = (anchor: HTMLElement) => {
     setAnchor(anchor)
   }
 
-  const handleUpdateDeparture = React.useCallback((route: Route) => {
-    // scheduleApi.update({
-    //   dept: route,
-    // })
-  }, [])
+  const handleUpdateDeparture = React.useCallback(
+    (route: Route) => {
+      handleUpdate({ dept: route })
+    },
+    [handleUpdate]
+  )
 
   const handleDropEnd = (result: DropResult) => {
     if (!result.destination || !events) {
@@ -216,6 +220,9 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                                 : dest
                             }
                             start={schedule.start}
+                            handleUpdate={(updated) =>
+                              db.update(event.ref, updated)
+                            }
                           />
                         </Box>
                       </>
