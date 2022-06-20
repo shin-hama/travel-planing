@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
+import { QueryDocumentSnapshot } from 'firebase/firestore'
 
 import RouteEvent from './Route'
 import SpotEventCard from './SpotEventCard'
@@ -7,7 +8,7 @@ import { Route, Spot, SpotBase } from 'contexts/CurrentPlanProvider'
 import { useSpotEditor } from 'contexts/SpotEditorProvider'
 
 type Props = {
-  origin: Spot
+  origin: QueryDocumentSnapshot<Spot>
   start: Date
   dest?: SpotBase | null
   handleUpdate: (updated: Partial<Spot>) => void
@@ -38,16 +39,20 @@ const SpotEvent: React.FC<Props> = React.memo(function SpotCard({
   return (
     <>
       <Box
-        onClick={() => open({ spot: origin })}
+        onClick={() => open(origin)}
         sx={{
           border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
           borderRadius: 2,
         }}>
-        <SpotEventCard spot={origin} start={start} />
+        <SpotEventCard spot={origin.data()} start={start} />
       </Box>
       {dest && (
         <Box py={0.5}>
-          <RouteEvent origin={origin} dest={dest} onChange={handleUpdateNext} />
+          <RouteEvent
+            origin={origin.data()}
+            dest={dest}
+            onChange={handleUpdateNext}
+          />
         </Box>
       )}
     </>

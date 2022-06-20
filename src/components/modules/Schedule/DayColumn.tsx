@@ -213,7 +213,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                           {...provided.dragHandleProps}
                           {...provided.draggableProps}>
                           <SpotEvent
-                            origin={event.data()}
+                            origin={event}
                             dest={
                               index !== events.length - 1
                                 ? events[index + 1].data()

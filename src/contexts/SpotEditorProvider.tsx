@@ -1,33 +1,36 @@
 import SpotEventEditor from 'components/modules/Schedule/SpotEventEditor'
+import { QueryDocumentSnapshot } from 'firebase/firestore'
+import { useFirestore } from 'hooks/firebase/useFirestore'
 import * as React from 'react'
 import { Spot } from './CurrentPlanProvider'
 
-type SpotEditor = {
-  spot: Spot
-  update: (updated: Spot) => void
-  delete: () => void
-}
-
 const SpotEditorContext = React.createContext<
-  React.Dispatch<React.SetStateAction<SpotEditor | null>>
+  React.Dispatch<React.SetStateAction<QueryDocumentSnapshot<Spot> | null>>
 >(() => {
   throw Error('SpotEditorProvider is not wrapped')
 })
 
 export const SpotEditorProvider: React.FC = ({ children }) => {
-  const [spot, setSpot] = React.useState<SpotEditor | null>(null)
+  const [spot, setSpot] = React.useState<QueryDocumentSnapshot<Spot> | null>(
+    null
+  )
+  const db = useFirestore()
 
   const handleDelete = React.useCallback(() => {
-    spot?.delete()
-    setSpot(null)
-  }, [spot])
+    if (spot) {
+      db.delete(spot.ref)
+      setSpot(null)
+    }
+  }, [db, spot])
 
   const handleUpdate = React.useCallback(
     (updated: Spot) => {
-      spot?.update(updated)
-      setSpot(null)
+      if (spot) {
+        db.update(spot.ref, updated)
+        setSpot(null)
+      }
     },
-    [spot]
+    [db, spot]
   )
   return (
     <>
@@ -39,7 +42,7 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
           open={Boolean(spot)}
           onDelete={handleDelete}
           onUpdate={handleUpdate}
-          spot={spot.spot}
+          spot={spot.data()}
         />
       )}
     </>
@@ -51,7 +54,7 @@ export const useSpotEditor = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      open: (target: SpotEditor) => setSpot(target),
+      open: (target: QueryDocumentSnapshot<Spot>) => setSpot(target),
     }
 
     return a
