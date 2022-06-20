@@ -26,19 +26,19 @@ export const useEvents = (schedule?: DocumentReference<Schedule>) => {
   const actions = React.useMemo(() => {
     const a = {
       create: async (
-        newSpot: SpotDTO,
+        newSpot: SpotDTO & Partial<Spot>,
         schedule: DocumentReference<Schedule>
       ) => {
         if (planRef) {
           const size = filtered.length || 0
           const spot: Spot = {
-            ...newSpot,
-            id: '',
             duration: 60,
             durationUnit: 'minute',
             position: 1000 * (size + 1),
             imageUrl: '',
+            ...newSpot,
             schedule,
+            id: '',
           }
           const c = EVENTS_SUB_COLLECTIONS(planRef)
           await addDoc(c, spot)

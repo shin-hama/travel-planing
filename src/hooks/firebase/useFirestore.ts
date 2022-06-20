@@ -15,6 +15,7 @@ import {
   DocumentReference,
   updateDoc,
   UpdateData,
+  writeBatch,
 } from 'firebase/firestore'
 
 import { db } from 'configs'
@@ -127,6 +128,9 @@ export const useFirestore = () => {
       },
       update: async <T>(doc: DocumentReference<T>, updated: UpdateData<T>) => {
         await updateDoc(doc, updated)
+      },
+      writeBatch: () => {
+        return writeBatch(db)
       },
     }
     return a

@@ -11,12 +11,13 @@ import { faRoute, faBed } from '@fortawesome/free-solid-svg-icons'
 
 import { usePlan } from 'hooks/usePlan'
 import ListScheduler from 'components/modules/Schedule/ListScheduler'
-import { useWaypoints } from 'hooks/useWaypoints'
 import { useDirections } from 'hooks/googlemaps/useDirections'
-import { useRoutes } from 'hooks/useRoutes'
 import type { Route } from 'contexts/CurrentPlanProvider'
 import { useConfirm } from 'hooks/useConfirm'
 import { usePlanningTab } from 'contexts/PlanningTabProvider'
+import { useEvents } from 'hooks/useEvents'
+import { useSchedules } from 'hooks/useSchedules'
+import { useFirestore } from 'hooks/firebase/useFirestore'
 
 type Action = {
   label: string
@@ -26,8 +27,9 @@ type Action = {
 
 const ScheduleListView: React.FC = () => {
   const [plan] = usePlan()
-  const [waypoints, waypointsApi] = useWaypoints()
-  const { routesApi } = useRoutes()
+  const [events] = useEvents()
+  const [schedules] = useSchedules()
+  const db = useFirestore()
   const directions = useDirections()
   const confirm = useConfirm()
   const [, { openMap }] = usePlanningTab()
@@ -45,7 +47,7 @@ const ScheduleListView: React.FC = () => {
   }, [openMap])
 
   const handleOptimizeRoute = React.useCallback(async () => {
-    if (!plan) {
+    if (!plan || !schedules || !events) {
       return
     }
     try {
@@ -60,7 +62,7 @@ const ScheduleListView: React.FC = () => {
     } catch {
       return
     }
-    const cloned = Array.from(waypoints || [])
+    const cloned = events.map((e) => e.data())
     const origin = plan.home
     const dest = plan.home
     const result = await directions.search({
@@ -73,24 +75,43 @@ const ScheduleListView: React.FC = () => {
     if (result) {
       const { legs, ordered_waypoints: ordered } = result
       const spots = [origin, ...ordered, dest]
-      waypointsApi.set(ordered)
-      routesApi.add(
-        ...legs.map(
-          (leg, i): Route => ({
-            from: { lat: spots[i].lat, lng: spots[i].lng },
-            to: { lat: spots[i + 1].lat, lng: spots[i + 1].lng },
-            mode: 'driving',
-            time: {
-              ...leg.duration,
-              unit: 'second',
-            },
-          })
-        )
+
+      const batch = db.writeBatch()
+
+      const [dept, ...routes] = legs.map(
+        (leg, i): Route => ({
+          from: { lat: spots[i].lat, lng: spots[i].lng },
+          to: { lat: spots[i + 1].lat, lng: spots[i + 1].lng },
+          mode: 'driving',
+          time: {
+            ...leg.duration,
+            unit: 'second',
+          },
+        })
       )
+      batch.update(schedules.docs[0].ref, { dept })
+
+      ordered.forEach((spot, i) => {
+        const event = events.find(
+          (e) => e.data().lat === spot.lat && e.data().lng === spot.lng
+        )
+        if (!event) {
+          console.warn('Cannot find original reference')
+          return
+        }
+        batch.update(event.ref, {
+          ...spot,
+          position: 1000 * (i + 1),
+          next: routes[i] || undefined,
+          schedule: schedules.docs[0].ref,
+        })
+      })
+
+      batch.commit()
     } else {
       alert('cannot find roue')
     }
-  }, [confirm, directions, plan, routesApi, waypoints, waypointsApi])
+  }, [confirm, db, directions, events, plan, schedules])
 
   const actions = React.useMemo<Array<Action>>(() => {
     return [
@@ -138,7 +159,7 @@ const ScheduleListView: React.FC = () => {
       </SpeedDial>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={waypoints?.length === 0}
+        open={events.length === 0}
         autoHideDuration={6000}>
         <Alert severity={'info'}>地図上で行きたい場所を選んでください。</Alert>
       </Snackbar>
