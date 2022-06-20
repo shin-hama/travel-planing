@@ -1,8 +1,8 @@
 import * as React from 'react'
 
 import PlaceMarker from './PlaceMarker'
-import { useWaypoints } from 'hooks/useWaypoints'
 import { SpotDTO } from 'hooks/useSchedules'
+import { useEvents } from 'hooks/useEvents'
 
 type Props = {
   spots: Array<SpotDTO>
@@ -16,7 +16,7 @@ const SpotMarkers: React.FC<Props> = ({
   routeMode,
   onClick,
 }) => {
-  const [waypoints] = useWaypoints()
+  const [events] = useEvents()
 
   const handleClick = (spot: SpotDTO) => () => {
     onClick(spot)
@@ -28,7 +28,7 @@ const SpotMarkers: React.FC<Props> = ({
         <PlaceMarker
           key={item.placeId}
           selected={
-            waypoints?.find((spot) => spot.placeId === item.placeId) !==
+            events?.find((spot) => spot.data().placeId === item.placeId) !==
             undefined
           }
           focused={item.placeId === focusedSpot?.placeId}

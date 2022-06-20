@@ -14,8 +14,6 @@ export const useEvents = (schedule?: DocumentReference<Schedule>) => {
   const events = React.useContext(CurrentEventsContext)
 
   const filtered = React.useMemo(() => {
-    console.log(schedule)
-    console.log(events?.docs.map((doc) => doc.get('schedule')))
     return (
       events?.docs.filter(
         (doc) => !schedule || doc.data().schedule.id === schedule.id
