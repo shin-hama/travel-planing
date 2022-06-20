@@ -1,7 +1,8 @@
 import * as React from 'react'
 import Stack from '@mui/material/Stack'
 
-import SpotCard, { SpotDTO } from './SpotCard'
+import SpotCard from './SpotCard'
+import { SpotDTO } from 'hooks/useSchedules'
 
 type Props = {
   spots: Array<SpotDTO>
