@@ -1,21 +1,12 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from 'react-beautiful-dnd'
-import { doc, QueryDocumentSnapshot } from 'firebase/firestore'
+import { Draggable, Droppable } from 'react-beautiful-dnd'
+import { QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
-import {
-  Route,
-  RouteGuidanceAvailable,
-  Spot,
-} from 'contexts/CurrentPlanProvider'
+import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { usePlan } from 'hooks/usePlan'
 import HomeEventCard from './HomeEventCard'
@@ -25,7 +16,6 @@ import { Schedule } from 'hooks/useSchedules'
 import { useEvents } from 'hooks/useEvents'
 import SpotEvent from './SpotEvent'
 import { useFirestore } from 'hooks/firebase/useFirestore'
-import { useMove } from 'hooks/useMove'
 
 type Props = {
   day: number
@@ -40,8 +30,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
   last,
 }) {
   const [plan] = usePlan()
-  const [events, eventsApi] = useEvents(scheduleQuery.ref)
-  const { updatePosition } = useMove()
+  const [events] = useEvents(scheduleQuery.ref)
 
   const schedule = React.useMemo(() => scheduleQuery.data(), [scheduleQuery])
   const db = useFirestore()
