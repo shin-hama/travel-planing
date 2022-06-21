@@ -6,7 +6,11 @@ import { QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
-import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import {
+  Route,
+  RouteGuidanceAvailable,
+  Spot,
+} from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { usePlan } from 'hooks/usePlan'
 import HomeEventCard from './HomeEventCard'
@@ -16,6 +20,7 @@ import { Schedule } from 'hooks/useSchedules'
 import { useEvents } from 'hooks/useEvents'
 import SpotEvent from './SpotEvent'
 import { useFirestore } from 'hooks/firebase/useFirestore'
+import dayjs from 'dayjs'
 
 type Props = {
   day: number
@@ -66,32 +71,26 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
 
   // const { routesApi } = useRoutes()
 
-  // const summarizeTotalTime = (): Date => {
-  //   const _start = dayjs(schedule?.start)
-  //   prevSpots.forEach((prev) => {
-  //     // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
-  //     const nextRoute =
-  //       prev.next &&
-  //       routesApi.get({
-  //         from: prev.id,
-  //         to: prev.next.id,
-  //         mode: prev.next.mode,
-  //       })
-  //     _start = _start
-  //       .add(prev.duration, prev.durationUnit)
-  //       .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)
-  //   })
+  const summarizeTotalTime = (target: Spot): Date => {
+    let _start = dayjs(schedule.start)
+    const prevSpots = events
+      .map((e) => e.data())
+      .filter((e) => e.position < target.position)
+    prevSpots.forEach((prev) => {
+      // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
+      _start = _start
+        .add(prev.duration, prev.durationUnit)
+        .add(prev.next?.time?.value || 0, prev.next?.time?.unit)
+    })
 
-  //   if (home && schedule.dept) {
-  //     const deptRoute = routesApi.get({
-  //       from: home.id,
-  //       to: schedule.dept.id,
-  //       mode: schedule.dept.mode,
-  //     })
-  //     _start = _start.add(deptRoute?.time?.value || 0, deptRoute?.time?.unit)
-  //   }
-  //   return _start.toDate()
-  // }
+    if (schedule.dept) {
+      _start = _start.add(
+        schedule.dept?.time?.value || 0,
+        schedule.dept?.time?.unit
+      )
+    }
+    return _start.toDate()
+  }
 
   const handleUpdate = React.useCallback(
     (updated: Partial<Schedule>) => {
@@ -176,7 +175,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                               ? events[index + 1].data()
                               : dest
                           }
-                          start={schedule.start}
+                          start={summarizeTotalTime(event.data())}
                           handleUpdate={(updated) =>
                             db.update(event.ref, updated)
                           }
