@@ -16,21 +16,24 @@ import DayColumn from './DayColumn'
 import { useSchedules } from 'hooks/useSchedules'
 import { useFirestore } from 'hooks/firebase/useFirestore'
 import { useMove } from 'hooks/useMove'
+import { useEvents } from 'hooks/useEvents'
+import { Spot } from 'contexts/CurrentPlanProvider'
+import { doc } from 'firebase/firestore'
 
 const ListScheduler: React.FC = () => {
   const [schedules] = useSchedules()
   const db = useFirestore()
   const { updatePosition } = useMove()
+  const [events, eventsApi] = useEvents()
 
   const handleDragEnd = (result: DropResult) => {
+    console.log('DragEnd')
     if (!result.destination || !schedules) {
       return
     }
 
     const source = result.source
     const destination = result.destination
-
-    console.log(result)
 
     // did not move anywhere - can bail early
     if (
@@ -40,15 +43,48 @@ const ListScheduler: React.FC = () => {
       return
     }
 
-    // reordering column
+    console.log(result)
     if (result.type === 'COLUMN') {
+      // reordering day columns
       const items = schedules.docs.map((doc) => doc.data())
       const newSchedule = updatePosition(items, source.index, destination.index)
 
       db.update(schedules.docs[source.index].ref, newSchedule)
     } else if (result.type === 'ITEM') {
+      // reordering Event items
+      let reordered: Spot | null = null
+      if (source.droppableId === destination.droppableId) {
+        // moving to same list
+        const schedule = schedules.docs.find(
+          (doc) => doc.id === source.droppableId
+        )
+        if (!schedule) {
+          console.error('Moved source object is not found')
+          return
+        }
+        const items = eventsApi.filter(schedule.ref).map((doc) => doc.data())
+        reordered = updatePosition(items, source.index, destination.index)
+      } else {
+        // moving to another day
+        const movedSpot = events[source.index].data()
+
+        // droppableId は Schedule ドキュメントの ID が設定されている
+        const dest = doc(movedSpot.schedule.parent, destination.droppableId)
+        movedSpot.schedule = dest
+        const destEvents = eventsApi.filter(dest).map((e) => e.data())
+
+        reordered = updatePosition(
+          [movedSpot, ...destEvents],
+          0,
+          destination.index
+        )
+        console.log(reordered)
+      }
+      if (reordered) {
+        db.update(events[source.index].ref, reordered)
+      }
       if (destination.droppableId === 'newDay') {
-        console.error('Not implemented')
+        console.error('Not Implemented')
         // Add a new day
         // const newDate = dayjs(schedules.docs.slice(-1)[0].data().start)
         //   .add(1, 'day')

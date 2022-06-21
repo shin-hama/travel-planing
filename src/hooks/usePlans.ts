@@ -39,13 +39,6 @@ export const planConverter: FirestoreDataConverter<Plan> = {
       home: data.home,
       destination: data.destination,
       thumbnail: data.thumbnail || '',
-      events:
-        data.events?.map((event: DocumentData) => ({
-          ...event,
-          start: event.start?.toDate(),
-          end: event.end?.toDate(),
-        })) || [],
-      routes: data.routes || [],
       lodging: data.lodging || undefined,
       belongings: data.belongings || [],
     }

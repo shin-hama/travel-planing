@@ -9,6 +9,7 @@ import { DocActions, useDocument } from 'hooks/firebase/useDocument'
 import { CurrentSchedulesContextProvider } from './CurrentSchedulesProvider'
 import { CurrentEventsContextProvider } from './CurrentEventsProvider'
 import { db } from 'configs'
+import { Schedule } from 'hooks/useSchedules'
 
 export type Time = {
   text: string
@@ -52,12 +53,6 @@ export type Prefecture = SpotBase & {
   imageUrl: string
 }
 
-export type Schedule = {
-  start: Date
-  end: Date
-  dept?: Route
-}
-
 export type SpotLabel = string
 
 export type Spot = RouteGuidanceAvailable & {
@@ -96,8 +91,6 @@ export type Plan = {
   start: Date
   startTime: Date
   end: Date
-  events: Array<Schedule>
-  routes: Array<Route>
   lodging?: SpotBase
   belongings: Array<Belonging>
   /**

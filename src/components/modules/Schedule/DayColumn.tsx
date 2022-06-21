@@ -7,11 +7,15 @@ import {
   Droppable,
   DropResult,
 } from 'react-beautiful-dnd'
-import { QueryDocumentSnapshot } from 'firebase/firestore'
+import { doc, QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
-import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
+import {
+  Route,
+  RouteGuidanceAvailable,
+  Spot,
+} from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
 import { usePlan } from 'hooks/usePlan'
 import HomeEventCard from './HomeEventCard'
@@ -36,10 +40,10 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
   last,
 }) {
   const [plan] = usePlan()
-  const [events] = useEvents(scheduleQuery.ref)
-  console.log(events)
-  const schedule = React.useMemo(() => scheduleQuery.data(), [scheduleQuery])
+  const [events, eventsApi] = useEvents(scheduleQuery.ref)
   const { updatePosition } = useMove()
+
+  const schedule = React.useMemo(() => scheduleQuery.data(), [scheduleQuery])
   const db = useFirestore()
 
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
@@ -122,129 +126,92 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
     [handleUpdate]
   )
 
-  const handleDropEnd = (result: DropResult) => {
-    if (!result.destination || !events) {
-      return
-    }
-
-    const source = result.source
-    const destination = result.destination
-
-    console.log(result)
-
-    // did not move anywhere - can bail early
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return
-    }
-
-    if (result.type === 'ITEM') {
-      if (source.droppableId === destination.droppableId) {
-        // moving to same list
-        const items = events.map((doc) => doc.data())
-        const reordered = updatePosition(items, source.index, destination.index)
-
-        db.update(events[source.index].ref, reordered)
-      } else {
-        // moving to another day
-        const [removedSpot] = events.splice(source.index, 1)
-      }
-    }
-  }
-
   if (!schedule) {
     return <>NO Referenced schedule</>
   }
 
   return (
     <>
-      <DragDropContext onDragEnd={handleDropEnd}>
-        <Droppable
-          droppableId={scheduleQuery.id}
-          type="ITEM"
-          direction="vertical">
-          {(provided) => (
-            <Stack
-              spacing={1}
-              width="320px"
-              height="100%"
-              ref={provided.innerRef}
-              {...provided.droppableProps}>
-              <DayHeader
-                day={day + 1}
-                schedule={schedule}
-                onOpenMenu={handleOpenMenu}
-                onChangeSchedule={handleUpdate}
-              />
-              <Box>
-                {home && (
-                  <>
-                    <HomeEventCard name={home.name} date={schedule.start} />
-                    <Box py={0.5}>
-                      {events && events.length > 0 ? (
-                        <RouteEvent
-                          origin={home}
-                          dest={events[0].data()}
-                          onChange={handleUpdateDeparture}
-                        />
-                      ) : dest ? (
-                        <RouteEvent
-                          origin={home}
-                          dest={dest}
-                          onChange={handleUpdateDeparture}
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </Box>
-                  </>
-                )}
-                {events.map((event, index) => (
-                  <Draggable
-                    key={event.id}
-                    draggableId={event.id}
-                    index={index}>
-                    {(provided) => (
-                      <>
-                        <Box
-                          ref={provided.innerRef}
-                          {...provided.dragHandleProps}
-                          {...provided.draggableProps}>
-                          <SpotEvent
-                            origin={event}
-                            dest={
-                              index !== events.length - 1
-                                ? events[index + 1].data()
-                                : dest
-                            }
-                            start={schedule.start}
-                            handleUpdate={(updated) =>
-                              db.update(event.ref, updated)
-                            }
-                          />
-                        </Box>
-                      </>
+      <Droppable
+        droppableId={scheduleQuery.id}
+        type="ITEM"
+        direction="vertical">
+        {(provided) => (
+          <Stack
+            spacing={1}
+            width="320px"
+            height="100%"
+            ref={provided.innerRef}
+            {...provided.droppableProps}>
+            <DayHeader
+              day={day + 1}
+              schedule={schedule}
+              onOpenMenu={handleOpenMenu}
+              onChangeSchedule={handleUpdate}
+            />
+            <Box>
+              {home && (
+                <>
+                  <HomeEventCard name={home.name} date={schedule.start} />
+                  <Box py={0.5}>
+                    {events && events.length > 0 ? (
+                      <RouteEvent
+                        origin={home}
+                        dest={events[0].data()}
+                        onChange={handleUpdateDeparture}
+                      />
+                    ) : dest ? (
+                      <RouteEvent
+                        origin={home}
+                        dest={dest}
+                        onChange={handleUpdateDeparture}
+                      />
+                    ) : (
+                      <></>
                     )}
-                  </Draggable>
-                ))}
-                {dest ? (
-                  <HomeEventCard name={dest.name} date={schedule.start} />
-                ) : (
-                  <Box pt={4}>
-                    <AddEventCard
-                      text="ホテルを設定する"
-                      onClick={() => openMap('selector')}
-                    />
                   </Box>
-                )}
-                {provided.placeholder}
-              </Box>
-            </Stack>
-          )}
-        </Droppable>
-      </DragDropContext>
+                </>
+              )}
+              {events.map((event, index) => (
+                <Draggable key={event.id} draggableId={event.id} index={index}>
+                  {(provided) => (
+                    <>
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.dragHandleProps}
+                        {...provided.draggableProps}>
+                        <SpotEvent
+                          origin={event}
+                          dest={
+                            index !== events.length - 1
+                              ? events[index + 1].data()
+                              : dest
+                          }
+                          start={schedule.start}
+                          handleUpdate={(updated) =>
+                            db.update(event.ref, updated)
+                          }
+                        />
+                      </Box>
+                    </>
+                  )}
+                </Draggable>
+              ))}
+              {dest ? (
+                <HomeEventCard name={dest.name} date={schedule.start} />
+              ) : (
+                <Box pt={4}>
+                  <AddEventCard
+                    text="ホテルを設定する"
+                    onClick={() => openMap('selector')}
+                  />
+                </Box>
+              )}
+              {provided.placeholder}
+            </Box>
+          </Stack>
+        )}
+      </Droppable>
       <DayMenu
         anchorEl={anchor}
         open={Boolean(anchor)}

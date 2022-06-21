@@ -9,17 +9,9 @@ import {
   EVENTS_SUB_COLLECTIONS,
 } from 'contexts/CurrentEventsProvider'
 
-export const useEvents = (schedule?: DocumentReference<Schedule>) => {
-  const planRef = React.useContext(CurrentPlanRefContext)
+export const useEvents = (parent?: DocumentReference<Schedule>) => {
+  const planDoc = React.useContext(CurrentPlanRefContext)
   const events = React.useContext(CurrentEventsContext)
-
-  const filtered = React.useMemo(() => {
-    return (
-      events?.docs.filter(
-        (doc) => !schedule || doc.data().schedule.id === schedule.id
-      ) || []
-    )
-  }, [events?.docs, schedule])
 
   const actions = React.useMemo(() => {
     const a = {
@@ -27,8 +19,8 @@ export const useEvents = (schedule?: DocumentReference<Schedule>) => {
         newSpot: SpotDTO & Partial<Spot>,
         schedule: DocumentReference<Schedule>
       ) => {
-        if (planRef) {
-          const size = filtered.length || 0
+        if (planDoc) {
+          const size = actions.filter(schedule).length || 0
           const spot: Spot = {
             duration: 60,
             durationUnit: 'minute',
@@ -38,14 +30,26 @@ export const useEvents = (schedule?: DocumentReference<Schedule>) => {
             schedule,
             id: '',
           }
-          const c = EVENTS_SUB_COLLECTIONS(planRef)
+          const c = EVENTS_SUB_COLLECTIONS(planDoc)
           await addDoc(c, spot)
         }
+      },
+      filter: (target: DocumentReference<Schedule>) => {
+        if (!events) {
+          return []
+        }
+        return events.docs
+          .filter((e) => e.data().schedule.id === target.id)
+          .sort((a, b) => a.data().position - b.data().position)
       },
     }
 
     return a
-  }, [filtered.length, planRef])
+  }, [events, planDoc])
+
+  const filtered = React.useMemo(() => {
+    return parent ? actions.filter(parent) : events?.docs || []
+  }, [actions, events?.docs, parent])
 
   return [filtered, actions] as const
 }
