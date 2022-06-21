@@ -8,10 +8,10 @@ import Image from 'next/image'
 import BelongingsList from './BelongingsList'
 import PlanInfo from './PlanInfo'
 import TabPanel from 'components/elements/TabPanel'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 
 const PlanView = () => {
-  const [plan] = useTravelPlan()
+  const [plan] = usePlan()
   const [value, setValue] = React.useState(0)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {

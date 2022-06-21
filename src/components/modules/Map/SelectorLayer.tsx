@@ -9,13 +9,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose } from '@fortawesome/free-solid-svg-icons'
 
 import { useMapLayer } from 'contexts/MapLayerModeProvider'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 
 const MapSelectorLayer = () => {
   const map = useGoogleMap()
   const [center, setCenter] = React.useState<google.maps.LatLng | null>(null)
   const [, setMode] = useMapLayer()
-  const [, planApi] = useTravelPlan()
+  const [, planApi] = usePlan()
 
   React.useEffect(() => {
     setCenter(map?.getCenter() || null)
@@ -36,7 +36,6 @@ const MapSelectorLayer = () => {
     if (center) {
       planApi.update({
         lodging: {
-          id: 'lodging',
           name: 'Hotel',
           lat: center.lat(),
           lng: center.lng(),

@@ -11,12 +11,8 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 import Image from 'next/image'
 
 import AddSpotButton from './AddSpotButton'
-import { Spot } from 'contexts/CurrentPlanProvider'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
-
-export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
-  id?: string | null
-}
+import { SpotDTO } from 'hooks/useSchedules'
 
 type Props = {
   spot: SpotDTO
@@ -64,14 +60,7 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
               <FontAwesomeIcon icon={faInstagram} />
             </IconButton>
             <Box ml="auto">
-              <AddSpotButton
-                newSpot={{
-                  ...spot,
-                  imageUrl: '',
-                  duration: 60,
-                  durationUnit: 'minute',
-                }}
-              />
+              <AddSpotButton newSpot={spot} />
             </Box>
           </CardActions>
         </Grid>

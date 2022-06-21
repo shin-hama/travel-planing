@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useGetSpotsByCategoryLazyQuery } from 'generated/graphql'
 
 import { useMapProps } from 'hooks/googlemaps/useMapProps'
-import { SpotDTO } from 'components/modules/SpotCard'
+import { SpotDTO } from './useSchedules'
 
 export const useSpots = () => {
   const [spots, setSpots] = React.useState<Array<SpotDTO>>([])

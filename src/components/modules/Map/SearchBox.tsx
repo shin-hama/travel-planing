@@ -17,10 +17,10 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useGetSpotsWithMatchingNameLazyQuery } from 'generated/graphql'
 import SpotsList from '../SpotsList'
-import type { SpotDTO } from '../SpotCard'
 import { useToggle } from 'react-use'
 import { usePlaces } from 'hooks/googlemaps/usePlaces'
 import { useGoogleMap } from '@react-google-maps/api'
+import { SpotDTO } from 'hooks/useSchedules'
 
 const NUM_CARD = 7
 

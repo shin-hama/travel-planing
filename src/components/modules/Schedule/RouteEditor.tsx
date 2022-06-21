@@ -11,8 +11,7 @@ import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons'
 
-import { Route, isSameRoute } from 'contexts/CurrentPlanProvider'
-import { useWaypoints } from 'hooks/useWaypoints'
+import { Route } from 'contexts/CurrentPlanProvider'
 import TimePicker, { TimeValue } from '../TimeSelector'
 import { TravelModes } from './Route'
 import { useRoutes } from 'hooks/useRoutes'
@@ -26,28 +25,28 @@ type Props = DialogProps & {
   route: Route
   onClose: (newRoute: Route) => void
 }
-const RouteEditor: React.FC<Props> = ({ route: target, onClose, ...props }) => {
+const RouteEditor: React.FC<Props> = ({ route, onClose, ...props }) => {
   const { routesApi, loading } = useRoutes()
 
-  const [edited, setEdited] = React.useState<Route>(target)
-  const [waypoints, waypointsApi] = useWaypoints()
-  // 変更内容を反映するために、コンポーネント内で Spot 情報を常に最新で取得する
-  const origin = waypoints?.find((item) => item.id === target.from)
-  const destination = waypoints?.find((item) => item.id === target.to)
+  const [edited, setEdited] = React.useState<Route>(route)
+
+  const handleUpdate = (updated: Partial<Route>) => {
+    setEdited((prev) => ({
+      ...prev,
+      ...updated,
+    }))
+  }
 
   const handleSelectMode = (key: TravelMode) => async () => {
-    if (origin && destination) {
-      const changed = await routesApi.getAndSearch(origin, destination, key)
-      setEdited(changed)
-    }
+    const changed = await routesApi.search(route.from, route.to, key)
+    handleUpdate(changed)
   }
 
   const handleUpdateTime = (newTime: TimeValue) => {
     const hour = newTime.hour !== 0 ? `${newTime.hour} hour` : ''
     const minute = `${newTime.minute} minutes`
 
-    setEdited({
-      ...edited,
+    handleUpdate({
       time: {
         text: `${hour} ${minute}`,
         value: newTime.hour * 60 + newTime.minute,
@@ -57,39 +56,23 @@ const RouteEditor: React.FC<Props> = ({ route: target, onClose, ...props }) => {
   }
 
   const handleResetTime = async () => {
-    if (origin && destination) {
-      const newTime = await routesApi.searchRoute(
-        origin,
-        destination,
-        edited.mode
-      )
-      setEdited({
-        ...edited,
-        time: newTime,
-      })
-    }
+    const newTime = await routesApi.searchRoute(
+      route.from,
+      route.to,
+      edited.mode
+    )
+    handleUpdate({
+      time: newTime,
+    })
   }
 
   const handleUpdateMemo = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setEdited({ ...edited, memo: e.target.value })
+    handleUpdate({ memo: e.target.value })
   }
 
   const handleClose = () => {
-    if (
-      isSameRoute(target, edited) === false ||
-      target.time?.value !== edited.time?.value
-    ) {
-      console.log('update route')
-      routesApi.add(edited)
-
-      if (origin?.next && origin.next.mode !== edited.mode) {
-        waypointsApi.update(origin.id, {
-          next: { ...origin.next, mode: edited.mode },
-        })
-      }
-    }
     onClose(edited)
   }
 
@@ -97,47 +80,44 @@ const RouteEditor: React.FC<Props> = ({ route: target, onClose, ...props }) => {
     <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogContent>
         <Stack spacing={2}>
-          <Typography variant="h4" noWrap>
-            {origin?.name} to {destination?.name}
-          </Typography>
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <Stack direction="row" alignItems="center">
-              <Stack direction="row">
-                {TravelModes.map(({ key, icon }) => (
-                  <IconButton
-                    key={key}
-                    size="large"
-                    color={key === edited.mode ? 'primary' : undefined}
-                    onClick={handleSelectMode(key)}>
-                    <SvgIcon fontSize={key === edited.mode ? 'large' : 'small'}>
-                      <FontAwesomeIcon icon={icon} />
-                    </SvgIcon>
-                  </IconButton>
-                ))}
-              </Stack>
-              <TimePicker
-                value={
-                  edited.time?.unit === 'second'
-                    ? convertSecToMin(edited.time.value || 0)
-                    : edited.time?.value
-                }
-                onChange={handleUpdateTime}
-              />
-              <div style={{ flexGrow: 1 }} />
-              <Button
-                variant="text"
-                onClick={handleResetTime}
-                startIcon={
-                  <SvgIcon>
-                    <FontAwesomeIcon icon={faRotateRight} />
+          <CircularProgress sx={{ display: loading ? 'block' : 'none' }} />
+          <Stack
+            direction="row"
+            alignItems="center"
+            sx={{ display: loading ? 'none' : undefined }}>
+            <Stack direction="row">
+              {TravelModes.map(({ key, icon }) => (
+                <IconButton
+                  key={key}
+                  size="large"
+                  color={key === edited.mode ? 'primary' : undefined}
+                  onClick={handleSelectMode(key)}>
+                  <SvgIcon fontSize={key === edited.mode ? 'large' : 'small'}>
+                    <FontAwesomeIcon icon={icon} />
                   </SvgIcon>
-                }>
-                Reset Time
-              </Button>
+                </IconButton>
+              ))}
             </Stack>
-          )}
+            <TimePicker
+              value={
+                edited.time?.unit === 'second'
+                  ? convertSecToMin(edited.time.value || 0)
+                  : edited.time?.value
+              }
+              onChange={handleUpdateTime}
+            />
+            <div style={{ flexGrow: 1 }} />
+            <Button
+              variant="text"
+              onClick={handleResetTime}
+              startIcon={
+                <SvgIcon>
+                  <FontAwesomeIcon icon={faRotateRight} />
+                </SvgIcon>
+              }>
+              Reset Time
+            </Button>
+          </Stack>
           <Stack spacing={1}>
             <Typography variant="h5">メモ</Typography>
             <TextField

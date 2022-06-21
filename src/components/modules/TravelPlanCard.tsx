@@ -4,20 +4,20 @@ import Card from '@mui/material/Card'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-import { PlanDB } from 'contexts/CurrentPlanProvider'
-import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRouter } from 'hooks/useRouter'
+import { DocumentReference } from 'firebase/firestore'
+import { useDocument } from 'hooks/firebase/useDocument'
+import { Plan } from 'contexts/CurrentPlanProvider'
 
 type Props = {
-  plan: PlanDB
+  plan: DocumentReference<Plan>
 }
-const TravelPlanCard: React.FC<Props> = ({ plan: { id, data: plan } }) => {
+const TravelPlanCard: React.FC<Props> = ({ plan: ref }) => {
+  const [plan] = useDocument<Plan>(ref)
   const router = useRouter()
-  const [, planActions] = useTravelPlan()
 
   const handleClick = () => {
-    planActions.set(id, plan)
-    router.userPlan(id)
+    router.userPlan(ref.id)
   }
 
   return (
@@ -36,7 +36,7 @@ const TravelPlanCard: React.FC<Props> = ({ plan: { id, data: plan } }) => {
           sx={{
             height: '100%',
             gridArea: '1/-1',
-            backgroundImage: `url(${plan.thumbnail})`,
+            backgroundImage: `url(${plan?.thumbnail})`,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
@@ -52,9 +52,9 @@ const TravelPlanCard: React.FC<Props> = ({ plan: { id, data: plan } }) => {
             textAlign: 'start',
           }}>
           <Stack sx={{ pl: 1, pt: 0.5, color: 'white' }}>
-            <Typography variant="h4">{plan.title}</Typography>
+            <Typography variant="h4">{plan?.title}</Typography>
             <Typography variant="subtitle2">
-              {plan.start.toLocaleDateString([])}
+              {plan?.start.toLocaleDateString([])}
             </Typography>
           </Stack>
         </Box>

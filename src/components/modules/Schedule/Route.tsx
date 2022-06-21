@@ -20,9 +20,9 @@ import { TravelMode, isTravelMode } from 'hooks/googlemaps/useDirections'
 import { useRoutes } from 'hooks/useRoutes'
 import { useOpenMap } from 'hooks/googlemaps/useOpenMap'
 import {
-  NextMove,
   Route,
   RouteGuidanceAvailable,
+  SpotBase,
 } from 'contexts/CurrentPlanProvider'
 import RouteEditor from './RouteEditor'
 
@@ -51,8 +51,8 @@ export const TravelModes: Array<ModeIcon> = [
 
 type Props = {
   origin: RouteGuidanceAvailable
-  dest: RouteGuidanceAvailable
-  onChange: (next: NextMove, prevId: string) => void
+  dest: SpotBase
+  onChange: (route: Route) => void
 }
 const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
   const [selecting, setSelecting] = React.useState(false)
@@ -65,13 +65,17 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
 
   const openMap = useOpenMap()
   const { routesApi, loading } = useRoutes()
-  const [route, setRoute] = React.useState<Route | null>(null)
+  const route = React.useMemo(() => origin.next || null, [origin.next])
 
   React.useEffect(() => {
-    routesApi.getAndSearch(origin, dest, selected.key).then((result) => {
-      setRoute(result)
-    })
-  }, [dest, origin, routesApi, selected.key])
+    const mode = origin.next?.mode || 'driving'
+    if (route?.to.lat !== dest.lat || route?.to.lng !== dest.lng) {
+      routesApi.search(origin, dest, mode).then((result) => {
+        onChange(result)
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dest])
 
   const [timeEditing, setTimeEditing] = React.useState(false)
 
@@ -79,26 +83,27 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
     setTimeEditing(true)
   }, [])
 
-  const handleClose = React.useCallback((newRoute: Route) => {
-    setRoute(newRoute)
-    setTimeEditing(false)
-  }, [])
+  const handleClose = React.useCallback(
+    (newRoute: Route) => {
+      onChange(newRoute)
+      setTimeEditing(false)
+    },
+    [onChange]
+  )
 
   const handleClick = (value: string) => () => {
     if (selecting) {
       setSelecting(false)
       if (isTravelMode(value)) {
         console.log(value)
-        onChange({ id: dest.id, mode: value }, origin.id)
+        routesApi.search(origin, dest, value).then((result) => {
+          onChange(result)
+        })
       }
     } else {
       setSelecting(true)
     }
   }
-
-  React.useEffect(() => {
-    onChange({ id: dest.id, mode: selected.key }, origin.id)
-  }, [])
 
   return (
     <>

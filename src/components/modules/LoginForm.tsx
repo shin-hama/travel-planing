@@ -24,7 +24,12 @@ type Props = {
 }
 const LoginForm: React.FC<Props> = ({ isSignUp = false }) => {
   const [, auth] = useAuthentication()
-  const { register, handleSubmit, reset } = useForm<LoginFormInput>()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<LoginFormInput>()
   const [user] = useAuthentication()
   const router = useRouter()
 
@@ -69,19 +74,34 @@ const LoginForm: React.FC<Props> = ({ isSignUp = false }) => {
           <Stack spacing={2}>
             <TextField
               fullWidth
-              {...register('email')}
+              {...register('email', {
+                required: 'Email is required',
+              })}
               label="E-mail"
               variant="outlined"
               size="small"
               type="email"
+              autoComplete="email"
+              error={errors.email !== undefined}
+              helperText={errors.email && errors.email.message}
             />
             <TextField
               fullWidth
-              {...register('password')}
+              {...register('password', {
+                required: 'Password is required',
+                minLength: { value: 8, message: 'At least 8 characters' },
+              })}
               label="Password"
               variant="outlined"
               size="small"
               type="password"
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+              error={errors.password !== undefined}
+              helperText={
+                errors.password
+                  ? errors.password.message
+                  : 'At least 8 characters'
+              }
             />
             <AsyncButton
               loading={handlerState.loading}

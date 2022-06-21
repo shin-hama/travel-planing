@@ -13,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
-import { useWaypoints } from 'hooks/useWaypoints'
 import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
 import { useConfirm } from 'hooks/useConfirm'
@@ -21,13 +20,18 @@ import { useConfirm } from 'hooks/useConfirm'
 type Forms = Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
 
 type Props = DialogProps & {
-  spotId: string
+  spot: Spot
+  onUpdate: (spot: Spot) => void
+  onDelete: () => void
 }
-const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
-  const [waypoints, waypointsApi] = useWaypoints()
+const SpotEventEditor: React.FC<Props> = ({
+  spot,
+  onUpdate,
+  onDelete,
+  ...props
+}) => {
+  const [edited, setEdited] = React.useState<Spot>(spot)
   const confirm = useConfirm()
-  // 変更内容を反映するために、コンポーネント内で Spot 情報を常に最新で取得する
-  const spot = waypoints?.find((item) => item.id === spotId)
 
   const { control, register, watch } = useForm<Forms>({
     defaultValues: {
@@ -38,7 +42,7 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
     },
   })
 
-  const handleRemove = async (e: React.MouseEvent) => {
+  const handleRemove = async () => {
     confirm({
       title: 'このスポット情報を削除しますか?',
       allowClose: true,
@@ -46,25 +50,29 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
         maxWidth: 'xs',
       },
     }).then(() => {
-      waypointsApi.remove(spotId)
-      props.onClose?.(e, 'backdropClick')
+      onDelete()
     })
+  }
+
+  const handleClose = () => {
+    onUpdate(edited)
   }
 
   React.useEffect(() => {
     const subscription = watch((value) => {
-      waypointsApi.update(spotId, {
+      setEdited((prev) => ({
+        ...prev,
         ...value,
         labels: value.labels?.filter(
-          (label): label is string => typeof label === 'string'
+          (label): label is string => label !== undefined
         ),
-      })
+      }))
     })
     return () => subscription.unsubscribe()
-  }, [spotId, watch, waypointsApi])
+  }, [watch])
 
   return (
-    <Dialog {...props} maxWidth="sm" fullWidth>
+    <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogContent>
         <Stack spacing={4}>
           <Stack spacing={1}>
@@ -72,10 +80,10 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
               {...register('name')}
               variant="outlined"
               fullWidth
-              InputProps={{ sx: (theme) => theme.typography.h3 }}
+              InputProps={{ sx: (theme) => theme.typography.h4  }}
             />
             <Stack direction="row" alignItems="center" spacing={2}>
-              <Typography variant="subtitle1">MM-DD</Typography>
+              <Typography variant="subtitle1">滞在時間</Typography>
               <Controller
                 control={control}
                 name="duration"
@@ -93,7 +101,7 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
           <Stack spacing={1}>
             <Typography variant="h5">ラベル</Typography>
             <Stack direction="row" spacing={0.5}>
-              {spot?.labels?.map((label, i) => (
+              {edited.labels?.map((label, i) => (
                 <Controller
                   key={`${label}-${i}`}
                   control={control}
@@ -103,14 +111,14 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
                       defaultLabel={label}
                       onSave={(newLabel) =>
                         field.onChange(
-                          spot.labels?.map((value, index) =>
+                          edited.labels?.map((value, index) =>
                             i === index ? newLabel : value
                           )
                         )
                       }
                       onRemove={() =>
                         field.onChange(
-                          spot.labels?.filter((_, index) => i !== index)
+                          edited.labels?.filter((_, index) => i !== index)
                         )
                       }>
                       <Typography>{label}</Typography>
@@ -124,7 +132,7 @@ const SpotEventEditor: React.FC<Props> = ({ spotId, ...props }) => {
                 render={({ field }) => (
                   <SpotLabel
                     onSave={(newLabel) =>
-                      field.onChange([...(spot?.labels || []), newLabel])
+                      field.onChange([...(edited?.labels || []), newLabel])
                     }>
                     <SvgIcon fontSize="small">
                       <FontAwesomeIcon icon={faPlus} />

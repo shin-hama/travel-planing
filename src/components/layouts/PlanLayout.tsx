@@ -6,13 +6,13 @@ import Link from 'next/link'
 import Layout from './Layout'
 import PlanningPage from 'components/layouts/PlanningPage'
 import { PlanningTabProvider } from 'contexts/PlanningTabProvider'
-import { useTravelPlan } from 'hooks/useTravelPlan'
 import { useRouter } from 'hooks/useRouter'
 import { PlanViewConfigProvider } from 'contexts/PlanViewConfigProvider'
+import { usePlan } from 'hooks/usePlan'
 
-const PlanLayout = () => {
+const PlanLayout: React.FC = () => {
   const router = useRouter()
-  const [plan] = useTravelPlan()
+  const [plan] = usePlan()
 
   if (!plan) {
     return (

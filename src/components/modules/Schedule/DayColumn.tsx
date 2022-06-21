@@ -2,39 +2,44 @@ import * as React from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
+import { QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
 import RouteEvent from './Route'
-import SpotEventCard from './SpotEventCard'
-import {
-  NextMove,
-  RouteGuidanceAvailable,
-  Schedule,
-  Spot,
-} from 'contexts/CurrentPlanProvider'
+import { Route, RouteGuidanceAvailable } from 'contexts/CurrentPlanProvider'
 import DayMenu from './DayMenu'
-import { useTravelPlan } from 'hooks/useTravelPlan'
+import { usePlan } from 'hooks/usePlan'
 import HomeEventCard from './HomeEventCard'
-import { useWaypoints } from 'hooks/useWaypoints'
-import { useRoutes } from 'hooks/useRoutes'
-import dayjs from 'dayjs'
 import AddEventCard from './AddEventCard'
 import { usePlanningTab } from 'contexts/PlanningTabProvider'
+import { Schedule } from 'hooks/useSchedules'
+import { useEvents } from 'hooks/useEvents'
+import SpotEvent from './SpotEvent'
+import { useFirestore } from 'hooks/firebase/useFirestore'
 
 type Props = {
   day: number
-  schedule: Schedule
+  schedule: QueryDocumentSnapshot<Schedule>
   first?: boolean
   last?: boolean
 }
-const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
-  const [plan, planApi] = useTravelPlan()
-  const [, waypointsApi] = useWaypoints()
+const DayColumn: React.FC<Props> = React.memo(function DayColumn({
+  day,
+  schedule: scheduleQuery,
+  first,
+  last,
+}) {
+  const [plan] = usePlan()
+  const [events] = useEvents(scheduleQuery.ref)
+
+  const schedule = React.useMemo(() => scheduleQuery.data(), [scheduleQuery])
+  const db = useFirestore()
+
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null)
   const [, { openMap }] = usePlanningTab()
 
   const home = React.useMemo<RouteGuidanceAvailable | null>(() => {
-    if (plan) {
+    if (plan && schedule) {
       if (first) {
         return { ...plan.home, next: schedule.dept }
       } else if (plan.lodging) {
@@ -43,10 +48,10 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
     }
 
     return null
-  }, [first, plan, schedule.dept])
+  }, [first, plan, schedule])
 
   const dest = React.useMemo<RouteGuidanceAvailable | null>(() => {
-    if (plan) {
+    if (plan && schedule) {
       if (last) {
         return { ...plan.home, next: schedule.dept }
       } else if (plan.lodging) {
@@ -57,41 +62,46 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
     }
 
     return null
-  }, [last, plan, schedule.dept])
+  }, [last, plan, schedule])
 
-  const { routesApi } = useRoutes()
+  // const { routesApi } = useRoutes()
 
-  const summarizeTotalTime = (prevSpots: Array<Spot>): Date => {
-    let _start = dayjs(schedule.start)
-    prevSpots.forEach((prev) => {
-      // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
-      const nextRoute =
-        prev.next &&
-        routesApi.get({
-          from: prev.id,
-          to: prev.next.id,
-          mode: prev.next.mode,
-        })
-      _start = _start
-        .add(prev.duration, prev.durationUnit)
-        .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)
-    })
+  // const summarizeTotalTime = (): Date => {
+  //   const _start = dayjs(schedule?.start)
+  //   prevSpots.forEach((prev) => {
+  //     // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
+  //     const nextRoute =
+  //       prev.next &&
+  //       routesApi.get({
+  //         from: prev.id,
+  //         to: prev.next.id,
+  //         mode: prev.next.mode,
+  //       })
+  //     _start = _start
+  //       .add(prev.duration, prev.durationUnit)
+  //       .add(nextRoute?.time?.value || 0, nextRoute?.time?.unit)
+  //   })
 
-    if (home && schedule.dept) {
-      const deptRoute = routesApi.get({
-        from: home.id,
-        to: schedule.dept.id,
-        mode: schedule.dept.mode,
-      })
-      _start = _start.add(deptRoute?.time?.value || 0, deptRoute?.time?.unit)
-    }
-    return _start.toDate()
-  }
+  //   if (home && schedule.dept) {
+  //     const deptRoute = routesApi.get({
+  //       from: home.id,
+  //       to: schedule.dept.id,
+  //       mode: schedule.dept.mode,
+  //     })
+  //     _start = _start.add(deptRoute?.time?.value || 0, deptRoute?.time?.unit)
+  //   }
+  //   return _start.toDate()
+  // }
+
+  const handleUpdate = React.useCallback(
+    (updated: Partial<Schedule>) => {
+      db.update(scheduleQuery.ref, updated)
+    },
+    [db, scheduleQuery.ref]
+  )
 
   const handleRemoveDay = () => {
-    planApi.update({
-      events: plan?.events.filter((_, i) => i !== plan.events.length - 1),
-    })
+    db.delete(scheduleQuery.ref)
   }
 
   const handleOpenMenu = (anchor: HTMLElement) => {
@@ -99,33 +109,22 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
   }
 
   const handleUpdateDeparture = React.useCallback(
-    (next: NextMove) => {
-      if (plan) {
-        planApi.update({
-          events: plan.events.map((event) =>
-            event.start === schedule.start
-              ? {
-                  ...schedule,
-                  dept: next,
-                }
-              : event
-          ),
-        })
-      }
+    (route: Route) => {
+      handleUpdate({ dept: route })
     },
-    [plan, planApi, schedule]
+    [handleUpdate]
   )
 
-  const handleUpdateWaypointNext = React.useCallback(
-    (next: NextMove, id: string) => {
-      waypointsApi.update(id, { next })
-    },
-    [waypointsApi]
-  )
+  if (!schedule) {
+    return <>NO Referenced schedule</>
+  }
 
   return (
     <>
-      <Droppable droppableId={day.toString()} type="ITEM" direction="vertical">
+      <Droppable
+        droppableId={scheduleQuery.id}
+        type="ITEM"
+        direction="vertical">
         {(provided) => (
           <Stack
             spacing={1}
@@ -133,16 +132,21 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
             height="100%"
             ref={provided.innerRef}
             {...provided.droppableProps}>
-            <DayHeader day={day + 1} onOpenMenu={handleOpenMenu} />
+            <DayHeader
+              day={day + 1}
+              schedule={schedule}
+              onOpenMenu={handleOpenMenu}
+              onChangeSchedule={handleUpdate}
+            />
             <Box>
               {home && (
                 <>
                   <HomeEventCard name={home.name} date={schedule.start} />
                   <Box py={0.5}>
-                    {schedule.spots.length > 0 ? (
+                    {events && events.length > 0 ? (
                       <RouteEvent
                         origin={home}
-                        dest={schedule.spots[0]}
+                        dest={events[0].data()}
                         onChange={handleUpdateDeparture}
                       />
                     ) : dest ? (
@@ -157,50 +161,33 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
                   </Box>
                 </>
               )}
-              {schedule.spots.map((spot, index) => (
-                <Draggable key={spot.id} draggableId={spot.id} index={index}>
+              {events.map((event, index) => (
+                <Draggable key={event.id} draggableId={event.id} index={index}>
                   {(provided) => (
                     <>
                       <Box
                         ref={provided.innerRef}
                         {...provided.dragHandleProps}
                         {...provided.draggableProps}>
-                        <SpotEventCard
-                          spot={spot}
-                          start={summarizeTotalTime(
-                            schedule.spots.slice(0, index)
-                          )}
+                        <SpotEvent
+                          origin={event}
+                          dest={
+                            index !== events.length - 1
+                              ? events[index + 1].data()
+                              : dest
+                          }
+                          start={schedule.start}
+                          handleUpdate={(updated) =>
+                            db.update(event.ref, updated)
+                          }
                         />
                       </Box>
-                      {index !== schedule.spots.length - 1 && (
-                        <Box py={0.5}>
-                          <RouteEvent
-                            origin={spot}
-                            dest={schedule.spots[index + 1]}
-                            onChange={handleUpdateWaypointNext}
-                          />
-                        </Box>
-                      )}
                     </>
                   )}
                 </Draggable>
               ))}
               {dest ? (
-                <>
-                  {schedule.spots.length > 0 && (
-                    <Box py={0.5}>
-                      <RouteEvent
-                        origin={schedule.spots.slice(-1)[0]}
-                        dest={dest}
-                        onChange={handleUpdateWaypointNext}
-                      />
-                    </Box>
-                  )}
-                  <HomeEventCard
-                    name={dest.name}
-                    date={summarizeTotalTime(schedule.spots)}
-                  />
-                </>
+                <HomeEventCard name={dest.name} date={schedule.start} />
               ) : (
                 <Box pt={4}>
                   <AddEventCard
@@ -222,6 +209,6 @@ const DayColumn: React.FC<Props> = ({ day, schedule, first, last }) => {
       />
     </>
   )
-}
+})
 
 export default DayColumn

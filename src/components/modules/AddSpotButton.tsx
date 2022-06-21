@@ -5,18 +5,18 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
-import { v4 as uuidv4 } from 'uuid'
 
-import { Spot } from 'contexts/CurrentPlanProvider'
-import { useWaypoints } from 'hooks/useWaypoints'
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
+import { SpotDTO, useSchedules } from 'hooks/useSchedules'
+import { useEvents } from 'hooks/useEvents'
 
 type Props = {
-  newSpot: Omit<Spot, 'id'> & { id?: string | null }
+  newSpot: SpotDTO
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
-  const [waypoints, actions] = useWaypoints()
+  const [schedules] = useSchedules()
+  const [, eventsApi] = useEvents()
   const [config, setConfig] = usePlanViewConfig()
   const [day, setDay] = React.useState(config.lastAddDay)
 
@@ -27,13 +27,9 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
     setConfig({ lastAddDay: newDay })
   }
 
-  const selected = waypoints?.find((spot) => spot.id === newSpot.id)
-
-  const handleClick = () => {
-    if (selected) {
-      actions.remove(selected.id)
-    } else {
-      actions.add({ ...newSpot, id: newSpot.id || uuidv4() }, day)
+  const handleClick = async () => {
+    if (schedules) {
+      await eventsApi.create(newSpot, schedules.docs[day].ref)
     }
   }
 
@@ -48,7 +44,7 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
           value={day}
           label="Age"
           onChange={handleChange}>
-          {[...Array(actions.getDays())].map((_, i) => (
+          {[...Array(schedules?.size)].map((_, i) => (
             <MenuItem key={i} value={i}>
               {i + 1}日目
             </MenuItem>
@@ -60,7 +56,7 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
         variant="contained"
         size="small"
         onClick={handleClick}>
-        {selected ? 'Remove' : 'Add'}
+        Add
       </Button>
     </Stack>
   )

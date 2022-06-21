@@ -11,9 +11,18 @@ import {
   setDoc,
   serverTimestamp,
   WithFieldValue,
+  CollectionReference,
+  DocumentReference,
+  updateDoc,
+  UpdateData,
+  writeBatch,
 } from 'firebase/firestore'
 
 import { db } from 'configs'
+
+export type DocumentBase = DocumentData & {
+  createdAt: Date
+}
 
 /**
  *
@@ -64,12 +73,14 @@ export const useFirestore = () => {
       /**
        * Add data to firestore and generate id automatically
        */
-      add: async (path: string, data: WithFieldValue<DocumentData>) => {
+      add: async <T extends DocumentData>(
+        path: string,
+        data: WithFieldValue<T>
+      ) => {
         try {
           const docRef = await addDoc(collection(db, path), {
             ...data,
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
           })
           console.log('Document written with ID: ', docRef.id)
           return docRef
@@ -78,9 +89,25 @@ export const useFirestore = () => {
           throw e
         }
       },
-      delete: async (path: string, id: string) => {
+      addByRef: async (
+        ref: CollectionReference,
+        data: WithFieldValue<DocumentData>
+      ) => {
         try {
-          await deleteDoc(doc(db, path, id))
+          const docRef = await addDoc(ref, {
+            ...data,
+            createdAt: serverTimestamp(),
+          })
+          console.log('Document written with ID: ', docRef.id)
+          return docRef
+        } catch (e) {
+          console.error('Error adding document: ', e)
+          throw e
+        }
+      },
+      delete: async (document: DocumentReference) => {
+        try {
+          await deleteDoc(document)
         } catch (e) {
           console.error(`fail to update: ${e}`)
           throw e
@@ -98,6 +125,12 @@ export const useFirestore = () => {
         converter: FirestoreDataConverter<T>
       ) => {
         return getDocs(collection(db, path).withConverter(converter))
+      },
+      update: async <T>(doc: DocumentReference<T>, updated: UpdateData<T>) => {
+        await updateDoc(doc, updated)
+      },
+      writeBatch: () => {
+        return writeBatch(db)
       },
     }
     return a

@@ -1,23 +1,48 @@
 import * as React from 'react'
 import dayjs from 'dayjs'
 
-import { useAuthentication } from 'hooks/firebase/useAuthentication'
-import { usePlans } from 'hooks/usePlan'
 import { TravelMode } from 'hooks/googlemaps/useDirections'
+import { collection, doc, DocumentReference, getDoc } from 'firebase/firestore'
+import { PLANING_USERS_PLANS_COLLECTIONS } from 'hooks/firebase/useFirestore'
+import { planConverter } from 'hooks/usePlans'
+import { DocActions, useDocument } from 'hooks/firebase/useDocument'
+import { CurrentSchedulesContextProvider } from './CurrentSchedulesProvider'
+import { CurrentEventsContextProvider } from './CurrentEventsProvider'
+import { db } from 'configs'
+import { Schedule } from 'hooks/useSchedules'
 
-export type NextMove = {
-  id: string
-  mode: TravelMode
+export type Time = {
+  text: string
+  value: number
+  unit: 'second' | 'minute'
 }
 
-export type SpotBase = {
-  id: string
+type LatLng = {
   lat: number
   lng: number
+}
+
+export type Route = {
+  from: LatLng
+  to: LatLng
+  mode: TravelMode
+  time?: Time | null
+  memo?: string | null
+}
+
+export const isSameRoute = (a: Route, b: Route) =>
+  a.from.lat === b.from.lat &&
+  a.from.lng === b.from.lng &&
+  a.to.lat === b.to.lat &&
+  a.to.lng === b.to.lng &&
+  a.mode === b.mode
+
+export type SpotBase = LatLng & {
   name: string
 }
+
 export type RouteGuidanceAvailable = SpotBase & {
-  next?: NextMove
+  next?: Route
 }
 
 export type Prefecture = SpotBase & {
@@ -36,6 +61,8 @@ export type Spot = RouteGuidanceAvailable & {
   durationUnit: dayjs.ManipulateType
   labels?: Array<SpotLabel>
   memo?: string
+  position: number
+  schedule: DocumentReference<Schedule>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,33 +77,9 @@ export const isSpot = (obj: any): obj is Spot => {
   )
 }
 
-export type Time = {
-  text: string
-  value: number
-  unit: 'second' | 'minute'
-}
-
-export type Route = {
-  from: string
-  to: string
-  mode: TravelMode
-  time?: Time | null
-  memo?: string | null
-}
-
-export const isSameRoute = (a: Route, b: Route) =>
-  a.from === b.from && a.to === b.to && a.mode === b.mode
-
 export type Belonging = {
   name: string
   checked: boolean
-}
-
-export type Schedule = {
-  start: Date
-  end: Date
-  dept?: NextMove
-  spots: Array<Spot>
 }
 
 export type Plan = {
@@ -87,8 +90,6 @@ export type Plan = {
   start: Date
   startTime: Date
   end: Date
-  events: Array<Schedule>
-  routes: Array<Route>
   lodging?: SpotBase
   belongings: Array<Belonging>
   /**
@@ -97,95 +98,69 @@ export type Plan = {
   days?: number | null
 }
 
-export type PlanDB = {
-  id: string
-  data: Plan
+export const CurrentPlanContext = React.createContext<Plan | null>(null)
+export const CurrentPlanRefContext =
+  React.createContext<DocumentReference<Plan> | null>(null)
+
+type PlanActions = DocActions<Plan>
+export const CurrentPlanActionsContext =
+  React.createContext<PlanActions | null>(null)
+
+export const PLANS_SUB_COLLECTIONS = (userId: string) => {
+  const path = PLANING_USERS_PLANS_COLLECTIONS(userId)
+  return collection(db, path).withConverter(planConverter)
 }
 
-type PlanAction =
-  | {
-      type: 'set'
-      value: PlanDB
-    }
-  | {
-      type: 'clear'
-    }
-  | {
-      type: 'create'
-      value: Plan
-    }
-  | {
-      type: 'update'
-      value: Partial<Plan>
-    }
-
-const planReducer = (
-  state: PlanDB | null,
-  action: PlanAction
-): PlanDB | null => {
-  switch (action.type) {
-    case 'create':
-      return { id: '', data: action.value }
-
-    case 'set':
-      return action.value
-
-    case 'update':
-      if (state === null) {
-        console.warn('Cannot update plan before selecting')
-        return null
-      }
-      return {
-        id: state.id,
-        data: {
-          ...state.data,
-          ...action.value,
-        },
-      }
-
-    case 'clear':
-      return null
-
-    default:
-      throw new Error(`Action: "${action}" is not implemented`)
+type Props = {
+  query: {
+    userId: string
+    planId: string
   }
 }
+export const CurrentPlanContextProvider: React.FC<Props> = ({
+  children,
+  query,
+}) => {
+  const [currentPlan, setPlan] = React.useState<DocumentReference<Plan> | null>(
+    null
+  )
 
-export const CurrentPlanContext = React.createContext<PlanDB | null>(null)
-export const SetCurrentPlanContext = React.createContext<
-  React.Dispatch<PlanAction>
->(() => {
-  throw new Error('CurrentPlanContextProvider is not wrapped')
-})
+  const [plan, docActions] = useDocument(currentPlan)
 
-export const CurrentPlanContextProvider: React.FC = ({ children }) => {
-  const [currentPlan, setPlan] = React.useReducer(planReducer, null)
-  const planDBApi = usePlans()
+  const actions = React.useMemo(() => {
+    const a = {
+      ...docActions,
+    }
 
-  const [user] = useAuthentication()
+    return a
+  }, [docActions])
 
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null)
   React.useEffect(() => {
-    // 連続して保存が実行されないように、タイムアウト処理で管理
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
+    const fetch = async () => {
+      try {
+        const result = await getDoc(
+          doc(PLANS_SUB_COLLECTIONS(query.userId), query.planId)
+        )
+        setPlan(result.ref)
+      } catch (e) {
+        console.error(e)
+        setPlan(null)
+      }
     }
-
-    if (!currentPlan || !user) {
-      return
-    }
-
-    timerRef.current = setTimeout(async () => {
-      const saved = await planDBApi.save(user.uid, currentPlan)
-      setPlan({ type: 'set', value: saved })
-    }, 500)
-  }, [currentPlan, planDBApi, user])
+    fetch()
+  }, [query.planId, query.userId])
 
   return (
-    <CurrentPlanContext.Provider value={currentPlan}>
-      <SetCurrentPlanContext.Provider value={setPlan}>
-        {children}
-      </SetCurrentPlanContext.Provider>
-    </CurrentPlanContext.Provider>
+    <CurrentPlanRefContext.Provider value={currentPlan}>
+      <CurrentPlanContext.Provider value={plan}>
+        <CurrentPlanActionsContext.Provider value={actions}>
+          <CurrentSchedulesContextProvider planRef={currentPlan}>
+            <CurrentEventsContextProvider planRef={currentPlan}>
+              {children}
+            </CurrentEventsContextProvider>
+          </CurrentSchedulesContextProvider>
+        </CurrentPlanActionsContext.Provider>
+      </CurrentPlanContext.Provider>
+    </CurrentPlanRefContext.Provider>
   )
 }

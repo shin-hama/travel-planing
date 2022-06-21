@@ -10,6 +10,8 @@ export type DialogOptions = {
   description: React.ReactNode
   dialogProps: Omit<DialogProps, 'open'>
   allowClose: boolean
+  okMessage?: string
+  cancelMessage?: string
 }
 export type ConfirmationProps = {
   open: boolean
@@ -25,7 +27,14 @@ const ConfirmationDialog: React.FC<ConfirmationProps> = ({
   onConfirm,
   onClose,
 }) => {
-  const { title, description, dialogProps, allowClose } = options
+  const {
+    title,
+    description,
+    dialogProps,
+    allowClose,
+    okMessage = 'OK',
+    cancelMessage = 'Cancel',
+  } = options
 
   return (
     <Dialog
@@ -37,10 +46,10 @@ const ConfirmationDialog: React.FC<ConfirmationProps> = ({
       {description && <DialogContent>{description}</DialogContent>}
       <DialogActions>
         <Button variant="outlined" onClick={onCancel}>
-          Cancel
+          {cancelMessage}
         </Button>
         <Button color="primary" variant="contained" onClick={onConfirm}>
-          OK
+          {okMessage}
         </Button>
       </DialogActions>
     </Dialog>

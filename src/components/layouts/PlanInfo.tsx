@@ -9,13 +9,13 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 import SpotsList from 'components/modules/SpotsList'
 import { Plan } from 'contexts/CurrentPlanProvider'
-import { useWaypoints } from 'hooks/useWaypoints'
+import { useEvents } from 'hooks/useEvents'
 
 type Props = {
   plan: Plan
 }
 const PlanInfo: React.FC<Props> = ({ plan }) => {
-  const [waypoints] = useWaypoints()
+  const [events] = useEvents()
   return (
     <Stack spacing={4}>
       <Stack>
@@ -43,9 +43,9 @@ const PlanInfo: React.FC<Props> = ({ plan }) => {
         <Typography variant="h2" textAlign="left" sx={{ width: '100%' }}>
           行きたいところリスト
         </Typography>
-        {waypoints ? (
+        {events ? (
           <Box minWidth="360px" overflow="auto">
-            <SpotsList spots={waypoints} />
+            <SpotsList spots={events.map((e) => e.data())} />
           </Box>
         ) : (
           <Typography variant="subtitle1">
