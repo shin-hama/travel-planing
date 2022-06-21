@@ -13,9 +13,7 @@ import {
   SCHEDULES_SUB_COLLECTIONS,
 } from 'contexts/CurrentSchedulesProvider'
 
-export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'> & {
-  id?: string | null
-}
+export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'>
 
 export type DocActions<T> = {
   update: (updated: Partial<T>) => void

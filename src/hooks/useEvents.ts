@@ -28,7 +28,6 @@ export const useEvents = (parent?: DocumentReference<Schedule>) => {
             imageUrl: '',
             ...newSpot,
             schedule,
-            id: '',
           }
           const c = EVENTS_SUB_COLLECTIONS(planDoc)
           await addDoc(c, spot)

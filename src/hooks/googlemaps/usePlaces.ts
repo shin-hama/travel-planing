@@ -1,9 +1,9 @@
 import * as React from 'react'
 
-import { SpotDTO } from 'components/modules/SpotCard'
 import { useAxios } from 'hooks/axios/useAxios'
 import { bffConfigs } from 'configs'
 import { PlacesServiceContext } from 'contexts/PlacesServiceProvider'
+import { SpotDTO } from 'hooks/useSchedules'
 
 type PlacesPhotoResult = {
   html_attribute?: Array<string>
@@ -33,9 +33,8 @@ export const usePlaces = () => {
           try {
             places.textSearch(params, (result) => {
               resolve(
-                result?.map<SpotDTO>((spot) => {
+                result?.map<SpotDTO>((spot): SpotDTO => {
                   return {
-                    id: spot.place_id || '',
                     placeId: spot.place_id,
                     name: spot.name || '',
                     lat: spot.geometry?.location?.lat() || 0,

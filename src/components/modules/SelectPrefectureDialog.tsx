@@ -28,7 +28,6 @@ const SelectPrefectureDialog: React.FC<Props> = ({ open, onOK, onClose }) => {
     if (prefecture) {
       onOK?.({
         ...prefecture,
-        id: prefecture.place_id,
       })
     }
   }

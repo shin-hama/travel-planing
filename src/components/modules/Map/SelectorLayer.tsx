@@ -36,7 +36,6 @@ const MapSelectorLayer = () => {
     if (center) {
       planApi.update({
         lodging: {
-          id: 'lodging',
           name: 'Hotel',
           lat: center.lat(),
           lng: center.lng(),

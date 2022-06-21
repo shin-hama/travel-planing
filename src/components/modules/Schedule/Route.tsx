@@ -74,6 +74,7 @@ const RouteEvent: React.FC<Props> = ({ origin, dest, onChange }) => {
         onChange(result)
       })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dest])
 
   const [timeEditing, setTimeEditing] = React.useState(false)

@@ -17,6 +17,7 @@ import AsyncButton from 'components/elements/AsyncButton'
 import { useRouter } from 'hooks/useRouter'
 import PrefectureSelector from 'components/modules/PrefectureSelector'
 import { PlanDTO, usePlans } from 'hooks/usePlans'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
 
 type Form = {
   label?: string
@@ -29,6 +30,15 @@ const NewPlan = () => {
   const { register, control, handleSubmit, watch } = useForm<PlanDTO>()
   const dest = watch('destination')
   const [, { create: createPlan }] = usePlans()
+  const [user] = useAuthentication()
+
+  React.useEffect(() => {
+    if (user) {
+      router.userHome(true)
+    } else {
+      router.push('signup')
+    }
+  }, [user, router])
 
   const forms = React.useMemo<Array<Form>>(
     () => [

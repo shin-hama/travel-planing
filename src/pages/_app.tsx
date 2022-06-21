@@ -34,22 +34,22 @@ const App: React.FC<MyAppProps> = ({
       </Head>
       <ApolloClientProvider>
         <UserAuthorizationProvider>
-          <ConfirmationProvider>
-            <DirectionServiceProvider>
-              <DistanceMatrixProvider>
-                <PlacesServiceProvider>
-                  <SelectedSpotsProvider>
-                    <SpotEditorProvider>
-                      <ThemeProvider theme={theme}>
+          <ThemeProvider theme={theme}>
+            <ConfirmationProvider>
+              <DirectionServiceProvider>
+                <DistanceMatrixProvider>
+                  <PlacesServiceProvider>
+                    <SelectedSpotsProvider>
+                      <SpotEditorProvider>
                         <CssBaseline />
                         <Component {...pageProps} />
-                      </ThemeProvider>
-                    </SpotEditorProvider>
-                  </SelectedSpotsProvider>
-                </PlacesServiceProvider>
-              </DistanceMatrixProvider>
-            </DirectionServiceProvider>
-          </ConfirmationProvider>
+                      </SpotEditorProvider>
+                    </SelectedSpotsProvider>
+                  </PlacesServiceProvider>
+                </DistanceMatrixProvider>
+              </DirectionServiceProvider>
+            </ConfirmationProvider>
+          </ThemeProvider>
         </UserAuthorizationProvider>
       </ApolloClientProvider>
     </CacheProvider>

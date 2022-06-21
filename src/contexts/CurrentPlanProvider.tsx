@@ -38,7 +38,6 @@ export const isSameRoute = (a: Route, b: Route) =>
   a.mode === b.mode
 
 export type SpotBase = LatLng & {
-  id?: string
   name: string
 }
 

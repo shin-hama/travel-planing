@@ -112,29 +112,31 @@ export const usePlans = () => {
             routes: [],
           }
 
-          if (user) {
-            const plan = await addDoc(PLANS_SUB_COLLECTIONS(user.uid), newPlan)
-
-            const events = [...Array(planDTO.days)].map((_, i): ScheduleDTO => {
-              const startDate = dayjs(planDTO.start)
-                .add(i, 'day')
-                .hour(9)
-                .minute(0)
-                .second(0)
-              return {
-                start: startDate.toDate(),
-                end: startDate.hour(19).minute(0).toDate(),
-                size: 0,
-                position: 1024 * (i + 1),
-              }
-            })
-
-            events.forEach((event) => {
-              addDoc(SCHEDULES_SUB_COLLECTIONS(plan), event)
-            })
-
-            return plan.id
+          if (!user) {
+            return ''
           }
+
+          const plan = await addDoc(PLANS_SUB_COLLECTIONS(user.uid), newPlan)
+
+          const events = [...Array(planDTO.days)].map((_, i): ScheduleDTO => {
+            const startDate = dayjs(planDTO.start)
+              .add(i, 'day')
+              .hour(9)
+              .minute(0)
+              .second(0)
+            return {
+              start: startDate.toDate(),
+              end: startDate.hour(19).minute(0).toDate(),
+              size: 0,
+              position: 1024 * (i + 1),
+            }
+          })
+
+          events.forEach((event) => {
+            addDoc(SCHEDULES_SUB_COLLECTIONS(plan), event)
+          })
+
+          return plan.id
         } catch (e) {
           console.error(e)
         }

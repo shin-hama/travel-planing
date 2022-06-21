@@ -28,7 +28,6 @@ const converter: FirestoreDataConverter<Spot> = {
   ): Spot => {
     const data = snapshot.data(options)
     return {
-      id: data.spot,
       lat: data.lat,
       lng: data.lng,
       name: data.name,
