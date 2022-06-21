@@ -33,9 +33,7 @@ const NewPlan = () => {
   const [user] = useAuthentication()
 
   React.useEffect(() => {
-    if (user) {
-      router.userHome(true)
-    } else {
+    if (!user) {
       router.push('signup')
     }
   }, [user, router])

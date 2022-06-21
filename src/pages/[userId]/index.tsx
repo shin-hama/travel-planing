@@ -12,7 +12,6 @@ import Layout from 'components/layouts/Layout'
 import PlansList from 'components/modules/PlansList'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { usePlans } from 'hooks/usePlans'
-import { useConfirm } from 'hooks/useConfirm'
 import { useRouter } from 'hooks/useRouter'
 import { visuallyHidden } from '@mui/utils'
 
@@ -24,7 +23,6 @@ const UserHome = () => {
 
   const [user] = useAuthentication()
   const [plans] = usePlans()
-  const confirm = useConfirm()
   // const [nextPlan, setNextPlan] = React.useState<PlanDB | null>(null)
 
   // React.useEffect(() => {
@@ -37,16 +35,7 @@ const UserHome = () => {
   // }, [plans])
 
   const handleClick = async () => {
-    if (!user) {
-      try {
-        await confirm({
-          title: 'Create Plan?',
-          description:
-            'NOTE: You are a guest user, you cannot save plan. Please create account or login if you want to save.',
-          allowClose: true,
-        })
-      } catch {}
-    }
+    console.log('test')
     router.push('new')
   }
 
