@@ -20,7 +20,7 @@ export const useEvents = (parent?: DocumentReference<Schedule>) => {
         schedule: DocumentReference<Schedule>
       ) => {
         if (planDoc) {
-          const size = actions.filter(schedule).length || 0
+          const size = actions.filter(schedule.id).length || 0
           const spot: Spot = {
             duration: 60,
             durationUnit: 'minute',
@@ -34,12 +34,13 @@ export const useEvents = (parent?: DocumentReference<Schedule>) => {
           await addDoc(c, spot)
         }
       },
-      filter: (target: DocumentReference<Schedule>) => {
+      filter: (targetId: string) => {
         if (!events) {
+          console.warn('events are not found')
           return []
         }
         return events.docs
-          .filter((e) => e.data().schedule.id === target.id)
+          .filter((e) => e.data().schedule.id === targetId)
           .sort((a, b) => a.data().position - b.data().position)
       },
     }
@@ -48,7 +49,7 @@ export const useEvents = (parent?: DocumentReference<Schedule>) => {
   }, [events, planDoc])
 
   const filtered = React.useMemo(() => {
-    return parent ? actions.filter(parent) : events?.docs || []
+    return parent ? actions.filter(parent.id) : events?.docs || []
   }, [actions, events?.docs, parent])
 
   return [filtered, actions] as const
