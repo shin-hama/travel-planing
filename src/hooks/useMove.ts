@@ -36,22 +36,21 @@ export const useMove = () => {
         destIndex: number
       ) => {
         // moving to same list
-        if (!schedules) {
-          console.error('schedules are not found')
-          return
-        }
-
         // 移動元のイベントを特定するために、Drop された Schedule を特定
-        const schedule = schedules.docs.find((doc) => doc.id === sourceId)
+        const schedule = schedules?.docs.find((doc) => doc.id === sourceId)
         if (!schedule) {
           console.error('Moved source object is not found')
           return
         }
 
         // 移動元のイベントを更新する
-        const items = eventsApi.filter(schedule.ref.id).map((doc) => doc.data())
-        const reordered = actions.updatePosition(items, sourceIndex, destIndex)
-        db.update(events[sourceIndex].ref, reordered)
+        const items = eventsApi.filter(schedule.ref.id)
+        const reordered = actions.updatePosition(
+          items.map((doc) => doc.data()),
+          sourceIndex,
+          destIndex
+        )
+        db.update(items[sourceIndex].ref, reordered)
       },
       moveEvent: (
         sourceIndex: number,
@@ -60,7 +59,8 @@ export const useMove = () => {
         destinationId: string
       ) => {
         // moving to another day
-        const movedSpot = eventsApi.filter(sourceId)[sourceIndex].data()
+        const movedSpot = eventsApi.filter(sourceId)[sourceIndex]
+        console.log(movedSpot.data())
 
         // droppableId は Schedule ドキュメントの ID が設定されているので、
         // それを使って移動先の Reference を取得
@@ -69,16 +69,17 @@ export const useMove = () => {
           console.error(`schedule ${destinationId} is not found`)
           return
         }
-        movedSpot.schedule = dest.ref
-        const destEvents = eventsApi.filter(destinationId).map((e) => e.data())
 
         // 移動元のイベントを更新する
+        const destEvents = eventsApi.filter(destinationId).map((e) => e.data())
         const reordered = actions.updatePosition(
-          [movedSpot, ...destEvents],
+          [movedSpot.data(), ...destEvents],
           0,
           destIndex
         )
-        db.update(events[sourceIndex].ref, reordered)
+
+        reordered.schedule = dest.ref
+        db.update(movedSpot.ref, reordered)
       },
       updatePosition: <T extends OrderedItem>(
         items: T[],
@@ -103,7 +104,7 @@ export const useMove = () => {
     }
 
     return a
-  }, [db, events, eventsApi, schedules])
+  }, [db, eventsApi, schedules])
 
   return actions
 }
