@@ -47,19 +47,17 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
   const [routeMode, toggleMode] = useToggle(config.routeMode)
   const [spots, reload] = useSpots()
   const [events] = useEvents()
-  const [schedules] = useSchedules()
+  const [, schedulesApi] = useSchedules()
   const waypoints = React.useMemo(
     () =>
       events
         .map((e) => e.data())
         .sort(
           (a, b) =>
-            (schedules?.docs.find((s) => s.id === a.schedule.id)?.data()
-              .position || 0) -
-            (schedules?.docs.find((s) => s.id === b.schedule.id)?.data()
-              .position || 0)
+            (schedulesApi.get(a.schedule.id)?.data().position || 0) -
+            (schedulesApi.get(b.schedule.id)?.data().position || 0)
         ),
-    [events, schedules?.docs]
+    [events, schedulesApi]
   )
 
   React.useEffect(() => {

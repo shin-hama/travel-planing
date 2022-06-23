@@ -41,10 +41,13 @@ export const useSchedules = () => {
           return await addDoc(c, newSchedule)
         }
       },
+      get: (id: string) => {
+        return schedules?.docs.find((s) => s.id === id)
+      },
     }
 
     return a
-  }, [planRef])
+  }, [planRef, schedules?.docs])
 
   return [schedules, actions] as const
 }
