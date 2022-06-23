@@ -10,7 +10,7 @@ type OrderedItem = {
 
 export const useMove = () => {
   const db = useFirestore()
-  const [events, eventsApi] = useEvents()
+  const [, eventsApi] = useEvents()
   const [schedules] = useSchedules()
 
   const actions = React.useMemo(() => {

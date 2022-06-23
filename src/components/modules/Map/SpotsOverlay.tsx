@@ -16,7 +16,7 @@ import SpotCard from '../SpotCard'
 import AnySpotCard from './AnySpotCard'
 import { useSpots } from 'hooks/useSpots'
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
-import { SpotDTO } from 'hooks/useSchedules'
+import { SpotDTO, useSchedules } from 'hooks/useSchedules'
 import { useEvents } from 'hooks/useEvents'
 
 const polylineOptions = {
@@ -47,7 +47,20 @@ const MapOverlay: React.FC<Props> = ({ anySpot, setAnySpot }) => {
   const [routeMode, toggleMode] = useToggle(config.routeMode)
   const [spots, reload] = useSpots()
   const [events] = useEvents()
-  const waypoints = React.useMemo(() => events.map((e) => e.data()), [events])
+  const [schedules] = useSchedules()
+  const waypoints = React.useMemo(
+    () =>
+      events
+        .map((e) => e.data())
+        .sort(
+          (a, b) =>
+            (schedules?.docs.find((s) => s.id === a.schedule.id)?.data()
+              .position || 0) -
+            (schedules?.docs.find((s) => s.id === b.schedule.id)?.data()
+              .position || 0)
+        ),
+    [events, schedules?.docs]
+  )
 
   React.useEffect(() => {
     setConfig({ routeMode })
