@@ -10,8 +10,8 @@ type OrderedItem = {
 
 export const useMove = () => {
   const db = useFirestore()
-  const [events, eventsApi] = useEvents()
-  const [schedules] = useSchedules()
+  const [, eventsApi] = useEvents()
+  const [schedules, schedulesApi] = useSchedules()
 
   const actions = React.useMemo(() => {
     const a = {
@@ -37,7 +37,7 @@ export const useMove = () => {
       ) => {
         // moving to same list
         // 移動元のイベントを特定するために、Drop された Schedule を特定
-        const schedule = schedules?.docs.find((doc) => doc.id === sourceId)
+        const schedule = schedulesApi.get(sourceId)
         if (!schedule) {
           console.error('Moved source object is not found')
           return
@@ -64,7 +64,7 @@ export const useMove = () => {
 
         // droppableId は Schedule ドキュメントの ID が設定されているので、
         // それを使って移動先の Reference を取得
-        const dest = schedules?.docs.find((doc) => doc.id === destinationId)
+        const dest = schedulesApi.get(destinationId)
         if (!dest) {
           console.error(`schedule ${destinationId} is not found`)
           return
@@ -104,7 +104,7 @@ export const useMove = () => {
     }
 
     return a
-  }, [db, eventsApi, schedules])
+  }, [db, eventsApi, schedules, schedulesApi])
 
   return actions
 }
