@@ -94,7 +94,7 @@ export const usePlans = () => {
             destPhoto =
               'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
           }
-          const newPlan = {
+          const newPlan: Plan = {
             title: planDTO.title || `${planDTO.destination.name}旅行`,
             start: planDTO.start,
             startTime: dayjs(planDTO.start)
@@ -108,8 +108,6 @@ export const usePlans = () => {
             destination: { ...planDTO.destination, imageUrl: destPhoto },
             days: planDTO.days,
             belongings: [],
-            events: [],
-            routes: [],
           }
 
           if (!user) {
