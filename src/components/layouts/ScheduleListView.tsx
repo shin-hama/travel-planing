@@ -31,7 +31,7 @@ type Action = {
 const ScheduleListView: React.FC = () => {
   const [plan] = usePlan()
   const [events] = useEvents()
-  const [schedules] = useSchedules()
+  const [schedules, scheduleApi] = useSchedules()
   const db = useFirestore()
   const directions = useDirections()
   const confirm = useConfirm()
@@ -39,7 +39,9 @@ const ScheduleListView: React.FC = () => {
 
   const handleAddDay = React.useCallback(() => {
     console.log('not implemented')
-  }, [])
+
+    scheduleApi.create()
+  }, [scheduleApi])
 
   const handleAddHotel = React.useCallback(() => {
     openMap('selector')
@@ -142,7 +144,7 @@ const ScheduleListView: React.FC = () => {
         ),
       },
     ]
-  }, [handleAddHotel, handleOptimizeRoute])
+  }, [handleAddDay, handleAddHotel, handleOptimizeRoute])
 
   return (
     <>

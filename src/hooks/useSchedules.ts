@@ -12,6 +12,7 @@ import {
   CurrentSchedulesContext,
   SCHEDULES_SUB_COLLECTIONS,
 } from 'contexts/CurrentSchedulesProvider'
+import dayjs from 'dayjs'
 
 export type SpotDTO = Pick<Spot, 'name' | 'placeId' | 'lat' | 'lng'>
 
@@ -35,8 +36,20 @@ export const useSchedules = () => {
 
   const actions = React.useMemo(() => {
     const a = {
-      create: async (newSchedule: ScheduleDTO) => {
+      create: async () => {
         if (planRef) {
+          const startDate = dayjs().hour(9).minute(0).second(0)
+          const totalPos = (schedules?.docs || []).reduce(
+            (pos, schedule) => pos + schedule.data().position,
+            1024
+          )
+
+          const newSchedule: ScheduleDTO = {
+            start: startDate.toDate(),
+            end: startDate.hour(19).minute(0).toDate(),
+            size: 0,
+            position: totalPos,
+          }
           const c = SCHEDULES_SUB_COLLECTIONS(planRef)
           return await addDoc(c, newSchedule)
         }
