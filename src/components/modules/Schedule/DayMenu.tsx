@@ -29,7 +29,6 @@ const DayMenu: React.FC<Props> = ({ onDelete, ...props }) => {
       MenuListProps={{
         'aria-labelledby': 'basic-button',
       }}>
-      <MenuItem>この日のルートを最適化</MenuItem>
       <MenuItem onClick={handleDelete}>削除</MenuItem>
     </Menu>
   )
