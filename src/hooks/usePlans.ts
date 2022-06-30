@@ -15,8 +15,7 @@ import dayjs from 'dayjs'
 import { Plan, PLANS_SUB_COLLECTIONS } from 'contexts/CurrentPlanProvider'
 import { useAuthentication } from './firebase/useAuthentication'
 import { useUnsplash } from 'hooks/useUnsplash'
-import { ScheduleDTO } from './useSchedules'
-import { SCHEDULES_SUB_COLLECTIONS } from 'contexts/CurrentSchedulesProvider'
+import { useSchedules } from './useSchedules'
 
 // Firestore data converter
 export const planConverter: FirestoreDataConverter<Plan> = {
@@ -51,8 +50,9 @@ export type PlanDTO = Pick<
 
 export const usePlans = () => {
   const [user] = useAuthentication()
-  const [plans, setPlans] = React.useState<QuerySnapshot<Plan> | null>(null)
   const unsplash = useUnsplash()
+  const [, schedulesApi] = useSchedules()
+  const [plans, setPlans] = React.useState<QuerySnapshot<Plan> | null>(null)
 
   React.useEffect(() => {
     if (!user) {
@@ -106,7 +106,7 @@ export const usePlans = () => {
             thumbnail: destPhoto,
             home: { ...planDTO.home, imageUrl: homePhoto },
             destination: { ...planDTO.destination, imageUrl: destPhoto },
-            days: planDTO.days,
+            days: planDTO.days || 0,
             belongings: [],
           }
 
@@ -116,24 +116,9 @@ export const usePlans = () => {
 
           const plan = await addDoc(PLANS_SUB_COLLECTIONS(user.uid), newPlan)
 
-          const schedules = [...Array((planDTO.days || 0) + 1)].map(
-            (_, i): ScheduleDTO => {
-              const startDate = dayjs(planDTO.start)
-                .add(i, 'day')
-                .hour(9)
-                .minute(0)
-                .second(0)
-              return {
-                start: startDate.toDate(),
-                end: startDate.hour(19).minute(0).toDate(),
-                size: 0,
-                position: 1024 * (i + 1),
-              }
-            }
-          )
-
-          schedules.forEach((schedule) => {
-            addDoc(SCHEDULES_SUB_COLLECTIONS(plan), schedule)
+          // days は宿泊数なので、日程の総数は +1 日
+          Array.from(Array((newPlan.days || 0) + 1)).forEach(() => {
+            schedulesApi.create(plan)
           })
 
           return plan.id
@@ -144,7 +129,7 @@ export const usePlans = () => {
     }
 
     return a
-  }, [unsplash, user])
+  }, [schedulesApi, unsplash, user])
 
   return [plans, actions] as const
 }

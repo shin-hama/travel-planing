@@ -48,20 +48,20 @@ export const EVENTS_SUB_COLLECTIONS = (plan: DocumentReference<Plan>) =>
   collection(plan, 'events').withConverter(converter)
 
 type Props = {
-  planRef: DocumentReference<Plan> | null
+  planDoc: DocumentReference<Plan> | null
 }
 export const CurrentEventsContextProvider: React.FC<Props> = ({
   children,
-  planRef,
+  planDoc,
 }) => {
   const [events, setEvents] = React.useState<QuerySnapshot<Spot> | null>(null)
 
   React.useEffect(() => {
-    if (!planRef) {
+    if (!planDoc) {
       return
     }
 
-    const q = query(EVENTS_SUB_COLLECTIONS(planRef), orderBy('position'))
+    const q = query(EVENTS_SUB_COLLECTIONS(planDoc), orderBy('position'))
     const unsubscribe = onSnapshot(
       q,
       (result) => {
@@ -76,7 +76,7 @@ export const CurrentEventsContextProvider: React.FC<Props> = ({
     return () => {
       unsubscribe()
     }
-  }, [planRef])
+  }, [planDoc])
 
   return (
     <CurrentEventsContext.Provider value={events}>

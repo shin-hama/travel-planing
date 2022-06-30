@@ -11,7 +11,7 @@ import TabPanel from 'components/elements/TabPanel'
 import { usePlan } from 'hooks/usePlan'
 
 const PlanView = () => {
-  const [plan] = usePlan()
+  const [{ data: plan }] = usePlan()
   const [value, setValue] = React.useState(0)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {

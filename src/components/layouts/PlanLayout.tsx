@@ -12,7 +12,7 @@ import { usePlan } from 'hooks/usePlan'
 
 const PlanLayout: React.FC = () => {
   const router = useRouter()
-  const [plan] = usePlan()
+  const [{ data: plan }] = usePlan()
 
   if (!plan) {
     return (

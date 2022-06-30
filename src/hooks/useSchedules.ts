@@ -1,13 +1,9 @@
 import * as React from 'react'
 
-import { addDoc } from 'firebase/firestore'
+import { addDoc, DocumentReference } from 'firebase/firestore'
 
 import { DocumentBase } from './firebase/useFirestore'
-import {
-  CurrentPlanRefContext,
-  Route,
-  Spot,
-} from 'contexts/CurrentPlanProvider'
+import { Plan, Route, Spot } from 'contexts/CurrentPlanProvider'
 import {
   CurrentSchedulesContext,
   SCHEDULES_SUB_COLLECTIONS,
@@ -31,28 +27,26 @@ export type Schedule = DocumentBase & {
 export type ScheduleDTO = Pick<Schedule, 'start' | 'end' | 'size' | 'position'>
 
 export const useSchedules = () => {
-  const planRef = React.useContext(CurrentPlanRefContext)
   const schedules = React.useContext(CurrentSchedulesContext)
 
   const actions = React.useMemo(() => {
     const a = {
-      create: async () => {
-        if (planRef) {
-          const startDate = dayjs().hour(9).minute(0).second(0)
-          const totalPos = (schedules?.docs || []).reduce(
-            (pos, schedule) => pos + schedule.data().position,
-            1024
-          )
+      create: async (planDoc: DocumentReference<Plan>) => {
+        const startDate = dayjs().hour(9).minute(0).second(0)
+        const totalPos = (schedules?.docs || []).reduce(
+          (pos, schedule) => pos + schedule.data().position,
+          1024
+        )
 
-          const newSchedule: ScheduleDTO = {
-            start: startDate.toDate(),
-            end: startDate.hour(19).minute(0).toDate(),
-            size: 0,
-            position: totalPos,
-          }
-          const c = SCHEDULES_SUB_COLLECTIONS(planRef)
-          return await addDoc(c, newSchedule)
+        const newSchedule: ScheduleDTO = {
+          start: startDate.toDate(),
+          end: startDate.hour(19).minute(0).toDate(),
+          size: 0,
+          position: totalPos,
         }
+        
+        const c = SCHEDULES_SUB_COLLECTIONS(planDoc)
+        return await addDoc(c, newSchedule)
       },
       get: (id: string) => {
         return schedules?.docs.find((s) => s.id === id)
@@ -60,7 +54,7 @@ export const useSchedules = () => {
     }
 
     return a
-  }, [planRef, schedules?.docs])
+  }, [schedules?.docs])
 
   return [schedules, actions] as const
 }

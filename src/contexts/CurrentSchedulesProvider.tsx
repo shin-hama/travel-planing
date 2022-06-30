@@ -44,21 +44,21 @@ export const SCHEDULES_SUB_COLLECTIONS = (plan: DocumentReference<Plan>) =>
   collection(plan, 'schedules').withConverter(converter)
 
 type Props = {
-  planRef: DocumentReference<Plan> | null
+  planDoc: DocumentReference<Plan> | null
 }
 export const CurrentSchedulesContextProvider: React.FC<Props> = ({
   children,
-  planRef,
+  planDoc,
 }) => {
   const [schedules, setSchedules] =
     React.useState<QuerySnapshot<Schedule> | null>(null)
 
   React.useEffect(() => {
-    if (!planRef) {
+    if (!planDoc) {
       return
     }
 
-    const q = query(SCHEDULES_SUB_COLLECTIONS(planRef), orderBy('position'))
+    const q = query(SCHEDULES_SUB_COLLECTIONS(planDoc), orderBy('position'))
     const unsubscribe = onSnapshot(
       q,
       (result) => {
@@ -73,7 +73,7 @@ export const CurrentSchedulesContextProvider: React.FC<Props> = ({
     return () => {
       unsubscribe()
     }
-  }, [planRef])
+  }, [planDoc])
 
   return (
     <CurrentSchedulesContext.Provider value={schedules}>

@@ -34,7 +34,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
   first,
   last,
 }) {
-  const [plan] = usePlan()
+  const [{ data: plan }] = usePlan()
   const [events] = useEvents(scheduleQuery.ref)
 
   const schedule = React.useMemo(() => scheduleQuery.data(), [scheduleQuery])
