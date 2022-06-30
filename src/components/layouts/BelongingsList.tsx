@@ -14,7 +14,7 @@ import { usePlan } from 'hooks/usePlan'
 import { Belonging } from 'contexts/CurrentPlanProvider'
 
 const BelongingsList: React.FC = () => {
-  const [plan, planApi] = usePlan()
+  const [{ data: plan }, planApi] = usePlan()
   const [added, setAdded] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
 

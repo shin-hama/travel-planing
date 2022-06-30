@@ -99,7 +99,7 @@ export type Plan = {
 }
 
 export const CurrentPlanContext = React.createContext<Plan | null>(null)
-export const CurrentPlanRefContext =
+export const CurrentPlanDocContext =
   React.createContext<DocumentReference<Plan> | null>(null)
 
 type PlanActions = DocActions<Plan>
@@ -121,11 +121,10 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
   children,
   query,
 }) => {
-  const [currentPlan, setPlan] = React.useState<DocumentReference<Plan> | null>(
-    null
-  )
+  const [currentPlanDoc, setPlan] =
+    React.useState<DocumentReference<Plan> | null>(null)
 
-  const [plan, docActions] = useDocument(currentPlan)
+  const [plan, docActions] = useDocument(currentPlanDoc)
 
   const actions = React.useMemo(() => {
     const a = {
@@ -151,16 +150,16 @@ export const CurrentPlanContextProvider: React.FC<Props> = ({
   }, [query.planId, query.userId])
 
   return (
-    <CurrentPlanRefContext.Provider value={currentPlan}>
+    <CurrentPlanDocContext.Provider value={currentPlanDoc}>
       <CurrentPlanContext.Provider value={plan}>
         <CurrentPlanActionsContext.Provider value={actions}>
-          <CurrentSchedulesContextProvider planRef={currentPlan}>
-            <CurrentEventsContextProvider planRef={currentPlan}>
+          <CurrentSchedulesContextProvider planDoc={currentPlanDoc}>
+            <CurrentEventsContextProvider planDoc={currentPlanDoc}>
               {children}
             </CurrentEventsContextProvider>
           </CurrentSchedulesContextProvider>
         </CurrentPlanActionsContext.Provider>
       </CurrentPlanContext.Provider>
-    </CurrentPlanRefContext.Provider>
+    </CurrentPlanDocContext.Provider>
   )
 }

@@ -3,14 +3,14 @@ import * as React from 'react'
 import { addDoc, DocumentReference } from 'firebase/firestore'
 
 import { Schedule, SpotDTO } from './useSchedules'
-import { CurrentPlanRefContext, Spot } from 'contexts/CurrentPlanProvider'
+import { CurrentPlanDocContext, Spot } from 'contexts/CurrentPlanProvider'
 import {
   CurrentEventsContext,
   EVENTS_SUB_COLLECTIONS,
 } from 'contexts/CurrentEventsProvider'
 
 export const useEvents = (parent?: DocumentReference<Schedule>) => {
-  const planDoc = React.useContext(CurrentPlanRefContext)
+  const planDoc = React.useContext(CurrentPlanDocContext)
   const events = React.useContext(CurrentEventsContext)
 
   const actions = React.useMemo(() => {

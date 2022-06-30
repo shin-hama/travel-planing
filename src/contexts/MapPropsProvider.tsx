@@ -25,7 +25,7 @@ export const MapPropsProvider: React.FC = ({ children }) => {
     mounted: false,
   })
 
-  const [plan] = usePlan()
+  const [{ data: plan }] = usePlan()
 
   React.useEffect(() => {
     // 選択しているプランの目的地を中心にする

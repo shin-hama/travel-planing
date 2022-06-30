@@ -1,13 +1,16 @@
 import * as React from 'react'
 import Alert from '@mui/material/Alert'
-import Backdrop from '@mui/material/Backdrop'
 import Snackbar from '@mui/material/Snackbar'
 import SpeedDial from '@mui/material/SpeedDial'
 import SpeedDialAction from '@mui/material/SpeedDialAction'
 import SpeedDialIcon from '@mui/material/SpeedDialIcon'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faRoute, faBed } from '@fortawesome/free-solid-svg-icons'
+import {
+  faBed,
+  faCalendarPlus,
+  faRoute,
+} from '@fortawesome/free-solid-svg-icons'
 
 import { usePlan } from 'hooks/usePlan'
 import ListScheduler from 'components/modules/Schedule/ListScheduler'
@@ -26,21 +29,19 @@ type Action = {
 }
 
 const ScheduleListView: React.FC = () => {
-  const [plan] = usePlan()
+  const [{ data: plan, doc: planDoc }] = usePlan()
   const [events] = useEvents()
-  const [schedules] = useSchedules()
+  const [schedules, scheduleApi] = useSchedules()
   const db = useFirestore()
   const directions = useDirections()
   const confirm = useConfirm()
   const [, { openMap }] = usePlanningTab()
 
-  const [open, setOpen] = React.useState(false)
-  const handleClick = () => setOpen((prev) => !prev)
-  const handleClose = React.useCallback((_, reason: string) => {
-    if (reason !== 'mouseLeave') {
-      setOpen(false)
+  const handleAddDay = React.useCallback(() => {
+    if (planDoc) {
+      scheduleApi.create(planDoc)
     }
-  }, [])
+  }, [planDoc, scheduleApi])
 
   const handleAddHotel = React.useCallback(() => {
     openMap('selector')
@@ -133,17 +134,22 @@ const ScheduleListView: React.FC = () => {
           </SvgIcon>
         ),
       },
+      {
+        label: '予定を一日追加',
+        onClick: handleAddDay,
+        icon: (
+          <SvgIcon>
+            <FontAwesomeIcon icon={faCalendarPlus} />
+          </SvgIcon>
+        ),
+      },
     ]
-  }, [handleAddHotel, handleOptimizeRoute])
+  }, [handleAddDay, handleAddHotel, handleOptimizeRoute])
 
   return (
     <>
       <ListScheduler />
-      <Backdrop open={open} />
       <SpeedDial
-        open={open}
-        onClick={handleClick}
-        onClose={handleClose}
         ariaLabel="SpeedDial basic example"
         sx={{ position: 'fixed', bottom: 100, right: 16 }}
         icon={<SpeedDialIcon />}>
