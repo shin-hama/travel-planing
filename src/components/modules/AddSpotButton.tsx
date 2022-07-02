@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
 
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
 import { SpotDTO, useSchedules } from 'hooks/useSchedules'
@@ -24,6 +25,15 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
     [day, schedules?.docs]
   )
   const [events, eventsApi] = useEvents(selectedDay)
+  const [open, setOpen] = React.useState(false)
+
+  const handleTooltipClose = () => {
+    setOpen(false)
+  }
+
+  const handleTooltipOpen = () => {
+    setOpen(true)
+  }
 
   const count = React.useMemo(
     () =>
@@ -44,10 +54,11 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
     if (selectedDay) {
       await eventsApi.create(newSpot, selectedDay)
     }
+    handleTooltipOpen()
   }
 
   return (
-    <Stack direction="row" spacing={1}>
+    <Stack direction="row" spacing={1} alignItems="center">
       <FormControl fullWidth>
         <InputLabel id="day-select-label">Day</InputLabel>
         <Select
@@ -65,13 +76,25 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
         </Select>
       </FormControl>
       <Badge badgeContent={count} color="primary">
-        <Button
-          disabled={disabled}
-          variant="contained"
-          size="small"
-          onClick={handleClick}>
-          Add
-        </Button>
+        <Tooltip
+          PopperProps={{
+            disablePortal: true,
+          }}
+          onClose={handleTooltipClose}
+          open={open}
+          leaveDelay={1000}
+          disableFocusListener
+          disableTouchListener
+          placement="top"
+          title="Added">
+          <Button
+            disabled={disabled}
+            variant="contained"
+            size="small"
+            onClick={handleClick}>
+            Add
+          </Button>
+        </Tooltip>
       </Badge>
     </Stack>
   )
