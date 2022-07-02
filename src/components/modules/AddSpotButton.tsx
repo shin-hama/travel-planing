@@ -1,6 +1,5 @@
 import * as React from 'react'
 import Badge from '@mui/material/Badge'
-import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
@@ -8,6 +7,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
 
+import AsyncButton from 'components/elements/AsyncButton'
 import { usePlanViewConfig } from 'contexts/PlanViewConfigProvider'
 import { SpotDTO, useSchedules } from 'hooks/useSchedules'
 import { useEvents } from 'hooks/useEvents'
@@ -26,6 +26,7 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   )
   const [events, eventsApi] = useEvents(selectedDay)
   const [open, setOpen] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
 
   const handleTooltipClose = () => {
     setOpen(false)
@@ -52,8 +53,10 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
 
   const handleClick = async () => {
     if (selectedDay) {
+      setLoading(true)
       await eventsApi.create(newSpot, selectedDay)
     }
+    setLoading(false)
     handleTooltipOpen()
   }
 
@@ -75,27 +78,28 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
           ))}
         </Select>
       </FormControl>
-      <Badge badgeContent={count} color="primary">
-        <Tooltip
-          PopperProps={{
-            disablePortal: true,
-          }}
-          onClose={handleTooltipClose}
-          open={open}
-          leaveDelay={1000}
-          disableFocusListener
-          disableTouchListener
-          placement="top"
-          title="Added">
-          <Button
+      <Tooltip
+        PopperProps={{
+          disablePortal: true,
+        }}
+        onClose={handleTooltipClose}
+        open={open}
+        leaveDelay={1000}
+        disableFocusListener
+        disableTouchListener
+        placement="top"
+        title="Added">
+        <Badge badgeContent={count} color="primary">
+          <AsyncButton
+            loading={loading}
             disabled={disabled}
             variant="contained"
             size="small"
             onClick={handleClick}>
             Add
-          </Button>
-        </Tooltip>
-      </Badge>
+          </AsyncButton>
+        </Badge>
+      </Tooltip>
     </Stack>
   )
 }
