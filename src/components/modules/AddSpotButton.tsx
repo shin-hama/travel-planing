@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Badge from '@mui/material/Badge'
 import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -15,10 +16,22 @@ type Props = {
   disabled?: boolean
 }
 const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
-  const [schedules] = useSchedules()
-  const [, eventsApi] = useEvents()
   const [config, setConfig] = usePlanViewConfig()
   const [day, setDay] = React.useState(config.lastAddDay)
+  const [schedules] = useSchedules()
+  const selectedDay = React.useMemo(
+    () => schedules?.docs[day].ref,
+    [day, schedules?.docs]
+  )
+  const [events, eventsApi] = useEvents(selectedDay)
+
+  const count = React.useMemo(
+    () =>
+      events.filter(
+        (e) => e.data().placeId && e.data().placeId === newSpot.placeId
+      ).length,
+    [events, newSpot]
+  )
 
   const handleChange = (event: SelectChangeEvent<number>) => {
     const newDay = event.target.value as number
@@ -28,8 +41,8 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
   }
 
   const handleClick = async () => {
-    if (schedules) {
-      await eventsApi.create(newSpot, schedules.docs[day].ref)
+    if (selectedDay) {
+      await eventsApi.create(newSpot, selectedDay)
     }
   }
 
@@ -51,13 +64,15 @@ const AddSpotButton: React.FC<Props> = ({ newSpot, disabled = false }) => {
           ))}
         </Select>
       </FormControl>
-      <Button
-        disabled={disabled}
-        variant="contained"
-        size="small"
-        onClick={handleClick}>
-        Add
-      </Button>
+      <Badge badgeContent={count} color="primary">
+        <Button
+          disabled={disabled}
+          variant="contained"
+          size="small"
+          onClick={handleClick}>
+          Add
+        </Button>
+      </Badge>
     </Stack>
   )
 }

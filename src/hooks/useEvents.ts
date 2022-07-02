@@ -33,13 +33,13 @@ export const useEvents = (parent?: DocumentReference<Schedule>) => {
           await addDoc(c, spot)
         }
       },
-      filter: (targetId: string) => {
+      filter: (scheduleId: string) => {
         if (!events) {
           console.warn('events are not found')
           return []
         }
         return events.docs
-          .filter((e) => e.data().schedule.id === targetId)
+          .filter((e) => e.data().schedule.id === scheduleId)
           .sort((a, b) => a.data().position - b.data().position)
       },
     }
