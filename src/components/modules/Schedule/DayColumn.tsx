@@ -71,12 +71,10 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
 
   // const { routesApi } = useRoutes()
 
-  const summarizeTotalTime = (target: Spot): Date => {
+  const summarizeTotalTime = (targets: Array<Spot>): Date => {
     let _start = dayjs(schedule.start)
-    const prevSpots = events
-      .map((e) => e.data())
-      .filter((e) => e.position < target.position)
-    prevSpots.forEach((prev) => {
+
+    targets.forEach((prev) => {
       // このスポットよりも前にスケジュールされているスポットの滞在時間と移動時間を加算
       _start = _start
         .add(prev.duration, prev.durationUnit)
@@ -175,7 +173,11 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                               ? events[index + 1].data()
                               : dest
                           }
-                          start={summarizeTotalTime(event.data())}
+                          start={summarizeTotalTime(
+                            events
+                              .map((e) => e.data())
+                              .filter((e) => e.position < event.data().position)
+                          )}
                           handleUpdate={(updated) =>
                             db.update(event.ref, updated)
                           }
@@ -186,7 +188,10 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                 </Draggable>
               ))}
               {dest ? (
-                <HomeEventCard name={dest.name} date={schedule.start} />
+                <HomeEventCard
+                  name={dest.name}
+                  date={summarizeTotalTime(events.map((e) => e.data()))}
+                />
               ) : (
                 <Box pt={4}>
                   <AddEventCard
