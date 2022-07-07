@@ -1,13 +1,7 @@
 import * as React from 'react'
-import { SxProps, Theme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import {
-  Draggable,
-  DraggingStyle,
-  Droppable,
-  NotDraggingStyle,
-} from 'react-beautiful-dnd'
+import { Draggable, Droppable } from 'react-beautiful-dnd'
 import { QueryDocumentSnapshot } from 'firebase/firestore'
 
 import DayHeader from './DayHeader'
@@ -27,20 +21,6 @@ import { useEvents } from 'hooks/useEvents'
 import SpotEvent from './SpotEvent'
 import { useFirestore } from 'hooks/firebase/useFirestore'
 import dayjs from 'dayjs'
-
-const getItemStyle = (
-  isDragging: boolean,
-  draggableStyle: DraggingStyle | NotDraggingStyle | undefined
-): SxProps<Theme> => ({
-  // some basic styles to make the items look a bit nicer
-  userSelect: 'none',
-
-  // change background color if dragging
-  background: isDragging ? 'lightgreen' : 'white',
-
-  // styles we need to apply on draggables
-  ...draggableStyle,
-})
 
 type Props = {
   day: number
@@ -186,10 +166,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                         ref={provided.innerRef}
                         {...provided.dragHandleProps}
                         {...provided.draggableProps}
-                        sx={getItemStyle(
-                          snapshot.isDragging,
-                          provided.draggableProps.style
-                        )}>
+                        sx={provided.draggableProps.style}>
                         <SpotEvent
                           origin={event}
                           dest={
@@ -202,6 +179,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                               .map((e) => e.data())
                               .filter((e) => e.position < event.data().position)
                           )}
+                          dragging={snapshot.isDragging}
                           handleUpdate={(updated) =>
                             db.update(event.ref, updated)
                           }
