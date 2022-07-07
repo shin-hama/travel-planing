@@ -160,12 +160,13 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
               )}
               {events.map((event, index) => (
                 <Draggable key={event.id} draggableId={event.id} index={index}>
-                  {(provided) => (
+                  {(provided, snapshot) => (
                     <>
                       <Box
                         ref={provided.innerRef}
                         {...provided.dragHandleProps}
-                        {...provided.draggableProps}>
+                        {...provided.draggableProps}
+                        sx={provided.draggableProps.style}>
                         <SpotEvent
                           origin={event}
                           dest={
@@ -178,6 +179,7 @@ const DayColumn: React.FC<Props> = React.memo(function DayColumn({
                               .map((e) => e.data())
                               .filter((e) => e.position < event.data().position)
                           )}
+                          dragging={snapshot.isDragging}
                           handleUpdate={(updated) =>
                             db.update(event.ref, updated)
                           }

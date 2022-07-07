@@ -11,12 +11,14 @@ type Props = {
   origin: QueryDocumentSnapshot<Spot>
   start: Date
   dest?: SpotBase | null
+  dragging?: boolean
   handleUpdate: (updated: Partial<Spot>) => void
 }
 const SpotEvent: React.FC<Props> = React.memo(function SpotCard({
   origin,
   dest,
   start,
+  dragging,
   handleUpdate,
 }) {
   const { open } = useSpotEditor()
@@ -41,7 +43,11 @@ const SpotEvent: React.FC<Props> = React.memo(function SpotCard({
       <Box
         onClick={() => open(origin)}
         sx={{
-          border: (theme) => `solid ${theme.palette.grey[300]} 1px`,
+          background: '#FFF',
+          border: `solid`,
+          borderColor: (theme) =>
+            dragging ? theme.palette.primary.main : theme.palette.grey[300],
+          borderWidth: dragging ? '2px' : '1px',
           borderRadius: 2,
         }}>
         <SpotEventCard spot={origin.data()} start={start} />
