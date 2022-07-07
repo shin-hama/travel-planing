@@ -4,9 +4,7 @@ import Stack from '@mui/material/Stack'
 import {
   DragDropContext,
   Draggable,
-  DraggableProvided,
   Droppable,
-  DroppableProvided,
   DropResult,
 } from 'react-beautiful-dnd'
 
@@ -59,7 +57,7 @@ const ListScheduler: React.FC = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="board" type="COLUMN" direction="horizontal">
-        {(provided: DroppableProvided) => (
+        {(provided) => (
           <Stack
             ref={provided.innerRef}
             {...provided.droppableProps}
@@ -74,11 +72,12 @@ const ListScheduler: React.FC = () => {
             }}>
             {schedules?.docs.map((schedule, i) => (
               <Draggable key={`day-${i}`} draggableId={`day-${i}`} index={i}>
-                {(provided: DraggableProvided) => (
+                {(provided) => (
                   <Box
                     ref={provided.innerRef}
                     {...provided.dragHandleProps}
-                    {...provided.draggableProps}>
+                    {...provided.draggableProps}
+                    sx={provided.draggableProps.style}>
                     <DayColumn
                       day={i}
                       schedule={schedule}
