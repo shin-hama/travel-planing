@@ -40,6 +40,7 @@ export const planConverter: FirestoreDataConverter<Plan> = {
       thumbnail: data.thumbnail || '',
       lodging: data.lodging || undefined,
       belongings: data.belongings || [],
+      published: data.published || false,
     }
   },
 }
@@ -108,6 +109,7 @@ export const usePlans = () => {
             destination: { ...planDTO.destination, imageUrl: destPhoto },
             days: planDTO.days || 0,
             belongings: [],
+            published: false,
           }
 
           if (!user) {

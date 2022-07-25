@@ -96,6 +96,7 @@ export type Plan = {
    * 宿泊日数、未定なら null
    */
   days?: number | null
+  published: boolean
 }
 
 export const CurrentPlanContext = React.createContext<Plan | null>(null)

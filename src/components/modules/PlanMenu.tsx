@@ -1,45 +1,41 @@
 import * as React from 'react'
-import Backdrop from '@mui/material/Backdrop'
-import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
+import ListItemText from '@mui/material/ListItemText'
 import Menu, { MenuProps } from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
 import { useConfirm } from 'hooks/useConfirm'
 import { usePlan } from 'hooks/usePlan'
-import { useAsyncFn } from 'react-use'
 import { useRouter } from 'hooks/useRouter'
 import { usePlanningTab } from 'contexts/PlanningTabProvider'
 
 type Props = MenuProps
 const PlanMenu: React.FC<Props> = (props) => {
-  const [, planApi] = usePlan()
+  const [{ data: plan }, planApi] = usePlan()
   const [, { openMap }] = usePlanningTab()
   const confirm = useConfirm()
   const router = useRouter()
 
-  const [{ loading }, handleOptimize] = useAsyncFn(async () => {
-    try {
-      props.onClose?.({}, 'backdropClick')
-
-      try {
-        await confirm({
-          allowClose: false,
-          description:
-            'Optimize your plan.\nWARNING: Current plan will be overwritten',
-        })
-      } catch {
-        // when cancel
-        return
-      }
-    } catch (e) {
-      console.error(e)
-    }
-  }, [confirm, planApi])
-
   const handleAddHotel = () => {
     openMap('selector')
     props.onClose?.({}, 'backdropClick')
+  }
+
+  const handlePublish = async () => {
+    if (!plan?.published) {
+      try {
+        await confirm({
+          title: 'Info',
+          description:
+            'URLを共有することで誰でもプランが閲覧できるようになります。よろしいですか?',
+        })
+        planApi.update({ published: true })
+      } finally {
+        props.onClose?.({}, 'backdropClick')
+      }
+    } else {
+      planApi.update({ published: false })
+    }
   }
 
   const handleDelete = async () => {
@@ -55,14 +51,6 @@ const PlanMenu: React.FC<Props> = (props) => {
     }
   }
 
-  if (loading) {
-    return (
-      <Backdrop open={loading} sx={{ zIndex: 1 }}>
-        <CircularProgress />
-      </Backdrop>
-    )
-  }
-
   return (
     <Menu
       id="plan-menu"
@@ -70,10 +58,16 @@ const PlanMenu: React.FC<Props> = (props) => {
       MenuListProps={{
         'aria-labelledby': 'basic-button',
       }}>
-      <MenuItem onClick={handleOptimize}>ルート最適化</MenuItem>
-      <MenuItem onClick={handleAddHotel}>ホテルを設定</MenuItem>
+      <MenuItem onClick={handleAddHotel}>
+        <ListItemText>ホテルを設定</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={handlePublish}>
+        <ListItemText>プランを{plan?.published && '非'}公開</ListItemText>
+      </MenuItem>
       <Divider />
-      <MenuItem onClick={handleDelete}>Delete Plan</MenuItem>
+      <MenuItem onClick={handleDelete}>
+        <ListItemText>Delete Plan</ListItemText>
+      </MenuItem>
     </Menu>
   )
 }
