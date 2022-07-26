@@ -1,6 +1,10 @@
-import SpotEventEditor from 'components/modules/Schedule/SpotEventEditor'
+import SpotEventEditor, {
+  SpotUpdate,
+} from 'components/modules/Schedule/SpotEventEditor'
 import { QueryDocumentSnapshot } from 'firebase/firestore'
+import { useAuthentication } from 'hooks/firebase/useAuthentication'
 import { useFirestore } from 'hooks/firebase/useFirestore'
+import { useStorage } from 'hooks/firebase/useStorage'
 import * as React from 'react'
 import { Spot } from './CurrentPlanProvider'
 
@@ -15,6 +19,8 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
     null
   )
   const db = useFirestore()
+  const storage = useStorage()
+  const [user] = useAuthentication()
 
   const handleDelete = React.useCallback(() => {
     if (spot) {
@@ -24,13 +30,31 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
   }, [db, spot])
 
   const handleUpdate = React.useCallback(
-    (updated: Spot) => {
-      if (spot) {
-        db.update(spot.ref, updated)
+    async (updated: SpotUpdate) => {
+      if (user && spot) {
+        const { uploaded, ...rest } = updated
+        let spotUpdated: Partial<Spot> = {
+          ...rest,
+        }
+        if (uploaded && uploaded.length === 1) {
+          // upload file to storage
+          const path = `${user.uid}/${spot.ref.parent.parent?.id}/${spot.id}/${uploaded[0]?.name}`
+          const result = await storage.upload(uploaded[0], path)
+          const url = await storage.getDownloadURL(result.ref)
+          spotUpdated = {
+            ...spotUpdated,
+            image: {
+              url,
+              ref: result.ref.fullPath,
+            },
+          }
+        }
+
+        db.update<Spot>(spot.ref, spotUpdated)
         setSpot(null)
       }
     },
-    [db, spot]
+    [db, spot, storage, user]
   )
   return (
     <>

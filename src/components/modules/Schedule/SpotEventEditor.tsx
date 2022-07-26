@@ -17,11 +17,15 @@ import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
 import { useConfirm } from 'hooks/useConfirm'
 
-type Forms = Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
+export type SpotUpdate = Partial<
+  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
+> & {
+  uploaded?: FileList | null
+}
 
 type Props = DialogProps & {
   spot: Spot
-  onUpdate: (spot: Spot) => void
+  onUpdate: (spot: SpotUpdate) => void
   onDelete: () => void
 }
 const SpotEventEditor: React.FC<Props> = ({
@@ -33,12 +37,13 @@ const SpotEventEditor: React.FC<Props> = ({
   const [edited, setEdited] = React.useState<Spot>(spot)
   const confirm = useConfirm()
 
-  const { control, register, watch } = useForm<Forms>({
+  const { control, register, watch, getValues } = useForm<SpotUpdate>({
     defaultValues: {
       name: spot?.name,
       duration: spot?.duration,
       labels: spot?.labels,
       memo: spot?.memo,
+      uploaded: null,
     },
   })
 
@@ -55,7 +60,8 @@ const SpotEventEditor: React.FC<Props> = ({
   }
 
   const handleClose = () => {
-    onUpdate(edited)
+    const values = getValues()
+    onUpdate(values)
   }
 
   React.useEffect(() => {
@@ -76,11 +82,12 @@ const SpotEventEditor: React.FC<Props> = ({
       <DialogContent>
         <Stack spacing={4}>
           <Stack spacing={1}>
+            <input type="file" {...register('uploaded')} accept="image/*" />
             <TextField
               {...register('name')}
               variant="outlined"
               fullWidth
-              InputProps={{ sx: (theme) => theme.typography.h4  }}
+              InputProps={{ sx: (theme) => theme.typography.h4 }}
             />
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography variant="subtitle1">滞在時間</Typography>
