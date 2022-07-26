@@ -11,11 +11,13 @@ import { Controller, useForm } from 'react-hook-form'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+import Image from 'next/image'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
 import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
 import { useConfirm } from 'hooks/useConfirm'
+import ImageUploader from 'components/elements/ImageUploader'
 
 export type SpotUpdate = Partial<
   Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
@@ -61,6 +63,7 @@ const SpotEventEditor: React.FC<Props> = ({
 
   const handleClose = () => {
     const values = getValues()
+    console.log(values)
     onUpdate(values)
   }
 
@@ -79,10 +82,31 @@ const SpotEventEditor: React.FC<Props> = ({
 
   return (
     <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
+      <Box
+        display="flex"
+        alignItems="flex-start"
+        justifyContent="flex-end"
+        sx={{
+          aspectRatio: '21/9',
+          border: 'solid',
+          background: 'lightblue',
+        }}>
+        {edited.image && (
+          <Image
+            src={edited.image?.url}
+            width="21"
+            height="9"
+            layout="responsive"
+            objectFit="cover"
+          />
+        )}
+        <Box m={1}>
+          <ImageUploader {...register('uploaded')} />
+        </Box>
+      </Box>
       <DialogContent>
         <Stack spacing={4}>
           <Stack spacing={1}>
-            <input type="file" {...register('uploaded')} accept="image/*" />
             <TextField
               {...register('name')}
               variant="outlined"

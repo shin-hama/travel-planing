@@ -40,6 +40,7 @@ const converter: FirestoreDataConverter<Spot> = {
       position: data.position,
       next: data.next,
       schedule: data.schedule,
+      image: data.image,
     }
   },
 }
