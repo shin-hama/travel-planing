@@ -54,6 +54,11 @@ export type Prefecture = SpotBase & {
 
 export type SpotLabel = string
 
+type Image = {
+  url: string
+  ref: string
+}
+
 export type Spot = RouteGuidanceAvailable & {
   imageUrl: string
   placeId?: string | null
@@ -63,6 +68,7 @@ export type Spot = RouteGuidanceAvailable & {
   memo?: string
   position: number
   schedule: DocumentReference<Schedule>
+  image?: Image
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
