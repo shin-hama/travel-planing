@@ -36,10 +36,10 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
         let spotUpdated: Partial<Spot> = {
           ...rest,
         }
-        if (uploaded && uploaded.length === 1) {
+        if (uploaded) {
           // upload file to storage
-          const path = `${user.uid}/${spot.ref.parent.parent?.id}/${spot.id}/${uploaded[0]?.name}`
-          const result = await storage.upload(uploaded[0], path)
+          const path = `${user.uid}/${spot.ref.parent.parent?.id}/${spot.id}/${uploaded.name}`
+          const result = await storage.upload(uploaded, path)
           const url = await storage.getDownloadURL(result.ref)
           spotUpdated = {
             ...spotUpdated,

@@ -22,7 +22,7 @@ import ImageUploader from 'components/elements/ImageUploader'
 export type SpotUpdate = Partial<
   Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
 > & {
-  uploaded?: FileList | null
+  uploaded?: File | null
 }
 
 type Props = DialogProps & {
@@ -36,7 +36,7 @@ const SpotEventEditor: React.FC<Props> = ({
   onDelete,
   ...props
 }) => {
-  const [edited, setEdited] = React.useState<Spot>(spot)
+  const [edited, setEdited] = React.useState<SpotUpdate>(spot)
   const confirm = useConfirm()
 
   const { control, register, watch, getValues } = useForm<SpotUpdate>({
@@ -69,6 +69,7 @@ const SpotEventEditor: React.FC<Props> = ({
 
   React.useEffect(() => {
     const subscription = watch((value) => {
+      console.log(value)
       setEdited((prev) => ({
         ...prev,
         ...value,
@@ -83,25 +84,46 @@ const SpotEventEditor: React.FC<Props> = ({
   return (
     <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
       <Box
-        display="flex"
-        alignItems="flex-start"
-        justifyContent="flex-end"
         sx={{
+          position: 'relative',
           aspectRatio: '21/9',
-          border: 'solid',
-          background: 'lightblue',
         }}>
-        {edited.image && (
+        {(edited.uploaded || spot.image) && (
           <Image
-            src={edited.image?.url}
+            src={
+              edited.uploaded
+                ? URL.createObjectURL(edited.uploaded)
+                : spot.image?.url
+            }
             width="21"
             height="9"
             layout="responsive"
             objectFit="cover"
           />
         )}
-        <Box m={1}>
-          <ImageUploader {...register('uploaded')} />
+        <Box position="absolute" top={8} right={8}>
+          <Controller
+            control={control}
+            name="uploaded"
+            render={({ field }) => (
+              <ImageUploader
+                onChange={(e) => {
+                  if (e.target.files?.length === 1) {
+                    field.onChange(e.target.files[0])
+                  }
+                }}
+                buttonProps={{
+                  color: 'inherit',
+                  sx: {
+                    background: (theme) => theme.palette.grey[100],
+                    '&:hover': {
+                      background: (theme) => theme.palette.grey[400],
+                    },
+                  },
+                }}
+              />
+            )}
+          />
         </Box>
       </Box>
       <DialogContent>

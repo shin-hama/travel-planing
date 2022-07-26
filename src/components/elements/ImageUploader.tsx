@@ -1,27 +1,23 @@
 import * as React from 'react'
-import IconButton from '@mui/material/IconButton'
-import Input from '@mui/material/Input'
+import IconButton, { IconButtonProps } from '@mui/material/IconButton'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
 
-const ImageUploader = React.forwardRef<
-  HTMLDivElement,
-  React.InputHTMLAttributes<unknown>
->(function ImageUploader(props, ref) {
-  return (
-    <IconButton component="label">
-      <Input
-        ref={ref}
-        type="file"
-        inputProps={{ ...props, accept: 'image/*' }}
-        sx={{ display: 'none' }}
-      />
-      <SvgIcon>
-        <FontAwesomeIcon icon={faImage} />
-      </SvgIcon>
-    </IconButton>
-  )
-})
+type Props = React.InputHTMLAttributes<HTMLInputElement> & {
+  buttonProps?: IconButtonProps<'label'>
+}
+const ImageUploader = React.forwardRef<HTMLInputElement, Props>(
+  function ImageUploader({ buttonProps, ...props }, ref) {
+    return (
+      <IconButton component="label" {...buttonProps}>
+        <input ref={ref} hidden type="file" accept="image/*" {...props} />
+        <SvgIcon>
+          <FontAwesomeIcon icon={faImage} />
+        </SvgIcon>
+      </IconButton>
+    )
+  }
+)
 
 export default ImageUploader
