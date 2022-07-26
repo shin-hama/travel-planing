@@ -11,13 +11,12 @@ import { Controller, useForm } from 'react-hook-form'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
-import Image from 'next/image'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
 import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
 import { useConfirm } from 'hooks/useConfirm'
-import ImageUploader from 'components/elements/ImageUploader'
+import { ImageWithUploader } from '../ImageWithUploader'
 
 export type SpotUpdate = Partial<
   Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
@@ -83,49 +82,20 @@ const SpotEventEditor: React.FC<Props> = ({
 
   return (
     <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
-      <Box
-        sx={{
-          position: 'relative',
-          aspectRatio: '21/9',
-        }}>
-        {(edited.uploaded || spot.image) && (
-          <Image
+      <Controller
+        control={control}
+        name="uploaded"
+        render={({ field }) => (
+          <ImageWithUploader
             src={
               edited.uploaded
                 ? URL.createObjectURL(edited.uploaded)
                 : spot.image?.url
             }
-            width="21"
-            height="9"
-            layout="responsive"
-            objectFit="cover"
+            onChange={field.onChange}
           />
         )}
-        <Box position="absolute" top={8} right={8}>
-          <Controller
-            control={control}
-            name="uploaded"
-            render={({ field }) => (
-              <ImageUploader
-                onChange={(e) => {
-                  if (e.target.files?.length === 1) {
-                    field.onChange(e.target.files[0])
-                  }
-                }}
-                buttonProps={{
-                  color: 'inherit',
-                  sx: {
-                    background: (theme) => theme.palette.grey[100],
-                    '&:hover': {
-                      background: (theme) => theme.palette.grey[400],
-                    },
-                  },
-                }}
-              />
-            )}
-          />
-        </Box>
-      </Box>
+      />
       <DialogContent>
         <Stack spacing={4}>
           <Stack spacing={1}>
