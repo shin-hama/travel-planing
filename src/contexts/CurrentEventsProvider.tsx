@@ -33,7 +33,6 @@ const converter: FirestoreDataConverter<Spot> = {
       name: data.name,
       duration: data.duration,
       durationUnit: data.durationUnit,
-      imageUrl: data.imageUrl,
       placeId: data.placeId,
       labels: data.labels || [],
       memo: data.memo,

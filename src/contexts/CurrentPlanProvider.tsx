@@ -49,18 +49,17 @@ export type Prefecture = SpotBase & {
   name: string
   name_en: string
   zoom: number
-  imageUrl: string
+  imageUrl?: string
 }
 
 export type SpotLabel = string
 
-type Image = {
+type StorageImage = {
   url: string
-  ref: string
+  ref?: string | null
 }
 
 export type Spot = RouteGuidanceAvailable & {
-  imageUrl: string
   placeId?: string | null
   duration: number
   durationUnit: dayjs.ManipulateType
@@ -68,7 +67,7 @@ export type Spot = RouteGuidanceAvailable & {
   memo?: string
   position: number
   schedule: DocumentReference<Schedule>
-  image?: Image
+  image?: StorageImage
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,7 +91,7 @@ export type Plan = {
   title: string
   home: Prefecture
   destination: Prefecture
-  thumbnail: string
+  image: StorageImage
   start: Date
   startTime: Date
   end: Date

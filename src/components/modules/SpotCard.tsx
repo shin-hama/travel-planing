@@ -67,6 +67,7 @@ const SpotCard: React.FC<Props> = ({ spot }) => {
         <Grid item xs={4}>
           <Image
             src={`data:image/png;base64,${photo}`}
+            alt="Image for selected spot"
             width={200}
             height={200}
             quality={100}

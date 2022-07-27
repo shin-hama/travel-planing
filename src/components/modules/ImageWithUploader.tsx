@@ -20,6 +20,7 @@ export const ImageWithUploader = React.forwardRef<HTMLInputElement, Props>(
         <Box gridArea="1/1">
           <Image
             src={src}
+            alt="image"
             width="21"
             height="9"
             layout="responsive"
