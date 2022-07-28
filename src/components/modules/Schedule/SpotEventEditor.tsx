@@ -15,8 +15,8 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { Spot } from 'contexts/CurrentPlanProvider'
 import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
+import ImageWithUploader from '../ImageWithUploader'
 import { useConfirm } from 'hooks/useConfirm'
-import { ImageWithUploader } from '../ImageWithUploader'
 
 export type SpotUpdate = Partial<
   Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
@@ -38,15 +38,17 @@ const SpotEventEditor: React.FC<Props> = ({
   const [edited, setEdited] = React.useState<SpotUpdate>(spot)
   const confirm = useConfirm()
 
-  const { control, register, watch, getValues } = useForm<SpotUpdate>({
-    defaultValues: {
-      name: spot?.name,
-      duration: spot?.duration,
-      labels: spot?.labels,
-      memo: spot?.memo,
-      uploaded: null,
-    },
-  })
+  const { control, register, watch, getValues, setValue } = useForm<SpotUpdate>(
+    {
+      defaultValues: {
+        name: spot?.name,
+        duration: spot?.duration,
+        labels: spot?.labels,
+        memo: spot?.memo,
+        uploaded: null,
+      },
+    }
+  )
 
   const handleRemove = async () => {
     confirm({
@@ -64,6 +66,10 @@ const SpotEventEditor: React.FC<Props> = ({
     const values = getValues()
     console.log(values)
     onUpdate(values)
+  }
+
+  const handleRemoveImage = () => {
+    setValue('uploaded', null)
   }
 
   React.useEffect(() => {
@@ -93,6 +99,7 @@ const SpotEventEditor: React.FC<Props> = ({
                 : spot.image?.url
             }
             onChange={field.onChange}
+            onRemove={handleRemoveImage}
           />
         )}
       />
