@@ -13,6 +13,10 @@ module.exports = withTM({
     return config
   },
   images: {
-    domains: ['images.unsplash.com', 'maps.googleapis.com'],
+    domains: [
+      'firebasestorage.googleapis.com',
+      'images.unsplash.com',
+      'maps.googleapis.com',
+    ],
   },
 })

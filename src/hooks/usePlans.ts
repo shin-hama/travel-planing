@@ -37,9 +37,10 @@ export const planConverter: FirestoreDataConverter<Plan> = {
       end: data.end?.toDate(),
       home: data.home,
       destination: data.destination,
-      thumbnail: data.thumbnail || '',
+      image: data.image || null,
       lodging: data.lodging || undefined,
       belongings: data.belongings || [],
+      published: data.published || false,
     }
   },
 }
@@ -79,19 +80,12 @@ export const usePlans = () => {
     const a = {
       create: async (planDTO: PlanDTO) => {
         try {
-          let homePhoto
-          let destPhoto
+          let photo: string
           try {
-            homePhoto = (await unsplash.searchPhoto(planDTO.home.name_en)).urls
-              .regular
-            destPhoto = (
-              await unsplash.searchPhoto(planDTO.destination.name_en)
-            ).urls.regular
+            photo = (await unsplash.searchPhoto('travel')).urls.regular
           } catch {
             // デモバージョンは rate limit が厳しいので、取得できないときは決め打ちで与える
-            homePhoto =
-              'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
-            destPhoto =
+            photo =
               'https://images.unsplash.com/photo-1583839542943-0e5a56d29bbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzMDk2NDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NDcxNTQyOTY&ixlib=rb-1.2.1&q=80&w=1080'
           }
           const newPlan: Plan = {
@@ -103,11 +97,15 @@ export const usePlans = () => {
               .second(0)
               .toDate(),
             end: dayjs(planDTO.start).hour(8).minute(30).second(0).toDate(),
-            thumbnail: destPhoto,
-            home: { ...planDTO.home, imageUrl: homePhoto },
-            destination: { ...planDTO.destination, imageUrl: destPhoto },
+            image: {
+              url: photo,
+              ref: null,
+            },
+            home: { ...planDTO.home },
+            destination: { ...planDTO.destination },
             days: planDTO.days || 0,
             belongings: [],
+            published: false,
           }
 
           if (!user) {

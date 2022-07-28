@@ -25,7 +25,6 @@ export const useEvents = (parent?: DocumentReference<Schedule>) => {
             duration: 60,
             durationUnit: 'minute',
             position: 1000 * (size + 1),
-            imageUrl: '',
             ...newSpot,
             schedule,
           }

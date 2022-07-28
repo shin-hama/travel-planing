@@ -16,12 +16,17 @@ import { Spot } from 'contexts/CurrentPlanProvider'
 import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
 import { useConfirm } from 'hooks/useConfirm'
+import { ImageWithUploader } from '../ImageWithUploader'
 
-type Forms = Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
+export type SpotUpdate = Partial<
+  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
+> & {
+  uploaded?: File | null
+}
 
 type Props = DialogProps & {
   spot: Spot
-  onUpdate: (spot: Spot) => void
+  onUpdate: (spot: SpotUpdate) => void
   onDelete: () => void
 }
 const SpotEventEditor: React.FC<Props> = ({
@@ -30,15 +35,16 @@ const SpotEventEditor: React.FC<Props> = ({
   onDelete,
   ...props
 }) => {
-  const [edited, setEdited] = React.useState<Spot>(spot)
+  const [edited, setEdited] = React.useState<SpotUpdate>(spot)
   const confirm = useConfirm()
 
-  const { control, register, watch } = useForm<Forms>({
+  const { control, register, watch, getValues } = useForm<SpotUpdate>({
     defaultValues: {
       name: spot?.name,
       duration: spot?.duration,
       labels: spot?.labels,
       memo: spot?.memo,
+      uploaded: null,
     },
   })
 
@@ -55,11 +61,14 @@ const SpotEventEditor: React.FC<Props> = ({
   }
 
   const handleClose = () => {
-    onUpdate(edited)
+    const values = getValues()
+    console.log(values)
+    onUpdate(values)
   }
 
   React.useEffect(() => {
     const subscription = watch((value) => {
+      console.log(value)
       setEdited((prev) => ({
         ...prev,
         ...value,
@@ -73,6 +82,20 @@ const SpotEventEditor: React.FC<Props> = ({
 
   return (
     <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
+      <Controller
+        control={control}
+        name="uploaded"
+        render={({ field }) => (
+          <ImageWithUploader
+            src={
+              edited.uploaded
+                ? URL.createObjectURL(edited.uploaded)
+                : spot.image?.url
+            }
+            onChange={field.onChange}
+          />
+        )}
+      />
       <DialogContent>
         <Stack spacing={4}>
           <Stack spacing={1}>
@@ -80,7 +103,7 @@ const SpotEventEditor: React.FC<Props> = ({
               {...register('name')}
               variant="outlined"
               fullWidth
-              InputProps={{ sx: (theme) => theme.typography.h4  }}
+              InputProps={{ sx: (theme) => theme.typography.h4 }}
             />
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography variant="subtitle1">滞在時間</Typography>

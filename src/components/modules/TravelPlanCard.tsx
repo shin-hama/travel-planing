@@ -36,7 +36,7 @@ const TravelPlanCard: React.FC<Props> = ({ plan: ref }) => {
           sx={{
             height: '100%',
             gridArea: '1/-1',
-            backgroundImage: `url(${plan?.thumbnail})`,
+            backgroundImage: `url(${plan?.image.url})`,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',

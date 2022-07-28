@@ -1,6 +1,7 @@
 import { initializeApp, FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { initializeFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
@@ -23,6 +24,7 @@ const firebaseConfig: FirebaseOptions = {
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const db = initializeFirestore(app, { ignoreUndefinedProperties: true })
+export const storage = getStorage(app)
 
 if (!process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY) {
   throw new Error('Google Maps API key is not defined on environment')
