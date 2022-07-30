@@ -17,9 +17,10 @@ import SpotLabel from './SpotLabel'
 import TimePicker from '../TimeSelector'
 import ImageWithUploader from '../ImageWithUploader'
 import { useConfirm } from 'hooks/useConfirm'
+import { useStorage } from 'hooks/firebase/useStorage'
 
 export type SpotUpdate = Partial<
-  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo'>
+  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo' | 'image'>
 > & {
   uploaded?: File | null
 }
@@ -35,8 +36,8 @@ const SpotEventEditor: React.FC<Props> = ({
   onDelete,
   ...props
 }) => {
-  const [edited, setEdited] = React.useState<SpotUpdate>(spot)
   const confirm = useConfirm()
+  const storage = useStorage()
 
   const { control, register, watch, getValues, setValue } = useForm<SpotUpdate>(
     {
@@ -45,10 +46,12 @@ const SpotEventEditor: React.FC<Props> = ({
         duration: spot?.duration,
         labels: spot?.labels,
         memo: spot?.memo,
+        image: spot?.image,
         uploaded: null,
       },
     }
   )
+  const labels = watch('labels')
 
   const handleRemove = async () => {
     confirm({
@@ -68,23 +71,14 @@ const SpotEventEditor: React.FC<Props> = ({
     onUpdate(values)
   }
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
     setValue('uploaded', null)
+    if (spot.image?.ref) {
+      console.log('delete', spot.image.ref)
+      await storage.delete(spot.image.ref)
+      setValue('image', null)
+    }
   }
-
-  React.useEffect(() => {
-    const subscription = watch((value) => {
-      console.log(value)
-      setEdited((prev) => ({
-        ...prev,
-        ...value,
-        labels: value.labels?.filter(
-          (label): label is string => label !== undefined
-        ),
-      }))
-    })
-    return () => subscription.unsubscribe()
-  }, [watch])
 
   return (
     <Dialog {...props} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -94,9 +88,7 @@ const SpotEventEditor: React.FC<Props> = ({
         render={({ field }) => (
           <ImageWithUploader
             src={
-              edited.uploaded
-                ? URL.createObjectURL(edited.uploaded)
-                : spot.image?.url
+              field.value ? URL.createObjectURL(field.value) : spot.image?.url
             }
             onChange={field.onChange}
             onRemove={handleRemoveImage}
@@ -131,7 +123,7 @@ const SpotEventEditor: React.FC<Props> = ({
           <Stack spacing={1}>
             <Typography variant="h5">ラベル</Typography>
             <Stack direction="row" spacing={0.5}>
-              {edited.labels?.map((label, i) => (
+              {labels?.map((label, i) => (
                 <Controller
                   key={`${label}-${i}`}
                   control={control}
@@ -141,14 +133,14 @@ const SpotEventEditor: React.FC<Props> = ({
                       defaultLabel={label}
                       onSave={(newLabel) =>
                         field.onChange(
-                          edited.labels?.map((value, index) =>
+                          labels?.map((value, index) =>
                             i === index ? newLabel : value
                           )
                         )
                       }
                       onRemove={() =>
                         field.onChange(
-                          edited.labels?.filter((_, index) => i !== index)
+                          labels?.filter((_, index) => i !== index)
                         )
                       }>
                       <Typography>{label}</Typography>
@@ -162,7 +154,7 @@ const SpotEventEditor: React.FC<Props> = ({
                 render={({ field }) => (
                   <SpotLabel
                     onSave={(newLabel) =>
-                      field.onChange([...(edited?.labels || []), newLabel])
+                      field.onChange([...(labels || []), newLabel])
                     }>
                     <SvgIcon fontSize="small">
                       <FontAwesomeIcon icon={faPlus} />

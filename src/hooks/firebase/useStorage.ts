@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {
+  deleteObject,
   getBlob,
   getDownloadURL,
   ref,
@@ -14,6 +15,7 @@ type UseStorage = {
   upload: (file: File, path: string) => Promise<UploadResult>
   download: (path: string) => Promise<Blob>
   getDownloadURL: (reference: StorageReference) => Promise<string>
+  delete: (path: string) => Promise<void>
 }
 export const useStorage = (): UseStorage => {
   const actions = React.useMemo<UseStorage>(() => {
@@ -28,6 +30,10 @@ export const useStorage = (): UseStorage => {
       },
       getDownloadURL: (reference: StorageReference) => {
         return getDownloadURL(reference)
+      },
+      delete: async (path: string) => {
+        const obj = ref(storage, path)
+        await deleteObject(obj)
       },
     }
 

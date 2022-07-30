@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faImage, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import Image from 'next/image'
 
 import ImageUploader from 'components/elements/ImageUploader'
@@ -34,30 +34,23 @@ export default React.forwardRef<HTMLInputElement, Props>(
           />
         </Box>
         <Stack spacing={1} gridArea={'1/1'} justifySelf="flex-end" m={1}>
-          <IconButton
-            component="label"
-            color="inherit"
-            sx={{
-              background: (theme) => theme.palette.grey[100],
-              '&:hover': {
-                background: (theme) => theme.palette.grey[400],
+          <ImageUploader
+            ref={ref}
+            onChange={(e) => {
+              if (e.target.files?.length === 1) {
+                onChange?.(e.target.files[0])
+              }
+            }}
+            buttonProps={{
+              color: 'inherit',
+              sx: {
+                background: (theme) => theme.palette.grey[100],
+                '&:hover': {
+                  background: (theme) => theme.palette.grey[400],
+                },
               },
-            }}>
-            <input
-              ref={ref}
-              hidden
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files?.length === 1) {
-                  onChange?.(e.target.files[0])
-                }
-              }}
-            />
-            <SvgIcon>
-              <FontAwesomeIcon icon={faImage} />
-            </SvgIcon>
-          </IconButton>
+            }}
+          />
           <IconButton
             onClick={onRemove}
             color="inherit"

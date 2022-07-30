@@ -67,7 +67,7 @@ export type Spot = RouteGuidanceAvailable & {
   memo?: string
   position: number
   schedule: DocumentReference<Schedule>
-  image?: StorageImage
+  image?: StorageImage | null
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
