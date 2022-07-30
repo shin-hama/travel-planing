@@ -27,11 +27,13 @@ export type SpotUpdate = Partial<
 
 type Props = DialogProps & {
   spot: Spot
-  onUpdate: (spot: SpotUpdate) => void
+  onClose: () => void
   onDelete: () => void
+  onUpdate: (spot: SpotUpdate) => void
 }
 const SpotEventEditor: React.FC<Props> = ({
   spot,
+  onClose,
   onUpdate,
   onDelete,
   ...props
@@ -69,14 +71,16 @@ const SpotEventEditor: React.FC<Props> = ({
     const values = getValues()
     console.log(values)
     onUpdate(values)
+    onClose()
   }
 
   const handleRemoveImage = async () => {
     setValue('uploaded', null)
     if (spot.image?.ref) {
-      console.log('delete', spot.image.ref)
       await storage.delete(spot.image.ref)
+      console.log('deleted', spot.image.ref)
       setValue('image', null)
+      onUpdate({ image: null })
     }
   }
 
