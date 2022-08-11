@@ -12,7 +12,7 @@ import PlanInfo from './PlanInfo'
 import TabPanel from 'components/elements/TabPanel'
 import { usePlan } from 'hooks/usePlan'
 import PlanMenu from 'components/modules/PlanMenu'
-import { ImageWithUploader } from 'components/modules/ImageWithUploader'
+import ImageWithUploader from 'components/modules/ImageWithUploader'
 import { useStorage } from 'hooks/firebase/useStorage'
 import { useAuthentication } from 'hooks/firebase/useAuthentication'
 

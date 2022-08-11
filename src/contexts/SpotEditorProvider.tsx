@@ -50,12 +50,16 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
           }
         }
 
-        db.update<Spot>(spot.ref, spotUpdated)
-        setSpot(null)
+        await db.update<Spot>(spot.ref, spotUpdated)
       }
     },
     [db, spot, storage, user]
   )
+
+  const handleClose = React.useCallback(() => {
+    setSpot(null)
+  }, [])
+
   return (
     <>
       <SpotEditorContext.Provider value={setSpot}>
@@ -64,6 +68,7 @@ export const SpotEditorProvider: React.FC = ({ children }) => {
       {spot && (
         <SpotEventEditor
           open={Boolean(spot)}
+          onClose={handleClose}
           onDelete={handleDelete}
           onUpdate={handleUpdate}
           spot={spot.data()}
