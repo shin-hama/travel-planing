@@ -54,6 +54,7 @@ const SpotEventEditor: React.FC<Props> = ({
     }
   )
   const labels = watch('labels')
+  const image = watch('image')
 
   const handleRemove = async () => {
     confirm({
@@ -69,7 +70,6 @@ const SpotEventEditor: React.FC<Props> = ({
 
   const handleClose = () => {
     const values = getValues()
-    console.log(values)
     onUpdate(values)
     onClose()
   }
@@ -91,9 +91,7 @@ const SpotEventEditor: React.FC<Props> = ({
         name="uploaded"
         render={({ field }) => (
           <ImageWithUploader
-            src={
-              field.value ? URL.createObjectURL(field.value) : spot.image?.url
-            }
+            src={field.value ? URL.createObjectURL(field.value) : image?.url}
             onChange={field.onChange}
             onRemove={handleRemoveImage}
           />
