@@ -21,7 +21,7 @@ import { useStorage } from 'hooks/firebase/useStorage'
 import KeyValues from '../KeyValues'
 
 export type SpotUpdate = Partial<
-  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo' | 'image'>
+  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo' | 'image' | 'information'>
 > & {
   uploaded?: File | null
 }
@@ -50,6 +50,7 @@ const SpotEventEditor: React.FC<Props> = ({
         labels: spot?.labels,
         memo: spot?.memo,
         image: spot?.image,
+        information: spot?.information,
         uploaded: null,
       },
     }
@@ -179,7 +180,16 @@ const SpotEventEditor: React.FC<Props> = ({
           </Stack>
           <Stack spacing={1}>
             <Typography variant="h5">基本情報</Typography>
-            <KeyValues values={[{ key: 'test', value: 'value' }]}></KeyValues>
+            <Controller
+              control={control}
+              name="information"
+              render={({ field }) => (
+                <KeyValues
+                  values={field.value || []}
+                  onChange={field.onChange}
+                />
+              )}
+            />
           </Stack>
         </Stack>
       </DialogContent>

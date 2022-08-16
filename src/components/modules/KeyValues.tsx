@@ -8,25 +8,29 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose } from '@fortawesome/free-solid-svg-icons'
 import { useFieldArray, useForm } from 'react-hook-form'
 
-type KeyValue = {
+const isEmptyOrSpaces = (str: string | null | undefined) => {
+  return !str || str.match(/^ *$/) !== null
+}
+
+export type KeyValue = {
   key: string
   value: string
 }
 
 type KeyValueForm = {
-  information: Array<KeyValue>
-}
-
-type Props = {
   values: Array<KeyValue>
 }
-const KeyValues: React.FC<Props> = ({ values }) => {
-  const { register, control } = useForm<KeyValueForm>({
-    defaultValues: { information: values },
+
+type Props = KeyValueForm & {
+  onChange: (changed: Array<KeyValue>) => void
+}
+const KeyValues: React.FC<Props> = ({ values, onChange }) => {
+  const { control, register, watch } = useForm<KeyValueForm>({
+    defaultValues: { values: values },
   })
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'information',
+    name: 'values',
   })
 
   const handleAdd = () => {
@@ -36,6 +40,24 @@ const KeyValues: React.FC<Props> = ({ values }) => {
   const handleRemove = (index: number) => () => {
     remove(index)
   }
+
+  React.useEffect(() => {
+    const { unsubscribe } = watch((value) => {
+      if (value.values) {
+        onChange(
+          value.values.filter(
+            (item): item is KeyValue =>
+              item !== undefined &&
+              !isEmptyOrSpaces(item.key) &&
+              !isEmptyOrSpaces(item.value)
+          )
+        )
+      }
+    })
+
+    return () => unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Stack alignItems="flex-start" spacing={1}>
@@ -49,13 +71,13 @@ const KeyValues: React.FC<Props> = ({ values }) => {
           <TextField
             placeholder="key"
             size="small"
-            {...register(`information.${index}.key`)}
+            {...register(`values.${index}.key`)}
           />
           <TextField
             placeholder="value"
             size="small"
             fullWidth
-            {...register(`information.${index}.value`)}
+            {...register(`values.${index}.value`)}
           />
           <IconButton onClick={handleRemove(index)}>
             <SvgIcon>
