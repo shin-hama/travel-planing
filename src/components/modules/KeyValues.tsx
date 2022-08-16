@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose } from '@fortawesome/free-solid-svg-icons'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 
 type KeyValue = {
   key: string
@@ -46,12 +46,16 @@ const KeyValues: React.FC<Props> = ({ values }) => {
           spacing={1}
           alignItems="center"
           width="100%">
-          <TextField placeholder="key" size="small" defaultValue={field.key} />
+          <TextField
+            placeholder="key"
+            size="small"
+            {...register(`information.${index}.key`)}
+          />
           <TextField
             placeholder="value"
             size="small"
             fullWidth
-            defaultValue={field.value}
+            {...register(`information.${index}.value`)}
           />
           <IconButton onClick={handleRemove(index)}>
             <SvgIcon>
