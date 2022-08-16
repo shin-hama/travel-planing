@@ -7,10 +7,10 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { Controller, useForm } from 'react-hook-form'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { Controller, useForm } from 'react-hook-form'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
 import SpotLabel from './SpotLabel'
@@ -105,6 +105,7 @@ const SpotEventEditor: React.FC<Props> = ({
               {...register('name')}
               variant="outlined"
               fullWidth
+              size="small"
               InputProps={{ sx: (theme) => theme.typography.h4 }}
             />
             <Stack direction="row" alignItems="center" spacing={2}>
@@ -177,7 +178,7 @@ const SpotEventEditor: React.FC<Props> = ({
             />
           </Stack>
           <Stack spacing={1}>
-            <Typography>基本情報</Typography>
+            <Typography variant="h5">基本情報</Typography>
             <KeyValues values={[{ key: 'test', value: 'value' }]}></KeyValues>
           </Stack>
         </Stack>
