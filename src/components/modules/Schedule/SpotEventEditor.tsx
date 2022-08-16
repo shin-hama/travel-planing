@@ -18,6 +18,7 @@ import TimePicker from '../TimeSelector'
 import ImageWithUploader from '../ImageWithUploader'
 import { useConfirm } from 'hooks/useConfirm'
 import { useStorage } from 'hooks/firebase/useStorage'
+import KeyValues from '../KeyValues'
 
 export type SpotUpdate = Partial<
   Pick<Spot, 'name' | 'duration' | 'labels' | 'memo' | 'image'>
@@ -174,6 +175,10 @@ const SpotEventEditor: React.FC<Props> = ({
               rows={4}
               placeholder="説明を入力してください"
             />
+          </Stack>
+          <Stack spacing={1}>
+            <Typography>基本情報</Typography>
+            <KeyValues values={[{ key: 'test', value: 'value' }]}></KeyValues>
           </Stack>
         </Stack>
       </DialogContent>
