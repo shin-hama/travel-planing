@@ -7,10 +7,10 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { Controller, useForm } from 'react-hook-form'
 import SvgIcon from '@mui/material/SvgIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { Controller, useForm } from 'react-hook-form'
 
 import { Spot } from 'contexts/CurrentPlanProvider'
 import SpotLabel from './SpotLabel'
@@ -18,9 +18,10 @@ import TimePicker from '../TimeSelector'
 import ImageWithUploader from '../ImageWithUploader'
 import { useConfirm } from 'hooks/useConfirm'
 import { useStorage } from 'hooks/firebase/useStorage'
+import KeyValues from '../KeyValues'
 
 export type SpotUpdate = Partial<
-  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo' | 'image'>
+  Pick<Spot, 'name' | 'duration' | 'labels' | 'memo' | 'image' | 'information'>
 > & {
   uploaded?: File | null
 }
@@ -49,6 +50,7 @@ const SpotEventEditor: React.FC<Props> = ({
         labels: spot?.labels,
         memo: spot?.memo,
         image: spot?.image,
+        information: spot?.information,
         uploaded: null,
       },
     }
@@ -104,6 +106,7 @@ const SpotEventEditor: React.FC<Props> = ({
               {...register('name')}
               variant="outlined"
               fullWidth
+              size="small"
               InputProps={{ sx: (theme) => theme.typography.h4 }}
             />
             <Stack direction="row" alignItems="center" spacing={2}>
@@ -173,6 +176,19 @@ const SpotEventEditor: React.FC<Props> = ({
               multiline
               rows={4}
               placeholder="説明を入力してください"
+            />
+          </Stack>
+          <Stack spacing={1}>
+            <Typography variant="h5">基本情報</Typography>
+            <Controller
+              control={control}
+              name="information"
+              render={({ field }) => (
+                <KeyValues
+                  values={field.value || []}
+                  onChange={field.onChange}
+                />
+              )}
             />
           </Stack>
         </Stack>

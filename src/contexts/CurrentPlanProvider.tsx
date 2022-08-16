@@ -10,6 +10,7 @@ import { CurrentSchedulesContextProvider } from './CurrentSchedulesProvider'
 import { CurrentEventsContextProvider } from './CurrentEventsProvider'
 import { db } from 'configs'
 import { Schedule } from 'hooks/useSchedules'
+import { KeyValue } from 'components/modules/KeyValues'
 
 export type Time = {
   text: string
@@ -68,6 +69,7 @@ export type Spot = RouteGuidanceAvailable & {
   position: number
   schedule: DocumentReference<Schedule>
   image?: StorageImage | null
+  information?: Array<KeyValue> | null
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
