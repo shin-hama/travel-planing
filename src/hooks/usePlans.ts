@@ -115,9 +115,7 @@ export const usePlans = () => {
           const plan = await addDoc(PLANS_SUB_COLLECTIONS(user.uid), newPlan)
 
           // days は宿泊数なので、日程の総数は +1 日
-          Array.from(Array((newPlan.days || 0) + 1)).forEach(() => {
-            schedulesApi.create(plan)
-          })
+          schedulesApi.create(plan, (newPlan.days || 0) + 1)
 
           return plan.id
         } catch (e) {
