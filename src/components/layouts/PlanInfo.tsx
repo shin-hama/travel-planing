@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 import { Plan } from 'contexts/CurrentPlanProvider'
+import { useStringEditor } from 'contexts/StringEditorProvider'
 
 type Props = {
   plan: Plan
@@ -20,7 +21,15 @@ const PlanInfo: React.FC<Props> = ({ plan, onUpdate }) => {
     () => comment !== plan.comment,
     [comment, plan.comment]
   )
-
+  const edit = useStringEditor()
+  const handleEditTitle = async () => {
+    if (plan) {
+      const edited = await edit(plan.title)
+      if (edited) {
+        onUpdate({ title: edited })
+      }
+    }
+  }
   return (
     <Stack spacing={4}>
       <Stack>
@@ -31,7 +40,7 @@ const PlanInfo: React.FC<Props> = ({ plan, onUpdate }) => {
           <Typography variant="h1" noWrap>
             {plan?.title}
           </Typography>
-          <IconButton disabled>
+          <IconButton onClick={handleEditTitle}>
             <SvgIcon>
               <FontAwesomeIcon icon={faEdit} />
             </SvgIcon>
