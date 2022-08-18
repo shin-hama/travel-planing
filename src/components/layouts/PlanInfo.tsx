@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import SvgIcon from '@mui/material/SvgIcon'
+import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
@@ -38,6 +39,12 @@ const PlanInfo: React.FC<Props> = ({ plan }) => {
         <Typography variant="caption">
           {`from ${plan.home.name} to ${plan.destination.name}`}
         </Typography>
+      </Stack>
+      <Stack spacing={2}>
+        <Typography variant="h2" textAlign="left" sx={{ width: '100%' }}>
+          コメント
+        </Typography>
+        <TextField label="Comment" multiline rows={4} />
       </Stack>
       <Stack spacing={2} alignItems="center" maxHeight="500px">
         <Typography variant="h2" textAlign="left" sx={{ width: '100%' }}>
