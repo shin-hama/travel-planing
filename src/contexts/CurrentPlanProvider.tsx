@@ -104,6 +104,7 @@ export type Plan = {
    */
   days?: number | null
   published: boolean
+  comment?: string
 }
 
 export const CurrentPlanContext = React.createContext<Plan | null>(null)

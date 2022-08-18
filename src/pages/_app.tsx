@@ -16,6 +16,7 @@ import { ConfirmationProvider } from 'contexts/ConfirmationProvider'
 import { SelectedSpotsProvider } from 'contexts/SelectedSpotsProvider'
 import UserAuthorizationProvider from 'contexts/UserAuthorizationProvider'
 import { SpotEditorProvider } from 'contexts/SpotEditorProvider'
+import { StringEditorProvider } from 'contexts/StringEditorProvider'
 
 const clientSideEmotionCache = createEmotionCache()
 interface MyAppProps extends AppProps {
@@ -35,20 +36,22 @@ const App: React.FC<MyAppProps> = ({
       <ApolloClientProvider>
         <UserAuthorizationProvider>
           <ThemeProvider theme={theme}>
-            <ConfirmationProvider>
-              <DirectionServiceProvider>
-                <DistanceMatrixProvider>
-                  <PlacesServiceProvider>
-                    <SelectedSpotsProvider>
-                      <SpotEditorProvider>
-                        <CssBaseline />
-                        <Component {...pageProps} />
-                      </SpotEditorProvider>
-                    </SelectedSpotsProvider>
-                  </PlacesServiceProvider>
-                </DistanceMatrixProvider>
-              </DirectionServiceProvider>
-            </ConfirmationProvider>
+            <StringEditorProvider>
+              <ConfirmationProvider>
+                <DirectionServiceProvider>
+                  <DistanceMatrixProvider>
+                    <PlacesServiceProvider>
+                      <SelectedSpotsProvider>
+                        <SpotEditorProvider>
+                          <CssBaseline />
+                          <Component {...pageProps} />
+                        </SpotEditorProvider>
+                      </SelectedSpotsProvider>
+                    </PlacesServiceProvider>
+                  </DistanceMatrixProvider>
+                </DirectionServiceProvider>
+              </ConfirmationProvider>
+            </StringEditorProvider>
           </ThemeProvider>
         </UserAuthorizationProvider>
       </ApolloClientProvider>

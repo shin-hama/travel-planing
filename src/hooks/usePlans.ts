@@ -41,6 +41,7 @@ export const planConverter: FirestoreDataConverter<Plan> = {
       lodging: data.lodging || undefined,
       belongings: data.belongings || [],
       published: data.published || false,
+      comment: data.comment || '',
     }
   },
 }
@@ -106,6 +107,7 @@ export const usePlans = () => {
             days: planDTO.days || 0,
             belongings: [],
             published: false,
+            comment: '',
           }
 
           if (!user) {
