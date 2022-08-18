@@ -65,7 +65,7 @@ const PlanView = () => {
           </IconButton>
         </Stack>
         <TabPanel value={value} index={0} p={2}>
-          <PlanInfo plan={plan} />
+          <PlanInfo plan={plan} onUpdate={update} />
         </TabPanel>
         <TabPanel value={value} index={1} p={2}>
           <BelongingsList />
