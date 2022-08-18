@@ -15,7 +15,7 @@ type Props = {
   onUpdate: (updated: Partial<Plan>) => void
 }
 const PlanInfo: React.FC<Props> = ({ plan, onUpdate }) => {
-  const [comment, setComment] = React.useState('')
+  const [comment, setComment] = React.useState(plan.comment || '')
   const edited = React.useMemo(
     () => comment !== plan.comment,
     [comment, plan.comment]
